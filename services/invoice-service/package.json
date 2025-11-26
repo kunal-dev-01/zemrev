@@ -1,0 +1,21 @@
+{
+  "name": "auth-service",
+  "version": "1.0.0",
+  "description": "Api for authentication service",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "auth",
+    "service",
+    "authentication",
+    "api",
+    "jwt",
+    "token",
+    "nodejs"
+  ],
+  "author": "Kunal Singh",
+  "license": "ISC",
+  "packageManager": "pnpm@10.23.0"
+}
