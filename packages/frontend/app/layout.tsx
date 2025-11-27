@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   title: "Zemrev.",
   description: "",
   icons: {
-    icon: "/favicon.svg",
+    icon: "/favicon.ico",
   }
 };
 
