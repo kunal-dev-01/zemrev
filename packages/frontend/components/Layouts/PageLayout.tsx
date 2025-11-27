@@ -1,7 +1,7 @@
 import React from "react";
 import Footer from "@/components/Footer/Footer";
-import SideBar from "@/components/Navbar/Navbar";
 import Navbar from "@/components/Navbar/Navbar";
+import SideBar from "@/components/Navbar/Sidebar";
 
 const PageLayout = ({ children }: { children: React.ReactNode }) => {
   return (

@@ -8,7 +8,6 @@ export const SidebarOpenSvg = React.memo(() => (
     height="100%"
     viewBox="0 0 24 24"
     fill="none"
-    className="text-zinc-700 dark:text-zinc-300 w-[3.8vh] md:w-[1.5vw]"
   >
     <g
       fill="none"
@@ -33,7 +32,6 @@ export const SidebarCloseSvg = React.memo(() => (
     height="100%"
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 14 14"
-    className="text-zinc-700 dark:text-zinc-300 w-[3.8vh] md:w-[1.5vw]"
   >
     <path
       fill="currentColor"
