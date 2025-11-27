@@ -1,0 +1,71 @@
+version: '3.9'
+
+services:
+  # Redis for queue and rate limiting
+  redis:
+    image: redis:7-alpine
+    container_name: img_redis
+    restart: unless-stopped
+    command: redis-server --maxmemory 512mb --maxmemory-policy allkeys-lru --appendonly no
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - converter_net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  # FastAPI Backend
+  image-service:
+    build:
+      context: ./services/image-service
+      dockerfile: Dockerfile
+    container_name: img_api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - MAX_FILE_SIZE=52428800
+      - MAX_BATCH_SIZE=2
+      - RATE_LIMIT_REQUESTS=10
+      - RATE_LIMIT_WINDOW=60
+      - WORKERS=4
+      - LOG_LEVEL=info
+      - ALLOWED_ORIGINS=*
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - converter_net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+
+volumes:
+  redis_data:
+    driver: local
+
+networks:
+  converter_net:
+    driver: bridge
