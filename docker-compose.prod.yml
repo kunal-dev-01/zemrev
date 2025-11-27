@@ -1,7 +1,6 @@
 version: '3.9'
 
 services:
-  # Redis for queue and rate limiting
   redis:
     image: redis:7-alpine
     container_name: img_redis
@@ -18,13 +17,7 @@ services:
       interval: 10s
       timeout: 3s
       retries: 3
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 512M
 
-  # FastAPI Backend
   image-service:
     build:
       context: ./services/image-service
@@ -33,15 +26,8 @@ services:
     restart: unless-stopped
     ports:
       - "8000:8000"
-    environment:
-      - REDIS_URL=redis://redis:6379
-      - MAX_FILE_SIZE=52428800
-      - MAX_BATCH_SIZE=2
-      - RATE_LIMIT_REQUESTS=10
-      - RATE_LIMIT_WINDOW=60
-      - WORKERS=4
-      - LOG_LEVEL=info
-      - ALLOWED_ORIGINS=*
+    env_file:
+      - ./services/image-service/.env
     depends_on:
       redis:
         condition: service_healthy
@@ -58,13 +44,9 @@ services:
         limits:
           cpus: '2'
           memory: 2G
-        reservations:
-          cpus: '1'
-          memory: 1G
 
 volumes:
   redis_data:
-    driver: local
 
 networks:
   converter_net:
