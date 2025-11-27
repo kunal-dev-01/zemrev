@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 class ImageConverter:
     @staticmethod
     def convert(content: bytes, filename: str, options: ConversionRequest):
-        image = pyvips.Image.new_from_buffer(content, "")
+        image = pyvips.Image.new_from_buffer(content, access="sequential")
 
         if options.width or options.height:
             image = ImageConverter._resize(image, options.width, options.height)
