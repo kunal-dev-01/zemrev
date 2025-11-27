@@ -51,7 +51,7 @@ const SidebarHeader: FC<{ onToggle: () => void }> = ({ onToggle }) => (
 );
 
 /* ========================= SIDEBAR ========================= */
-const Sidebar: FC = memo(() => {
+export const Sidebar: FC = memo(() => {
   const { isOpenSidebar, setOpenSidebar } = useCommonModal();
 
   const toggleSidebar = useCallback(
@@ -142,8 +142,6 @@ const Navbar: FC = () => {
           </button>
         </div>
       </nav>
-
-      <Sidebar />
     </>
   );
 };
