@@ -19,7 +19,6 @@ services:
     env_file:
       - ./services/image-service/.env
     volumes:
-      # ✅ Mount code for hot reload
       - ./services/image-service:/app
       - /app/__pycache__  # Exclude cache
     depends_on:

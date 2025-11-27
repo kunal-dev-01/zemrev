@@ -1,0 +1,32 @@
+FROM python:3.11-slim
+
+# Install dependencies (same as production)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libvips-dev \
+    libvips-tools \
+    libheif-dev \
+    librsvg2-dev \
+    libgif-dev \
+    libtiff-dev \
+    libwebp-dev \
+    libjpeg62-turbo-dev \
+    libpng-dev \
+    libmagickwand-dev \
+    gcc \
+    g++ \
+    make \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Install Python packages
+COPY requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+
+EXPOSE 8000
+
+# Development command with auto-reload
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--log-level", "debug"]
