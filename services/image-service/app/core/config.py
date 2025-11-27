@@ -1,13 +1,13 @@
 # app/core/config.py
 
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import List
 
 class Settings(BaseSettings):
     """Application configuration"""
     
     # Redis Configuration
-    REDIS_URL: str = "redis://localhost:6379"
+    REDIS_URL: str = "redis://redis:6379"  # Changed to use service name
     
     # File Upload Limits
     MAX_FILE_SIZE: int = 52428800  # 50MB
@@ -21,8 +21,8 @@ class Settings(BaseSettings):
     WORKERS: int = 4
     LOG_LEVEL: str = "info"
     
-    # CORS Configuration
-    ALLOWED_ORIGINS: List[str] = ["*"]
+    # CORS Configuration - Fixed to handle string input
+    ALLOWED_ORIGINS: str = "*"  # Changed from List[str] to str
     
     # Supported Input Formats (ALL libvips formats)
     INPUT_FORMATS: List[str] = [
@@ -65,8 +65,16 @@ class Settings(BaseSettings):
         "ppm"
     ]
     
-    class Config:
-        env_file = ".env"
-        case_sensitive = True
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        case_sensitive=True,
+        extra="ignore"  # Ignore extra fields in .env
+    )
+    
+    def get_allowed_origins(self) -> List[str]:
+        """Parse ALLOWED_ORIGINS string to list"""
+        if self.ALLOWED_ORIGINS == "*":
+            return ["*"]
+        return [origin.strip() for origin in self.ALLOWED_ORIGINS.split(",")]
 
 settings = Settings()

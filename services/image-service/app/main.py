@@ -1,11 +1,10 @@
-# app/main.py
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from app.core.config import settings
 from app.core.redis_client import redis_client
-from app.api.routes import router
+from app.api.routes.image_routes import router  # ← Changed this line
 import logging
 
 # Configure logging
@@ -43,7 +42,7 @@ app = FastAPI(
 # CORS Middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.ALLOWED_ORIGINS if settings.ALLOWED_ORIGINS != ["*"] else ["*"],
+    allow_origins=settings.get_allowed_origins(),
     allow_credentials=True,
     allow_methods=["POST", "GET", "OPTIONS"],
     allow_headers=["*"],
