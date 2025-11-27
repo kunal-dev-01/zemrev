@@ -12,21 +12,21 @@ services:
   image-service:
     build:
       context: ./services/image-service
-      dockerfile: Dockerfile.dev  # Development Dockerfile
+      dockerfile: Dockerfile.dev
     container_name: img_api_dev
     ports:
       - "8000:8000"
     env_file:
       - ./services/image-service/.env
     volumes:
-      - ./services/image-service:/app
+      - ./services/image-service/app:/app/app  # Mount app directory
       - /app/__pycache__  # Exclude cache
     depends_on:
       - redis
     networks:
       - dev_net
-    # ✅ Override command for auto-reload
-    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload --log-level debug
+    # ✅ Correct module path: app.main:app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --log-level debug
 
 networks:
   dev_net:
