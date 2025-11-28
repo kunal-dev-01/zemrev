@@ -24,6 +24,7 @@ async def check_rate_limit(request: Request):
 @router.post("/convert", response_class=Response)
 async def convert(
     request: Request,
+    file: Optional[UploadFile] = File(None),
     files: Optional[List[UploadFile]] = File(None),
     format: OutputFormat = Form(OutputFormat.WEBP),
     quality: int = Form(85),
@@ -32,13 +33,20 @@ async def convert(
 ):
     """Convert image format"""
     
+    # Handle both single file and multiple files
+    upload_files = None
+    if files:
+        upload_files = files
+    elif file:
+        upload_files = [file]
+    
     options = ConvertRequest(
         format=format,
         quality=quality,
         url=url
     )
     
-    return await ImageController.convert_images(files, options)
+    return await ImageController.convert_images(upload_files, options)
 
 # ============================================================================
 # COMPRESS ENDPOINT
@@ -47,6 +55,7 @@ async def convert(
 @router.post("/compress", response_class=Response)
 async def compress(
     request: Request,
+    file: Optional[UploadFile] = File(None),
     files: Optional[List[UploadFile]] = File(None),
     level: CompressionLevel = Form(CompressionLevel.MEDIUM),
     quality: Optional[int] = Form(None),
@@ -56,6 +65,13 @@ async def compress(
 ):
     """Compress images"""
     
+    # Handle both single file and multiple files
+    upload_files = None
+    if files:
+        upload_files = files
+    elif file:
+        upload_files = [file]
+    
     options = CompressRequest(
         level=level,
         quality=quality,
@@ -63,7 +79,7 @@ async def compress(
         url=url
     )
     
-    return await ImageController.compress_images(files, options)
+    return await ImageController.compress_images(upload_files, options)
 
 # ============================================================================
 # RESIZE ENDPOINT
@@ -72,6 +88,7 @@ async def compress(
 @router.post("/resize", response_class=Response)
 async def resize(
     request: Request,
+    file: Optional[UploadFile] = File(None),
     files: Optional[List[UploadFile]] = File(None),
     width: Optional[int] = Form(None),
     height: Optional[int] = Form(None),
@@ -80,13 +97,20 @@ async def resize(
 ):
     """Resize images"""
     
+    # Handle both single file and multiple files
+    upload_files = None
+    if files:
+        upload_files = files
+    elif file:
+        upload_files = [file]
+    
     options = ResizeRequest(
         width=width,
         height=height,
         url=url
     )
     
-    return await ImageController.resize_images(files, options)
+    return await ImageController.resize_images(upload_files, options)
 
 # ============================================================================
 # FORMATS ENDPOINT

@@ -86,12 +86,30 @@ class FormatDetector:
         if cls._pillow_formats:
             return cls._pillow_formats
         
+        # Test actual save capability
         supported = []
-        common = ["jpeg", "jpg", "png", "webp", "bmp", "gif", "tiff", "ico", "ppm"]
+        test_img = Image.new('RGB', (10, 10), color='red')
         
-        for fmt in common:
-            if fmt.upper() in Image.SAVE:
+        formats_to_test = [
+            "jpeg", "jpg", "png", "webp", "bmp", 
+            "gif", "tiff", "tif", "ico", "ppm"
+        ]
+        
+        for fmt in formats_to_test:
+            try:
+                buffer = io.BytesIO()
+                save_fmt = fmt.upper()
+                
+                # Special handling for JPEG with RGBA
+                if save_fmt in ["JPEG", "JPG"]:
+                    test_img.convert("RGB").save(buffer, format="JPEG")
+                else:
+                    test_img.save(buffer, format=save_fmt)
+                
                 supported.append(fmt)
+                logger.info(f"✅ Pillow: {fmt}")
+            except Exception as e:
+                logger.warning(f"❌ Pillow: {fmt} - {str(e)[:50]}")
         
         cls._pillow_formats = supported
         return supported

@@ -47,6 +47,7 @@ class ImageController:
         
         # Process files
         results = []
+        errors = []
         
         for content, filename in files_data:
             try:
@@ -63,8 +64,13 @@ class ImageController:
                 })
                 
             except Exception as e:
-                logger.error(f"Convert failed {filename}: {e}")
-                raise
+                error_msg = f"Failed {filename}: {str(e)}"
+                logger.error(error_msg)
+                errors.append(error_msg)
+        
+        # Check if any succeeded
+        if not results:
+            raise ValueError(f"All conversions failed: {'; '.join(errors)}")
         
         # Return response
         if len(results) == 1:
