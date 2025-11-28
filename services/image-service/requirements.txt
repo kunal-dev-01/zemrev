@@ -1,4 +1,8 @@
-# requirements.txt
+# ============================================================================
+# FILE: requirements.txt
+# PURPOSE: Python package dependencies
+# COMMIT: feat: add production dependencies
+# ============================================================================
 
 # FastAPI Core
 fastapi==0.109.0
@@ -7,16 +11,14 @@ python-multipart==0.0.6
 
 # Image Processing
 pyvips==2.2.3
+Pillow==10.2.0
 
 # Redis
 redis==5.0.1
 
-# Validation & Settings
+# HTTP Client
+httpx==0.26.0
+
+# Validation
 pydantic==2.5.0
 pydantic-settings==2.1.0
-
-# MIME Type Detection (optional but recommended)
-python-magic==0.4.27
-
-# Production Server (optional)
-gunicorn==21.2.0
