@@ -9,8 +9,6 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-inter: var(--font-inter);
-  --color-dark: #3b38a0;
-  --color-light: #6c96ff;
 }
 
 @media (prefers-color-scheme: dark) {

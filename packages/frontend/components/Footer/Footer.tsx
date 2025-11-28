@@ -2,24 +2,17 @@ import Link from "next/link";
 
 const footerLinks = {
   company: [
-    { name: "About Us", href: "/about-us" },
-    { name: "Contact Us", href: "/contact-us" },
-    { name: "Careers", href: "/careers" },
+    { name: "About Us", href: "#" },
+    { name: "Contact", href: "#" },
   ],
   legal: [
-    { name: "Terms of Service", href: "/terms-of-service" },
-    { name: "Privacy Policy", href: "/privacy-policy" },
-    { name: "Cookie Policy", href: "/cookies-policy" },
+    { name: "Privacy", href: "#" },
+    { name: "Terms", href: "#" },
   ],
-  resources: [
-    { name: "Image Converter", href: "/blog" },
-    { name: "Image Optimizer", href: "/help" },
-    { name: "Image Resizer", href: "/docs" },
-  ],
-  social: [
-    { name: "Twitter", href: "#" },
-    { name: "LinkedIn", href: "#" },
-    { name: "GitHub", href: "#" },
+  tools: [
+    { name: "Converter", href: "/image-converter" },
+    { name: "Compressor", href: "/image-compressor" },
+    { name: "Resizer", href: "/image-resizer" },
   ],
 };
 
@@ -27,16 +20,16 @@ type FooterLink = { name: string; href: string };
 type FooterSectionProps = { title: string; links: FooterLink[] };
 
 const FooterSection = ({ title, links }: FooterSectionProps) => (
-  <div>
-    <h3 className="font-semibold text-zinc-900 dark:text-zinc-100 mb-3">
+  <div className="flex flex-col gap-4">
+    <h3 className="font-semibold text-sm text-zinc-900 dark:text-zinc-100">
       {title}
     </h3>
-    <ul className="space-y-2">
+    <ul className="space-y-3">
       {links.map((link) => (
         <li key={link.name}>
           <Link
             href={link.href}
-            className="text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
+            className="text-sm text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors"
           >
             {link.name}
           </Link>
@@ -50,18 +43,29 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="w-full p-6 md:p-8 rounded-xl border-2 border-zinc-100/80 dark:border-zinc-900/50 bg-zinc-100/10 dark:bg-zinc-900/10">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 mb-6">
+    <footer className="w-full p-8 md:p-12 rounded-3xl bg-white/50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 backdrop-blur-sm">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12">
+        <div className="col-span-2 md:col-span-1">
+             <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 mb-4">Zemrev.</h2>
+             <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed max-w-xs">
+                 Free, privacy-focused image tools for modern creatives. No limits, no sign-ups.
+             </p>
+        </div>
         <FooterSection title="Company" links={footerLinks.company} />
         <FooterSection title="Legal" links={footerLinks.legal} />
-        <FooterSection title="Tools" links={footerLinks.resources} />
-        <FooterSection title="Follow Us" links={footerLinks.social} />
+        <FooterSection title="Product" links={footerLinks.tools} />
       </div>
 
-      <div className="border-t-2 border-zinc-100/80 dark:border-zinc-900/50 pt-6">
-        <p className="text-center md:text-start text-sm text-zinc-600 dark:text-zinc-400">
-          	&#169; {currentYear} Zemops. All rights reserved.
+      <div className="border-t border-zinc-200 dark:border-zinc-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+        <p className="text-xs text-zinc-400">
+          &#169; {currentYear} Zemrev. All rights reserved.
         </p>
+        <div className="flex gap-6">
+            {/* Social placeholders */}
+            <div className="w-4 h-4 rounded-full bg-zinc-200 dark:bg-zinc-800"></div>
+            <div className="w-4 h-4 rounded-full bg-zinc-200 dark:bg-zinc-800"></div>
+            <div className="w-4 h-4 rounded-full bg-zinc-200 dark:bg-zinc-800"></div>
+        </div>
       </div>
     </footer>
   );
