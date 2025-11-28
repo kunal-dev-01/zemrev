@@ -47,28 +47,23 @@ export const Minimize2 = memo(() => (
 
 Minimize2.displayName = "Minimize2";
 
-// =============== File Text SVG ================ //
-export const FileText = memo(() => (
+
+// =============== Resize SVG ================ //
+export const ResizeSvg = memo(() => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="100%"
     height="100%"
-    viewBox="0 0 16 16"
+    viewBox="0 0 28 28"
   >
     <path
       fill="currentColor"
-      d="M5.5 5a.5.5 0 0 0 0 1h2a.5.5 0 0 0 0-1zm0 2a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1zm0 2a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1zm0 2a.5.5 0 0 0 0 1h5a.5.5 0 0 0 0-1z"
-    />
-    <path
-      fill="currentColor"
-      fillRule="evenodd"
-      d="M2 3c0-1.1.895-2 2-2h5.5c.133 0 .26.053.354.146l4 4A.5.5 0 0 1 14 5.5V13c0 1.1-.895 2-2 2H4c-1.1 0-2-.895-2-2zm2-1a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V6H9.5a.5.5 0 0 1-.5-.5V2zm6 .707l2.29 2.29H10z"
-      clipRule="evenodd"
+      d="M11.75 3h-5A3.75 3.75 0 0 0 3 6.75v2a.75.75 0 0 0 1.5 0v-2A2.25 2.25 0 0 1 6.75 4.5h5a.75.75 0 0 0 0-1.5m-5 20.5a2.25 2.25 0 0 1-2.25-2.25v-6.5a2.25 2.25 0 0 1 2.25-2.25h6.5a2.25 2.25 0 0 1 2.25 2.25v6.5a2.25 2.25 0 0 1-2.25 2.25zM3 21.25A3.75 3.75 0 0 0 6.75 25h6.5A3.75 3.75 0 0 0 17 21.25v-6.5A3.75 3.75 0 0 0 13.25 11h-6.5A3.75 3.75 0 0 0 3 14.75zM19.25 25a.75.75 0 0 1 0-1.5h2a2.25 2.25 0 0 0 2.25-2.25v-5a.75.75 0 0 1 1.5 0v5A3.75 3.75 0 0 1 21.25 25zM25 11.75a.75.75 0 0 1-1.5 0v-5a2.25 2.25 0 0 0-2.25-2.25h-5a.75.75 0 0 1 0-1.5h5A3.75 3.75 0 0 1 25 6.75z"
     />
   </svg>
 ));
 
-FileText.displayName = "FileText";
+ResizeSvg.displayName = "ResizeSvg";
 
 // ============================= ArrowRightLeft ======================
 export const ArrowRightLeft = memo(() => (
@@ -196,6 +191,7 @@ export const Download = memo(() => (
 
 Download.displayName = "Download";
 
+// =============== MousePointerClick SVG ================ //
 export const MousePointerClick = memo(() => (
   <svg
     xmlns="http://www.w3.org/2000/svg"

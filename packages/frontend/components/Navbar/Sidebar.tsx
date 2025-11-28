@@ -4,10 +4,13 @@ import { useCallback, FC } from "react";
 import Link from "next/link";
 import clsx from "clsx";
 import { useCommonModal } from "@/hooks/common.hooks";
-import { ImageSvg, SidebarCloseSvg } from "@/components/Svg/NavSvg";
+import { SidebarCloseSvg } from "@/components/Svg/NavSvg";
+import { ResizeSvg, Minimize2,ArrowRightLeft } from "../Svg/HomeSvg";
 
 const Tools = [
-  { name: "Image ToolKit", href: "/image-tools", icon: <ImageSvg /> },
+  { name: "Image Converter", href: "/image/image-converter", icon: <ArrowRightLeft /> },
+  { name: "Image Compressor", href: "/image/image-compressor", icon: <Minimize2 /> },
+  { name: "Image Resizer", href: "/image/image-resizer", icon: <ResizeSvg /> },
 ];
 
 /* ---------- Backdrop ---------- */

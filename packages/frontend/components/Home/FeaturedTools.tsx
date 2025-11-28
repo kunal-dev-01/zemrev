@@ -3,7 +3,7 @@ import Link from "next/link";
 import {
   FileImage,
   Minimize2,
-  FileText,
+  ResizeSvg,
   ArrowRightLeft,
 } from "@/components/Svg/HomeSvg";
 
@@ -35,7 +35,7 @@ const tools = [
   {
     title: "Image Resizer",
     desc: "Resize your images without losing quality.",
-    icon: FileText,
+    icon: ResizeSvg,
     link: "/image/image-resizer",
     color: "text-indigo-500",
     bg: "bg-indigo-50 dark:bg-indigo-500/10",
