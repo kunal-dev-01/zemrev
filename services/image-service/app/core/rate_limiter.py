@@ -1,4 +1,4 @@
-# Redis rate limiter
+# app/core/rate_limiter.py
 
 from fastapi import HTTPException
 from app.core.redis_client import redis_client
