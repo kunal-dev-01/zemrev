@@ -1,3 +1,5 @@
+# docker-compose.prod.yml
+
 version: '3.9'
 
 services:
@@ -27,7 +29,7 @@ services:
     ports:
       - "8000:8000"
     env_file:
-      - ./services/image-service/.env
+      - ./services/image-service/.env.production
     depends_on:
       redis:
         condition: service_healthy
