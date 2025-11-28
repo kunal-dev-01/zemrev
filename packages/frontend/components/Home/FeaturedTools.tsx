@@ -1,80 +1,111 @@
+import React from "react";
 import Link from "next/link";
-import { ConvertSvg, CompressSvg, ResizeSvg, ArrowRightSvg } from "@/components/Svg/HomeSvg";
+import {
+  FileImage,
+  Minimize2,
+  FileText,
+  ArrowRightLeft,
+} from "@/components/Svg/HomeSvg";
 
 const tools = [
   {
-    id: "converter",
-    name: "Image Converter",
-    desc: "Transform images between popular formats instantly.",
-    icon: <ConvertSvg />,
-    href: "/image-converter",
-    delay: "0ms",
+    title: "Image Compressor",
+    desc: "Reduce file size up to 80% without losing visible quality.",
+    icon: Minimize2,
+    link: "/image/image-compressor",
+    color: "text-blue-500",
+    bg: "bg-blue-50 dark:bg-blue-500/10",
   },
   {
-    id: "compressor",
-    name: "Image Compressor",
-    desc: "Reduce file size without losing quality.",
-    icon: <CompressSvg />,
-    href: "/image-compressor",
-    delay: "100ms",
+    title: "Image Converter",
+    desc: "Convert between JPG, PNG, WebP, and AVIF instantly.",
+    icon: ArrowRightLeft,
+    link: "/image/image-converter",
+    color: "text-emerald-500",
+    bg: "bg-emerald-50 dark:bg-emerald-500/10",
   },
   {
-    id: "resizer",
-    name: "Image Resizer",
-    desc: "Resize dimensions with pixel-perfect accuracy.",
-    icon: <ResizeSvg />,
-    href: "/image-resizer",
-    delay: "200ms",
+    title: "Image to PDF",
+    desc: "Turn your scanned images or photos into professional PDFs.",
+    icon: FileImage,
+    link: "/image/image-to-pdf",
+    color: "text-rose-500",
+    bg: "bg-rose-50 dark:bg-rose-500/10",
+  },
+  {
+    title: "Image Resizer",
+    desc: "Resize your images without losing quality.",
+    icon: FileText,
+    link: "/image/image-resizer",
+    color: "text-indigo-500",
+    bg: "bg-indigo-50 dark:bg-indigo-500/10",
   },
 ];
 
-const FeaturedTools = () => {
+const ToolsGridSection: React.FC = () => {
   return (
-    <section className="w-full py-24 px-4 bg-linear-to-b from-transparent to-zinc-50/50 dark:to-zinc-900/50">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col items-center text-center mb-16 animate-fade-in">
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
-            Power Tools
-          </h2>
-          <p className="text-zinc-500 dark:text-zinc-400 max-w-lg mx-auto text-lg font-light">
-            Everything you need to process images perfectly.
-          </p>
+    <section className="w-full">
+      <div id="tools" className="w-full p-2 md:p-10">
+
+        {/* Section Title */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8">
+          <div className="mx-auto text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-zinc-700 dark:text-zinc-300">
+              Powerful Utilities
+            </h2>
+            <p className="text-zinc-500 mt-2">
+              Everything you need to manage your files efficiently.
+            </p>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-          {tools.map((tool) => (
+        {/* Tools Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+          {tools.map(({ title, desc, icon: Icon, link, bg, color }, index) => (
             <Link
-              key={tool.id}
-              href={tool.href}
-              className="group relative bg-white dark:bg-zinc-900 rounded-2xl p-8 border border-zinc-100 dark:border-zinc-800 shadow-sm hover:shadow-xl hover:shadow-zinc-200/50 dark:hover:shadow-black/50 transition-all duration-500 ease-out hover:-translate-y-1 animate-slide-up"
-              style={{ animationDelay: tool.delay }}
+              href={link}
+              key={index}
+              className="
+                group relative p-5 flex flex-col gap-4 rounded-xl cursor-pointer
+                border border-zinc-100 dark:border-zinc-800
+                transition-all duration-300 ease-out
+              "
             >
-              <div className="flex flex-col h-full">
-                <div className="w-12 h-12 rounded-xl bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 group-hover:text-primary transition-all duration-300">
-                  <div className="w-6 h-6">{tool.icon}</div>
-                </div>
-
-                <h3 className="text-xl font-semibold mb-3 group-hover:text-primary transition-colors">
-                  {tool.name}
-                </h3>
-                
-                <p className="text-zinc-500 dark:text-zinc-400 leading-relaxed font-light mb-8 grow">
-                  {tool.desc}
-                </p>
-
-                <div className="flex items-center text-sm font-medium text-primary opacity-80 group-hover:opacity-100 transition-opacity">
-                  Try now
-                  <span className="ml-2 w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300">
-                    <ArrowRightSvg />
-                  </span>
-                </div>
+              <div
+                className={`
+                  w-12 h-12 p-2.5 rounded-lg flex items-center justify-center
+                  transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3
+                  ${bg} ${color}
+                `}
+              >
+                <Icon />
               </div>
+
+              <div>
+                <h3 className="font-semibold text-lg text-zinc-700 dark:text-zinc-300 transition-colors">
+                  {title}
+                </h3>
+                <p className="text-sm mt-1.5 leading-relaxed text-zinc-500 dark:text-zinc-400 transition-colors group-hover:text-zinc-600 dark:group-hover:text-zinc-300">
+                  {desc}
+                </p>
+              </div>
+
+              {/* Hover BG Animation */}
+              <div
+                className={`
+                  absolute inset-0 rounded-xl opacity-0 scale-80 -z-1
+                  transition-all duration-300 ease-in-out group-hover:opacity-100 group-hover:scale-100
+                  ${bg}
+                `}
+              />
             </Link>
           ))}
+
         </div>
       </div>
     </section>
   );
 };
 
-export default FeaturedTools;
+export default ToolsGridSection;

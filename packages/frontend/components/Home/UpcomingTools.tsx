@@ -7,10 +7,10 @@ const UpcomingTools = () => {
   ];
 
   return (
-    <section className="w-full py-10">
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">Coming Soon</h2>
-        <p className="text-zinc-500 dark:text-zinc-400 text-sm">We are expanding our toolkit.</p>
+    <section className="w-full px-2 md:px-12 py-10">
+      <div className="mb-8 mx-auto text-center">
+        <h2 className="text-3xl md:text-4xl font-bold text-zinc-700 dark:text-zinc-300 mb-2">Coming Soon</h2>
+        <p className="text-zinc-500 mt-2">We are expanding our toolkit.</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">

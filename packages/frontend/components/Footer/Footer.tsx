@@ -4,10 +4,12 @@ const footerLinks = {
   company: [
     { name: "About Us", href: "#" },
     { name: "Contact", href: "#" },
+    
   ],
   legal: [
     { name: "Privacy", href: "#" },
     { name: "Terms", href: "#" },
+    { name: "Disclaimer", href: "#" },
   ],
   tools: [
     { name: "Converter", href: "/image-converter" },
@@ -43,7 +45,7 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="w-full p-8 md:p-12 rounded-3xl bg-white/50 dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 backdrop-blur-sm">
+    <footer className="w-full p-8 md:p-12 rounded-3xl bg-white/50 dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800 backdrop-blur-sm">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12">
         <div className="col-span-2 md:col-span-1">
              <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 mb-4">Zemrev.</h2>
@@ -61,7 +63,6 @@ const Footer = () => {
           &#169; {currentYear} Zemrev. All rights reserved.
         </p>
         <div className="flex gap-6">
-            {/* Social placeholders */}
             <div className="w-4 h-4 rounded-full bg-zinc-200 dark:bg-zinc-800"></div>
             <div className="w-4 h-4 rounded-full bg-zinc-200 dark:bg-zinc-800"></div>
             <div className="w-4 h-4 rounded-full bg-zinc-200 dark:bg-zinc-800"></div>
