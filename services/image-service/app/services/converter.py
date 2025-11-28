@@ -45,10 +45,9 @@ class ImageConverter:
                 )
         
         try:
-            # ✅ CRITICAL: Use access="sequential" for memory efficiency
             image = pyvips.Image.new_from_buffer(
                 content, 
-                "",  # Empty string lets pyvips auto-detect format
+                "", 
                 access="sequential"
             )
             
