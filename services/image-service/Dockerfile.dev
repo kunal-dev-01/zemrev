@@ -1,22 +1,61 @@
+# =====================================================
+# DEVELOPMENT DOCKERFILE WITH FULL FORMAT SUPPORT
+# =====================================================
+
 FROM python:3.11-slim
 
-# Install dependencies (same as production)
+# =====================================================
+# INSTALL SYSTEM DEPENDENCIES
+# =====================================================
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    # Build tools
+    build-essential \
+    pkg-config \
+    cmake \
+    # Core libvips
     libvips-dev \
     libvips-tools \
+    # AVIF support (AV1 encoder) - CRITICAL FOR AVIF!
+    libaom-dev \
+    libaom3 \
+    # HEIF/HEIC support
     libheif-dev \
-    librsvg2-dev \
-    libgif-dev \
-    libtiff-dev \
+    libheif1 \
+    libde265-dev \
+    libx265-dev \
+    # WebP support
     libwebp-dev \
+    libwebpmux3 \
+    libwebpdemux2 \
+    # JPEG support
     libjpeg62-turbo-dev \
+    # PNG support
     libpng-dev \
+    # TIFF support
+    libtiff-dev \
+    # GIF support
+    libgif-dev \
+    # SVG support
+    librsvg2-dev \
+    # BMP support (ImageMagick)
     libmagickwand-dev \
-    gcc \
-    g++ \
-    make \
+    # Utilities
     curl \
+    file \
     && rm -rf /var/lib/apt/lists/*
+
+# =====================================================
+# VERIFY AVIF SUPPORT
+# =====================================================
+
+RUN echo "Checking AVIF/AOM installation..." && \
+    dpkg -l | grep aom && \
+    ldconfig -p | grep libaom
+
+# =====================================================
+# SETUP APPLICATION
+# =====================================================
 
 WORKDIR /app
 
@@ -28,7 +67,14 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # Copy application code
 COPY . .
 
+# =====================================================
+# EXPOSE PORT
+# =====================================================
+
 EXPOSE 8000
 
-# ✅ Fixed module path
+# =====================================================
+# START COMMAND
+# =====================================================
+
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--log-level", "debug"]
