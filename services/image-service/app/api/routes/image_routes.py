@@ -1,4 +1,4 @@
-# Routes (Thin Layer)
+# app/api/routes/image_routes.py
 
 from fastapi import APIRouter, UploadFile, File, Depends, Request, Query
 from fastapi.responses import Response
