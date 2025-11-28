@@ -1,12 +1,14 @@
-# =====================================================
-# DEVELOPMENT DOCKERFILE WITH FULL FORMAT SUPPORT
-# =====================================================
+# ============================================================================
+# FILE: services/image-service/Dockerfile.dev
+# PURPOSE: Development image with full dependencies
+# COMMIT: feat: add development Dockerfile with debugging tools
+# ============================================================================
 
 FROM python:3.11-slim
 
-# =====================================================
-# INSTALL SYSTEM DEPENDENCIES
-# =====================================================
+# ============================================================================
+# INSTALL SYSTEM DEPENDENCIES (Full Dev Setup)
+# ============================================================================
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     # Build tools
@@ -16,7 +18,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # Core libvips
     libvips-dev \
     libvips-tools \
-    # AVIF support (AV1 encoder) - CRITICAL FOR AVIF!
+    # AVIF support (Critical!)
     libaom-dev \
     libaom3 \
     # HEIF/HEIC support
@@ -38,24 +40,27 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libgif-dev \
     # SVG support
     librsvg2-dev \
-    # BMP support (ImageMagick)
-    libmagickwand-dev \
+    # Pillow dependencies
+    libfreetype6-dev \
+    libfribidi-dev \
+    libharfbuzz-dev \
+    libjpeg-dev \
+    liblcms2-dev \
+    libopenjp2-7-dev \
+    libtiff5-dev \
+    libwebp-dev \
+    tcl8.6-dev \
+    tk8.6-dev \
+    zlib1g-dev \
     # Utilities
     curl \
-    file \
+    vim \
+    htop \
     && rm -rf /var/lib/apt/lists/*
 
-# =====================================================
-# VERIFY AVIF SUPPORT
-# =====================================================
-
-RUN echo "Checking AVIF/AOM installation..." && \
-    dpkg -l | grep aom && \
-    ldconfig -p | grep libaom
-
-# =====================================================
+# ============================================================================
 # SETUP APPLICATION
-# =====================================================
+# ============================================================================
 
 WORKDIR /app
 
@@ -67,14 +72,14 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # Copy application code
 COPY . .
 
-# =====================================================
+# ============================================================================
 # EXPOSE PORT
-# =====================================================
+# ============================================================================
 
 EXPOSE 8000
 
-# =====================================================
-# START COMMAND
-# =====================================================
+# ============================================================================
+# DEV COMMAND (with reload)
+# ============================================================================
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--log-level", "debug"]

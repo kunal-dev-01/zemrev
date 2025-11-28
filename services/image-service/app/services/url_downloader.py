@@ -1,7 +1,7 @@
 # ============================================================================
 # FILE: app/services/url_downloader.py
-# PURPOSE: Download images from URLs with validation
-# COMMIT: feat: add secure URL image downloader with size limits
+# PURPOSE: Download images from URLs securely
+# COMMIT: feat: add secure URL image downloader with validation
 # ============================================================================
 
 import httpx
@@ -11,18 +11,11 @@ from app.core.config import settings
 logger = logging.getLogger(__name__)
 
 class URLDownloader:
-    """Download images from URLs securely"""
+    """Secure image downloader from URLs"""
     
-    ALLOWED_CONTENT_TYPES = [
-        "image/jpeg",
-        "image/png",
-        "image/webp",
-        "image/gif",
-        "image/bmp",
-        "image/tiff",
-        "image/avif",
-        "image/heif",
-        "image/heic"
+    ALLOWED_TYPES = [
+        "image/jpeg", "image/png", "image/webp", "image/gif",
+        "image/bmp", "image/tiff", "image/avif", "image/heif"
     ]
     
     @staticmethod
@@ -34,11 +27,9 @@ class URLDownloader:
             url: Image URL
             
         Returns:
-            tuple: (content_bytes, content_type)
-            
-        Raises:
-            ValueError: If download fails or invalid image
+            tuple: (content_bytes, filename)
         """
+        
         try:
             async with httpx.AsyncClient(
                 timeout=settings.URL_TIMEOUT,
@@ -46,76 +37,68 @@ class URLDownloader:
                 limits=httpx.Limits(max_connections=10)
             ) as client:
                 
-                # HEAD request to check size first
+                # HEAD request to check size
                 try:
-                    head_response = await client.head(url)
-                    content_length = head_response.headers.get("content-length")
+                    head = await client.head(url)
+                    content_length = head.headers.get("content-length")
                     
                     if content_length and int(content_length) > settings.MAX_URL_SIZE:
                         raise ValueError(
-                            f"File too large: {int(content_length)} bytes "
-                            f"(max: {settings.MAX_URL_SIZE})"
+                            f"File too large: {int(content_length)} bytes"
                         )
                 except:
-                    # HEAD might fail, proceed with GET
                     pass
                 
-                # GET request to download
+                # GET request
                 response = await client.get(url)
                 response.raise_for_status()
                 
-                # Check content type
+                # Validate content type
                 content_type = response.headers.get("content-type", "").split(";")[0]
                 
-                if content_type not in URLDownloader.ALLOWED_CONTENT_TYPES:
-                    raise ValueError(
-                        f"Invalid content type: {content_type}. "
-                        f"Expected image format."
-                    )
+                if content_type not in URLDownloader.ALLOWED_TYPES:
+                    raise ValueError(f"Invalid content type: {content_type}")
                 
-                # Check size
+                # Validate size
                 content = response.content
+                
                 if len(content) > settings.MAX_URL_SIZE:
-                    raise ValueError(
-                        f"Downloaded file too large: {len(content)} bytes"
-                    )
+                    raise ValueError(f"File too large: {len(content)} bytes")
                 
                 if len(content) == 0:
-                    raise ValueError("Downloaded file is empty")
+                    raise ValueError("Empty file")
                 
-                logger.info(
-                    f"Downloaded {len(content)} bytes from {url[:50]}... "
-                    f"(type: {content_type})"
-                )
+                # Extract filename
+                filename = URLDownloader._extract_filename(url)
                 
-                return content, content_type
+                logger.info(f"Downloaded {len(content)} bytes from URL")
+                
+                return content, filename
                 
         except httpx.HTTPStatusError as e:
-            raise ValueError(f"HTTP error {e.response.status_code}: {str(e)}")
+            raise ValueError(f"HTTP {e.response.status_code}")
         except httpx.TimeoutException:
-            raise ValueError(f"Download timeout after {settings.URL_TIMEOUT}s")
+            raise ValueError("Download timeout")
         except httpx.RequestError as e:
             raise ValueError(f"Network error: {str(e)}")
         except Exception as e:
             raise ValueError(f"Download failed: {str(e)}")
     
     @staticmethod
-    def extract_filename_from_url(url: str, default_ext: str = "jpg") -> str:
+    def _extract_filename(url: str) -> str:
         """Extract filename from URL"""
+        
         try:
             from urllib.parse import urlparse, unquote
             path = urlparse(url).path
             filename = unquote(path.split("/")[-1])
             
-            # 如果没有扩展名，添加默认扩展名
             if "." not in filename or len(filename) > 100:
-                filename = f"downloaded.{default_ext}"
+                filename = "download.jpg"
             
             return filename
         except:
-            return f"downloaded.{default_ext}"
+            return "download.jpg"
 
-# ============================================================================
-# GLOBAL INSTANCE
-# ============================================================================
+# Global instance
 url_downloader = URLDownloader()

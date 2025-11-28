@@ -1,11 +1,15 @@
-# docker-compose.prod.yml
+# ============================================================================
+# FILE: docker-compose.prod.yml (ROOT)
+# PURPOSE: Production deployment with optimizations
+# COMMIT: feat: add production docker-compose with resource limits
+# ============================================================================
 
 version: '3.9'
 
 services:
   redis:
     image: redis:7-alpine
-    container_name: img_redis
+    container_name: img_redis_prod
     restart: unless-stopped
     command: redis-server --maxmemory 512mb --maxmemory-policy allkeys-lru --appendonly no
     ports:
@@ -13,18 +17,19 @@ services:
     volumes:
       - redis_data:/data
     networks:
-      - converter_net
+      - prod_net
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 3s
       retries: 3
+      start_period: 5s
 
-  image-service:
+  api:
     build:
       context: ./services/image-service
       dockerfile: Dockerfile
-    container_name: img_api
+    container_name: img_api_prod
     restart: unless-stopped
     ports:
       - "8000:8000"
@@ -34,22 +39,26 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - converter_net
+      - prod_net
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 10s
+      start_period: 15s
     deploy:
       resources:
         limits:
           cpus: '2'
           memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
 
 volumes:
   redis_data:
+    driver: local
 
 networks:
-  converter_net:
+  prod_net:
     driver: bridge

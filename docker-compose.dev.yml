@@ -1,4 +1,8 @@
-# docker-compose.dev.yml
+# ============================================================================
+# FILE: docker-compose.dev.yml (ROOT)
+# PURPOSE: Development environment with hot-reload
+# COMMIT: feat: add development docker-compose with volume mounting
+# ============================================================================
 
 version: '3.9'
 
@@ -10,8 +14,9 @@ services:
       - "6379:6379"
     networks:
       - dev_net
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
 
-  image-service:
+  api:
     build:
       context: ./services/image-service
       dockerfile: Dockerfile.dev
@@ -21,13 +26,12 @@ services:
     env_file:
       - ./services/image-service/.env
     volumes:
-      - ./services/image-service/app:/app/app  # Mount app directory
-      - /app/__pycache__  # Exclude cache
+      # Mount source code for hot-reload
+      - ./services/image-service/app:/app/app:ro
     depends_on:
       - redis
     networks:
       - dev_net
-    # ✅ Correct module path: app.main:app
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --log-level debug
 
 networks:

@@ -1,14 +1,16 @@
-# =====================================================
-# PRODUCTION DOCKERFILE - OPTIMIZED & SECURE
-# =====================================================
+# ============================================================================
+# FILE: services/image-service/Dockerfile
+# PURPOSE: Production-optimized multi-stage build
+# COMMIT: feat: add production Dockerfile with security hardening
+# ============================================================================
 
-# =====================================================
+# ============================================================================
 # STAGE 1: BUILDER
-# =====================================================
+# ============================================================================
 
-FROM python:3.11-slim as builder
+FROM python:3.11-slim AS builder
 
-# Install build dependencies
+# Install build dependencies only
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     pkg-config \
@@ -24,22 +26,27 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libtiff-dev \
     libgif-dev \
     librsvg2-dev \
-    libmagickwand-dev \
+    libfreetype6-dev \
+    libfribidi-dev \
+    libharfbuzz-dev \
+    liblcms2-dev \
+    libopenjp2-7-dev \
+    zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python packages
+# Install Python packages to user directory
 COPY requirements.txt .
 RUN pip install --no-cache-dir --user -r requirements.txt
 
-# =====================================================
-# STAGE 2: RUNTIME
-# =====================================================
+# ============================================================================
+# STAGE 2: RUNTIME (Minimal)
+# ============================================================================
 
 FROM python:3.11-slim
 
-# Install runtime dependencies ONLY
+# Install ONLY runtime libraries (no -dev packages)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    # Core libraries (no -dev packages)
+    # Core libraries (runtime only)
     libvips42 \
     libvips-tools \
     # AVIF support
@@ -57,18 +64,27 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libtiff5 \
     libgif7 \
     librsvg2-2 \
-    libmagickwand-6.q16-6 \
+    # Pillow runtime deps
+    libfreetype6 \
+    libfribidi0 \
+    libharfbuzz0b \
+    liblcms2-2 \
+    libopenjp2-7 \
+    zlib1g \
     # Utilities
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy Python packages from builder
+# ============================================================================
+# COPY PYTHON PACKAGES FROM BUILDER
+# ============================================================================
+
 COPY --from=builder /root/.local /root/.local
 ENV PATH=/root/.local/bin:$PATH
 
-# =====================================================
+# ============================================================================
 # SECURITY: CREATE NON-ROOT USER
-# =====================================================
+# ============================================================================
 
 RUN useradd -m -u 1000 appuser && \
     mkdir -p /app && \
@@ -82,21 +98,21 @@ COPY --chown=appuser:appuser . .
 # Switch to non-root user
 USER appuser
 
-# =====================================================
+# ============================================================================
 # EXPOSE PORT
-# =====================================================
+# ============================================================================
 
 EXPOSE 8000
 
-# =====================================================
+# ============================================================================
 # HEALTH CHECK
-# =====================================================
+# ============================================================================
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
-# =====================================================
-# PRODUCTION COMMAND
-# =====================================================
+# ============================================================================
+# PRODUCTION COMMAND (4 workers, optimized)
+# ============================================================================
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4", "--log-level", "info"]

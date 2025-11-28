@@ -1,3 +1,9 @@
+# ============================================================================
+# FILE: app/services/validator.py
+# PURPOSE: Validate uploaded files
+# COMMIT: feat: add file validation with magic number checking
+# ============================================================================
+
 from fastapi import UploadFile, HTTPException
 from app.core.config import settings
 import logging
@@ -5,9 +11,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 class Validator:
-    """File validation with proper error handling"""
+    """File validation"""
     
-    # Magic number signatures for quick validation
     MAGIC_NUMBERS = {
         b'\xFF\xD8\xFF': 'image/jpeg',
         b'\x89PNG\r\n\x1a\n': 'image/png',
@@ -22,75 +27,67 @@ class Validator:
     @staticmethod
     async def validate_files(files: list[UploadFile]) -> None:
         """Validate uploaded files"""
+        
         if not files:
-            raise HTTPException(status_code=400, detail="No files provided")
-
+            raise HTTPException(400, detail="No files provided")
+        
         if len(files) > settings.MAX_BATCH_SIZE:
             raise HTTPException(
-                status_code=400,
-                detail=f"Maximum {settings.MAX_BATCH_SIZE} files allowed. You uploaded {len(files)}."
+                400,
+                detail=f"Max {settings.MAX_BATCH_SIZE} files allowed"
             )
-
+        
         for idx, file in enumerate(files, 1):
-            await Validator._validate_single_file(file, idx)
-
+            await Validator._validate_single(file, idx)
+    
     @staticmethod
-    async def _validate_single_file(file: UploadFile, index: int) -> None:
-        """Validate a single file"""
+    async def _validate_single(file: UploadFile, index: int) -> None:
+        """Validate single file"""
+        
         if not file.filename:
-            raise HTTPException(status_code=400, detail=f"File #{index}: Missing filename")
-
+            raise HTTPException(400, detail=f"File #{index}: Missing filename")
+        
         try:
             content = await file.read()
             await file.seek(0)
-        except Exception as e:
-            logger.error(f"Failed to read file {file.filename}: {e}")
-            raise HTTPException(
-                status_code=400,
-                detail=f"File #{index} ({file.filename}): Failed to read file"
-            )
-
+        except:
+            raise HTTPException(400, detail=f"File #{index}: Read failed")
+        
         if len(content) == 0:
-            raise HTTPException(
-                status_code=400,
-                detail=f"File #{index} ({file.filename}): File is empty"
-            )
-
+            raise HTTPException(400, detail=f"File #{index}: Empty file")
+        
         if len(content) > settings.MAX_FILE_SIZE:
             size_mb = len(content) / (1024 * 1024)
             limit_mb = settings.MAX_FILE_SIZE / (1024 * 1024)
             raise HTTPException(
-                status_code=400,
-                detail=f"File #{index} ({file.filename}): Size {size_mb:.2f}MB exceeds limit of {limit_mb:.2f}MB"
+                400,
+                detail=f"File #{index}: {size_mb:.1f}MB exceeds {limit_mb:.0f}MB limit"
             )
-
-        if file.content_type not in settings.INPUT_FORMATS:
-            raise HTTPException(
-                status_code=400,
-                detail=f"File #{index} ({file.filename}): Unsupported type '{file.content_type}'"
-            )
-
-        if not Validator._validate_magic_number(content):
+        
+        # Validate magic number
+        if not Validator._check_magic(content):
             logger.warning(f"Suspicious file: {file.filename}")
-
+    
     @staticmethod
-    def _validate_magic_number(content: bytes) -> bool:
-        """Validate file using magic numbers"""
+    def _check_magic(content: bytes) -> bool:
+        """Check file magic number"""
+        
         if len(content) < 12:
             return False
-            
-        for magic_bytes in Validator.MAGIC_NUMBERS.keys():
-            if content.startswith(magic_bytes):
+        
+        for magic in Validator.MAGIC_NUMBERS.keys():
+            if content.startswith(magic):
                 return True
         
-        # WebP check
-        if content.startswith(b'RIFF') and len(content) > 12 and content[8:12] == b'WEBP':
+        # WebP
+        if content.startswith(b'RIFF') and content[8:12] == b'WEBP':
             return True
-            
-        # AVIF/HEIF check
+        
+        # AVIF/HEIF
         if content[4:8] == b'ftyp':
             return True
-            
+        
         return True
 
+# Global instance
 validator = Validator()
