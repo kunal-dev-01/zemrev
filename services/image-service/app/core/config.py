@@ -1,8 +1,9 @@
-# ============================================================================
-# FILE: app/core/config.py
-# PURPOSE: Application configuration from environment variables
-# COMMIT: feat: add production-ready settings with optimal defaults
-# ============================================================================
+"""
+============================================================================
+FILE: app/core/config.py
+PURPOSE: Production-ready configuration
+============================================================================
+"""
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import List
@@ -17,25 +18,19 @@ class Settings(BaseSettings):
     REDIS_SOCKET_TIMEOUT: int = 5
     
     # Queue
-    QUEUE_NAME: str = "image_jobs"
+    QUEUE_NAME: str = "zemrev_jobs"
     QUEUE_MAX_WORKERS: int = 4
-    QUEUE_MAX_RETRIES: int = 2
-    QUEUE_JOB_TIMEOUT: int = 300
-    QUEUE_RESULT_TTL: int = 300  # Auto-delete after 5 min
+    QUEUE_MAX_RETRIES: int = 3
+    QUEUE_JOB_TIMEOUT: int = 600  # 10 minutes
+    QUEUE_RESULT_TTL: int = 300   # 5 minutes (auto-delete)
     
     # File limits
     MAX_FILE_SIZE: int = 52428800  # 50MB
-    MAX_BATCH_SIZE: int = 2  # Only 2 images per batch
-    MAX_DIMENSION: int = 10000
+    MAX_DIMENSION: int = 15000
     
     # URL downloads
-    MAX_URL_SIZE: int = 52428800  # 50MB
+    MAX_URL_SIZE: int = 52428800
     URL_TIMEOUT: int = 30
-    
-    # Rate limiting
-    RATE_LIMIT_ENABLED: bool = True
-    RATE_LIMIT_REQUESTS: int = 100
-    RATE_LIMIT_WINDOW: int = 60
     
     # Server
     WORKERS: int = 4
@@ -61,7 +56,6 @@ class Settings(BaseSettings):
             return ["*"]
         return [o.strip() for o in self.ALLOWED_ORIGINS.split(",")]
 
-# Global instance
 settings = Settings()
 
 # Set PyVips environment
