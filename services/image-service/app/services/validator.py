@@ -1,8 +1,9 @@
-# ============================================================================
-# FILE: app/services/validator.py
-# PURPOSE: Validate uploaded files
-# COMMIT: feat: add file validation with magic number checking
-# ============================================================================
+"""
+============================================================================
+FILE: app/services/validator.py
+PURPOSE: File validation with magic number checking
+============================================================================
+"""
 
 from fastapi import UploadFile, HTTPException
 from app.core.config import settings
@@ -25,48 +26,37 @@ class Validator:
     }
     
     @staticmethod
-    async def validate_files(files: list[UploadFile]) -> None:
-        """Validate uploaded files"""
+    async def validate_file(file: UploadFile) -> bytes:
+        """Validate single uploaded file"""
         
-        if not files:
-            raise HTTPException(400, detail="No files provided")
-        
-        if len(files) > settings.MAX_BATCH_SIZE:
-            raise HTTPException(
-                400,
-                detail=f"Max {settings.MAX_BATCH_SIZE} files allowed"
-            )
-        
-        for idx, file in enumerate(files, 1):
-            await Validator._validate_single(file, idx)
-    
-    @staticmethod
-    async def _validate_single(file: UploadFile, index: int) -> None:
-        """Validate single file"""
+        if not file:
+            raise HTTPException(400, detail="No file provided")
         
         if not file.filename:
-            raise HTTPException(400, detail=f"File #{index}: Missing filename")
+            raise HTTPException(400, detail="Missing filename")
         
         try:
             content = await file.read()
             await file.seek(0)
         except:
-            raise HTTPException(400, detail=f"File #{index}: Read failed")
+            raise HTTPException(400, detail="File read failed")
         
         if len(content) == 0:
-            raise HTTPException(400, detail=f"File #{index}: Empty file")
+            raise HTTPException(400, detail="Empty file")
         
         if len(content) > settings.MAX_FILE_SIZE:
             size_mb = len(content) / (1024 * 1024)
             limit_mb = settings.MAX_FILE_SIZE / (1024 * 1024)
             raise HTTPException(
                 400,
-                detail=f"File #{index}: {size_mb:.1f}MB exceeds {limit_mb:.0f}MB limit"
+                detail=f"File too large: {size_mb:.1f}MB exceeds {limit_mb:.0f}MB limit"
             )
         
         # Validate magic number
         if not Validator._check_magic(content):
             logger.warning(f"Suspicious file: {file.filename}")
+        
+        return content
     
     @staticmethod
     def _check_magic(content: bytes) -> bool:
@@ -83,11 +73,10 @@ class Validator:
         if content.startswith(b'RIFF') and content[8:12] == b'WEBP':
             return True
         
-        # AVIF/HEIF
+        # AVIF/HEIF/HEIC
         if content[4:8] == b'ftyp':
             return True
         
         return True
 
-# Global instance
 validator = Validator()
