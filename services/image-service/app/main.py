@@ -1,8 +1,9 @@
-# ============================================================================
-# FILE: app/main.py
-# PURPOSE: FastAPI application with lifespan management
-# COMMIT: feat: add FastAPI app with Redis/workers lifecycle
-# ============================================================================
+"""
+============================================================================
+FILE: app/main.py
+PURPOSE: FastAPI application with lifespan management
+============================================================================
+"""
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,7 +11,6 @@ from contextlib import asynccontextmanager
 import logging
 from app.core.config import settings
 from app.core.redis_client import redis_client
-from app.services.format_detector import format_detector
 from app.services.queue_worker import worker_manager
 from app.api.routes.image_routes import router
 
@@ -36,19 +36,13 @@ async def lifespan(app: FastAPI):
     # STARTUP
     # ========================================================================
     
-    logger.info("🚀 Starting Image Converter API...")
+    logger.info("🚀 Starting ZEMREV Image API...")
     
     # Connect Redis
     try:
         await redis_client.connect()
     except Exception as e:
         logger.error(f"❌ Redis failed: {e}")
-    
-    # Detect formats
-    try:
-        format_detector.detect_all()
-    except Exception as e:
-        logger.error(f"❌ Format detection failed: {e}")
     
     # Start workers
     try:
@@ -82,8 +76,8 @@ async def lifespan(app: FastAPI):
 # ============================================================================
 
 app = FastAPI(
-    title="Image Converter API",
-    description="Ultra-fast image converter with PyVips + Pillow",
+    title="ZEMREV Image API",
+    description="Ultra-fast PyVIPS-only image processing with HEIC support",
     version="1.0.0",
     lifespan=lifespan
 )
@@ -115,16 +109,28 @@ app.include_router(router)
 async def root():
     """API info"""
     return {
-        "service": "Image Converter API",
+        "service": "ZEMREV Image API",
         "version": "1.0.0",
         "status": "operational",
-        "tools": ["converter", "compressor", "resizer"],
+        "engine": "PyVIPS (HEIC/HEIF supported)",
+        "tools": [
+            "convert",
+            "compress",
+            "resize",
+            "optimize",
+            "crop",
+            "watermark"
+        ],
         "endpoints": {
             "convert": "/api/v1/convert",
             "compress": "/api/v1/compress",
             "resize": "/api/v1/resize",
-            "formats": "/api/v1/formats",
-            "health": "/health"
+            "optimize": "/api/v1/optimize",
+            "crop": "/api/v1/crop",
+            "watermark_text": "/api/v1/watermark/text",
+            "watermark_image": "/api/v1/watermark/image",
+            "health": "/health",
+            "docs": "/docs"
         }
     }
 
