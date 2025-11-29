@@ -1,14 +1,13 @@
-# ============================================================================
-# FILE: app/api/controllers/image_controller.py
-# PURPOSE: Business logic for all image operations
-# COMMIT: feat: add controller for convert/compress/resize operations
-# ============================================================================
+"""
+============================================================================
+FILE: app/api/controllers/image_controller.py
+PURPOSE: Business logic for all image operations
+============================================================================
+"""
 
 from fastapi import UploadFile
-from fastapi.responses import Response, StreamingResponse
-from typing import List, Optional
-import io
-import zipfile
+from fastapi.responses import Response
+from typing import Optional
 import logging
 from app.models.schemas import *
 from app.services.validator import validator
@@ -16,7 +15,9 @@ from app.services.url_downloader import url_downloader
 from app.services.converter import converter
 from app.services.compressor import compressor
 from app.services.resizer import resizer
-from app.services.format_detector import format_detector
+from app.services.optimizer import optimizer
+from app.services.cropper import cropper
+from app.services.watermark import watermarker
 
 logger = logging.getLogger(__name__)
 
@@ -28,187 +29,221 @@ class ImageController:
     # ========================================================================
     
     @staticmethod
-    async def convert_images(
-        files: Optional[List[UploadFile]],
-        options: ConvertRequest
-    ):
+    async def convert_image(file: Optional[UploadFile], options: ConvertRequest):
         """Convert image format"""
         
         # Handle URL or file upload
         if options.url:
             content, filename = await url_downloader.download(str(options.url))
-            files_data = [(content, filename)]
         else:
-            await validator.validate_files(files)
-            files_data = []
-            for file in files:
-                content = await file.read()
-                files_data.append((content, file.filename))
+            content = await validator.validate_file(file)
+            filename = file.filename
         
-        # Process files
-        results = []
-        errors = []
-        
-        for content, filename in files_data:
-            try:
-                output, new_name, engine = converter.convert(
-                    content, filename, options
-                )
-                
-                results.append({
-                    "filename": new_name,
-                    "data": output,
-                    "original_size": len(content),
-                    "converted_size": len(output),
-                    "engine": engine
-                })
-                
-            except Exception as e:
-                error_msg = f"Failed {filename}: {str(e)}"
-                logger.error(error_msg)
-                errors.append(error_msg)
-        
-        # Check if any succeeded
-        if not results:
-            raise ValueError(f"All conversions failed: {'; '.join(errors)}")
-        
-        # Return response
-        if len(results) == 1:
+        # Convert
+        try:
+            output, new_filename = converter.convert(content, filename, options)
+            
             return ImageController._single_response(
-                results[0]["data"],
-                results[0]["filename"],
+                output,
+                new_filename,
                 f"image/{options.format.value}"
             )
-        else:
-            return ImageController._zip_response(results)
+            
+        except Exception as e:
+            logger.error(f"Convert failed: {e}")
+            raise
     
     # ========================================================================
     # COMPRESSOR
     # ========================================================================
     
     @staticmethod
-    async def compress_images(
-        files: Optional[List[UploadFile]],
-        options: CompressRequest
-    ):
-        """Compress images"""
+    async def compress_image(file: Optional[UploadFile], options: CompressRequest):
+        """Compress image"""
         
         # Handle URL or file upload
         if options.url:
             content, filename = await url_downloader.download(str(options.url))
-            files_data = [(content, filename)]
         else:
-            await validator.validate_files(files)
-            files_data = []
-            for file in files:
-                content = await file.read()
-                files_data.append((content, file.filename))
+            content = await validator.validate_file(file)
+            filename = file.filename
         
-        # Process files
-        results = []
-        
-        for content, filename in files_data:
-            try:
-                output, new_name, engine = compressor.compress(
-                    content, filename, options
-                )
-                
-                results.append({
-                    "filename": new_name,
-                    "data": output,
-                    "original_size": len(content),
-                    "compressed_size": len(output),
-                    "engine": engine
-                })
-                
-            except Exception as e:
-                logger.error(f"Compress failed {filename}: {e}")
-                raise
-        
-        # Return response
-        if len(results) == 1:
-            ext = results[0]["filename"].rsplit(".", 1)[-1]
+        # Compress
+        try:
+            output, new_filename = compressor.compress(content, filename, options)
+            
+            ext = new_filename.rsplit(".", 1)[-1]
             return ImageController._single_response(
-                results[0]["data"],
-                results[0]["filename"],
+                output,
+                new_filename,
                 f"image/{ext}"
             )
-        else:
-            return ImageController._zip_response(results)
+            
+        except Exception as e:
+            logger.error(f"Compress failed: {e}")
+            raise
     
     # ========================================================================
     # RESIZER
     # ========================================================================
     
     @staticmethod
-    async def resize_images(
-        files: Optional[List[UploadFile]],
-        options: ResizeRequest
-    ):
-        """Resize images"""
+    async def resize_image(file: Optional[UploadFile], options: ResizeRequest):
+        """Resize image"""
         
         # Handle URL or file upload
         if options.url:
             content, filename = await url_downloader.download(str(options.url))
-            files_data = [(content, filename)]
         else:
-            await validator.validate_files(files)
-            files_data = []
-            for file in files:
-                content = await file.read()
-                files_data.append((content, file.filename))
+            content = await validator.validate_file(file)
+            filename = file.filename
         
-        # Process files
-        results = []
-        
-        for content, filename in files_data:
-            try:
-                output, new_name, dims, engine = resizer.resize(
-                    content, filename, options
-                )
-                
-                results.append({
-                    "filename": new_name,
-                    "data": output,
-                    "original_size": len(content),
-                    "resized_size": len(output),
-                    "engine": engine
-                })
-                
-            except Exception as e:
-                logger.error(f"Resize failed {filename}: {e}")
-                raise
-        
-        # Return response
-        if len(results) == 1:
-            ext = results[0]["filename"].rsplit(".", 1)[-1]
+        # Resize
+        try:
+            output, new_filename, dims = resizer.resize(content, filename, options)
+            
+            ext = new_filename.rsplit(".", 1)[-1]
             return ImageController._single_response(
-                results[0]["data"],
-                results[0]["filename"],
+                output,
+                new_filename,
                 f"image/{ext}"
             )
-        else:
-            return ImageController._zip_response(results)
+            
+        except Exception as e:
+            logger.error(f"Resize failed: {e}")
+            raise
     
     # ========================================================================
-    # FORMATS INFO
+    # OPTIMIZER
     # ========================================================================
     
     @staticmethod
-    async def get_formats():
-        """Get supported formats"""
+    async def optimize_image(file: Optional[UploadFile], options: OptimizeRequest):
+        """Optimize image"""
         
-        info = format_detector.detect_all()
+        # Handle URL or file upload
+        if options.url:
+            content, filename = await url_downloader.download(str(options.url))
+        else:
+            content = await validator.validate_file(file)
+            filename = file.filename
         
-        return FormatsResponse(
-            pyvips_formats=info["pyvips"],
-            pillow_formats=info["pillow"],
-            all_formats=info["all"],
-            total=info["total"]
-        )
+        # Optimize
+        try:
+            output, new_filename = optimizer.optimize(content, filename, options)
+            
+            ext = new_filename.rsplit(".", 1)[-1]
+            return ImageController._single_response(
+                output,
+                new_filename,
+                f"image/{ext}"
+            )
+            
+        except Exception as e:
+            logger.error(f"Optimize failed: {e}")
+            raise
     
     # ========================================================================
-    # HELPER METHODS
+    # CROPPER
+    # ========================================================================
+    
+    @staticmethod
+    async def crop_image(file: Optional[UploadFile], options: CropRequest):
+        """Crop image"""
+        
+        # Handle URL or file upload
+        if options.url:
+            content, filename = await url_downloader.download(str(options.url))
+        else:
+            content = await validator.validate_file(file)
+            filename = file.filename
+        
+        # Crop
+        try:
+            output, new_filename = cropper.crop(content, filename, options)
+            
+            ext = new_filename.rsplit(".", 1)[-1]
+            return ImageController._single_response(
+                output,
+                new_filename,
+                f"image/{ext}"
+            )
+            
+        except Exception as e:
+            logger.error(f"Crop failed: {e}")
+            raise
+    
+    # ========================================================================
+    # WATERMARK TEXT
+    # ========================================================================
+    
+    @staticmethod
+    async def add_text_watermark(file: Optional[UploadFile], options: TextWatermarkRequest):
+        """Add text watermark"""
+        
+        # Handle URL or file upload
+        if options.url:
+            content, filename = await url_downloader.download(str(options.url))
+        else:
+            content = await validator.validate_file(file)
+            filename = file.filename
+        
+        # Add watermark
+        try:
+            output, new_filename = watermarker.add_text_watermark(content, filename, options)
+            
+            ext = new_filename.rsplit(".", 1)[-1]
+            return ImageController._single_response(
+                output,
+                new_filename,
+                f"image/{ext}"
+            )
+            
+        except Exception as e:
+            logger.error(f"Text watermark failed: {e}")
+            raise
+    
+    # ========================================================================
+    # WATERMARK IMAGE
+    # ========================================================================
+    
+    @staticmethod
+    async def add_image_watermark(
+        file: Optional[UploadFile],
+        watermark: UploadFile,
+        options: ImageWatermarkRequest
+    ):
+        """Add image watermark"""
+        
+        # Handle URL or file upload
+        if options.url:
+            content, filename = await url_downloader.download(str(options.url))
+        else:
+            content = await validator.validate_file(file)
+            filename = file.filename
+        
+        # Validate watermark
+        watermark_content = await validator.validate_file(watermark)
+        
+        # Add watermark
+        try:
+            output, new_filename = watermarker.add_image_watermark(
+                content, watermark_content, filename, options
+            )
+            
+            ext = new_filename.rsplit(".", 1)[-1]
+            return ImageController._single_response(
+                output,
+                new_filename,
+                f"image/{ext}"
+            )
+            
+        except Exception as e:
+            logger.error(f"Image watermark failed: {e}")
+            raise
+    
+    # ========================================================================
+    # HELPER
     # ========================================================================
     
     @staticmethod
@@ -223,24 +258,5 @@ class ImageController:
                 "Cache-Control": "no-cache"
             }
         )
-    
-    @staticmethod
-    def _zip_response(results: List[dict]) -> StreamingResponse:
-        """Return ZIP archive"""
-        
-        zip_buffer = io.BytesIO()
-        
-        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
-            for result in results:
-                zip_file.writestr(result["filename"], result["data"])
-        
-        zip_buffer.seek(0)
-        
-        return StreamingResponse(
-            zip_buffer,
-            media_type="application/zip",
-            headers={
-                "Content-Disposition": "attachment; filename=converted.zip",
-                "Cache-Control": "no-cache"
-            }
-        )
+
+image_controller = ImageController()
