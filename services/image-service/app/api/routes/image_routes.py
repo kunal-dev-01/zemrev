@@ -1,122 +1,162 @@
-# ============================================================================
-# FILE: app/api/routes/image_routes.py
-# PURPOSE: FastAPI route definitions
-# COMMIT: feat: add API routes for convert/compress/resize
-# ============================================================================
+"""
+============================================================================
+FILE: app/api/routes/image_routes.py
+PURPOSE: FastAPI route definitions
+============================================================================
+"""
 
-from fastapi import APIRouter, UploadFile, File, Depends, Request, Form
+from fastapi import APIRouter, UploadFile, File, Form
 from fastapi.responses import Response
-from typing import List, Optional
-from app.api.controllers.image_controller import ImageController
-from app.core.rate_limiter import rate_limiter
+from typing import Optional
+from app.api.controllers.image_controller import image_controller
 from app.models.schemas import *
 
 router = APIRouter(prefix="/api/v1", tags=["Image Tools"])
 
-# Rate limit dependency
-async def check_rate_limit(request: Request):
-    await rate_limiter.check_rate_limit(request)
-
 # ============================================================================
-# CONVERT ENDPOINT
+# CONVERT
 # ============================================================================
 
 @router.post("/convert", response_class=Response)
 async def convert(
-    request: Request,
     file: Optional[UploadFile] = File(None),
-    files: Optional[List[UploadFile]] = File(None),
     format: OutputFormat = Form(OutputFormat.WEBP),
-    quality: int = Form(85),
-    url: Optional[str] = Form(None),
-    _: None = Depends(check_rate_limit)
+    quality: int = Form(75),
+    url: Optional[str] = Form(None)
 ):
     """Convert image format"""
     
-    # Handle both single file and multiple files
-    upload_files = None
-    if files:
-        upload_files = files
-    elif file:
-        upload_files = [file]
-    
-    options = ConvertRequest(
-        format=format,
-        quality=quality,
-        url=url
-    )
-    
-    return await ImageController.convert_images(upload_files, options)
+    options = ConvertRequest(format=format, quality=quality, url=url)
+    return await image_controller.convert_image(file, options)
 
 # ============================================================================
-# COMPRESS ENDPOINT
+# COMPRESS
 # ============================================================================
 
 @router.post("/compress", response_class=Response)
 async def compress(
-    request: Request,
     file: Optional[UploadFile] = File(None),
-    files: Optional[List[UploadFile]] = File(None),
-    level: CompressionLevel = Form(CompressionLevel.MEDIUM),
-    quality: Optional[int] = Form(None),
-    keep_format: bool = Form(True),
-    url: Optional[str] = Form(None),
-    _: None = Depends(check_rate_limit)
+    quality: int = Form(75),
+    format: Optional[OutputFormat] = Form(None),
+    url: Optional[str] = Form(None)
 ):
-    """Compress images"""
+    """Compress image"""
     
-    # Handle both single file and multiple files
-    upload_files = None
-    if files:
-        upload_files = files
-    elif file:
-        upload_files = [file]
-    
-    options = CompressRequest(
-        level=level,
-        quality=quality,
-        keep_format=keep_format,
-        url=url
-    )
-    
-    return await ImageController.compress_images(upload_files, options)
+    options = CompressRequest(quality=quality, format=format, url=url)
+    return await image_controller.compress_image(file, options)
 
 # ============================================================================
-# RESIZE ENDPOINT
+# RESIZE
 # ============================================================================
 
 @router.post("/resize", response_class=Response)
 async def resize(
-    request: Request,
     file: Optional[UploadFile] = File(None),
-    files: Optional[List[UploadFile]] = File(None),
     width: Optional[int] = Form(None),
     height: Optional[int] = Form(None),
-    url: Optional[str] = Form(None),
-    _: None = Depends(check_rate_limit)
+    mode: ResizeMode = Form(ResizeMode.CONTAIN),
+    format: Optional[OutputFormat] = Form(None),
+    url: Optional[str] = Form(None)
 ):
-    """Resize images"""
-    
-    # Handle both single file and multiple files
-    upload_files = None
-    if files:
-        upload_files = files
-    elif file:
-        upload_files = [file]
+    """Resize image"""
     
     options = ResizeRequest(
         width=width,
         height=height,
+        mode=mode,
+        format=format,
         url=url
     )
+    return await image_controller.resize_image(file, options)
+
+# ============================================================================
+# OPTIMIZE
+# ============================================================================
+
+@router.post("/optimize", response_class=Response)
+async def optimize(
+    file: Optional[UploadFile] = File(None),
+    strip_exif: bool = Form(True),
+    strip_gps: bool = Form(True),
+    fix_orientation: bool = Form(True),
+    url: Optional[str] = Form(None)
+):
+    """Optimize image"""
     
-    return await ImageController.resize_images(upload_files, options)
+    options = OptimizeRequest(
+        strip_exif=strip_exif,
+        strip_gps=strip_gps,
+        fix_orientation=fix_orientation,
+        url=url
+    )
+    return await image_controller.optimize_image(file, options)
 
 # ============================================================================
-# FORMATS ENDPOINT
+# CROP
 # ============================================================================
 
-@router.get("/formats", response_model=FormatsResponse)
-async def formats():
-    """Get supported formats"""
-    return await ImageController.get_formats()
+@router.post("/crop", response_class=Response)
+async def crop(
+    file: Optional[UploadFile] = File(None),
+    x: int = Form(...),
+    y: int = Form(...),
+    width: int = Form(...),
+    height: int = Form(...),
+    format: Optional[OutputFormat] = Form(None),
+    url: Optional[str] = Form(None)
+):
+    """Crop image"""
+    
+    options = CropRequest(
+        x=x, y=y, width=width, height=height, format=format, url=url
+    )
+    return await image_controller.crop_image(file, options)
+
+# ============================================================================
+# WATERMARK TEXT
+# ============================================================================
+
+@router.post("/watermark/text", response_class=Response)
+async def watermark_text(
+    file: Optional[UploadFile] = File(None),
+    text: str = Form(...),
+    font_size: int = Form(48),
+    color: str = Form("#FFFFFF"),
+    opacity: float = Form(0.5),
+    position: WatermarkPosition = Form(WatermarkPosition.BOTTOM_RIGHT),
+    url: Optional[str] = Form(None)
+):
+    """Add text watermark"""
+    
+    options = TextWatermarkRequest(
+        text=text,
+        font_size=font_size,
+        color=color,
+        opacity=opacity,
+        position=position,
+        url=url
+    )
+    return await image_controller.add_text_watermark(file, options)
+
+# ============================================================================
+# WATERMARK IMAGE
+# ============================================================================
+
+@router.post("/watermark/image", response_class=Response)
+async def watermark_image(
+    file: Optional[UploadFile] = File(None),
+    watermark: UploadFile = File(...),
+    scale: float = Form(0.2),
+    opacity: float = Form(0.5),
+    position: WatermarkPosition = Form(WatermarkPosition.BOTTOM_RIGHT),
+    url: Optional[str] = Form(None)
+):
+    """Add image watermark"""
+    
+    options = ImageWatermarkRequest(
+        scale=scale,
+        opacity=opacity,
+        position=position,
+        url=url
+    )
+    return await image_controller.add_image_watermark(file, watermark, options)
