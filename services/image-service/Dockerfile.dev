@@ -1,13 +1,12 @@
 # ============================================================================
 # FILE: services/image-service/Dockerfile.dev
-# PURPOSE: Development image with full dependencies
-# COMMIT: feat: add development Dockerfile with debugging tools
+# PURPOSE: Development image with full tools
 # ============================================================================
 
 FROM python:3.11-slim
 
 # ============================================================================
-# INSTALL SYSTEM DEPENDENCIES (Full Dev Setup)
+# INSTALL FULL DEV DEPENDENCIES
 # ============================================================================
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -15,13 +14,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     pkg-config \
     cmake \
-    # Core libvips
+    # Core libvips with HEIC/HEIF
     libvips-dev \
     libvips-tools \
-    # AVIF support (Critical!)
+    # AVIF support
     libaom-dev \
     libaom3 \
-    # HEIF/HEIC support
+    # HEIF/HEIC support (CRITICAL!)
     libheif-dev \
     libheif1 \
     libde265-dev \
@@ -40,7 +39,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libgif-dev \
     # SVG support
     librsvg2-dev \
-    # Pillow dependencies
+    # Font support
     libfreetype6-dev \
     libfribidi-dev \
     libharfbuzz-dev \
@@ -48,18 +47,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     liblcms2-dev \
     libopenjp2-7-dev \
     libtiff5-dev \
-    libwebp-dev \
-    tcl8.6-dev \
-    tk8.6-dev \
     zlib1g-dev \
-    # Utilities
+    # Dev utilities
     curl \
     vim \
     htop \
     && rm -rf /var/lib/apt/lists/*
 
 # ============================================================================
-# SETUP APPLICATION
+# SETUP
 # ============================================================================
 
 WORKDIR /app
@@ -69,12 +65,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
+# Copy application
 COPY . .
-
-# ============================================================================
-# EXPOSE PORT
-# ============================================================================
 
 EXPOSE 8000
 
@@ -82,4 +74,8 @@ EXPOSE 8000
 # DEV COMMAND (with reload)
 # ============================================================================
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--log-level", "debug"]
+CMD ["uvicorn", "app.main:app", \
+     "--host", "0.0.0.0", \
+     "--port", "8000", \
+     "--reload", \
+     "--log-level", "debug"]
