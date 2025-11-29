@@ -1,8 +1,9 @@
-# ============================================================================
-# FILE: app/services/queue_manager.py
-# PURPOSE: Redis-based job queue with auto-cleanup
-# COMMIT: feat: add queue manager with automatic job cleanup
-# ============================================================================
+"""
+============================================================================
+FILE: app/services/queue_manager.py
+PURPOSE: Redis-based job queue with auto-cleanup
+============================================================================
+"""
 
 import json
 import uuid
@@ -29,17 +30,8 @@ class QueueManager:
         self.job_prefix = "job:"
         self.result_prefix = "result:"
     
-    async def enqueue(
-        self,
-        task_type: str,
-        data: Dict[str, Any]
-    ) -> str:
-        """
-        Add job to queue
-        
-        Returns:
-            str: Job ID
-        """
+    async def enqueue(self, task_type: str, data: Dict[str, Any]) -> str:
+        """Add job to queue"""
         
         job_id = str(uuid.uuid4())
         
@@ -72,12 +64,7 @@ class QueueManager:
             raise
     
     async def dequeue(self) -> Optional[Dict[str, Any]]:
-        """
-        Get next job from queue
-        
-        Returns:
-            dict: Job data or None
-        """
+        """Get next job from queue"""
         
         try:
             # Pop from queue
@@ -108,11 +95,7 @@ class QueueManager:
             logger.error(f"Dequeue failed: {e}")
             return None
     
-    async def complete_job(
-        self,
-        job_id: str,
-        result: Any
-    ) -> bool:
+    async def complete_job(self, job_id: str, result: Any) -> bool:
         """Mark job as completed"""
         
         try:
@@ -124,7 +107,7 @@ class QueueManager:
                 ex=settings.QUEUE_RESULT_TTL
             )
             
-            # Delete job data (cleanup immediately)
+            # Delete job data (cleanup)
             job_key = f"{self.job_prefix}{job_id}"
             await redis_client.delete(job_key)
             
@@ -135,11 +118,7 @@ class QueueManager:
             logger.error(f"Complete job failed: {e}")
             return False
     
-    async def fail_job(
-        self,
-        job_id: str,
-        error: str
-    ) -> bool:
+    async def fail_job(self, job_id: str, error: str) -> bool:
         """Mark job as failed"""
         
         try:
@@ -159,7 +138,7 @@ class QueueManager:
                 await redis_client.lpush(self.queue_key, job_id)
                 logger.warning(f"Job retry {job_data['attempts']}: {job_id}")
             else:
-                # Failed permanently - delete immediately
+                # Failed permanently
                 await redis_client.delete(job_key)
                 logger.error(f"Job failed: {job_id} - {error}")
             
@@ -176,5 +155,4 @@ class QueueManager:
         except:
             return 0
 
-# Global instance
 queue_manager = QueueManager()
