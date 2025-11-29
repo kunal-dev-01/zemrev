@@ -47,7 +47,6 @@ export const Minimize2 = memo(() => (
 
 Minimize2.displayName = "Minimize2";
 
-
 // =============== Resize SVG ================ //
 export const ResizeSvg = memo(() => (
   <svg
@@ -64,6 +63,47 @@ export const ResizeSvg = memo(() => (
 ));
 
 ResizeSvg.displayName = "ResizeSvg";
+
+// ============================= Crop SVG ======================
+export const CropSvg = memo(() => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="100%"
+    height="100%"
+    viewBox="0 0 472 480"
+  >
+    <path
+      fill="currentColor"
+      d="M341 304V133H171V91h170q18 0 30.5 12.5T384 133v171h-43zm-213 43h341v42h-85v86h-43v-86H128q-18 0-30.5-12.5T85 347V133H0V91h85V5h43v342z"
+    />
+  </svg>
+));
+
+CropSvg.displayName = "CropSvg";
+
+// ================= Watermark SVG ================ //
+export const Watermark = memo(() => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="100%"
+    height="100%"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+  >
+    <g
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.5"
+    >
+      <path d="M21 16.5a2.25 2.25 0 0 1 .843-1.756a3.76 3.76 0 0 0 1.407-2.935a3 3 0 0 0-1.285-2.462a2.25 2.25 0 0 1 .227-3.833A2 2 0 0 0 23.25 3.75a3 3 0 0 0-3-3a2 2 0 0 0-1.764 1.058a2.25 2.25 0 0 1-3.742.349A3.76 3.76 0 0 0 11.809.75a3 3 0 0 0-2.462 1.285a2.25 2.25 0 0 1-3.833-.227A2 2 0 0 0 3.75.75a3 3 0 0 0-3 3a2 2 0 0 0 1.058 1.764a2.25 2.25 0 0 1 .349 3.742A3.76 3.76 0 0 0 .75 12.191a3 3 0 0 0 1.285 2.462a2.25 2.25 0 0 1-.227 3.833A2 2 0 0 0 .75 20.25a3 3 0 0 0 3 3a2 2 0 0 0 1.764-1.058a2.25 2.25 0 0 1 3.742-.349a3.76 3.76 0 0 0 2.935 1.407a3 3 0 0 0 2.462-1.285a2.25 2.25 0 0 1 3.833.227a2 2 0 0 0 1.764 1.058a3 3 0 0 0 3-3a2 2 0 0 0-1.058-1.764A2.25 2.25 0 0 1 21 16.5" />
+      <path d="M6.75 6.75h10.5v10.5H6.75z" />
+    </g>
+  </svg>
+));
+
+Watermark.displayName = "Watermark";
 
 // ============================= ArrowRightLeft ======================
 export const ArrowRightLeft = memo(() => (

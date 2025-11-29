@@ -1,21 +1,15 @@
 import React from "react";
 import Link from "next/link";
+import { Watermark } from "../Svg/HomeSvg";
 import {
   FileImage,
   Minimize2,
   ResizeSvg,
   ArrowRightLeft,
+  CropSvg,
 } from "@/components/Svg/HomeSvg";
 
 const tools = [
-  {
-    title: "Image Compressor",
-    desc: "Reduce file size up to 80% without losing visible quality.",
-    icon: Minimize2,
-    link: "/image/image-compressor",
-    color: "text-blue-500",
-    bg: "bg-blue-50 dark:bg-blue-500/10",
-  },
   {
     title: "Image Converter",
     desc: "Convert between JPG, PNG, WebP, and AVIF instantly.",
@@ -25,20 +19,44 @@ const tools = [
     bg: "bg-emerald-50 dark:bg-emerald-500/10",
   },
   {
-    title: "Image to PDF",
-    desc: "Turn your scanned images or photos into professional PDFs.",
+    title: "Image Compressor",
+    desc: "Reduce file size up to 80% without losing visible quality.",
+    icon: Minimize2,
+    link: "/image/image-compressor",
+    color: "text-blue-500",
+    bg: "bg-blue-50 dark:bg-blue-500/10",
+  },
+  {
+    title: "Image Optimizer",
+    desc: "Optimize your images for maximum clarity and minimum size.",
     icon: FileImage,
-    link: "/image/image-to-pdf",
+    link: "/image/image-optimizer",
     color: "text-rose-500",
     bg: "bg-rose-50 dark:bg-rose-500/10",
   },
   {
     title: "Image Resizer",
-    desc: "Resize your images without losing quality.",
+    desc: "Smart image resizing that keeps every detail sharp and clean.",
     icon: ResizeSvg,
     link: "/image/image-resizer",
     color: "text-indigo-500",
     bg: "bg-indigo-50 dark:bg-indigo-500/10",
+  },
+  {
+    title: "Image Cropper",
+    desc: "Crop and frame your images with precision in seconds.",
+    icon: CropSvg,
+    link: "/image/image-cropper",
+    color: "text-amber-500",
+    bg: "bg-amber-50 dark:bg-amber-500/10",
+  },
+  {
+    title: "Watermark Tool",
+    desc: "Add clean, professional watermarks to protect your images.",
+    icon: Watermark,
+    link: "/image/image-watermark",
+    color: "text-violet-500",
+    bg: "bg-violet-50 dark:bg-violet-500/10",
   },
 ];
 
@@ -46,7 +64,6 @@ const ToolsGridSection: React.FC = () => {
   return (
     <section className="w-full">
       <div id="tools" className="w-full">
-
         {/* Section Title */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8">
           <div className="mx-auto text-center">
@@ -61,7 +78,6 @@ const ToolsGridSection: React.FC = () => {
 
         {/* Tools Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-
           {tools.map(({ title, desc, icon: Icon, link, bg, color }, index) => (
             <Link
               href={link}
@@ -101,7 +117,6 @@ const ToolsGridSection: React.FC = () => {
               />
             </Link>
           ))}
-
         </div>
       </div>
     </section>

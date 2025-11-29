@@ -5,12 +5,15 @@ import Link from "next/link";
 import clsx from "clsx";
 import { useCommonModal } from "@/hooks/common.hooks";
 import { SidebarCloseSvg } from "@/components/Svg/NavSvg";
-import { ResizeSvg, Minimize2,ArrowRightLeft } from "../Svg/HomeSvg";
+import { ResizeSvg, Minimize2,ArrowRightLeft, FileImage, CropSvg, Watermark } from "../Svg/HomeSvg";
 
 const Tools = [
   { name: "Image Converter", href: "/image/image-converter", icon: <ArrowRightLeft /> },
   { name: "Image Compressor", href: "/image/image-compressor", icon: <Minimize2 /> },
+  { name: "Image Optimizer", href: "/image/image-optimizer", icon: <FileImage /> },
   { name: "Image Resizer", href: "/image/image-resizer", icon: <ResizeSvg /> },
+  { name: "Image Cropper", href: "/image/image-cropper", icon: <CropSvg /> },
+  { name: "Watermark Tool", href: "/image/image-watermark", icon: <Watermark /> },
 ];
 
 /* ---------- Backdrop ---------- */
