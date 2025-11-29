@@ -1,20 +1,23 @@
-import { useSearchParams } from "next/navigation"
-import AboutUs from "./About"
-import Terms from "./Terms"
-import PrivacyPolicy from "./Privacy"
+import { useSearchParams } from "next/navigation";
+import AboutUs from "./About";
+import Contact from "./Contact";
+import Terms from "./Terms";
+import PrivacyPolicy from "./Privacy";
+import { JSX } from "react";
+
 const Index = () => {
+  const searchParams = useSearchParams();
+  const slugParam = searchParams.get("page") ?? "";
+  const pages: Record<string, JSX.Element> = {
+    about: <AboutUs />,
+    contact: <Contact />,
+    terms: <Terms />,
+    privacy: <PrivacyPolicy />,
+  };
 
-    const searchParams = useSearchParams()
-    const slug = searchParams.get("page")
-    
+  const CurrentPage = pages[slugParam] || <AboutUs />;
 
-  return (
-    <div className="w-full">
-        {slug === "about" && <AboutUs />}
-        {slug === "terms" && <Terms />}
-        {slug === "privacy" && <PrivacyPolicy />}
-    </div>
-  )
-}
+  return <div className="w-full">{CurrentPage}</div>;
+};
 
-export default Index
+export default Index;
