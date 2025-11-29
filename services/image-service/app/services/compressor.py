@@ -1,131 +1,101 @@
-# ============================================================================
-# FILE: app/services/compressor.py
-# PURPOSE: Smart image compression with quality presets
-# COMMIT: feat: add intelligent compressor with quality levels
-# ============================================================================
+"""
+============================================================================
+FILE: app/services/compressor.py
+PURPOSE: PyVIPS-only ultra-fast compression
+============================================================================
+"""
 
 import pyvips
-from PIL import Image
-import io
 import logging
-from app.models.schemas import CompressRequest, CompressionLevel
+from app.models.schemas import CompressRequest
 
 logger = logging.getLogger(__name__)
 
-class SmartCompressor:
-    """Smart image compressor"""
-    
-    # Quality presets
-    QUALITY_MAP = {
-        CompressionLevel.LOW: 90,
-        CompressionLevel.MEDIUM: 80,
-        CompressionLevel.HIGH: 70,
-        CompressionLevel.MAXIMUM: 60
-    }
+class ImageCompressor:
+    """PyVIPS-only image compressor"""
     
     @staticmethod
-    def compress(
-        content: bytes,
-        filename: str,
-        options: CompressRequest
-    ) -> tuple[bytes, str, str]:
+    def compress(content: bytes, filename: str, options: CompressRequest) -> tuple[bytes, str]:
         """
-        Compress image
+        Compress image using PyVIPS
         
         Returns:
-            tuple: (output_bytes, filename, engine_used)
+            tuple: (output_bytes, filename)
         """
         
-        # Get quality
-        quality = options.quality or SmartCompressor.QUALITY_MAP[options.level]
-        
-        # Detect current format
-        current_format = SmartCompressor._detect_format(filename)
-        
-        # Target format
-        if options.keep_format:
-            target_format = current_format
-        else:
-            target_format = "webp"  # Convert to WebP for best compression
-        
         try:
-            # Try PyVips first
-            output = SmartCompressor._compress_pyvips(
-                content, target_format, quality
-            )
-            return output, filename, "pyvips"
+            # Load with sequential access
+            img = pyvips.Image.new_from_buffer(content, "", access="sequential")
+            
+            # Detect current format
+            current_fmt = ImageCompressor._detect_format(filename)
+            target_fmt = options.format.value if options.format else current_fmt
+            quality = options.quality
+            
+            # Compress based on format
+            if target_fmt in ["jpeg", "jpg"]:
+                output = img.jpegsave_buffer(
+                    Q=quality,
+                    strip=True,
+                    optimize_coding=True,
+                    interlace=False
+                )
+            
+            elif target_fmt == "png":
+                output = img.pngsave_buffer(
+                    compression=9,
+                    strip=True
+                )
+            
+            elif target_fmt == "webp":
+                output = img.webpsave_buffer(
+                    Q=quality,
+                    lossless=False,
+                    effort=4,
+                    strip=True
+                )
+            
+            elif target_fmt == "avif":
+                output = img.heifsave_buffer(
+                    Q=quality,
+                    compression="av1",
+                    speed=6,
+                    strip=True
+                )
+            
+            elif target_fmt == "tiff":
+                output = img.tiffsave_buffer(
+                    compression="lzw",
+                    strip=True
+                )
+            
+            elif target_fmt == "gif":
+                output = img.gifsave_buffer(strip=True)
+            
+            elif target_fmt == "heic":
+                output = img.heifsave_buffer(
+                    Q=quality,
+                    compression="hevc",
+                    speed=6,
+                    strip=True
+                )
+            
+            else:
+                raise ValueError(f"Unsupported format: {target_fmt}")
+            
+            compression_ratio = (1 - len(output) / len(content)) * 100
+            logger.info(f"Compressed {filename}: {compression_ratio:.1f}% smaller")
+            
+            return output, filename
             
         except Exception as e:
-            logger.warning(f"PyVips failed, using Pillow: {e}")
-            
-            # Fallback to Pillow
-            output = SmartCompressor._compress_pillow(
-                content, target_format, quality
-            )
-            return output, filename, "pillow"
-    
-    @staticmethod
-    def _compress_pyvips(
-        content: bytes,
-        format: str,
-        quality: int
-    ) -> bytes:
-        """Compress using PyVips"""
-        
-        img = pyvips.Image.new_from_buffer(content, "", access="sequential")
-        
-        if format == "jpeg" or format == "jpg":
-            return img.jpegsave_buffer(Q=quality, strip=True, optimize_coding=True)
-        elif format == "png":
-            return img.pngsave_buffer(compression=9, strip=True)
-        elif format == "webp":
-            return img.webpsave_buffer(Q=quality, strip=True, effort=6)
-        elif format == "tiff":
-            return img.tiffsave_buffer(Q=quality, compression="lzw")
-        elif format == "avif":
-            return img.heifsave_buffer(Q=quality, compression="av1")
-        else:
-            raise ValueError(f"Unsupported format: {format}")
-    
-    @staticmethod
-    def _compress_pillow(
-        content: bytes,
-        format: str,
-        quality: int
-    ) -> bytes:
-        """Compress using Pillow"""
-        
-        img = Image.open(io.BytesIO(content))
-        
-        if img.mode not in ("RGB", "RGBA"):
-            img = img.convert("RGB")
-        
-        output_buffer = io.BytesIO()
-        fmt = format.upper()
-        
-        if fmt in ["JPEG", "JPG"]:
-            if img.mode == "RGBA":
-                img = img.convert("RGB")
-            img.save(output_buffer, format="JPEG", quality=quality, optimize=True)
-        elif fmt == "PNG":
-            img.save(output_buffer, format="PNG", optimize=True)
-        elif fmt == "WEBP":
-            img.save(output_buffer, format="WEBP", quality=quality)
-        else:
-            img.save(output_buffer, format=fmt)
-        
-        return output_buffer.getvalue()
+            logger.error(f"Compression failed: {e}")
+            raise ValueError(f"Compression error: {str(e)}")
     
     @staticmethod
     def _detect_format(filename: str) -> str:
-        """Detect image format from filename"""
-        
+        """Detect format from filename"""
         ext = filename.rsplit(".", 1)[-1].lower()
-        
-        if ext == "jpg":
-            return "jpeg"
-        
-        return ext
+        return "jpeg" if ext == "jpg" else ext
 
-# Global instance
-compressor = SmartCompressor()
+compressor = ImageCompressor()
