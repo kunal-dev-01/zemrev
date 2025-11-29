@@ -1,8 +1,9 @@
-# ============================================================================
-# FILE: app/models/schemas.py
-# PURPOSE: Pydantic models for all API requests/responses
-# COMMIT: feat: add schemas for converter, compressor, resizer with URL support
-# ============================================================================
+"""
+============================================================================
+FILE: app/models/schemas.py
+PURPOSE: Pydantic models for API requests/responses
+============================================================================
+"""
 
 from pydantic import BaseModel, Field, HttpUrl, field_validator
 from typing import Optional, Literal
@@ -13,97 +14,117 @@ from enum import Enum
 # ============================================================================
 
 class OutputFormat(str, Enum):
-    """All supported output formats"""
-    # PyVips best
-    WEBP = "webp"
+    """Supported output formats (PyVips only)"""
     JPEG = "jpeg"
     JPG = "jpg"
     PNG = "png"
-    TIFF = "tiff"
+    WEBP = "webp"
     AVIF = "avif"
-    # Pillow best
-    BMP = "bmp"
+    TIFF = "tiff"
     GIF = "gif"
-    ICO = "ico"
-    PPM = "ppm"
+    BMP = "bmp"
+    HEIC = "heic"
 
-class CompressionLevel(str, Enum):
-    """Compression quality presets"""
-    LOW = "low"          # Quality 90 - Fast
-    MEDIUM = "medium"    # Quality 80 - Balanced
-    HIGH = "high"        # Quality 70 - Better compression
-    MAXIMUM = "maximum"  # Quality 60 - Max compression
+class ResizeMode(str, Enum):
+    """Resize modes"""
+    CONTAIN = "contain"       # Fit inside, maintain aspect
+    COVER = "cover"           # Fill area, crop excess
+    STRETCH = "stretch"       # Force exact dimensions
+    EXACT = "exact"           # Exact width/height
+
+class WatermarkPosition(str, Enum):
+    """Watermark positions"""
+    TOP_LEFT = "top-left"
+    TOP_RIGHT = "top-right"
+    BOTTOM_LEFT = "bottom-left"
+    BOTTOM_RIGHT = "bottom-right"
+    CENTER = "center"
 
 # ============================================================================
-# CONVERTER SCHEMAS
+# CONVERTER
 # ============================================================================
 
 class ConvertRequest(BaseModel):
-    """Image format conversion request"""
+    """Image format conversion"""
     format: OutputFormat = Field(default=OutputFormat.WEBP)
-    quality: int = Field(default=85, ge=1, le=100)
+    quality: int = Field(default=75, ge=1, le=100)
     url: Optional[HttpUrl] = Field(default=None)
 
-class ConvertResponse(BaseModel):
-    """Conversion result"""
-    filename: str
-    original_size: int
-    converted_size: int
-    format: str
-    compression_ratio: float
-    processing_time: float
-    engine_used: Literal["pyvips", "pillow"]
-
 # ============================================================================
-# COMPRESSOR SCHEMAS
+# COMPRESSOR
 # ============================================================================
 
 class CompressRequest(BaseModel):
-    """Image compression request"""
-    level: CompressionLevel = Field(default=CompressionLevel.MEDIUM)
-    quality: Optional[int] = Field(default=None, ge=1, le=100)
-    keep_format: bool = Field(default=True)
+    """Image compression"""
+    quality: int = Field(default=75, ge=1, le=100)
+    format: Optional[OutputFormat] = Field(default=None)
     url: Optional[HttpUrl] = Field(default=None)
 
-class CompressResponse(BaseModel):
-    """Compression result"""
-    filename: str
-    original_size: int
-    compressed_size: int
-    format: str
-    compression_ratio: float
-    processing_time: float
-    engine_used: Literal["pyvips", "pillow"]
-
 # ============================================================================
-# RESIZER SCHEMAS
+# RESIZER
 # ============================================================================
 
 class ResizeRequest(BaseModel):
-    """Image resize request"""
-    width: Optional[int] = Field(default=None, ge=1, le=10000)
-    height: Optional[int] = Field(default=None, ge=1, le=10000)
+    """Image resize"""
+    width: Optional[int] = Field(default=None, ge=1, le=15000)
+    height: Optional[int] = Field(default=None, ge=1, le=15000)
+    mode: ResizeMode = Field(default=ResizeMode.CONTAIN)
+    format: Optional[OutputFormat] = Field(default=None)
     url: Optional[HttpUrl] = Field(default=None)
     
     @field_validator('width', 'height')
     def check_dimensions(cls, v, info):
         if info.field_name == 'height' and v is None:
             if info.data.get('width') is None:
-                raise ValueError('At least one dimension required')
+                raise ValueError('At least width or height required')
         return v
 
-class ResizeResponse(BaseModel):
-    """Resize result"""
-    filename: str
-    original_size: int
-    resized_size: int
-    original_dimensions: str
-    new_dimensions: str
-    processing_time: float
-    engine_used: Literal["pyvips", "pillow"]
+# ============================================================================
+# OPTIMIZER
+# ============================================================================
+
+class OptimizeRequest(BaseModel):
+    """Image optimization"""
+    strip_exif: bool = Field(default=True)
+    strip_gps: bool = Field(default=True)
+    fix_orientation: bool = Field(default=True)
+    url: Optional[HttpUrl] = Field(default=None)
 
 # ============================================================================
-# COMMON SCHEMAS
+# CROPPER
+# ============================================================================
+
+class CropRequest(BaseModel):
+    """Image cropping"""
+    x: int = Field(ge=0)
+    y: int = Field(ge=0)
+    width: int = Field(ge=1, le=15000)
+    height: int = Field(ge=1, le=15000)
+    format: Optional[OutputFormat] = Field(default=None)
+    url: Optional[HttpUrl] = Field(default=None)
+
+# ============================================================================
+# WATERMARK
+# ============================================================================
+
+class TextWatermarkRequest(BaseModel):
+    """Text watermark"""
+    text: str = Field(max_length=200)
+    font_size: int = Field(default=48, ge=10, le=200)
+    color: str = Field(default="#FFFFFF")
+    opacity: float = Field(default=0.5, ge=0.0, le=1.0)
+    position: WatermarkPosition = Field(default=WatermarkPosition.BOTTOM_RIGHT)
+    url: Optional[HttpUrl] = Field(default=None)
+
+class ImageWatermarkRequest(BaseModel):
+    """Image watermark"""
+    scale: float = Field(default=0.2, ge=0.01, le=1.0)
+    opacity: float = Field(default=0.5, ge=0.0, le=1.0)
+    position: WatermarkPosition = Field(default=WatermarkPosition.BOTTOM_RIGHT)
+    url: Optional[HttpUrl] = Field(default=None)
+
+# ============================================================================
+# RESPONSES
 # ============================================================================
 
 class ErrorResponse(BaseModel):
@@ -112,15 +133,8 @@ class ErrorResponse(BaseModel):
     detail: Optional[str] = None
 
 class HealthResponse(BaseModel):
-    """Health check response"""
+    """Health check"""
     status: str
     redis: str
-    queue: dict
+    queue_size: int
     workers: int
-
-class FormatsResponse(BaseModel):
-    """Supported formats info"""
-    pyvips_formats: list[str]
-    pillow_formats: list[str]
-    all_formats: list[str]
-    total: int
