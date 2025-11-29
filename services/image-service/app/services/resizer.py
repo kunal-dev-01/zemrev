@@ -82,7 +82,20 @@ class ImageResizer:
             elif target_fmt == "webp":
                 output = resized.webpsave_buffer(Q=85, strip=True)
             elif target_fmt == "avif":
-                output = resized.heifsave_buffer(Q=50, compression="av1", strip=True)
+                try:
+                    output = img.heifsave_buffer(
+                        Q=50,
+                        compression="av1",
+                        speed=6,
+                        strip=True
+                    )
+                except Exception:
+                    # Fallback: try without compression parameter
+                    output = img.heifsave_buffer(
+                        Q=50,
+                        speed=6,
+                        strip=True
+                    )
             else:
                 output = resized.write_to_buffer(f".{target_fmt}")
             

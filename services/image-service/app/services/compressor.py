@@ -56,12 +56,20 @@ class ImageCompressor:
                 )
             
             elif target_fmt == "avif":
-                output = img.heifsave_buffer(
-                    Q=quality,
-                    compression="av1",
-                    speed=6,
-                    strip=True
-                )
+                try:
+                    output = img.heifsave_buffer(
+                        Q=quality,
+                        compression="av1",
+                        speed=6,
+                        strip=True
+                    )
+                except Exception:
+                    # Fallback: try without compression parameter
+                    output = img.heifsave_buffer(
+                        Q=quality,
+                        speed=6,
+                        strip=True
+                    )
             
             elif target_fmt == "tiff":
                 output = img.tiffsave_buffer(
@@ -73,12 +81,20 @@ class ImageCompressor:
                 output = img.gifsave_buffer(strip=True)
             
             elif target_fmt == "heic":
-                output = img.heifsave_buffer(
-                    Q=quality,
-                    compression="hevc",
-                    speed=6,
-                    strip=True
-                )
+                try:
+                    output = img.heifsave_buffer(
+                        Q=quality,
+                        compression="hevc",
+                        speed=6,
+                        strip=True
+                    )
+                except Exception:
+                    # Fallback: try without compression parameter
+                    output = img.heifsave_buffer(
+                        Q=quality,
+                        speed=6,
+                        strip=True
+                    )
             
             else:
                 raise ValueError(f"Unsupported format: {target_fmt}")
