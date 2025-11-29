@@ -1,8 +1,9 @@
-# ============================================================================
-# FILE: app/services/url_downloader.py
-# PURPOSE: Download images from URLs securely
-# COMMIT: feat: add secure URL image downloader with validation
-# ============================================================================
+"""
+============================================================================
+FILE: app/services/url_downloader.py
+PURPOSE: Secure URL image downloader
+============================================================================
+"""
 
 import httpx
 import logging
@@ -15,7 +16,8 @@ class URLDownloader:
     
     ALLOWED_TYPES = [
         "image/jpeg", "image/png", "image/webp", "image/gif",
-        "image/bmp", "image/tiff", "image/avif", "image/heif"
+        "image/bmp", "image/tiff", "image/avif", "image/heif",
+        "image/heic"
     ]
     
     @staticmethod
@@ -23,9 +25,6 @@ class URLDownloader:
         """
         Download image from URL
         
-        Args:
-            url: Image URL
-            
         Returns:
             tuple: (content_bytes, filename)
         """
@@ -36,18 +35,6 @@ class URLDownloader:
                 follow_redirects=True,
                 limits=httpx.Limits(max_connections=10)
             ) as client:
-                
-                # HEAD request to check size
-                try:
-                    head = await client.head(url)
-                    content_length = head.headers.get("content-length")
-                    
-                    if content_length and int(content_length) > settings.MAX_URL_SIZE:
-                        raise ValueError(
-                            f"File too large: {int(content_length)} bytes"
-                        )
-                except:
-                    pass
                 
                 # GET request
                 response = await client.get(url)
@@ -79,15 +66,12 @@ class URLDownloader:
             raise ValueError(f"HTTP {e.response.status_code}")
         except httpx.TimeoutException:
             raise ValueError("Download timeout")
-        except httpx.RequestError as e:
-            raise ValueError(f"Network error: {str(e)}")
         except Exception as e:
             raise ValueError(f"Download failed: {str(e)}")
     
     @staticmethod
     def _extract_filename(url: str) -> str:
         """Extract filename from URL"""
-        
         try:
             from urllib.parse import urlparse, unquote
             path = urlparse(url).path
@@ -100,5 +84,4 @@ class URLDownloader:
         except:
             return "download.jpg"
 
-# Global instance
 url_downloader = URLDownloader()
