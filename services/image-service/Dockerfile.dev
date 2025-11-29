@@ -5,77 +5,55 @@
 
 FROM python:3.11-slim
 
-# ============================================================================
-# INSTALL FULL DEV DEPENDENCIES
-# ============================================================================
-
+# ============================================================
+# Install dependencies needed to build libvips WITH HEIF/AVIF
+# ============================================================
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    # Build tools
     build-essential \
+    meson \
+    ninja-build \
     pkg-config \
-    cmake \
-    # Core libvips with HEIC/HEIF
-    libvips-dev \
-    libvips-tools \
-    # AVIF support
-    libaom-dev \
-    libaom3 \
-    # HEIF/HEIC support (CRITICAL!)
-    libheif-dev \
-    libheif1 \
+    curl \
+    libc6-dev \
+    libjpeg-dev \
+    libpng-dev \
+    libwebp-dev \
+    libtiff-dev \
+    libgif-dev \
+    libglib2.0-dev \
+    libexpat1-dev \
+    libxml2-dev \
     libde265-dev \
     libx265-dev \
-    # WebP support
-    libwebp-dev \
-    libwebpmux3 \
-    libwebpdemux2 \
-    # JPEG support
-    libjpeg62-turbo-dev \
-    # PNG support
-    libpng-dev \
-    # TIFF support
-    libtiff-dev \
-    # GIF support
-    libgif-dev \
-    # SVG support
-    librsvg2-dev \
-    # Font support
-    libfreetype6-dev \
-    libfribidi-dev \
-    libharfbuzz-dev \
-    libjpeg-dev \
-    liblcms2-dev \
-    libopenjp2-7-dev \
-    libtiff5-dev \
+    libaom-dev \
+    libheif-dev \
     zlib1g-dev \
-    # Dev utilities
-    curl \
-    vim \
-    htop \
     && rm -rf /var/lib/apt/lists/*
 
-# ============================================================================
-# SETUP
-# ============================================================================
+# ============================================================
+# Build libvips from source (FULL HEIF/AVIF support)
+# ============================================================
+ENV VIPS_VERSION=8.15.2
 
+RUN curl -LO https://github.com/libvips/libvips/releases/download/v${VIPS_VERSION}/vips-${VIPS_VERSION}.tar.gz \
+    && tar xf vips-${VIPS_VERSION}.tar.gz \
+    && cd vips-${VIPS_VERSION} \
+    && meson setup build --prefix=/usr \
+    && ninja -C build \
+    && ninja -C build install \
+    && ldconfig
+
+# ============================================================
+# Python setup
+# ============================================================
 WORKDIR /app
-
-# Install Python packages
 COPY requirements.txt .
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
 
-# Copy application
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
+
 COPY . .
 
 EXPOSE 8000
 
-# ============================================================================
-# DEV COMMAND (with reload)
-# ============================================================================
-
-CMD ["uvicorn", "app.main:app", \
-     "--host", "0.0.0.0", \
-     "--port", "8000", \
-     "--reload", \
-     "--log-level", "debug"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
