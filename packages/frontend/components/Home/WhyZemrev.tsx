@@ -8,21 +8,21 @@ const cardBase =
 const features = [
   {
     icon: Shield,
-    title: "100% Private",
-    desc: "Files never leave your device. Processing happens locally for maximum security.",
+    title: "Secure Processing",
+    desc: "Files are processed on isolated temporary servers and automatically deleted right after the task is completed.",
     color: "text-green-400",
   },
   {
     icon: Zap,
-    title: "Lightning Fast",
-    desc: "Zero upload time. Instant conversion and compression powered by your hardware.",
+    title: "Insanely Fast",
+    desc: "Optimized backend, queued workers, and high-speed image engines ensure quick results—even for large files.",
     color: "text-yellow-400",
     extra: "sm:translate-y-8",
   },
   {
     icon: HardDrive,
-    title: "Local Storage",
-    desc: "Output files are saved directly to your chosen folder. No download links to expire.",
+    title: "No File Storage",
+    desc: "We never store your files. No backups, no logs, nothing retained after processing.",
     color: "text-blue-400",
   },
 ];
@@ -31,9 +31,7 @@ const WhyZemrev: React.FC = () => {
   return (
     <section className="w-full md:mt-[10vw] mt-[10vh]">
       <div className="w-full relative">
-
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 relative z-10">
-          
           {/* Left Text Content */}
           <div className="flex flex-col justify-center space-y-6">
             {/* Badge */}
@@ -52,34 +50,35 @@ const WhyZemrev: React.FC = () => {
             </h2>
 
             <p className="text-lg leading-relaxed text-zinc-500">
-              We never store your files. Each task is processed on fast, temporary servers using our optimized backend and queue system. Your files are handled only long enough to generate the result, then immediately deleted—delivered straight to your browser.
+              Every file is processed on our fast backend using isolated
+              temporary storage. Nothing is stored permanently—your file exists
+              only during the conversion or compression step and is deleted
+              immediately after the output is generated.
             </p>
 
             <ul className="space-y-3 mt-4">
-              {["No server uploads", "Military-grade encryption", "Fast processing"].map(
-                (item, index) => (
-                  <li
-                    key={index}
-                    className="flex items-center gap-3 text-zinc-700 dark:text-zinc-300"
-                  >
-                    <span className="w-5 h-5 text-emerald-400">
-                      <CheckSvg />
-                    </span>
-                    {item}
-                  </li>
-                )
-              )}
+              {[
+                "No permanent file storage",
+                "End-to-end encrypted transfer",
+                "High-speed server processing",
+              ].map((item, index) => (
+                <li
+                  key={index}
+                  className="flex items-center gap-3 text-zinc-700 dark:text-zinc-300"
+                >
+                  <span className="w-5 h-5 text-emerald-400">
+                    <CheckSvg />
+                  </span>
+                  {item}
+                </li>
+              ))}
             </ul>
           </div>
 
           {/* Right Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
             {features.map(({ icon: Icon, title, desc, color, extra }, i) => (
-              <div
-                key={i}
-                className={`${cardBase} ${extra || ""}`}
-              >
+              <div key={i} className={`${cardBase} ${extra || ""}`}>
                 <div className={`mb-4 w-10 h-10 ${color}`}>
                   <Icon />
                 </div>
@@ -99,10 +98,8 @@ const WhyZemrev: React.FC = () => {
               </div>
               <p className="text-sm text-zinc-500">Files Processed Daily</p>
             </div>
-
           </div>
         </div>
-
       </div>
     </section>
   );

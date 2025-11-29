@@ -5,14 +5,20 @@ const footerLinks = {
     { name: "About Us", href: "/legal?page=about" },
     { name: "Contact", href: "/legal?page=contact" },
   ],
+
   legal: [
-    { name: "Privacy", href: "/legal?page=privacy" },
-    { name: "Terms", href: "/legal?page=terms" },
+    { name: "Privacy Policy", href: "/legal?page=privacy" },
+    { name: "Terms of Service", href: "/legal?page=terms" },
+    { name: "Disclaimer", href: "/legal?page=disclaimer" },
   ],
-  tools: [
-    { name: "Converter", href: "/image/image-converter" },
-    { name: "Compressor", href: "/image/image-compressor" },
-    { name: "Resizer", href: "/image/image-resizer" },
+
+  imageTools: [
+    { name: "Image Converter", href: "/image/image-converter" },
+    { name: "Image Compressor", href: "/image/image-compressor" },
+    { name: "Image Resizer", href: "/image/image-resizer" },
+    { name: "Image Optimizer", href: "/image/image-optimizer" },
+    { name: "Image Cropper", href: "/image/image-cropper" },
+    { name: "Watermark Tool", href: "/image/image-watermark" },
   ],
 };
 
@@ -69,9 +75,15 @@ const Footer = () => {
           </p>
         </div>
 
+        {/* Company */}
         <FooterSection title="Company" links={footerLinks.company} />
+
+        {/* Legal */}
         <FooterSection title="Legal" links={footerLinks.legal} />
-        <FooterSection title="Product" links={footerLinks.tools} />
+
+        {/* Image Tools */}
+        <FooterSection title="Image Tools" links={footerLinks.imageTools} />
+
       </div>
 
       {/* Bottom Section */}
@@ -83,7 +95,7 @@ const Footer = () => {
         "
       >
         <p className="text-xs text-zinc-400 dark:text-zinc-500">
-          &#169; {year} Zemrev. Built for performance. Engineered for privacy.
+          © {year} Zemrev. Built for performance. Engineered for privacy.
         </p>
 
         <div className="flex gap-6">

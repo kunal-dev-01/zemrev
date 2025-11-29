@@ -3,6 +3,7 @@ import AboutUs from "./About";
 import Contact from "./Contact";
 import Terms from "./Terms";
 import PrivacyPolicy from "./Privacy";
+import Disclaimer from "./Disclaimer";
 import { JSX } from "react";
 
 const Index = () => {
@@ -13,6 +14,7 @@ const Index = () => {
     contact: <Contact />,
     terms: <Terms />,
     privacy: <PrivacyPolicy />,
+    disclaimer: <Disclaimer />,
   };
 
   const CurrentPage = pages[slugParam] || <AboutUs />;
