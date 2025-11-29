@@ -1,7 +1,6 @@
 # ============================================================================
 # FILE: docker-compose.dev.yml (ROOT)
 # PURPOSE: Development environment with hot-reload
-# COMMIT: feat: add development docker-compose with volume mounting
 # ============================================================================
 
 version: '3.9'
@@ -9,18 +8,18 @@ version: '3.9'
 services:
   redis:
     image: redis:7-alpine
-    container_name: img_redis_dev
+    container_name: zemrev_redis_dev
     ports:
       - "6379:6379"
     networks:
-      - dev_net
+      - zemrev_dev
     command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
 
   api:
     build:
       context: ./services/image-service
       dockerfile: Dockerfile.dev
-    container_name: img_api_dev
+    container_name: zemrev_api_dev
     ports:
       - "8000:8000"
     env_file:
@@ -31,9 +30,8 @@ services:
     depends_on:
       - redis
     networks:
-      - dev_net
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --log-level debug
+      - zemrev_dev
 
 networks:
-  dev_net:
+  zemrev_dev:
     driver: bridge

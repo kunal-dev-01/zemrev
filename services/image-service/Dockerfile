@@ -1,7 +1,6 @@
 # ============================================================================
 # FILE: services/image-service/Dockerfile
-# PURPOSE: Production-optimized multi-stage build
-# COMMIT: feat: add production Dockerfile with security hardening
+# PURPOSE: Production-optimized multi-stage build (PyVIPS + HEIC support)
 # ============================================================================
 
 # ============================================================================
@@ -10,11 +9,12 @@
 
 FROM python:3.11-slim AS builder
 
-# Install build dependencies only
+# Install build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     pkg-config \
     cmake \
+    # PyVIPS with HEIC/HEIF support
     libvips-dev \
     libaom-dev \
     libheif-dev \
@@ -34,7 +34,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python packages to user directory
+# Install Python packages
 COPY requirements.txt .
 RUN pip install --no-cache-dir --user -r requirements.txt
 
@@ -44,27 +44,32 @@ RUN pip install --no-cache-dir --user -r requirements.txt
 
 FROM python:3.11-slim
 
-# Install ONLY runtime libraries (no -dev packages)
+# Install ONLY runtime libraries
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    # Core libraries (runtime only)
+    # Core PyVIPS runtime
     libvips42 \
     libvips-tools \
     # AVIF support
     libaom3 \
-    # HEIF support
+    # HEIF/HEIC support (CRITICAL!)
     libheif1 \
     libde265-0 \
     libx265-199 \
-    # Image formats
+    # WebP support
     libwebp7 \
     libwebpmux3 \
     libwebpdemux2 \
+    # JPEG support
     libjpeg62-turbo \
+    # PNG support
     libpng16-16 \
+    # TIFF support
     libtiff5 \
+    # GIF support
     libgif7 \
+    # SVG support
     librsvg2-2 \
-    # Pillow runtime deps
+    # Font support
     libfreetype6 \
     libfribidi0 \
     libharfbuzz0b \
@@ -75,15 +80,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# ============================================================================
-# COPY PYTHON PACKAGES FROM BUILDER
-# ============================================================================
-
+# Copy Python packages from builder
 COPY --from=builder /root/.local /root/.local
 ENV PATH=/root/.local/bin:$PATH
 
 # ============================================================================
-# SECURITY: CREATE NON-ROOT USER
+# SECURITY: NON-ROOT USER
 # ============================================================================
 
 RUN useradd -m -u 1000 appuser && \
@@ -92,27 +94,26 @@ RUN useradd -m -u 1000 appuser && \
 
 WORKDIR /app
 
-# Copy application code
+# Copy application
 COPY --chown=appuser:appuser . .
 
-# Switch to non-root user
 USER appuser
 
 # ============================================================================
-# EXPOSE PORT
+# EXPOSE & HEALTH
 # ============================================================================
 
 EXPOSE 8000
-
-# ============================================================================
-# HEALTH CHECK
-# ============================================================================
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
 # ============================================================================
-# PRODUCTION COMMAND (4 workers, optimized)
+# START COMMAND
 # ============================================================================
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4", "--log-level", "info"]
+CMD ["uvicorn", "app.main:app", \
+     "--host", "0.0.0.0", \
+     "--port", "8000", \
+     "--workers", "4", \
+     "--log-level", "info"]
