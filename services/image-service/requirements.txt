@@ -1,7 +1,6 @@
 # ============================================================================
 # FILE: requirements.txt
-# PURPOSE: Python package dependencies
-# COMMIT: feat: add production dependencies
+# PURPOSE: Python dependencies (PyVIPS only, NO Pillow)
 # ============================================================================
 
 # FastAPI Core
@@ -9,9 +8,8 @@ fastapi==0.109.0
 uvicorn[standard]==0.27.0
 python-multipart==0.0.6
 
-# Image Processing
+# Image Processing (PyVIPS ONLY)
 pyvips==2.2.3
-Pillow==10.2.0
 
 # Redis
 redis==5.0.1
