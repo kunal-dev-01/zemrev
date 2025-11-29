@@ -1,8 +1,9 @@
-# ============================================================================
-# FILE: app/core/redis_client.py
-# PURPOSE: Redis connection and operations
-# COMMIT: feat: add async Redis client with connection pooling
-# ============================================================================
+"""
+============================================================================
+FILE: app/core/redis_client.py
+PURPOSE: Async Redis client with connection pooling
+============================================================================
+"""
 
 import redis.asyncio as aioredis
 from app.core.config import settings
@@ -77,12 +78,5 @@ class RedisClient:
     
     async def llen(self, key: str):
         return await self.redis.llen(key)
-    
-    async def hset(self, key: str, mapping: dict):
-        return await self.redis.hset(key, mapping=mapping)
-    
-    async def hgetall(self, key: str):
-        return await self.redis.hgetall(key)
 
-# Global instance
 redis_client = RedisClient()
