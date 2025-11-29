@@ -35,7 +35,7 @@ const steps = [
 
 const HowItWorks: React.FC = () => {
   return (
-    <section className="w-full py-24 md:px-12">
+    <section className="w-full py-24 mt-[5vw]">
       <div className="w-full mx-auto">
 
         {/* Section Header */}
