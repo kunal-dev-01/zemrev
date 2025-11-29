@@ -1,8 +1,9 @@
-# ============================================================================
-# FILE: app/services/queue_worker.py
-# PURPOSE: Background workers for processing jobs
-# COMMIT: feat: add background workers with graceful shutdown
-# ============================================================================
+"""
+============================================================================
+FILE: app/services/queue_worker.py
+PURPOSE: Background workers for processing jobs
+============================================================================
+"""
 
 import asyncio
 import time
@@ -12,7 +13,10 @@ from app.services.queue_manager import queue_manager
 from app.services.converter import converter
 from app.services.compressor import compressor
 from app.services.resizer import resizer
-from app.models.schemas import ConvertRequest, CompressRequest, ResizeRequest
+from app.services.optimizer import optimizer
+from app.services.cropper import cropper
+from app.services.watermark import watermarker
+from app.models.schemas import *
 
 logger = logging.getLogger(__name__)
 
@@ -41,44 +45,78 @@ class QueueWorker:
             # Process based on type
             if job_type == "convert":
                 options = ConvertRequest(**task_data["options"])
-                output, new_name, engine = converter.convert(
-                    content, filename, options
-                )
+                output, new_name = converter.convert(content, filename, options)
                 
                 result = {
                     "filename": new_name,
                     "original_size": len(content),
-                    "converted_size": len(output),
-                    "engine_used": engine,
+                    "output_size": len(output),
                     "processing_time": time.time() - start_time
                 }
             
             elif job_type == "compress":
                 options = CompressRequest(**task_data["options"])
-                output, new_name, engine = compressor.compress(
-                    content, filename, options
-                )
+                output, new_name = compressor.compress(content, filename, options)
                 
                 result = {
                     "filename": new_name,
                     "original_size": len(content),
-                    "compressed_size": len(output),
-                    "engine_used": engine,
+                    "output_size": len(output),
                     "processing_time": time.time() - start_time
                 }
             
             elif job_type == "resize":
                 options = ResizeRequest(**task_data["options"])
-                output, new_name, dims, engine = resizer.resize(
-                    content, filename, options
-                )
+                output, new_name, dims = resizer.resize(content, filename, options)
+                
+                result = {
+                    "filename": new_name,
+                    "dimensions": f"{dims[0]}x{dims[1]}",
+                    "original_size": len(content),
+                    "output_size": len(output),
+                    "processing_time": time.time() - start_time
+                }
+            
+            elif job_type == "optimize":
+                options = OptimizeRequest(**task_data["options"])
+                output, new_name = optimizer.optimize(content, filename, options)
                 
                 result = {
                     "filename": new_name,
                     "original_size": len(content),
-                    "resized_size": len(output),
-                    "new_dimensions": f"{dims[0]}x{dims[1]}",
-                    "engine_used": engine,
+                    "output_size": len(output),
+                    "processing_time": time.time() - start_time
+                }
+            
+            elif job_type == "crop":
+                options = CropRequest(**task_data["options"])
+                output, new_name = cropper.crop(content, filename, options)
+                
+                result = {
+                    "filename": new_name,
+                    "original_size": len(content),
+                    "output_size": len(output),
+                    "processing_time": time.time() - start_time
+                }
+            
+            elif job_type == "watermark_text":
+                options = TextWatermarkRequest(**task_data["options"])
+                output, new_name = watermarker.add_text_watermark(content, filename, options)
+                
+                result = {
+                    "filename": new_name,
+                    "processing_time": time.time() - start_time
+                }
+            
+            elif job_type == "watermark_image":
+                options = ImageWatermarkRequest(**task_data["options"])
+                watermark_content = task_data["watermark_content"]
+                output, new_name = watermarker.add_image_watermark(
+                    content, watermark_content, filename, options
+                )
+                
+                result = {
+                    "filename": new_name,
                     "processing_time": time.time() - start_time
                 }
             
@@ -159,5 +197,4 @@ class WorkerManager:
         
         logger.info("✅ Workers stopped")
 
-# Global instance
 worker_manager = WorkerManager()
