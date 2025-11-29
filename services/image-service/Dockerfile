@@ -1,87 +1,112 @@
 # ============================================================================
 # FILE: services/image-service/Dockerfile
-# PURPOSE: Production-optimized multi-stage build (PyVIPS + HEIC support)
+# PURPOSE: Production build with FULL AVIF/HEIC encoding support
 # ============================================================================
 
 # ============================================================================
-# STAGE 1: BUILDER
+# STAGE 1: BUILD LIBHEIF WITH ENCODERS
 # ============================================================================
 
-FROM python:3.11-slim AS builder
+FROM python:3.11-slim AS libheif-builder
 
-# Install build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    pkg-config \
-    cmake \
-    # PyVIPS with HEIC/HEIF support
-    libvips-dev \
-    libaom-dev \
-    libheif-dev \
-    libde265-dev \
-    libx265-dev \
-    libwebp-dev \
-    libjpeg62-turbo-dev \
-    libpng-dev \
-    libtiff-dev \
-    libgif-dev \
-    librsvg2-dev \
-    libfreetype6-dev \
-    libfribidi-dev \
-    libharfbuzz-dev \
-    liblcms2-dev \
-    libopenjp2-7-dev \
-    zlib1g-dev \
+    build-essential pkg-config cmake wget \
+    libaom-dev libx265-dev libde265-dev libjpeg62-turbo-dev libpng-dev \
     && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /tmp
+RUN wget https://github.com/strukturag/libheif/releases/download/v1.17.6/libheif-1.17.6.tar.gz && \
+    tar xf libheif-1.17.6.tar.gz && cd libheif-1.17.6 && mkdir build && cd build && \
+    cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local \
+        -DWITH_EXAMPLES=OFF -DWITH_AOM_ENCODER=ON -DWITH_AOM_DECODER=ON \
+        -DWITH_X265=ON -DWITH_LIBDE265=ON && \
+    make -j$(nproc) && make install && ldconfig
+
+# ============================================================================
+# STAGE 2: BUILD LIBVIPS WITH HEIF SUPPORT
+# ============================================================================
+
+FROM python:3.11-slim AS libvips-builder
+
+# Copy libheif from previous stage
+COPY --from=libheif-builder /usr/local /usr/local
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential pkg-config meson ninja-build wget \
+    libaom-dev libx265-dev libde265-dev \
+    libjpeg62-turbo-dev libpng-dev libwebp-dev libtiff-dev libgif-dev \
+    librsvg2-dev libfreetype6-dev libfribidi-dev libharfbuzz-dev \
+    liblcms2-dev libopenjp2-7-dev zlib1g-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN ldconfig
+
+WORKDIR /tmp
+RUN wget https://github.com/libvips/libvips/releases/download/v8.15.1/vips-8.15.1.tar.xz && \
+    tar xf vips-8.15.1.tar.xz && cd vips-8.15.1 && \
+    meson setup build --buildtype=release --prefix=/usr/local \
+        -Dheif=enabled -Dheif-module=enabled && \
+    cd build && ninja && ninja install && ldconfig
+
+# ============================================================================
+# STAGE 3: PYTHON BUILDER
+# ============================================================================
+
+FROM python:3.11-slim AS python-builder
+
+# Copy libheif + libvips
+COPY --from=libvips-builder /usr/local /usr/local
+
+# Install runtime libs for building pyvips
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    pkg-config gcc \
+    libaom3 libx265-209 libde265-0 \
+    libjpeg62-turbo libpng16-16 libwebp7 libtiff6 libgif7 \
+    librsvg2-2 libfreetype6 libfribidi0 libharfbuzz0b \
+    liblcms2-2 libopenjp2-7 zlib1g \
+    && rm -rf /var/lib/apt/lists/* || \
+    apt-get update && apt-get install -y --no-install-recommends \
+    pkg-config gcc \
+    libaom3 libde265-0 \
+    libjpeg62-turbo libpng16-16 libwebp7 libtiff6 libgif7 \
+    librsvg2-2 libfreetype6 libfribidi0 libharfbuzz0b \
+    liblcms2-2 libopenjp2-7 zlib1g \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN ldconfig
 
 # Install Python packages
 COPY requirements.txt .
 RUN pip install --no-cache-dir --user -r requirements.txt
 
 # ============================================================================
-# STAGE 2: RUNTIME (Minimal)
+# STAGE 4: RUNTIME (Minimal)
 # ============================================================================
 
 FROM python:3.11-slim
 
+# Copy libheif + libvips + Python packages
+COPY --from=python-builder /usr/local /usr/local
+COPY --from=python-builder /root/.local /root/.local
+
 # Install ONLY runtime libraries
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    # Core PyVIPS runtime
-    libvips42 \
-    libvips-tools \
-    # AVIF support
-    libaom3 \
-    # HEIF/HEIC support (CRITICAL!)
-    libheif1 \
-    libde265-0 \
-    libx265-199 \
-    # WebP support
-    libwebp7 \
-    libwebpmux3 \
-    libwebpdemux2 \
-    # JPEG support
-    libjpeg62-turbo \
-    # PNG support
-    libpng16-16 \
-    # TIFF support
-    libtiff5 \
-    # GIF support
-    libgif7 \
-    # SVG support
-    librsvg2-2 \
-    # Font support
-    libfreetype6 \
-    libfribidi0 \
-    libharfbuzz0b \
-    liblcms2-2 \
-    libopenjp2-7 \
-    zlib1g \
-    # Utilities
     curl \
+    libaom3 libx265-209 libde265-0 \
+    libjpeg62-turbo libpng16-16 libwebp7 libwebpmux3 libwebpdemux2 \
+    libtiff6 libgif7 librsvg2-2 \
+    libfreetype6 libfribidi0 libharfbuzz0b liblcms2-2 libopenjp2-7 zlib1g \
+    && rm -rf /var/lib/apt/lists/* || \
+    apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    libaom3 libde265-0 \
+    libjpeg62-turbo libpng16-16 libwebp7 libwebpmux3 libwebpdemux2 \
+    libtiff6 libgif7 librsvg2-2 \
+    libfreetype6 libfribidi0 libharfbuzz0b liblcms2-2 libopenjp2-7 zlib1g \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy Python packages from builder
-COPY --from=builder /root/.local /root/.local
+RUN ldconfig
+
 ENV PATH=/root/.local/bin:$PATH
 
 # ============================================================================

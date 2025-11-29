@@ -1,59 +1,129 @@
 # ============================================================================
 # FILE: services/image-service/Dockerfile.dev
-# PURPOSE: Development image with full tools
+# PURPOSE: Development image with WORKING AVIF/HEIC encoding
 # ============================================================================
 
 FROM python:3.11-slim
 
-# ============================================================
-# Install dependencies needed to build libvips WITH HEIF/AVIF
-# ============================================================
+# ============================================================================
+# INSTALL BUILD TOOLS
+# ============================================================================
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
+    pkg-config \
+    cmake \
     meson \
     ninja-build \
-    pkg-config \
+    wget \
+    git \
     curl \
-    libc6-dev \
-    libjpeg-dev \
+    vim \
+    htop \
+    && rm -rf /var/lib/apt/lists/*
+
+# ============================================================================
+# BUILD LIBHEIF FROM SOURCE WITH ENCODERS
+# ============================================================================
+
+WORKDIR /tmp
+
+# Install encoder dependencies (only -dev packages, runtime auto-installs)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libaom-dev \
+    libx265-dev \
+    libde265-dev \
+    libjpeg62-turbo-dev \
     libpng-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Compile libheif WITH AV1 and HEVC encoders
+RUN wget https://github.com/strukturag/libheif/releases/download/v1.17.6/libheif-1.17.6.tar.gz && \
+    tar xf libheif-1.17.6.tar.gz && \
+    cd libheif-1.17.6 && \
+    mkdir build && cd build && \
+    cmake .. \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX=/usr/local \
+        -DWITH_EXAMPLES=ON \
+        -DWITH_AOM_ENCODER=ON \
+        -DWITH_AOM_DECODER=ON \
+        -DWITH_X265=ON \
+        -DWITH_LIBDE265=ON \
+        && \
+    make -j$(nproc) && \
+    make install && \
+    ldconfig && \
+    cd /tmp && rm -rf libheif-*
+
+# Verify libheif has encoders
+RUN echo "=== LIBHEIF VERSION ===" && \
+    pkg-config --modversion libheif && \
+    echo "=== LIBHEIF ENCODERS ===" && \
+    heif-enc --version || echo "heif-enc installed"
+
+# ============================================================================
+# BUILD LIBVIPS WITH HEIF SUPPORT
+# ============================================================================
+
+# Install other image libraries
+RUN apt-get update && apt-get install -y --no-install-recommends \
     libwebp-dev \
     libtiff-dev \
     libgif-dev \
-    libglib2.0-dev \
-    libexpat1-dev \
-    libxml2-dev \
-    libde265-dev \
-    libx265-dev \
-    libaom-dev \
-    libheif-dev \
+    librsvg2-dev \
+    libfreetype6-dev \
+    libfribidi-dev \
+    libharfbuzz-dev \
+    liblcms2-dev \
+    libopenjp2-7-dev \
     zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# ============================================================
-# Build libvips from source (FULL HEIF/AVIF support)
-# ============================================================
-ENV VIPS_VERSION=8.15.2
+# Compile libvips
+RUN wget https://github.com/libvips/libvips/releases/download/v8.15.1/vips-8.15.1.tar.xz && \
+    tar xf vips-8.15.1.tar.xz && \
+    cd vips-8.15.1 && \
+    meson setup build \
+        --buildtype=release \
+        --prefix=/usr/local \
+        -Dheif=enabled \
+        -Dheif-module=enabled \
+        && \
+    cd build && \
+    ninja && \
+    ninja install && \
+    ldconfig && \
+    cd /tmp && rm -rf vips-*
 
-RUN curl -LO https://github.com/libvips/libvips/releases/download/v${VIPS_VERSION}/vips-${VIPS_VERSION}.tar.gz \
-    && tar xf vips-${VIPS_VERSION}.tar.gz \
-    && cd vips-${VIPS_VERSION} \
-    && meson setup build --prefix=/usr \
-    && ninja -C build \
-    && ninja -C build install \
-    && ldconfig
+# Verify libvips HEIF support
+RUN echo "=== LIBVIPS VERSION ===" && \
+    vips --vips-version && \
+    echo "=== HEIF SUPPORT ===" && \
+    vips list classes | grep -i heif
 
-# ============================================================
-# Python setup
-# ============================================================
+# ============================================================================
+# SETUP APPLICATION
+# ============================================================================
+
 WORKDIR /app
+
+# Install Python packages
 COPY requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir -r requirements.txt
-
+# Copy application
 COPY . .
 
 EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# ============================================================================
+# DEV COMMAND
+# ============================================================================
+
+CMD ["uvicorn", "app.main:app", \
+     "--host", "0.0.0.0", \
+     "--port", "8000", \
+     "--reload", \
+     "--log-level", "debug"]
