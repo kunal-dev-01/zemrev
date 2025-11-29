@@ -9,7 +9,7 @@ const Index = dynamic(() => import("@/components/Home/Index"), {
   )
 })
 
-const page = () => {
+const Home = () => {
   return (
     <div className='w-full sidebar-hide'>
         <Index />
@@ -17,4 +17,4 @@ const page = () => {
   )
 }
 
-export default page
+export default Home
