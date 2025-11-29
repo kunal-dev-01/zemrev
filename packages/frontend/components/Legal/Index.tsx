@@ -9,7 +9,7 @@ const Index = () => {
     
 
   return (
-    <div className="w-full">
+    <div className="w-full md:px-12">
         {slug === "about" && <AboutUs />}
         {slug === "terms" && <Terms />}
         {slug === "privacy" && <PrivacyPolicy />}

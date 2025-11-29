@@ -32,7 +32,7 @@ const WhyZemrev: React.FC = () => {
     <section className="w-full md:mt-[5vw] mt-[5vh]">
       <div className="w-full relative">
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 p-2 md:p-12 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:p-12 relative z-10">
           
           {/* Left Text Content */}
           <div className="flex flex-col justify-center space-y-6">

@@ -52,26 +52,23 @@ body {
   }
 }
 
-.sidebar-hide {
+@media (max-width: 768px) {
   ::-webkit-scrollbar {
     display: none;
+    height: 0px;
+    width: 0px;
   }
 
-  @media (max-width: 768px) {
-    ::-webkit-scrollbar {
-      display: none;
-      height: 0px;
-      width: 0px;
-    }
-
-    * {
-      scrollbar-width: none;
-      -ms-overflow-style: none;
-    }
-  }
-
-  body {
-    -ms-overflow-style: none;
+  * {
     scrollbar-width: none;
+    -ms-overflow-style: none;
   }
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+body {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

@@ -11,7 +11,7 @@ const Index = dynamic(() => import("@/components/Home/Index"), {
 
 const page = () => {
   return (
-    <div className='w-full'>
+    <div className='w-full sidebar-hide'>
         <Index />
     </div>
   )

@@ -45,7 +45,7 @@ const tools = [
 const ToolsGridSection: React.FC = () => {
   return (
     <section className="w-full">
-      <div id="tools" className="w-full p-2 md:p-10">
+      <div id="tools" className="w-full md:p-12">
 
         {/* Section Title */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8">
