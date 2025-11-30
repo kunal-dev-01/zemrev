@@ -60,13 +60,13 @@ class ImageCompressor:
                     output = img.heifsave_buffer(
                         Q=quality,
                         compression="av1",
-                        speed=6,
+                        speed=8,
                         strip=True
                     )
                 except Exception:
                     output = img.heifsave_buffer(
                         Q=quality,
-                        speed=6,
+                        speed=8,
                         strip=True
                     )
             
@@ -84,13 +84,13 @@ class ImageCompressor:
                     output = img.heifsave_buffer(
                         Q=quality,
                         compression="hevc",
-                        speed=6,
+                        speed=8,
                         strip=True
                     )
                 except Exception:
                     output = img.heifsave_buffer(
                         Q=quality,
-                        speed=6,
+                        speed=8,
                         strip=True
                     )
 
@@ -99,13 +99,13 @@ class ImageCompressor:
                     output = img.heifsave_buffer(
                         Q=quality,
                         compression="av1",
-                        speed=6,
+                        speed=8,
                         strip=True
                     )
                 except Exception:
                     output = img.heifsave_buffer(
                         Q=quality,
-                        speed=6,
+                        speed=8,
                         strip=True
                     )
             
