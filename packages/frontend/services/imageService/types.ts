@@ -1,4 +1,8 @@
-// services/image-service/types.ts
+// ============================================================================
+// FILE: src/services/imageService/types.ts
+// PURPOSE: TypeScript types for image service
+// COMMIT: feat: add TypeScript types for image operations
+// ============================================================================
 
 // ==================== ENUMS ====================
 
@@ -9,6 +13,7 @@ export enum OutputFormat {
   WEBP = "webp",
   AVIF = "avif",
   HEIC = "heic",
+  HEIF = "heif",
   TIFF = "tiff",
   GIF = "gif",
   BMP = "bmp",
@@ -29,15 +34,14 @@ export enum WatermarkPosition {
   CENTER = "center",
 }
 
-export enum ToolType {
-  CONVERT = "convert",
-  COMPRESS = "compress",
-  RESIZE = "resize",
-  OPTIMIZE = "optimize",
-  CROP = "crop",
-  WATERMARK_TEXT = "watermark_text",
-  WATERMARK_IMAGE = "watermark_image",
+export enum ImageStatus {
+  PENDING = "pending",
+  PROCESSING = "processing",
+  COMPLETED = "completed",
+  FAILED = "failed",
 }
+
+export type ToolName = "convert" | "compress" | "resize" | "optimize" | "crop" | "watermark";
 
 // ==================== REQUEST TYPES ====================
 
@@ -45,13 +49,13 @@ export interface ConvertRequest {
   file?: File;
   url?: string;
   format: OutputFormat;
-  quality: number; // 1-100
+  quality: number;
 }
 
 export interface CompressRequest {
   file?: File;
   url?: string;
-  quality: number; // 1-100
+  quality: number;
   format?: OutputFormat;
 }
 
@@ -86,9 +90,9 @@ export interface TextWatermarkRequest {
   file?: File;
   url?: string;
   text: string;
-  font_size: number; // 10-200
-  color: string; // Hex color
-  opacity: number; // 0.0-1.0
+  font_size: number;
+  color: string;
+  opacity: number;
   position: WatermarkPosition;
 }
 
@@ -96,51 +100,53 @@ export interface ImageWatermarkRequest {
   file?: File;
   url?: string;
   watermark: File;
-  scale: number; // 0.01-1.0
-  opacity: number; // 0.0-1.0
+  scale: number;
+  opacity: number;
   position: WatermarkPosition;
 }
 
-// ==================== RESPONSE TYPES ====================
+// ==================== IMAGE STATE ====================
 
-export interface ToolResponse {
-  status: string;
-  message: string;
-  data: {
-    filename: string;
-    original_size: number;
-    output_size: number;
-    processing_time: number;
-    download_url?: string;
-  };
-}
-
-
-// ==================== STATE TYPES ====================
-
-export interface ImageState {
-  currentTool: ImageType | null;
-  isProcessing: boolean;
-  progress: number; // 0-100
-  result: ToolResponse | null;
-  error: string | null;
-  history: ToolHistoryItem[];
-}
-
-export interface ToolHistoryItem {
+export interface ImageItem {
   id: string;
-  tool: ToolType;
-  timestamp: number;
-  filename: string;
-  success: boolean;
+  file: File;
+  name: string;
+  size: number;
+  preview: string;
+  status: ImageStatus;
+  result?: Blob;
+  resultUrl?: string;
   error?: string;
+  progress: number;
 }
 
-// ==================== ERROR TYPES ====================
+// ==================== BATCH STATE ====================
 
-export interface ToolError {
-  status: string;
-  message: string;
-  error?: string;
-  statusCode?: number;
+export interface BatchState {
+  images: ImageItem[];
+  isProcessing: boolean;
+  completedCount: number;
+  failedCount: number;
+}
+
+export interface BatchSettings {
+  convert?: {
+    format: OutputFormat;
+    quality: number;
+  };
+  compress?: {
+    quality: number;
+    format?: OutputFormat;
+  };
+  resize?: {
+    width?: number;
+    height?: number;
+    mode: ResizeMode;
+    format?: OutputFormat;
+  };
+  optimize?: {
+    strip_exif: boolean;
+    strip_gps: boolean;
+    fix_orientation: boolean;
+  };
 }
