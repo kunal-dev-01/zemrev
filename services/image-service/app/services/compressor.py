@@ -64,7 +64,6 @@ class ImageCompressor:
                         strip=True
                     )
                 except Exception:
-                    # Fallback: try without compression parameter
                     output = img.heifsave_buffer(
                         Q=quality,
                         speed=6,
@@ -89,7 +88,21 @@ class ImageCompressor:
                         strip=True
                     )
                 except Exception:
-                    # Fallback: try without compression parameter
+                    output = img.heifsave_buffer(
+                        Q=quality,
+                        speed=6,
+                        strip=True
+                    )
+
+            elif target_fmt == "heif":
+                try:
+                    output = img.heifsave_buffer(
+                        Q=quality,
+                        compression="av1",
+                        speed=6,
+                        strip=True
+                    )
+                except Exception:
                     output = img.heifsave_buffer(
                         Q=quality,
                         speed=6,
