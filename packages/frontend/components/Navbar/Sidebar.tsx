@@ -3,7 +3,7 @@
 import { useCallback, FC } from "react";
 import Link from "next/link";
 import clsx from "clsx";
-import { useCommonModal } from "@/hooks/common.hooks";
+import { useCommonModal } from "@/hooks/appHooks/common.hooks";
 import { SidebarCloseSvg } from "@/components/Svg/NavSvg";
 import { ResizeSvg, Minimize2,ArrowRightLeft, FileImage, CropSvg, Watermark } from "../Svg/HomeSvg";
 
