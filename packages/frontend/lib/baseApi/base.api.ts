@@ -1,7 +1,7 @@
 // ============================================================================
 // FILE: src/lib/baseApi/base.api.ts
 // PURPOSE: RTK Query base API configuration
-// COMMIT: feat: add RTK Query base API with error handling
+// COMMIT: feat: add RTK Query base API for image operations
 // ============================================================================
 
 import {
@@ -12,7 +12,7 @@ import {
   FetchBaseQueryError,
 } from "@reduxjs/toolkit/query/react";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_TOOLS_API_URL!;
+const API_BASE_URL = process.env.NEXT_PUBLIC_TOOLS_API_URL || "http://localhost:8000/api/v1";
 
 const baseQueryWithSettings = fetchBaseQuery({
   baseUrl: API_BASE_URL,
@@ -42,6 +42,6 @@ const baseQueryWithErrorHandling: BaseQueryFn<
 export const baseApi = createApi({
   reducerPath: "api",
   baseQuery: baseQueryWithErrorHandling,
-  tagTypes: ["Tools", "Health"],
+  tagTypes: ["Image"],
   endpoints: () => ({}),
 });
