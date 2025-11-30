@@ -140,45 +140,4 @@ export const BoltSvg = React.memo(() => (
 
 BoltSvg.displayName = "BoltSvg";
 
-// =============== ChevronRight Svg =============== //
-export const ChevronRight = React.memo(() => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="100%"
-    height="100%"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M9 5l7 7-7 7"
-    />
-  </svg>
-));
-
-ChevronRight.displayName = "ChevronRight";
-
-// =============== ChevronLeft Svg =============== //
-export const ChevronLeft = React.memo(() => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="100%"
-    height="100%"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M15 19l-7-7 7-7"
-    />
-  </svg>
-));
-
-ChevronLeft.displayName = "ChevronLeft";
 
