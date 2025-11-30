@@ -18,26 +18,33 @@ class ImageResizer:
     def resize(content: bytes, filename: str, options: ResizeRequest) -> tuple[bytes, str, tuple[int, int]]:
         """
         Resize image using PyVIPS
-        
-        Returns:
-            tuple: (output_bytes, filename, new_dimensions)
         """
         
         try:
-            # Load with sequential access + shrink-on-load for JPEGs
-            img = pyvips.Image.new_from_buffer(content, "", access="sequential")
+            # Detect format from filename
+            ext = filename.rsplit(".", 1)[-1].lower()
+
+            # ❌ Block formats we cannot resize safely
+            UNSUPPORTED_EDIT = ["heif", "heic", "avif", "tiff", "bmp"]
+            if ext in UNSUPPORTED_EDIT:
+                raise ValueError("This format cannot be resized. Convert to JPG/PNG/WebP first.")
+
+            # Load optimized (JPEG → shrink=2)
+            if ext in ["jpeg", "jpg"]:
+                img = pyvips.Image.new_from_buffer(content, "", access="sequential", shrink=2)
+            else:
+                img = pyvips.Image.new_from_buffer(content, "", access="sequential")
             
             original_width = img.width
             original_height = img.height
             
-            # Calculate target dimensions
+            # Calculate final width & height
             target_width, target_height = ImageResizer._calculate_dimensions(
                 original_width, original_height, options
             )
             
-            # Resize based on mode
+            # Resize logic based on mode
             if options.mode == ResizeMode.CONTAIN:
-                # Fit inside, maintain aspect
                 resized = img.thumbnail_image(
                     target_width,
                     height=target_height,
@@ -45,22 +52,14 @@ class ImageResizer:
                 )
             
             elif options.mode == ResizeMode.COVER:
-                # Fill area, crop excess (smart crop)
                 resized = img.thumbnail_image(
                     target_width,
                     height=target_height,
                     size=pyvips.Size.BOTH,
-                    crop=pyvips.Interesting.ATTENTION  # Smart crop
+                    crop=pyvips.Interesting.ATTENTION
                 )
             
-            elif options.mode == ResizeMode.STRETCH:
-                # Force exact dimensions (may distort)
-                scale_w = target_width / original_width
-                scale_h = target_height / original_height
-                resized = img.resize(scale_w, vscale=scale_h)
-            
-            elif options.mode == ResizeMode.EXACT:
-                # Exact dimensions
+            elif options.mode in [ResizeMode.STRETCH, ResizeMode.EXACT]:
                 scale_w = target_width / original_width
                 scale_h = target_height / original_height
                 resized = img.resize(scale_w, vscale=scale_h)
@@ -68,41 +67,52 @@ class ImageResizer:
             else:
                 raise ValueError(f"Unknown resize mode: {options.mode}")
             
-            # Save in original or target format
+            # Determine output format
             target_fmt = options.format.value if options.format else ImageResizer._detect_format(filename)
             
+            # Save based on format
             if target_fmt in ["jpeg", "jpg"]:
                 output = resized.jpegsave_buffer(
                     Q=85,
                     strip=True,
                     optimize_coding=True
                 )
+
             elif target_fmt == "png":
-                output = resized.pngsave_buffer(compression=9, strip=True)
+                output = resized.pngsave_buffer(
+                    compression=9,
+                    strip=True
+                )
+
             elif target_fmt == "webp":
-                output = resized.webpsave_buffer(Q=85, strip=True)
+                output = resized.webpsave_buffer(
+                    Q=85,
+                    strip=True
+                )
+
             elif target_fmt == "avif":
+                # Only if user forces AVIF output
                 try:
-                    output = img.heifsave_buffer(
+                    output = resized.heifsave_buffer(
                         Q=50,
                         compression="av1",
-                        speed=6,
+                        speed=8,
                         strip=True
                     )
                 except Exception:
-                    # Fallback: try without compression parameter
-                    output = img.heifsave_buffer(
+                    output = resized.heifsave_buffer(
                         Q=50,
-                        speed=6,
+                        speed=8,
                         strip=True
                     )
+
             else:
                 output = resized.write_to_buffer(f".{target_fmt}")
             
             logger.info(f"Resized {filename} to {resized.width}x{resized.height}")
             
             return output, filename, (resized.width, resized.height)
-            
+        
         except Exception as e:
             logger.error(f"Resize failed: {e}")
             raise ValueError(f"Resize error: {str(e)}")
@@ -115,12 +125,10 @@ class ImageResizer:
             return options.width, options.height
         
         elif options.width:
-            # Maintain aspect ratio
             scale = options.width / orig_w
             return options.width, int(orig_h * scale)
         
         elif options.height:
-            # Maintain aspect ratio
             scale = options.height / orig_h
             return int(orig_w * scale), options.height
         
@@ -132,5 +140,6 @@ class ImageResizer:
         """Detect format from filename"""
         ext = filename.rsplit(".", 1)[-1].lower()
         return "jpeg" if ext == "jpg" else ext
+
 
 resizer = ImageResizer()
