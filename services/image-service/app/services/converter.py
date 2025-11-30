@@ -18,16 +18,19 @@ class ImageConverter:
     def convert(content: bytes, filename: str, options: ConvertRequest) -> tuple[bytes, str]:
         """
         Convert image format using PyVIPS
-        
-        Returns:
-            tuple: (output_bytes, new_filename)
         """
         
         try:
-            # Load image with sequential access (memory efficient)
-            img = pyvips.Image.new_from_buffer(content, "", access="sequential")
+            # Detect input extension (for shrink optimization)
+            ext = filename.rsplit(".", 1)[-1].lower()
+
+            # Load image (JPEG → shrink=2)
+            if ext in ["jpeg", "jpg"]:
+                img = pyvips.Image.new_from_buffer(content, "", access="sequential", shrink=2)
+            else:
+                img = pyvips.Image.new_from_buffer(content, "", access="sequential")
             
-            # Get target format
+            # Target format and quality
             fmt = options.format.value
             quality = options.quality
             
@@ -114,16 +117,17 @@ class ImageConverter:
             else:
                 raise ValueError(f"Unsupported format: {fmt}")
             
-            # Generate new filename
-            base_name = filename.rsplit(".", 1)[0]
-            new_filename = f"{base_name}.{fmt}"
+            # New filename
+            base = filename.rsplit(".", 1)[0]
+            new_filename = f"{base}.{fmt}"
             
-            logger.info(f"Converted {filename} to {fmt} ({len(output)} bytes)")
+            logger.info(f"Converted {filename} → {fmt} ({len(output)} bytes)")
             
             return output, new_filename
-            
+        
         except Exception as e:
             logger.error(f"Conversion failed: {e}")
             raise ValueError(f"Conversion error: {str(e)}")
+
 
 converter = ImageConverter()
