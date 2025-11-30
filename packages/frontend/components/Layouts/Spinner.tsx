@@ -1,35 +1,50 @@
 // Spinner.tsx
-import React from "react";
-import clsx from "clsx";
+import {memo} from "react";
 
-interface SpinnerProps {
-  size?: "xs" | "sm" | "md" | "lg" | "xl" | number;
-  color?: string;
-  strokeWidth?: number;
-  className?: string;
-}
-
-const sizeMap = { xs: 12, sm: 16, md: 24, lg: 32, xl: 40 };
-
-const Spinner: React.FC<SpinnerProps> = React.memo(
-  ({ size = "md", color = "text-blue-600", strokeWidth = 6, className }) => {
-    const s = typeof size === "number" ? size : sizeMap[size];
-
-    return (
-      <span className={clsx("inline-flex", color, className)} style={{ width: s, height: s }}>
-        <svg viewBox="0 0 50 50" className="spinner">
-          <circle cx="25" cy="25" r="20" fill="none" stroke="currentColor" strokeWidth={strokeWidth} />
-        </svg>
-        <style>{`
-          .spinner{animation:r 1.4s linear infinite}
-          .spinner circle{stroke-dasharray:1 200;stroke-dashoffset:0;stroke-linecap:round;animation:d 1.4s ease-in-out infinite}
-          @keyframes r{100%{transform:rotate(360deg)}}
-          @keyframes d{0%{stroke-dasharray:1 200;stroke-dashoffset:0}50%{stroke-dasharray:100 200;stroke-dashoffset:-30}100%{stroke-dasharray:1 200;stroke-dashoffset:-130}}
-        `}</style>
-      </span>
-    );
-  }
-);
+export const Spinner = memo(() => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="100%"
+    height="100%"
+    viewBox="0 0 24 24"
+  >
+    <g stroke="currentColor">
+      <circle
+        cx="12"
+        cy="12"
+        r="9.5"
+        fill="none"
+        strokeLinecap="round"
+        strokeWidth="2"
+      >
+        <animate
+          attributeName="stroke-dasharray"
+          calcMode="spline"
+          dur="1.5s"
+          keySplines="0.42,0,0.58,1;0.42,0,0.58,1;0.42,0,0.58,1"
+          keyTimes="0;0.475;0.95;1"
+          repeatCount="indefinite"
+          values="0 150;42 150;42 150;42 150"
+        />
+        <animate
+          attributeName="stroke-dashoffset"
+          calcMode="spline"
+          dur="1.5s"
+          keySplines="0.42,0,0.58,1;0.42,0,0.58,1;0.42,0,0.58,1"
+          keyTimes="0;0.475;0.95;1"
+          repeatCount="indefinite"
+          values="0;-16;-59;-59"
+        />
+      </circle>
+      <animateTransform
+        attributeName="transform"
+        dur="2s"
+        repeatCount="indefinite"
+        type="rotate"
+        values="0 12 12;360 12 12"
+      />
+    </g>
+  </svg>
+));
 
 Spinner.displayName = "Spinner";
-export default Spinner;
