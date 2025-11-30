@@ -1,7 +1,7 @@
 import { memo, useCallback, FC } from "react";
 import Link from "next/link";
 import { SidebarOpenSvg } from "@/components/Svg/NavSvg";
-import { useCommonModal } from "@/hooks/common.hooks";
+import { useCommonModal } from "@/hooks/appHooks/common.hooks";
 
 const Logo: FC = memo(() => (
   <Link href="/" className="group">
