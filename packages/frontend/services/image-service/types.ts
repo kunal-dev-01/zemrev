@@ -118,8 +118,8 @@ export interface ToolResponse {
 
 // ==================== STATE TYPES ====================
 
-export interface ToolsState {
-  currentTool: ToolType | null;
+export interface ImageState {
+  currentTool: ImageType | null;
   isProcessing: boolean;
   progress: number; // 0-100
   result: ToolResponse | null;

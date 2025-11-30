@@ -1,11 +1,11 @@
-// src/services/toolsService/tools.slice.ts
+// src/services/image-service/image.slice.ts
 
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { extractErrorMessage } from "@/utils/errorExtract.utils";
-import { ToolsState, ToolType, ToolHistoryItem } from "./types";
+import { Imagetate, ImageType, ImageHistoryItem } from "./types";
 import { imageApi } from "./image.api";
 
-const initialState: ToolsState = {
+const initialState: ImageState = {
   currentTool: null,
   isProcessing: false,
   progress: 0,
@@ -14,8 +14,8 @@ const initialState: ToolsState = {
   history: [],
 };
 
-const toolsSlice = createSlice({
-  name: "tools",
+const imageSlice = createSlice({
+  name: "image",
   initialState,
   reducers: {
     setCurrentTool: (state, action: PayloadAction<ToolType | null>) => {
@@ -82,57 +82,57 @@ const toolsSlice = createSlice({
 
     // ==================== CONVERT ====================
     builder
-      .addMatcher(toolsApi.endpoints.convertImage.matchPending, setPendingState)
-      .addMatcher(toolsApi.endpoints.convertImage.matchFulfilled, setFulfilledState)
-      .addMatcher(toolsApi.endpoints.convertImage.matchRejected, (state, action) => {
+      .addMatcher(imageApi.endpoints.convertImage.matchPending, setPendingState)
+      .addMatcher(imageApi.endpoints.convertImage.matchFulfilled, setFulfilledState)
+      .addMatcher(imageApi.endpoints.convertImage.matchRejected, (state, action) => {
         setRejectedState(state, action, ToolType.CONVERT);
       });
 
     // ==================== COMPRESS ====================
     builder
-      .addMatcher(toolsApi.endpoints.compressImage.matchPending, setPendingState)
-      .addMatcher(toolsApi.endpoints.compressImage.matchFulfilled, setFulfilledState)
-      .addMatcher(toolsApi.endpoints.compressImage.matchRejected, (state, action) => {
+      .addMatcher(imageApi.endpoints.compressImage.matchPending, setPendingState)
+      .addMatcher(imageApi.endpoints.compressImage.matchFulfilled, setFulfilledState)
+      .addMatcher(imageApi.endpoints.compressImage.matchRejected, (state, action) => {
         setRejectedState(state, action, ToolType.COMPRESS);
       });
 
     // ==================== RESIZE ====================
     builder
-      .addMatcher(toolsApi.endpoints.resizeImage.matchPending, setPendingState)
-      .addMatcher(toolsApi.endpoints.resizeImage.matchFulfilled, setFulfilledState)
-      .addMatcher(toolsApi.endpoints.resizeImage.matchRejected, (state, action) => {
+      .addMatcher(imageApi.endpoints.resizeImage.matchPending, setPendingState)
+      .addMatcher(imageApi.endpoints.resizeImage.matchFulfilled, setFulfilledState)
+      .addMatcher(imageApi.endpoints.resizeImage.matchRejected, (state, action) => {
         setRejectedState(state, action, ToolType.RESIZE);
       });
 
     // ==================== OPTIMIZE ====================
     builder
-      .addMatcher(toolsApi.endpoints.optimizeImage.matchPending, setPendingState)
-      .addMatcher(toolsApi.endpoints.optimizeImage.matchFulfilled, setFulfilledState)
-      .addMatcher(toolsApi.endpoints.optimizeImage.matchRejected, (state, action) => {
+      .addMatcher(imageApi.endpoints.optimizeImage.matchPending, setPendingState)
+      .addMatcher(imageApi.endpoints.optimizeImage.matchFulfilled, setFulfilledState)
+      .addMatcher(imageApi.endpoints.optimizeImage.matchRejected, (state, action) => {
         setRejectedState(state, action, ToolType.OPTIMIZE);
       });
 
     // ==================== CROP ====================
     builder
-      .addMatcher(toolsApi.endpoints.cropImage.matchPending, setPendingState)
-      .addMatcher(toolsApi.endpoints.cropImage.matchFulfilled, setFulfilledState)
-      .addMatcher(toolsApi.endpoints.cropImage.matchRejected, (state, action) => {
+      .addMatcher(imageApi.endpoints.cropImage.matchPending, setPendingState)
+      .addMatcher(imageApi.endpoints.cropImage.matchFulfilled, setFulfilledState)
+      .addMatcher(imageApi.endpoints.cropImage.matchRejected, (state, action) => {
         setRejectedState(state, action, ToolType.CROP);
       });
 
     // ==================== WATERMARK TEXT ====================
     builder
-      .addMatcher(toolsApi.endpoints.addTextWatermark.matchPending, setPendingState)
-      .addMatcher(toolsApi.endpoints.addTextWatermark.matchFulfilled, setFulfilledState)
-      .addMatcher(toolsApi.endpoints.addTextWatermark.matchRejected, (state, action) => {
+      .addMatcher(imageApi.endpoints.addTextWatermark.matchPending, setPendingState)
+      .addMatcher(imageApi.endpoints.addTextWatermark.matchFulfilled, setFulfilledState)
+      .addMatcher(imageApi.endpoints.addTextWatermark.matchRejected, (state, action) => {
         setRejectedState(state, action, ToolType.WATERMARK_TEXT);
       });
 
     // ==================== WATERMARK IMAGE ====================
     builder
-      .addMatcher(toolsApi.endpoints.addImageWatermark.matchPending, setPendingState)
-      .addMatcher(toolsApi.endpoints.addImageWatermark.matchFulfilled, setFulfilledState)
-      .addMatcher(toolsApi.endpoints.addImageWatermark.matchRejected, (state, action) => {
+      .addMatcher(imageApi.endpoints.addImageWatermark.matchPending, setPendingState)
+      .addMatcher(imageApi.endpoints.addImageWatermark.matchFulfilled, setFulfilledState)
+      .addMatcher(imageApi.endpoints.addImageWatermark.matchRejected, (state, action) => {
         setRejectedState(state, action, ToolType.WATERMARK_IMAGE);
       });
   },
@@ -147,6 +147,6 @@ export const {
   addToHistory,
   clearHistory,
   reset,
-} = toolsSlice.actions;
+} = imageSlice.actions;
 
-export default toolsSlice.reducer;
+export default imageSlice.reducer;
