@@ -18,23 +18,28 @@ class ImageOptimizer:
     def optimize(content: bytes, filename: str, options: OptimizeRequest) -> tuple[bytes, str]:
         """
         Optimize image (strip metadata, fix orientation)
-        
-        Returns:
-            tuple: (output_bytes, filename)
         """
         
         try:
-            # Load image
-            img = pyvips.Image.new_from_buffer(content, "", access="sequential")
+            # Detect format
+            fmt = ImageOptimizer._detect_format(filename)
+
+            # ❌ Block formats that should not be optimized
+            UNSUPPORTED = ["heif", "heic", "avif", "tiff", "bmp"]
+            if fmt in UNSUPPORTED:
+                raise ValueError("This format cannot be optimized. Convert to JPG/PNG/WebP first.")
+
+            # Load optimized (JPEG → shrink=2)
+            if fmt in ["jpeg", "jpg"]:
+                img = pyvips.Image.new_from_buffer(content, "", access="sequential", shrink=2)
+            else:
+                img = pyvips.Image.new_from_buffer(content, "", access="sequential")
             
             # Fix orientation if requested
             if options.fix_orientation:
                 img = ImageOptimizer._fix_orientation(img)
             
-            # Detect format
-            fmt = ImageOptimizer._detect_format(filename)
-            
-            # Save with optimizations (strip=True removes EXIF/GPS)
+            # Save optimized (strip=True removes EXIF/GPS)
             if fmt in ["jpeg", "jpg"]:
                 output = img.jpegsave_buffer(
                     Q=85,
@@ -55,17 +60,11 @@ class ImageOptimizer:
                     strip=options.strip_exif
                 )
             
-            elif fmt == "avif":
-                output = img.heifsave_buffer(
-                    Q=50,
-                    compression="av1",
-                    strip=options.strip_exif
-                )
-            
             else:
-                # Fallback: save in original format
+                # fallback — should rarely happen
                 output = img.write_to_buffer(f".{fmt}")
             
+            # Log optimization result
             compression_ratio = (1 - len(output) / len(content)) * 100
             logger.info(f"Optimized {filename}: {compression_ratio:.1f}% smaller")
             
@@ -74,6 +73,7 @@ class ImageOptimizer:
         except Exception as e:
             logger.error(f"Optimization failed: {e}")
             raise ValueError(f"Optimization error: {str(e)}")
+    
     
     @staticmethod
     def _fix_orientation(img: pyvips.Image) -> pyvips.Image:
@@ -93,7 +93,8 @@ class ImageOptimizer:
             img.remove("orientation")
             
         except:
-            pass  # No orientation tag
+            # No EXIF orientation tag
+            pass
         
         return img
     
@@ -102,5 +103,6 @@ class ImageOptimizer:
         """Detect format from filename"""
         ext = filename.rsplit(".", 1)[-1].lower()
         return "jpeg" if ext == "jpg" else ext
+
 
 optimizer = ImageOptimizer()
