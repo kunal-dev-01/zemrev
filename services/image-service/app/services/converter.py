@@ -1,7 +1,7 @@
 """
 ============================================================================
 FILE: app/services/converter.py
-PURPOSE: PyVIPS-only image converter with HEIC support
+PURPOSE: PyVIPS-only image converter with HEIC + HEIF support
 ============================================================================
 """
 
@@ -63,7 +63,6 @@ class ImageConverter:
                         strip=True
                     )
                 except Exception:
-                    # Fallback: try without compression parameter
                     output = img.heifsave_buffer(
                         Q=quality,
                         speed=6,
@@ -77,14 +76,12 @@ class ImageConverter:
                 )
             
             elif fmt == "gif":
-                # GIF as single frame
                 output = img.gifsave_buffer(strip=True)
             
             elif fmt == "bmp":
                 output = img.magicksave_buffer(format="BMP")
             
             elif fmt == "heic":
-                # HEIC/HEIF format
                 try:
                     output = img.heifsave_buffer(
                         Q=quality,
@@ -93,13 +90,27 @@ class ImageConverter:
                         strip=True
                     )
                 except Exception:
-                    # Fallback: try without compression parameter
                     output = img.heifsave_buffer(
                         Q=quality,
                         speed=6,
                         strip=True
                     )
-            
+
+            elif fmt == "heif":
+                try:
+                    output = img.heifsave_buffer(
+                        Q=quality,
+                        compression="av1",
+                        speed=6,
+                        strip=True
+                    )
+                except Exception:
+                    output = img.heifsave_buffer(
+                        Q=quality,
+                        speed=6,
+                        strip=True
+                    )
+
             else:
                 raise ValueError(f"Unsupported format: {fmt}")
             

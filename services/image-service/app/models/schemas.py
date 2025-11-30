@@ -24,6 +24,7 @@ class OutputFormat(str, Enum):
     GIF = "gif"
     BMP = "bmp"
     HEIC = "heic"
+    HEIF = "heif"
 
 class ResizeMode(str, Enum):
     """Resize modes"""
