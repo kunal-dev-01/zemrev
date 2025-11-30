@@ -101,12 +101,20 @@ class Watermarker:
             target_width = int(img.width * options.scale)
             logo = logo.thumbnail_image(target_width, height=9999)
 
-            # Apply opacity
+            # Apply opacity correctly
             if logo.bands < 4:
-                logo = logo.bandjoin(255)
+                # Create full alpha channel
+                alpha = logo.bandjoin(255)[-1]
+            else:
+                # Extract alpha channel
+                alpha = logo[-1]
 
-            logo = logo.copy()
-            logo[-1] = (logo[-1] * options.opacity).cast("uchar")
+            # Multiply alpha by opacity factor
+            alpha = (alpha * options.opacity).cast("uchar")
+
+            # Rebuild RGBA image
+            logo = logo.extract_band(0, n=3).bandjoin(alpha)
+
 
             # Position watermark
             x, y = Watermarker._calculate_position(img.width, img.height, logo.width, logo.height, options.position)
