@@ -18,9 +18,6 @@ class ImageCompressor:
     def compress(content: bytes, filename: str, options: CompressRequest) -> tuple[bytes, str]:
         """
         Compress image using PyVIPS
-        
-        Returns:
-            tuple: (output_bytes, filename)
         """
         
         try:
@@ -31,7 +28,11 @@ class ImageCompressor:
             current_fmt = ImageCompressor._detect_format(filename)
             target_fmt = options.format.value if options.format else current_fmt
             quality = options.quality
-            
+
+            UNSUPPORTED = ["heif", "heic", "avif", "tiff"]
+            if target_fmt in UNSUPPORTED:
+                raise ValueError("HEIF/HEIC/AVIF cannot be compressed. Convert to JPG/PNG/WebP first.")
+
             # Compress based on format
             if target_fmt in ["jpeg", "jpg"]:
                 output = img.jpegsave_buffer(
@@ -55,60 +56,9 @@ class ImageCompressor:
                     strip=True
                 )
             
-            elif target_fmt == "avif":
-                try:
-                    output = img.heifsave_buffer(
-                        Q=quality,
-                        compression="av1",
-                        speed=8,
-                        strip=True
-                    )
-                except Exception:
-                    output = img.heifsave_buffer(
-                        Q=quality,
-                        speed=8,
-                        strip=True
-                    )
-            
-            elif target_fmt == "tiff":
-                output = img.tiffsave_buffer(
-                    compression="lzw",
-                    strip=True
-                )
-            
             elif target_fmt == "gif":
                 output = img.gifsave_buffer(strip=True)
-            
-            elif target_fmt == "heic":
-                try:
-                    output = img.heifsave_buffer(
-                        Q=quality,
-                        compression="hevc",
-                        speed=8,
-                        strip=True
-                    )
-                except Exception:
-                    output = img.heifsave_buffer(
-                        Q=quality,
-                        speed=8,
-                        strip=True
-                    )
 
-            elif target_fmt == "heif":
-                try:
-                    output = img.heifsave_buffer(
-                        Q=quality,
-                        compression="av1",
-                        speed=8,
-                        strip=True
-                    )
-                except Exception:
-                    output = img.heifsave_buffer(
-                        Q=quality,
-                        speed=8,
-                        strip=True
-                    )
-            
             else:
                 raise ValueError(f"Unsupported format: {target_fmt}")
             
@@ -116,7 +66,7 @@ class ImageCompressor:
             logger.info(f"Compressed {filename}: {compression_ratio:.1f}% smaller")
             
             return output, filename
-            
+        
         except Exception as e:
             logger.error(f"Compression failed: {e}")
             raise ValueError(f"Compression error: {str(e)}")
@@ -126,5 +76,6 @@ class ImageCompressor:
         """Detect format from filename"""
         ext = filename.rsplit(".", 1)[-1].lower()
         return "jpeg" if ext == "jpg" else ext
+
 
 compressor = ImageCompressor()
