@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
-import {optimizerMetadata, optimizerContent} from "@/components/ImageTools/ImageOptamizer/Blog";
-import ToolWrapper from "@/components/ImageTools/ImageCropper/ToolWrapper";
+import {
+  cropperMetadata,
+  cropperContent,
+} from "@/components/ImageTools/ImageCropper/Blog";
+import ToolWrapper from "@/components/ImageTools/ImageOptimizer/ToolWrapper";
 
 export const metadata: Metadata = {
-  title: optimizerMetadata.title,
-  description: optimizerMetadata.description,
-  keywords: optimizerMetadata.keywords,
+  title: cropperMetadata.title,
+  description: cropperMetadata.description,
+  keywords: cropperMetadata.keywords,
 };
 
 const ImageCropper = () => {
@@ -13,7 +16,7 @@ const ImageCropper = () => {
     <main className="w-full">
       {/* Page Title */}
       <h1 className="md:text-[1.8vw] text-[2.5vh] text-zinc-700 dark:text-zinc-300 text-center font-semibold leading-tight px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40">
-        {optimizerContent.mainHeading}
+        {cropperContent.mainHeading}
       </h1>
 
       {/* Tool */}
@@ -21,8 +24,14 @@ const ImageCropper = () => {
 
       {/* Blog Section */}
       <div className="w-full border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 p-2 md:p-6 md:mt-[1vw] mt-[1vh]">
-        {optimizerContent.sections.map((section, index) => (
+        {cropperContent.sections.map((section, index) => (
           <div key={index} className="mb-8">
+            {/* Introduction */}
+            {cropperContent.intro && (
+              <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed mb-4">
+                {cropperContent.intro}
+              </p>
+            )}
             {/* Section heading */}
             {section.heading && (
               <h2 className="text-xl md:text-2xl font-semibold text-zinc-800 dark:text-zinc-200 mb-3">

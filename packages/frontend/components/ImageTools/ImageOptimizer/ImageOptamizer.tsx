@@ -1,9 +1,9 @@
 import React from 'react'
 
-const ImageOptamizer = () => {
+const ImageOptimizer = () => {
   return (
     <div>ImageOptamizer</div>
   )
 }
 
-export default ImageOptamizer
+export default ImageOptimizer

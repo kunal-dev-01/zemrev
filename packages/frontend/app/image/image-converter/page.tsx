@@ -24,7 +24,6 @@ const Conveter = () => {
 
       {/* Blog Section */}
       <div className="w-full border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 p-2 md:p-6 md:mt-[1vw] mt-[1vh]">
-
         {blogContent.sections.map((section, index) => (
           <div key={index} className="mb-8">
 
@@ -64,7 +63,7 @@ const Conveter = () => {
                 {section.formats.map((format, idx) => (
                   <li key={idx}>
                     <strong className="text-zinc-800 dark:text-zinc-200">
-                      {format.name}: 
+                      {format.name}:
                     </strong>{" "}
                     <span className="text-zinc-600 dark:text-zinc-400">
                       {format.description}
@@ -80,7 +79,7 @@ const Conveter = () => {
                 {section.steps.map((stepItem, idx) => (
                   <li key={idx}>
                     <strong className="text-zinc-800 dark:text-zinc-200">
-                      {stepItem.step}: 
+                      {stepItem.step}:
                     </strong>{" "}
                     <span className="text-zinc-600 dark:text-zinc-400">
                       {stepItem.description}
@@ -130,7 +129,6 @@ const Conveter = () => {
             )}
           </div>
         ))}
-
       </div>
     </main>
   );

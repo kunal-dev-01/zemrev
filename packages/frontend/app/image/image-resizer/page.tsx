@@ -26,6 +26,13 @@ const Resizer = () => {
       <div className="w-full border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 p-2 md:p-6 md:mt-[1vw] mt-[1vh]">
         {resizerContent.sections.map((section, index) => (
           <div key={index} className="mb-8">
+
+            {/* Introduction */}
+            {resizerContent.intro && (
+              <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed mb-4">
+                {resizerContent.intro}
+              </p>
+            )}
             {/* Section heading */}
             {section.heading && (
               <h2 className="text-xl md:text-2xl font-semibold text-zinc-800 dark:text-zinc-200 mb-3">
