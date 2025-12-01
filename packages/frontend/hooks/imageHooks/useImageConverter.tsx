@@ -1,151 +1,86 @@
 // ============================================================================
-// FILE: src/hooks/imageHooks/useImageConvert.ts
-// PURPOSE: Custom hook for image convert logic
-// COMMIT: feat: add custom hook for convert with parallel processing
+// FILE: src/hooks/useImageConverter.ts
+// PURPOSE: Main conversion logic
 // ============================================================================
 
-import { useCallback } from "react";
-import { useImageStore } from "@/stores/imageStore";
+"use client";
+
+import { useEffect } from "react";
+import { useConverterStore } from "@/stores/imageConverter.store";
 import { useConvertImageMutation } from "@/services/imageService/image.api";
-import { extractApiErrorMessage } from "@/utils/errorExtract.utils";
-import { downloadBlob, createZip } from "@/utils/download.utils";
-import { OutputFormat, ImageStatus } from "@/services/imageService/types";
-import { MAX_IMAGES, MAX_FILE_SIZE, ACCEPTED_FORMATS } from "@/services/imageService/types";
+import { createUploadedFile, createConvertedFile } from "@/utils/fileProcessor.utils";
+import { OutputFormat } from "@/services/imageService/types";
 
-export const useImageConvert = () => {
-  const {
-    images,
-    isProcessing,
-    completedCount,
-    failedCount,
-    addImages: addToStore,
-    removeImage: removeFromStore,
-    updateStatus,
-    setResult,
-    setError,
-    setProcessing,
-    clearAll: clearStore,
-  } = useImageStore();
-
-  const [convertMutation] = useConvertImageMutation();
-
-  const canAddMore = images.length < MAX_IMAGES;
-
-  // ==================== ADD IMAGES ====================
-  const addImages = useCallback(
-    (files: File[]) => {
-      const validFiles = files.filter((file) => {
-        if (file.size > MAX_FILE_SIZE) {
-          console.error(`${file.name}: File too large (max 50MB)`);
-          return false;
-        }
-        if (!ACCEPTED_FORMATS.includes(file.type)) {
-          console.error(`${file.name}: Invalid format`);
-          return false;
-        }
-        return true;
-      });
-
-      if (validFiles.length > 0) {
-        addToStore(validFiles);
-      }
-    },
-    [addToStore]
-  );
-
-  // ==================== REMOVE IMAGE ====================
-  const removeImage = useCallback(
-    (id: string) => {
-      removeFromStore(id);
-    },
-    [removeFromStore]
-  );
-
-  // ==================== PROCESS SINGLE IMAGE ====================
-  const processImage = useCallback(
-    async (id: string, format: OutputFormat, quality: number) => {
-      const image = images.find((img) => img.id === id);
-      if (!image) return;
-
-      try {
-        updateStatus(id, ImageStatus.PROCESSING, 10);
-
-        const result = await convertMutation({
-          file: image.file,
-          format,
-          quality,
-        }).unwrap();
-
-        const resultUrl = URL.createObjectURL(result);
-        setResult(id, result, resultUrl);
-      } catch (error) {
-        const errorMsg = extractApiErrorMessage(error);
-        setError(id, errorMsg);
-      }
-    },
-    [images, convertMutation, updateStatus, setResult, setError]
-  );
-
-  // ==================== PROCESS ALL (PARALLEL) ====================
-  const convertAll = useCallback(
-    async (format: OutputFormat, quality: number) => {
-      if (images.length === 0 || isProcessing) return;
-
-      setProcessing(true);
-
-      // Parallel processing - sabhi images ek sath process hongi
-      await Promise.allSettled(
-        images.map((img) => processImage(img.id, format, quality))
-      );
-
-      setProcessing(false);
-    },
-    [images, isProcessing, setProcessing, processImage]
-  );
-
-  // ==================== DOWNLOAD SINGLE ====================
-  const downloadSingle = useCallback(
-    (id: string) => {
-      const image = images.find((img) => img.id === id);
-      if (image?.result) {
-        downloadBlob(image.result, image.name);
-      }
-    },
-    [images]
-  );
-
-  // ==================== DOWNLOAD ALL (ZIP) ====================
-  const downloadAll = useCallback(async () => {
-    const completed = images.filter((img) => img.status === ImageStatus.COMPLETED && img.result);
+export const useImageConverter = (targetFormat?: OutputFormat) => {
+  
+  const store = useConverterStore();
+  const [convertImage] = useConvertImageMutation();
+  
+  // Load session on mount
+  useEffect(() => {
+    store.loadSession();
+  }, []);
+  
+  // Handle file selection
+  const handleFilesSelected = (files: File[]) => {
+    const uploaded = files
+      .map(f => createUploadedFile(f, "device"))
+      .filter(Boolean) as any[];
     
-    if (completed.length === 0) return;
-
-    try {
-      await createZip(completed, "converted_images.zip");
-    } catch (error) {
-      console.error("Failed to create ZIP:", error);
+    if (uploaded.length > 0) {
+      store.addFiles(uploaded);
     }
-  }, [images]);
-
-  // ==================== CLEAR ALL ====================
-  const clearAll = useCallback(() => {
-    clearStore();
-  }, [clearStore]);
-
-  return {
-    // State
-    images,
-    isProcessing,
-    completedCount,
-    failedCount,
-    canAddMore,
+  };
+  
+  // Start conversion
+  const startConversion = async () => {
+    const { uploadedFiles, settings } = store;
     
-    // Actions
-    addImages,
-    removeImage,
-    convertAll,
-    downloadSingle,
-    downloadAll,
-    clearAll,
+    if (uploadedFiles.length === 0) {
+      alert("⚠️ Please upload at least one file");
+      return;
+    }
+    
+    store.setProcessing(true);
+    store.clearConverted();
+    
+    const format = targetFormat || settings.format;
+    
+    // Process files sequentially
+    for (let i = 0; i < uploadedFiles.length; i++) {
+      const file = uploadedFiles[i];
+      
+      store.setIndex(i);
+      store.updateStatus(file.id, "processing");
+      
+      try {
+        // Call API
+        const blob = await convertImage({
+          file: file.file || undefined,
+          url: file.url,
+          format,
+          quality: settings.quality,
+        }).unwrap();
+        
+        // Success
+        const converted = createConvertedFile(file, blob, format);
+        store.addConverted(converted);
+        store.updateStatus(file.id, "completed");
+        
+      } catch (error: any) {
+        // Error
+        console.error(`Conversion failed for ${file.name}:`, error);
+        store.updateStatus(file.id, "error", error.message || "Conversion failed");
+      }
+    }
+    
+    store.setProcessing(false);
+    store.setIndex(-1);
+  };
+  
+  return {
+    ...store,
+    handleFilesSelected,
+    startConversion,
   };
 };

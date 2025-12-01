@@ -1,33 +1,38 @@
 // ============================================================================
 // FILE: src/services/imageService/image.api.ts
-// PURPOSE: RTK Query API for image convert
-// COMMIT: feat: add RTK Query endpoint for convert
+// PURPOSE: RTK Query API
 // ============================================================================
 
 import { baseApi } from "@/lib/baseApi/base.api";
-import type { ConvertRequest } from "./types";
-
-const API_URL = process.env.NEXT_PUBLIC_TOOLS_API_URL || "http://localhost:8000/api/v1";
+import { OutputFormat } from "./types";
 
 export const imageApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    convertImage: builder.mutation<Blob, ConvertRequest>({
-      query: (data) => {
+    convertImage: builder.mutation<Blob, {
+      file?: File;
+      url?: string;
+      format: OutputFormat;
+      quality: number;
+    }>({
+      query: ({ file, url, format, quality }) => {
         const formData = new FormData();
-        formData.append("file", data.file);
-        formData.append("format", data.format);
-        formData.append("quality", String(data.quality));
-
+        if (file) formData.append("file", file);
+        if (url) formData.append("url", url);
+        formData.append("format", format);
+        formData.append("quality", quality.toString());
+        
         return {
-          url: `${API_URL}/convert`,
+          url: "/convert",
           method: "POST",
           body: formData,
-          responseHandler: (response) => response.blob(),
+          responseHandler: async (response) => {
+            if (!response.ok) throw new Error("Conversion failed");
+            return response.blob();
+          },
         };
       },
     }),
   }),
-  overrideExisting: false,
 });
 
 export const { useConvertImageMutation } = imageApi;

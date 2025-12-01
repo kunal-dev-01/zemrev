@@ -1,37 +1,40 @@
 // ============================================================================
 // FILE: src/utils/download.utils.ts
-// PURPOSE: Download utilities for single and ZIP downloads
-// COMMIT: feat: add download utilities
+// PURPOSE: File download utilities
 // ============================================================================
 
+import { ConvertedFile } from "@/services/imageService/types";
 import JSZip from "jszip";
-import type { ImageItem } from "@/services/imageService/types";
 
-export const downloadBlob = (blob: Blob, filename: string): void => {
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+export const downloadSingle = (file: ConvertedFile): void => {
+  const a = document.createElement("a");
+  a.href = file.downloadUrl;
+  a.download = file.filename;
+  a.click();
 };
 
-export const createZip = async (images: ImageItem[], zipName: string): Promise<void> => {
-  const zip = new JSZip();
-
-  images.forEach((img) => {
-    if (img.result) {
-      zip.file(img.name, img.result);
-    }
-  });
-
-  const content = await zip.generateAsync({
-    type: "blob",
-    compression: "DEFLATE",
-    compressionOptions: { level: 6 },
-  });
-
-  downloadBlob(content, zipName);
+export const downloadAll = async (files: ConvertedFile[]): Promise<void> => {
+  if (files.length === 0) return;
+  
+  if (files.length === 1) {
+    downloadSingle(files[0]);
+    return;
+  }
+  
+  try {
+    const zip = new JSZip();
+    files.forEach(f => zip.file(f.filename, f.blob));
+    
+    const blob = await zip.generateAsync({ type: "blob" });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "converted-images.zip";
+    a.click();
+    
+    URL.revokeObjectURL(url);
+  } catch {
+    alert("❌ Failed to create ZIP");
+  }
 };
