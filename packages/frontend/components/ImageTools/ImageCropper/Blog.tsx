@@ -17,8 +17,8 @@ export const cropperMetadata = {
   ]
 }
 
-const cropperContent = {
-  mainHeading: "Free Online Image Cropper – Crop Images to Perfect Size Instantly",
+export const cropperContent = {
+  mainHeading: "Free Online Image Cropper - Crop Images to Perfect Size Instantly",
   
   intro: "Need to remove unwanted parts from your images or create specific crops for different uses? An image cropper lets you select exactly the portion of an image you want to keep. Whether you're creating profile pictures, removing backgrounds, or focusing on specific details, cropping is essential.",
   
@@ -178,113 +178,4 @@ const cropperContent = {
       content: "Ready to crop your images? Visit the Zemrev Image Cropper for fast, secure, and precise cropping with no storage or sign-ups required."
     }
   ]
-}
-
-export const ImageCropperBlog = () => {
-  return (
-    <div className='w-full'>
-      <article className="max-w-4xl mx-auto px-6 py-12">
-        
-        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
-          {cropperContent.mainHeading}
-        </h1>
-
-        <p className="text-lg text-gray-700 mb-8 leading-relaxed">
-          {cropperContent.intro}
-        </p>
-
-        {cropperContent.sections.map((section, index) => (
-          <section key={index} className="mb-10">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              {section.heading}
-            </h2>
-
-            {section.content && (
-              <p className="text-gray-700 leading-relaxed mb-4">
-                {section.content}
-              </p>
-            )}
-
-            {section.list && (
-              <div className="space-y-4">
-                {section.list.map((item, i) => (
-                  <div key={i}>
-                    <p className="text-gray-700">
-                      <strong>{item.title}</strong> {item.text}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {section.formats && (
-              <>
-                <ul className="space-y-3 mb-4">
-                  {section.formats.map((format, i) => (
-                    <li key={i} className="text-gray-700">
-                      <strong>{format.name}</strong> – {format.description}
-                    </li>
-                  ))}
-                </ul>
-                {section.note && (
-                  <p className="text-gray-600 italic mt-4">{section.note}</p>
-                )}
-              </>
-            )}
-
-            {section.steps && (
-              <div className="space-y-4">
-                {section.steps.map((step, i) => (
-                  <div key={i}>
-                    <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                      {step.step}
-                    </h3>
-                    <p className="text-gray-700">{step.description}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {section.features && (
-              <div className="space-y-4">
-                {section.features.map((feature, i) => (
-                  <div key={i}>
-                    <p className="text-gray-700">
-                      <strong>{feature.title}</strong> {feature.text}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {section.coordinates && (
-              <>
-                <ul className="list-disc list-inside space-y-2 mb-4">
-                  {section.coordinates.map((coord, i) => (
-                    <li key={i} className="text-gray-700">{coord}</li>
-                  ))}
-                </ul>
-                {section.example && (
-                  <p className="text-gray-700 mt-4">{section.example}</p>
-                )}
-              </>
-            )}
-
-            {section.useCases && (
-              <div className="space-y-4">
-                {section.useCases.map((useCase, i) => (
-                  <div key={i}>
-                    <p className="text-gray-700">
-                      <strong>{useCase.title}</strong> {useCase.text}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-        ))}
-
-      </article>
-    </div>
-  )
 }

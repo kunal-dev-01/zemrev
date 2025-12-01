@@ -17,8 +17,8 @@ export const blogMetadata = {
 }
 
 // Main Blog Content
-const blogContent = {
-  mainHeading: "Free Online Image Converter – Convert Images to Any Format Instantly",
+export const blogContent = {
+  mainHeading: "Free Online Image Converter - Convert Images Fast & Secure",
   
   sections: [
     {
@@ -177,116 +177,7 @@ const blogContent = {
     },
     {
       heading: "Start Converting Your Images Today",
-      content: "Ready to convert your images? Visit the Zemrev Image Converter tool and experience how easy image conversion can be. No downloads, no sign-ups, no hassle – just fast, free, and secure image conversion whenever you need it."
+      content: "Ready to convert your images? Visit the Zemrev Image Converter tool and experience how easy image conversion can be. No downloads, no sign-ups, no hassle - just fast, free, and secure image conversion whenever you need it."
     }
   ]
 }
-
-const Blog = () => {
-  return (
-    <div className='w-full'>
-      {/* Blog Container */}
-      <article className="max-w-4xl mx-auto px-6 py-12">
-        
-        {/* Main Heading */}
-        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
-          {blogContent.mainHeading}
-        </h1>
-
-        {/* Intro Paragraph */}
-        <p className="text-lg text-gray-700 mb-8 leading-relaxed">
-          In today's digital world, images are everywhere. Whether you're sharing photos on social media, creating content for your website, or sending files to clients, you often need images in different formats. That's where an <strong>image converter</strong> comes in handy.
-        </p>
-
-        {/* Sections */}
-        {blogContent.sections.map((section, index) => (
-          <section key={index} className="mb-10">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              {section.heading}
-            </h2>
-
-            {section.content && (
-              <p className="text-gray-700 leading-relaxed mb-4">
-                {section.content}
-              </p>
-            )}
-
-            {/* List Items */}
-            {section.list && (
-              <div className="space-y-4">
-                {section.list.map((item, i) => (
-                  <div key={i}>
-                    <p className="text-gray-700">
-                      <strong>{item.title}</strong> {item.text}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Format List */}
-            {section.formats && (
-              <ul className="space-y-3 mb-4">
-                {section.formats.map((format, i) => (
-                  <li key={i} className="text-gray-700">
-                    <strong>{format.name}</strong> – {format.description}
-                  </li>
-                ))}
-              </ul>
-            )}
-
-            {/* Steps */}
-            {section.steps && (
-              <div className="space-y-4">
-                {section.steps.map((step, i) => (
-                  <div key={i}>
-                    <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                      {step.step}
-                    </h3>
-                    <p className="text-gray-700">{step.description}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Features */}
-            {section.features && (
-              <div className="space-y-4">
-                {section.features.map((feature, i) => (
-                  <div key={i}>
-                    <p className="text-gray-700">
-                      <strong>{feature.title}</strong> {feature.text}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Use Cases */}
-            {section.useCases && (
-              <div className="space-y-4">
-                {section.useCases.map((useCase, i) => (
-                  <div key={i}>
-                    <p className="text-gray-700">
-                      <strong>{useCase.title}</strong> {useCase.text}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Footer Text */}
-            {section.footer && (
-              <p className="text-gray-700 leading-relaxed mt-4">
-                {section.footer}
-              </p>
-            )}
-          </section>
-        ))}
-
-      </article>
-    </div>
-  )
-}
-
-export default Blog

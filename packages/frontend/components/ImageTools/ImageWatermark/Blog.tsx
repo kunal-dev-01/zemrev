@@ -16,9 +16,9 @@ export const watermarkMetadata = {
     "watermark photos",
   ],
 };
-const watermarkContent = {
+export const watermarkContent = {
   mainHeading:
-    "Free Online Watermark Tool – Add Text & Logo Watermarks Instantly",
+    "Free Online Watermark Tool - Add Text & Logo Watermarks Instantly",
   intro:
     "Protect your images and establish ownership by adding watermarks. A watermark tool lets you add text or logo watermarks to your images quickly and professionally. Whether you're a photographer protecting your work or a business branding content, watermarks are essential.",
   sections: [
@@ -243,131 +243,4 @@ const watermarkContent = {
         "Ready to protect your images? Visit the Zemrev Watermark Tool for fast, secure watermarking with full customization - no storage or sign-ups required.",
     },
   ],
-};
-export const WatermarkToolBlog = () => {
-  return (
-    <div className="w-full">
-      <article className="max-w-4xl mx-auto px-6 py-12">
-        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
-          {watermarkContent.mainHeading}
-        </h1>
-
-        <p className="text-lg text-gray-700 mb-8 leading-relaxed">
-          {watermarkContent.intro}
-        </p>
-
-        {watermarkContent.sections.map((section, index) => (
-          <section key={index} className="mb-10">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              {section.heading}
-            </h2>
-
-            {section.content && (
-              <p className="text-gray-700 leading-relaxed mb-4">
-                {section.content}
-              </p>
-            )}
-
-            {section.list && (
-              <div className="space-y-4">
-                {section.list.map((item, i) => (
-                  <div key={i}>
-                    <p className="text-gray-700">
-                      <strong>{item.title}</strong> {item.text}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {section.formats && (
-              <>
-                <ul className="space-y-3 mb-4">
-                  {section.formats.map((format, i) => (
-                    <li key={i} className="text-gray-700">
-                      <strong>{format.name}</strong> – {format.description}
-                    </li>
-                  ))}
-                </ul>
-                {section.note && (
-                  <p className="text-gray-600 italic mt-4">{section.note}</p>
-                )}
-              </>
-            )}
-
-            {section.types && (
-              <div className="space-y-4">
-                {section.types.map((type, i) => (
-                  <div key={i}>
-                    <p className="text-gray-700">
-                      <strong>{type.title}</strong> {type.text}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {section.steps && (
-              <div className="space-y-4">
-                {section.steps.map((step, i) => (
-                  <div key={i}>
-                    <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                      {step.step}
-                    </h3>
-                    <p className="text-gray-700">{step.description}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {section.positions && (
-              <ul className="list-disc list-inside space-y-2">
-                {section.positions.map((position, i) => (
-                  <li key={i} className="text-gray-700">
-                    {position}
-                  </li>
-                ))}
-              </ul>
-            )}
-
-            {section.features && (
-              <div className="space-y-4">
-                {section.features.map((feature, i) => (
-                  <div key={i}>
-                    <p className="text-gray-700">
-                      <strong>{feature.title}</strong> {feature.text}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {section.practices && (
-              <div className="space-y-4">
-                {section.practices.map((practice, i) => (
-                  <div key={i}>
-                    <p className="text-gray-700">
-                      <strong>{practice.title}</strong> {practice.text}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {section.useCases && (
-              <div className="space-y-4">
-                {section.useCases.map((useCase, i) => (
-                  <div key={i}>
-                    <p className="text-gray-700">
-                      <strong>{useCase.title}</strong> {useCase.text}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-        ))}
-      </article>
-    </div>
-  );
 };

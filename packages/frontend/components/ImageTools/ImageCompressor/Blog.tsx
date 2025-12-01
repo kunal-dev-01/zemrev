@@ -2,8 +2,6 @@
 // IMAGE COMPRESSOR BLOG
 // ============================================================================
 
-import React from 'react'
-
 export const compressorMetadata = {
   title: "Free Image Compressor - Reduce Image Size Online Fast & Secure",
   description: "Compress JPG, PNG, WEBP & GIF images online for free. Reduce file size without losing quality. No storage, unlimited use, instant results.",
@@ -19,7 +17,7 @@ export const compressorMetadata = {
   ]
 }
 
-const compressorContent = {
+export const compressorContent = {
   mainHeading: "Free Online Image Compressor - Reduce Image Size Without Losing Quality",
   
   intro: "Large image files can slow down your website, fill up storage space, and make sharing difficult. That's why an image compressor is essential for anyone working with digital images. Whether you're a blogger, photographer, or business owner, compressing images helps you save space while maintaining quality.",
@@ -169,102 +167,6 @@ const compressorContent = {
       content: "Ready to reduce your image file sizes? Visit the Zemrev Image Compressor and experience fast, secure compression with no storage or sign-ups required."
     }
   ]
-}
-
-export const ImageCompressorBlog = () => {
-  return (
-    <div className='w-full'>
-      <article className="max-w-4xl mx-auto px-6 py-12">
-        
-        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
-          {compressorContent.mainHeading}
-        </h1>
-
-        <p className="text-lg text-gray-700 mb-8 leading-relaxed">
-          {compressorContent.intro}
-        </p>
-
-        {compressorContent.sections.map((section, index) => (
-          <section key={index} className="mb-10">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              {section.heading}
-            </h2>
-
-            {section.content && (
-              <p className="text-gray-700 leading-relaxed mb-4">
-                {section.content}
-              </p>
-            )}
-
-            {section.list && (
-              <div className="space-y-4">
-                {section.list.map((item, i) => (
-                  <div key={i}>
-                    <p className="text-gray-700">
-                      <strong>{item.title}</strong> {item.text}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {section.formats && (
-              <>
-                <ul className="space-y-3 mb-4">
-                  {section.formats.map((format, i) => (
-                    <li key={i} className="text-gray-700">
-                      <strong>{format.name}</strong> – {format.description}
-                    </li>
-                  ))}
-                </ul>
-                {section.note && (
-                  <p className="text-gray-600 italic mt-4">{section.note}</p>
-                )}
-              </>
-            )}
-
-            {section.steps && (
-              <div className="space-y-4">
-                {section.steps.map((step, i) => (
-                  <div key={i}>
-                    <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                      {step.step}
-                    </h3>
-                    <p className="text-gray-700">{step.description}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {section.features && (
-              <div className="space-y-4">
-                {section.features.map((feature, i) => (
-                  <div key={i}>
-                    <p className="text-gray-700">
-                      <strong>{feature.title}</strong> {feature.text}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {section.useCases && (
-              <div className="space-y-4">
-                {section.useCases.map((useCase, i) => (
-                  <div key={i}>
-                    <p className="text-gray-700">
-                      <strong>{useCase.title}</strong> {useCase.text}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-        ))}
-
-      </article>
-    </div>
-  )
 }
 
 

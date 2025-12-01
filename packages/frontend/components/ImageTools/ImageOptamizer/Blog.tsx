@@ -18,7 +18,7 @@ export const optimizerMetadata = {
   ],
 };
 
-const optimizerContent = {
+export const optimizerContent = {
   mainHeading:
     "Free Online Image Optimizer - Remove Metadata & Fix Orientation Instantly",
 
@@ -186,112 +186,4 @@ const optimizerContent = {
         "Ready to optimize your images? Visit the Zemrev Image Optimizer for fast, secure optimization with metadata removal and orientation fixing – no storage or sign-ups required.",
     },
   ],
-};
-export const ImageOptimizerBlog = () => {
-  return (
-    <div className="w-full">
-      <article className="max-w-4xl mx-auto px-6 py-12">
-        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
-          {optimizerContent.mainHeading}
-        </h1>
-
-        <p className="text-lg text-gray-700 mb-8 leading-relaxed">
-          {optimizerContent.intro}
-        </p>
-
-        {optimizerContent.sections.map((section, index) => (
-          <section key={index} className="mb-10">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              {section.heading}
-            </h2>
-
-            {section.content && (
-              <p className="text-gray-700 leading-relaxed mb-4">
-                {section.content}
-              </p>
-            )}
-
-            {section.list && (
-              <div className="space-y-4">
-                {section.list.map((item, i) => (
-                  <div key={i}>
-                    <p className="text-gray-700">
-                      <strong>{item.title}</strong> {item.text}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {section.formats && (
-              <>
-                <ul className="space-y-3 mb-4">
-                  {section.formats.map((format, i) => (
-                    <li key={i} className="text-gray-700">
-                      <strong>{format.name}</strong> – {format.description}
-                    </li>
-                  ))}
-                </ul>
-                {section.note && (
-                  <p className="text-gray-600 italic mt-4">{section.note}</p>
-                )}
-              </>
-            )}
-
-            {section.exifData && (
-              <>
-                <ul className="list-disc list-inside space-y-2 mb-4">
-                  {section.exifData.map((data, i) => (
-                    <li key={i} className="text-gray-700">
-                      {data}
-                    </li>
-                  ))}
-                </ul>
-                {section.footer && (
-                  <p className="text-gray-700 mt-4">{section.footer}</p>
-                )}
-              </>
-            )}
-
-            {section.steps && (
-              <div className="space-y-4">
-                {section.steps.map((step, i) => (
-                  <div key={i}>
-                    <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                      {step.step}
-                    </h3>
-                    <p className="text-gray-700">{step.description}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {section.features && (
-              <div className="space-y-4">
-                {section.features.map((feature, i) => (
-                  <div key={i}>
-                    <p className="text-gray-700">
-                      <strong>{feature.title}</strong> {feature.text}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {section.useCases && (
-              <div className="space-y-4">
-                {section.useCases.map((useCase, i) => (
-                  <div key={i}>
-                    <p className="text-gray-700">
-                      <strong>{useCase.title}</strong> {useCase.text}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-        ))}
-      </article>
-    </div>
-  );
 };
