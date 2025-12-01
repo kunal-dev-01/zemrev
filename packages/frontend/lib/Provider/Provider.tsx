@@ -3,12 +3,12 @@
 import dynamic from 'next/dynamic';
 import Loader from '@/components/Layouts/Loader';
 
-const PageProvider = dynamic(() => import('@/components/Layouts/PageLayout'), {
+const AppProvider = dynamic(() => import('@/lib/redux/reduxProvider'), {
     ssr: false,
     loading: () => <Loader />,
 });
 
 
 export default function MainProvider({ children }: { children: React.ReactNode }) {
-  return <PageProvider>{children}</PageProvider>;
+  return <AppProvider>{children}</AppProvider>;
 }
