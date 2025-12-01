@@ -1,10 +1,8 @@
 // ============================================================================
 // FILE: src/services/imageService/types.ts
-// PURPOSE: TypeScript types for image service
-// COMMIT: feat: add TypeScript types for image operations
+// PURPOSE: Types for image convert service
+// COMMIT: feat: add types for image convert
 // ============================================================================
-
-// ==================== ENUMS ====================
 
 export enum OutputFormat {
   JPEG = "jpeg",
@@ -19,21 +17,6 @@ export enum OutputFormat {
   BMP = "bmp",
 }
 
-export enum ResizeMode {
-  CONTAIN = "contain",
-  COVER = "cover",
-  STRETCH = "stretch",
-  EXACT = "exact",
-}
-
-export enum WatermarkPosition {
-  TOP_LEFT = "top-left",
-  TOP_RIGHT = "top-right",
-  BOTTOM_LEFT = "bottom-left",
-  BOTTOM_RIGHT = "bottom-right",
-  CENTER = "center",
-}
-
 export enum ImageStatus {
   PENDING = "pending",
   PROCESSING = "processing",
@@ -41,71 +24,11 @@ export enum ImageStatus {
   FAILED = "failed",
 }
 
-export type ToolName = "convert" | "compress" | "resize" | "optimize" | "crop" | "watermark";
-
-// ==================== REQUEST TYPES ====================
-
 export interface ConvertRequest {
-  file?: File;
-  url?: string;
+  file: File;
   format: OutputFormat;
   quality: number;
 }
-
-export interface CompressRequest {
-  file?: File;
-  url?: string;
-  quality: number;
-  format?: OutputFormat;
-}
-
-export interface ResizeRequest {
-  file?: File;
-  url?: string;
-  width?: number;
-  height?: number;
-  mode: ResizeMode;
-  format?: OutputFormat;
-}
-
-export interface OptimizeRequest {
-  file?: File;
-  url?: string;
-  strip_exif: boolean;
-  strip_gps: boolean;
-  fix_orientation: boolean;
-}
-
-export interface CropRequest {
-  file?: File;
-  url?: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  format?: OutputFormat;
-}
-
-export interface TextWatermarkRequest {
-  file?: File;
-  url?: string;
-  text: string;
-  font_size: number;
-  color: string;
-  opacity: number;
-  position: WatermarkPosition;
-}
-
-export interface ImageWatermarkRequest {
-  file?: File;
-  url?: string;
-  watermark: File;
-  scale: number;
-  opacity: number;
-  position: WatermarkPosition;
-}
-
-// ==================== IMAGE STATE ====================
 
 export interface ImageItem {
   id: string;
@@ -114,39 +37,19 @@ export interface ImageItem {
   size: number;
   preview: string;
   status: ImageStatus;
+  progress: number;
   result?: Blob;
   resultUrl?: string;
   error?: string;
-  progress: number;
 }
 
-// ==================== BATCH STATE ====================
-
-export interface BatchState {
+export interface ConvertState {
   images: ImageItem[];
   isProcessing: boolean;
   completedCount: number;
   failedCount: number;
 }
 
-export interface BatchSettings {
-  convert?: {
-    format: OutputFormat;
-    quality: number;
-  };
-  compress?: {
-    quality: number;
-    format?: OutputFormat;
-  };
-  resize?: {
-    width?: number;
-    height?: number;
-    mode: ResizeMode;
-    format?: OutputFormat;
-  };
-  optimize?: {
-    strip_exif: boolean;
-    strip_gps: boolean;
-    fix_orientation: boolean;
-  };
-}
+export const MAX_IMAGES = 5;
+export const MAX_FILE_SIZE = 52428800; // 50MB
+export const ACCEPTED_FORMATS = ["image/jpeg", "image/png", "image/webp", "image/avif", "image/heic", "image/gif", "image/bmp", "image/tiff", "image/heif"];
