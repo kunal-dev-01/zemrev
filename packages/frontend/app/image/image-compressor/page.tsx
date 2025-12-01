@@ -1,7 +1,7 @@
 "use client"
 import dynamic from "next/dynamic"
 import Skeleton from "@/components/Layouts/Skeleton"
-const Index = dynamic(() => import("@/components/ImageTools/ImageCompressor"), {
+const Index = dynamic(() => import("@/components/ImageTools/ImageCompressor/ImageCompressor"), {
     ssr: false,
     loading: () => <Skeleton />,
 })
