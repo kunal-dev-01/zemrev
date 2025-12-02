@@ -1,4 +1,4 @@
-import React from 'react'
+// app/image/image-compressor/[slug]/page.tsx
 
 const Compressor = () => {
   return (

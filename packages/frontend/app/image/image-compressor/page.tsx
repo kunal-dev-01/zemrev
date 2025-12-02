@@ -1,3 +1,5 @@
+// app/image/image-compressor/page.tsx
+
 import type { Metadata } from "next";
 import {
   compressorMetadata,

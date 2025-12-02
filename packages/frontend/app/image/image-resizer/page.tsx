@@ -1,3 +1,5 @@
+// app/image/image-resizer/page.tsx
+
 import type { Metadata } from "next";
 import {
   resizerMetadata,

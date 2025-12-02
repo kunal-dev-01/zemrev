@@ -1,4 +1,4 @@
-import React from 'react'
+// app/image/image-optimizer/[slug]/page.tsx
 
 const Optamizer = () => {
   return (

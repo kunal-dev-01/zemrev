@@ -1,6 +1,8 @@
-// Blog Metadata for SEO
+// ============================================================================
+// IMAGE CONVERTER BLOG
+// ============================================================================
 
-export const blogMetadata = {
+export const converterMetadata = {
   title: "Free Online Image Converter - Convert Images Fast & Secure",
   description: "Convert images to JPG, PNG, WEBP, AVIF, HEIC & more formats instantly. Free, unlimited & secure image converter. No storage, no login required.",
   keywords: [
@@ -16,8 +18,8 @@ export const blogMetadata = {
   ]
 }
 
-// Main Blog Content
-export const blogContent = {
+
+export const converterContent = {
   mainHeading: "Free Online Image Converter - Convert Images Fast & Secure",
   
   sections: [

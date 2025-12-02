@@ -1,3 +1,5 @@
+// app/image/image-optimizer/page.tsx
+
 import type { Metadata } from "next";
 import {optimizerMetadata, optimizerContent} from "@/components/ImageTools/ImageOptimizer/Blog";
 import ToolWrapper from "@/components/ImageTools/ImageCropper/ToolWrapper";

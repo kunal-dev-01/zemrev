@@ -1,3 +1,5 @@
+// app/image/image-cropper/page.tsx
+
 import type { Metadata } from "next";
 import {
   cropperMetadata,

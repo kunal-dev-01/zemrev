@@ -1,4 +1,4 @@
-import React from 'react'
+// app/image/image-resizer/[slug]/page.tsx
 
 const Resizer = () => {
   return (
