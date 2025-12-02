@@ -23,8 +23,9 @@ export const TOOL_CONFIGS: Record<string, ToolConfig> = {
     ],
     maxFiles: 5,
     showPreview: false,
-    primaryColor: "#3b82f6", // blue-500
-    dropzoneColor: "#dbeafe", // blue-100
+    primaryColor: "#10b981", 
+    dropzoneColor: "#ecfdf5",
+    dropzoneColorDark: "#10b9811A",
     defaultSettings: {
       format: "webp",
       quality: 75,
@@ -43,8 +44,9 @@ export const TOOL_CONFIGS: Record<string, ToolConfig> = {
     ],
     maxFiles: 5,
     showPreview: false,
-    primaryColor: "#10b981", // green-500
-    dropzoneColor: "#d1fae5", // green-100
+    primaryColor: "#3b82f6", 
+    dropzoneColor: "#eff6ff",
+    dropzoneColorDark: "#3b82f61A",
     defaultSettings: {
       quality: 75,
     },
@@ -62,8 +64,9 @@ export const TOOL_CONFIGS: Record<string, ToolConfig> = {
     ],
     maxFiles: 5,
     showPreview: false,
-    primaryColor: "#8b5cf6", // violet-500
-    dropzoneColor: "#ede9fe", // violet-100
+    primaryColor: "#6366f1",
+    dropzoneColor: "#eef2ff",
+    dropzoneColorDark: "#6366f11A",
     defaultSettings: {
       mode: "contain",
       width: 1920,
@@ -83,8 +86,9 @@ export const TOOL_CONFIGS: Record<string, ToolConfig> = {
     ],
     maxFiles: 5,
     showPreview: false,
-    primaryColor: "#f59e0b", // amber-500
-    dropzoneColor: "#fef3c7", // amber-100
+    primaryColor: "#f43f5e",
+    dropzoneColor: "#fff1f2",
+    dropzoneColorDark: "#f43f5e1A",
     defaultSettings: {
       stripExif: true,
       stripGps: true,
@@ -104,8 +108,9 @@ export const TOOL_CONFIGS: Record<string, ToolConfig> = {
     ],
     maxFiles: 1,
     showPreview: true,
-    primaryColor: "#ec4899", // pink-500
-    dropzoneColor: "#fce7f3", // pink-100
+    primaryColor: "#f59e0b",
+    dropzoneColor: "#fffbeb",
+    dropzoneColorDark: "#f59e0b1A",
     defaultSettings: {
       x: 0,
       y: 0,
@@ -126,8 +131,9 @@ export const TOOL_CONFIGS: Record<string, ToolConfig> = {
     ],
     maxFiles: 1,
     showPreview: true,
-    primaryColor: "#06b6d4", // cyan-500
-    dropzoneColor: "#cffafe", // cyan-100
+    primaryColor: "#8b5cf6",
+    dropzoneColor: "#f5f3ff",
+    dropzoneColorDark: "#8b5cf61A",
     defaultSettings: {
       text: "Watermark",
       fontSize: 48,
