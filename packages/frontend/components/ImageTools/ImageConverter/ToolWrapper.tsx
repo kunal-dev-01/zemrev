@@ -7,7 +7,7 @@ const Index = dynamic(
   () => import("./ImageConverter"),
   {
     ssr: false,
-    loading: () => <Skeleton height="" />,
+    loading: () => <Skeleton height="md:h-[15vw] h-[40vh]" />,
   }
 );
 
