@@ -1,12 +1,8 @@
-// ============================================================================
-// FILE: src/components/Common/DragDropZone.tsx
-// PURPOSE: Reusable drag & drop zone with customizable colors
-// ============================================================================
-
 "use client";
 
-import { useCallback, useState } from "react";
-import { UploadSvg, LinkSvg } from "@/components/Svg/ToolsSvg";
+import { useState, useCallback, useEffect, useRef } from "react";
+import { UploadSvg, LinkSvg} from "@/components/Svg/ToolsSvg";
+import { ErrorSvg } from "@/components/Svg/CommonSvg";
 import type { ToolConfig } from "@/services/imageService/types";
 
 interface DragDropZoneProps {
@@ -25,16 +21,36 @@ export const DragDropZone = ({
   currentFileCount,
 }: DragDropZoneProps) => {
   const [isDragging, setIsDragging] = useState(false);
+  const [isDark, setIsDark] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const handleDrag = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const zoneRef = useRef<HTMLDivElement>(null);
+
+  // Auto-hide error message (3 sec)
+  useEffect(() => {
+    if (!errorMsg) return;
+    const t = setTimeout(() => setErrorMsg(null), 3000);
+    return () => clearTimeout(t);
+  }, [errorMsg]);
+
+  // Detect light/dark mode
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    setIsDark(mq.matches);
+
+    const handler = (e: MediaQueryListEvent) => setIsDark(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
   }, []);
 
+  const triggerError = (msg: string) => {
+    setErrorMsg(msg);
+  };
+
+  // Drag events
   const handleDragEnter = useCallback(
     (e: React.DragEvent) => {
       e.preventDefault();
-      e.stopPropagation();
       if (!disabled) setIsDragging(true);
     },
     [disabled]
@@ -42,155 +58,153 @@ export const DragDropZone = ({
 
   const handleDragLeave = useCallback((e: React.DragEvent) => {
     e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
+
+    const rect = zoneRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    const inside =
+      e.clientX >= rect.left &&
+      e.clientX <= rect.right &&
+      e.clientY >= rect.top &&
+      e.clientY <= rect.bottom;
+
+    if (!inside) setIsDragging(false);
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
   }, []);
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
       e.preventDefault();
-      e.stopPropagation();
       setIsDragging(false);
 
       if (disabled) return;
 
       const files = Array.from(e.dataTransfer.files);
-      const remainingSlots = config.maxFiles - currentFileCount;
+      const remaining = config.maxFiles - currentFileCount;
 
-      if (files.length > remainingSlots) {
-        alert(
-          `Maximum ${config.maxFiles} files allowed. You can add ${remainingSlots} more.`
-        );
+      if (files.length > remaining) {
+        triggerError(`You can upload only ${config.maxFiles} files at a time.`);
         return;
       }
 
-      const validFiles = files.filter((file) =>
-        config.acceptedFormats.includes(file.type)
+      const valid = files.filter((f) =>
+        config.acceptedFormats.includes(f.type)
       );
 
-      if (validFiles.length !== files.length) {
-        alert("Some files were skipped due to unsupported format.");
+      if (valid.length === 0) {
+        triggerError("Unsupported file format.");
+        return;
       }
 
-      if (validFiles.length > 0) {
-        onFilesSelected(validFiles);
-      }
+      onFilesSelected(valid);
     },
     [disabled, config, currentFileCount, onFilesSelected]
   );
 
-  const handleFileInput = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const files = Array.from(e.target.files || []);
-      const remainingSlots = config.maxFiles - currentFileCount;
+  // File input
+  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const remaining = config.maxFiles - currentFileCount;
 
-      if (files.length > remainingSlots) {
-        alert(
-          `Maximum ${config.maxFiles} files allowed. You can add ${remainingSlots} more.`
-        );
-        return;
-      }
+    if (files.length > remaining) {
+      triggerError(`You can upload only ${config.maxFiles} files at a time.`);
+      return;
+    }
 
-      if (files.length > 0) {
-        onFilesSelected(files);
-      }
+    if (files.length > 0) onFilesSelected(files);
+    e.target.value = "";
+  };
 
-      e.target.value = "";
-    },
-    [config, currentFileCount, onFilesSelected]
-  );
-
-  const canAddMore = currentFileCount < config.maxFiles;
-  const isDisabled = disabled || !canAddMore;
+  const borderColor = config.primaryColor;
+  const dragBG = isDark ? config.dropzoneColorDark : config.dropzoneColor;
 
   return (
     <div
+      ref={zoneRef}
       onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
-      onDragOver={handleDrag}
+      onDragOver={handleDragOver}
       onDrop={handleDrop}
-      className={`
-        relative rounded-xl border-2 border-dashed transition-all duration-300
-        ${
-          isDragging && !isDisabled
-            ? `border-[${config.primaryColor}] bg-[${config.dropzoneColor}]`
-            : "border-zinc-300 dark:border-zinc-700"
-        }
-        ${isDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+      className={`relative rounded-xl border-2 border-dashed transition-all duration-300
+        ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
       `}
-      style={{
-        borderColor:
-          isDragging && !isDisabled ? config.primaryColor : undefined,
-        backgroundColor:
-          isDragging && !isDisabled ? config.dropzoneColor : undefined,
-      }}
+      style={{ borderColor }}
     >
-      <div className="p-8 md:p-12 text-center">
-        <div
-          style={{
-            color: isDragging && !isDisabled ? config.primaryColor : undefined,
-          }}
-          className="w-12 h-12 mx-auto mb-4 transition-colors"
-        >
-          <UploadSvg />
-        </div>
+      {/* Drag highlight */}
+      <div
+        className="absolute inset-0 rounded-xl transition-all duration-200 pointer-events-none"
+        style={{
+          backgroundColor: isDragging ? dragBG : "transparent",
+          opacity: isDragging ? 1 : 0,
+        }}
+      />
 
-        <h3 className="text-lg font-semibold text-zinc-800 dark:text-zinc-200 mb-2">
-          {isDragging && !isDisabled
-            ? "Drop files here"
-            : canAddMore
-            ? "Drag & drop files here"
-            : `Maximum ${config.maxFiles} files reached`}
-        </h3>
+      {/* ==== MAIN AREA (Error OR Upload UI) ==== */}
+      <div className="relative py-6 md:py-12 text-center flex flex-col items-center justify-center min-h-[220px]">
 
-        <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-6">
-          {canAddMore
-            ? `${config.maxFiles - currentFileCount} slot${
-                config.maxFiles - currentFileCount !== 1 ? "s" : ""
-              } remaining`
-            : "Remove files to add more"}
-        </p>
+        {/* ERROR VIEW */}
+        {errorMsg ? (
+          <div className="flex flex-col items-center justify-center gap-3">
+            <div className="w-12 h-12 text-red-400 dark:text-red-500">
+              <ErrorSvg />
+            </div>
 
-        {canAddMore && (
-          <div className="flex items-center justify-center gap-3">
-            <label
-              htmlFor="file-input"
-              className="px-6 py-2.5 rounded-lg font-medium text-white transition-all cursor-pointer hover:opacity-90"
-              style={{ backgroundColor: config.primaryColor }}
-            >
-              Select Files
-              <input
-                id="file-input"
-                type="file"
-                multiple={config.maxFiles > 1}
-                accept={config.acceptedFormats.join(",")}
-                onChange={handleFileInput}
-                disabled={isDisabled}
-                className="hidden"
-              />
-            </label>
-
-            <button
-              onClick={onUrlUpload}
-              disabled={isDisabled}
-              className="px-6 py-2 rounded-lg font-medium border-2 transition-all hover:opacity-90 flex items-center justify-center"
-              style={{
-                borderColor: config.primaryColor,
-                color: config.primaryColor,
-              }}
-            >
-              <div className="w-6 h-6 mr-2 text-zinc-300">
-                <LinkSvg />
-              </div>
-              From URL
-            </button>
+            <p className="text-red-400 dark:text-red-500 font-medium text-lg">{errorMsg}</p>
           </div>
+        ) : (
+          <>
+            {/* Upload Icon */}
+            <div
+              className="w-12 h-12 mx-auto mb-4 transition-all"
+              style={{ color: isDragging ? borderColor : undefined }}
+            >
+              <UploadSvg />
+            </div>
+
+            <h3 className="text-lg font-semibold text-zinc-800 dark:text-zinc-200 mb-2">
+              {isDragging ? "Drop files here" : "Drag & drop files here"}
+            </h3>
+
+            <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-6">
+              {config.maxFiles - currentFileCount} slots remaining
+            </p>
+
+            {currentFileCount < config.maxFiles && (
+              <div className="flex items-center justify-center gap-3">
+                <label
+                  htmlFor="file-input"
+                  className="md:px-6 px-5 py-2 text-md rounded-lg font-medium text-white hover:opacity-90 transition-all cursor-pointer"
+                  style={{ backgroundColor: borderColor }}
+                >
+                  Select Files
+                  <input
+                    id="file-input"
+                    type="file"
+                    multiple={config.maxFiles > 1}
+                    accept={config.acceptedFormats.join(",")}
+                    onChange={handleFileInput}
+                    className="hidden"
+                  />
+                </label>
+
+                <button
+                  onClick={onUrlUpload}
+                  className="md:px-6 px-5 py-1.5 text-md rounded-lg font-medium border-2 hover:opacity-90 transition-all flex items-center gap-2 cursor-pointer"
+                  style={{ borderColor, color: borderColor }}
+                >
+                  <div className="w-6 h-6">
+                    <LinkSvg />
+                  </div>
+                  From URL
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
-
-      {!canAddMore && (
-        <div className="absolute inset-0 bg-zinc-900/10 dark:bg-zinc-100/10 rounded-xl backdrop-blur-sm" />
-      )}
     </div>
   );
 };
