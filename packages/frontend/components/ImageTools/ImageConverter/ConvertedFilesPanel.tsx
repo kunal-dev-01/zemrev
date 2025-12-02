@@ -1,14 +1,10 @@
-// ============================================================================
-// FILE: src/components/ImageTools/ImageConverter/ConvertedFilesPanel.tsx
-// PURPOSE: Display previously converted files from session storage
-// ============================================================================
-
 "use client";
 
 import { useState, useEffect } from "react";
 import { HardDrive } from "@/components/Svg/HomeSvg";
-import { DownloadSvg,TrashSvg,FolderOpenSvg } from "@/components/Svg/CommonSvg";
+import { DownloadSvg, TrashSvg, FolderOpenSvg } from "@/components/Svg/CommonSvg";
 import { sessionStorageUtils } from "@/utils/sessionStorage.utils";
+import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 import type { StoredFile, ToolConfig } from "@/services/imageService/types";
 
 interface ConvertedFilesPanelProps {
@@ -16,10 +12,11 @@ interface ConvertedFilesPanelProps {
 }
 
 export const ConvertedFilesPanel = ({ config }: ConvertedFilesPanelProps) => {
+  const isDark = useDarkMode();
   const [storedFiles, setStoredFiles] = useState<StoredFile[]>([]);
   const [stats, setStats] = useState({ fileCount: 0, totalSize: 0, usagePercent: 0 });
 
-  // Load files on mount and set up interval
+  // Load session files
   useEffect(() => {
     const loadFiles = () => {
       const files = sessionStorageUtils.getFilesByTool(config.type);
@@ -29,8 +26,7 @@ export const ConvertedFilesPanel = ({ config }: ConvertedFilesPanelProps) => {
     };
 
     loadFiles();
-    const interval = setInterval(loadFiles, 2000); // Refresh every 2s
-
+    const interval = setInterval(loadFiles, 2000);
     return () => clearInterval(interval);
   }, [config.type]);
 
@@ -77,24 +73,36 @@ export const ConvertedFilesPanel = ({ config }: ConvertedFilesPanelProps) => {
   if (storedFiles.length === 0) return null;
 
   return (
-    <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 p-6">
+    <div
+      className="
+        border border-zinc-200 dark:border-zinc-800
+        rounded-xl bg-white/50 dark:bg-zinc-900/40 
+        md:p-6 p-2
+      "
+    >
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div
             className="p-2 rounded-lg"
-            style={{ backgroundColor: config.dropzoneColor }}
+            style={{
+              backgroundColor: isDark
+                ? config.dropzoneColorDark
+                : config.dropzoneColor,
+            }}
           >
             <div className="w-5 h-5" style={{ color: config.primaryColor }}>
-                <FolderOpenSvg />
+              <FolderOpenSvg />
             </div>
           </div>
+
           <div>
-            <h2 className="text-xl font-semibold text-zinc-800 dark:text-zinc-200">
+            <h2 className="md:text-xl text-md font-semibold text-zinc-800 dark:text-zinc-200">
               Converted Files
             </h2>
             <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-0.5">
-              {stats.fileCount} file{stats.fileCount !== 1 ? "s" : ""} • {formatBytes(stats.totalSize)}
+              {stats.fileCount} file{stats.fileCount !== 1 ? "s" : ""} •{" "}
+              {formatBytes(stats.totalSize)}
             </p>
           </div>
         </div>
@@ -103,10 +111,10 @@ export const ConvertedFilesPanel = ({ config }: ConvertedFilesPanelProps) => {
           {storedFiles.length > 1 && (
             <button
               onClick={handleDownloadAll}
-              className="px-4 py-2 rounded-lg font-medium text-white transition-all"
+              className="px-4 py-1.5 rounded-full font-medium text-white flex items-center gap-2"
               style={{ backgroundColor: config.primaryColor }}
             >
-              <div className="w-5 h-5 inline-block mr-1 -mt-1">
+              <div className="w-5 h-5">
                 <DownloadSvg />
               </div>
               Download All
@@ -115,36 +123,50 @@ export const ConvertedFilesPanel = ({ config }: ConvertedFilesPanelProps) => {
 
           <button
             onClick={handleClearAll}
-            className="px-4 py-2 rounded-lg font-medium border border-red-300 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
+            className="
+              px-4 py-1.5 rounded-full font-medium 
+              text-red-600 flex items-center gap-2 
+              transition-all
+            "
+            style={{
+              backgroundColor: isDark ? "rgba(255,0,0,0.15)" : "#ffe7e7",
+            }}
           >
-            <div className="w-5 h-5 inline-block mr-1 -mt-1">
-                <TrashSvg />
+            <div className="w-5 h-5">
+              <TrashSvg />
             </div>
-            Clear All
+            <span>Clear All</span>
           </button>
         </div>
       </div>
 
-      {/* Storage Usage Bar */}
+      {/* Storage Usage */}
       <div className="mb-6">
         <div className="flex items-center justify-between text-xs text-zinc-600 dark:text-zinc-400 mb-2">
           <span className="flex items-center gap-1.5">
-            <div className="w-5 h-5 inline-block mr-1 -mt-1">
-                <HardDrive />
+            <div className="w-5 h-5 inline-block">
+              <HardDrive />
             </div>
             Session Storage Usage
           </span>
           <span>{stats.usagePercent}%</span>
         </div>
-        <div className="h-2 bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden">
+
+        <div className="h-2 rounded-full overflow-hidden"
+          style={{
+            backgroundColor: isDark ? "#2a2a2a" : "#e5e5e5",
+          }}
+        >
           <div
             className="h-full rounded-full transition-all duration-500"
             style={{
               width: `${Math.min(stats.usagePercent, 100)}%`,
-              backgroundColor: stats.usagePercent > 80 ? "#ef4444" : config.primaryColor,
+              backgroundColor:
+                stats.usagePercent > 80 ? "#ef4444" : config.primaryColor,
             }}
           />
         </div>
+
         {stats.usagePercent > 80 && (
           <p className="text-xs text-red-600 dark:text-red-400 mt-2">
             Storage almost full. Files will auto-clear when adding new ones.
@@ -157,7 +179,8 @@ export const ConvertedFilesPanel = ({ config }: ConvertedFilesPanelProps) => {
         {storedFiles.map((file) => (
           <div
             key={file.id}
-            className="flex items-center justify-between p-4 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 hover:border-zinc-300 dark:hover:border-zinc-600 transition-all"
+            className="flex items-center justify-between p-4 rounded-lg border
+              bg-zinc-50 dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800"
           >
             <div className="flex-1 min-w-0 mr-4">
               <h3 className="text-sm font-medium text-zinc-800 dark:text-zinc-200 truncate">
@@ -171,22 +194,26 @@ export const ConvertedFilesPanel = ({ config }: ConvertedFilesPanelProps) => {
             <div className="flex items-center gap-2 shrink-0">
               <button
                 onClick={() => handleDownload(file.id)}
-                className="px-3 py-1.5 rounded text-xs font-medium text-white transition-all"
+                className="
+                  px-3 py-1 rounded-full text-xs font-medium text-white 
+                  transition-all flex items-center gap-2
+                "
                 style={{ backgroundColor: config.primaryColor }}
               >
-                <div className="w-5 h-5 inline-block mr-1 -mt-1">
-                    <DownloadSvg />
+                <div className="w-5 h-5">
+                  <DownloadSvg />
                 </div>
-                Download
+                <span className="md:block hidden">Download</span>
               </button>
 
               <button
                 onClick={() => handleDelete(file.id)}
-                className="p-1.5 rounded hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 transition-all"
+                className="
+                  w-6 h-6 cursor-pointer text-red-400 dark:text-red-500
+                  hover:text-red-300 dark:hover:text-red-400 transition-all
+                "
               >
-                <div className="w-5 h-5 text-zinc-300">
-                    <TrashSvg />
-                </div>
+                <TrashSvg />
               </button>
             </div>
           </div>

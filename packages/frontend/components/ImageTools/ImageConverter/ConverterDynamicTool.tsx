@@ -134,7 +134,7 @@ const ConverterDynamicTool = ({
   // ============================================================================
 
   return (
-    <div className="w-full mt-6">
+    <div className="w-full md:mt-[1vw] mt-[1vh]">
       {/* Drag & Drop (shown when no file) */}
       {!file && (
         <DragDropZone
@@ -161,7 +161,7 @@ const ConverterDynamicTool = ({
 
             <button
               onClick={handleReset}
-              className="px-4 py-2 rounded-lg font-medium border border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all"
+              className="px-4 py-1.5 flex items-center gap-2 rounded-lg font-medium border border-zinc-100 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-900"
             >
               <div className="w-5 h-5">
                 <RotateSvg/>
@@ -227,8 +227,8 @@ const ConverterDynamicTool = ({
           {/* Success State */}
           {resultBlob && !converting && (
             <div className="space-y-4">
-              <div className="p-6 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-center">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+              <div className="p-6 rounded-lg dark:bg-zinc-900 bg-zinc-50 text-center">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-emerald-400">
                   <CheckSvg/>
                 </div>
                 <h3 className="text-lg font-semibold text-green-800 dark:text-green-200 mb-2">
@@ -239,7 +239,7 @@ const ConverterDynamicTool = ({
                 </p>
                 <button
                   onClick={handleDownload}
-                  className="px-8 py-3 rounded-lg font-semibold text-white text-lg transition-all"
+                  className="px-8 py-1.5 flex items-center gap-2 mx-auto rounded-lg font-semibold text-white text-lg "
                   style={{ backgroundColor: config.primaryColor }}
                 >
                   <div className="w-5 h-5">
@@ -251,7 +251,7 @@ const ConverterDynamicTool = ({
 
               <button
                 onClick={handleReset}
-                className="w-full px-4 py-2.5 rounded-lg font-medium border border-zinc-300 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all"
+                className="w-full px-4 py-2 rounded-lg font-medium border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-900 cursor-pointer"
               >
                 Convert Another File
               </button>

@@ -233,7 +233,7 @@ const ImageConverter = () => {
               {stats.completed > 0 && (
                 <button
                   onClick={downloadAll}
-                  className="px-4 py-2 rounded-full font-medium text-white transition-all"
+                  className="px-4 py-1.5 rounded-full font-medium text-white flex items-center gap-2"
                   style={{ backgroundColor: config.primaryColor }}
                 >
                   <div className="w-5 h-5">
