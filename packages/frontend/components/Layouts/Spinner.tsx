@@ -15,7 +15,7 @@ export const Spinner = memo(() => (
         r="9.5"
         fill="none"
         strokeLinecap="round"
-        strokeWidth="2"
+        strokeWidth="3"
       >
         <animate
           attributeName="stroke-dasharray"
