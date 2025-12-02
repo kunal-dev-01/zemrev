@@ -18,10 +18,12 @@ import { TOOL_CONFIGS, detectFormatFromFilename, getOutputFilename } from "@/con
 import type { ProcessedFile, OutputFormat } from "@/services/imageService/types";
 import { Spinner } from "@/components/Layouts/Spinner";
 import { DownloadSvg, PlusSvg, TrashSvg } from "@/components/Svg/CommonSvg";
+import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 
 const ImageConverter = () => {
   const router = useRouter();
   const config = TOOL_CONFIGS.converter;
+  const isDark = useDarkMode();
   
   const [files, setFiles] = useState<ProcessedFile[]>([]);
   const [urlModalOpen, setUrlModalOpen] = useState(false);
@@ -203,14 +205,11 @@ const ImageConverter = () => {
 
       {/* Files Panel */}
       {files.length > 0 && (
-        <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 p-6">
+        <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 md:p-6 p-2">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-xl font-semibold text-zinc-800 dark:text-zinc-200">
-                Files ({stats.total}/{config.maxFiles})
-              </h2>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1">
+            <div className="flex items-center justify-center gap-2 dark:bg-zinc-900 bg-zinc-50 border border-zinc-200 dark:border-zinc-800 rounded-full px-4 py-1.5">
+              <p className="text-sm text-zinc-600 dark:text-zinc-400">
                 {stats.completed > 0 && `${stats.completed} converted`}
                 {stats.pending > 0 && ` • ${stats.pending} pending`}
                 {stats.error > 0 && ` • ${stats.error} failed`}
@@ -221,26 +220,23 @@ const ImageConverter = () => {
               {canAddMore && (
                 <button
                   onClick={() => setUrlModalOpen(true)}
-                  className="px-4 py-2 rounded-lg font-medium border-2 transition-all"
-                  style={{
-                    borderColor: config.primaryColor,
-                    color: config.primaryColor,
-                  }}
+                  className="px-4 py-1.5 rounded-full font-medium flex items-center gap-2"
+                  style={{ background: isDark ? config.dropzoneColorDark : config.dropzoneColor, color: config.primaryColor }}
                 >
-                  <div className="w-5 h-5 inline mr-2">
+                  <div className="w-5 h-5">
                     <PlusSvg />
                   </div>
-                  Add More
+                  <span className="md:block hidden">Add More</span>
                 </button>
               )}
 
               {stats.completed > 0 && (
                 <button
                   onClick={downloadAll}
-                  className="px-4 py-2 rounded-lg font-medium text-white transition-all"
+                  className="px-4 py-2 rounded-full font-medium text-white transition-all"
                   style={{ backgroundColor: config.primaryColor }}
                 >
-                  <div className="w-5 h-5 inline mr-2">
+                  <div className="w-5 h-5">
                     <DownloadSvg />
                   </div>
                   Download All
@@ -249,12 +245,12 @@ const ImageConverter = () => {
 
               <button
                 onClick={clearAll}
-                className="px-4 py-2 rounded-lg font-medium border border-red-300 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
+                className="px-4 py-1.5 rounded-full font-medium text-red-600 bg-red-50 dark:bg-red-900/40 flex items-center gap-2"
               >
-                <div className="w-5 h-5 inline mr-2">
+                <div className="w-5 h-5">
                   <TrashSvg />
                 </div>
-                Clear All
+                <span className="md:block hidden">Clear All</span>
               </button>
             </div>
           </div>
@@ -278,12 +274,12 @@ const ImageConverter = () => {
             <button
               onClick={convertAllFiles}
               disabled={converting}
-              className="w-full mt-6 px-6 py-3 rounded-lg font-semibold text-white text-lg transition-all disabled:opacity-50"
+              className="w-full mt-6 px-6 md:py-2 py-1.5 rounded-lg font-semibold text-white text-lg transition-all disabled:opacity-50 flex items-center justify-center gap-3"
               style={{ backgroundColor: config.primaryColor }}
             >
               {converting ? (
                 <>
-                  <div className="w-5 h-5 ml-2">
+                  <div className="w-5 h-5">
                     <Spinner />
                   </div>
                   Converting...
