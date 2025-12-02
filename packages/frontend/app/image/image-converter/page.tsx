@@ -31,7 +31,7 @@ const Conveter = () => {
 
             {/* Section heading */}
             {section.heading && (
-              <h2 className="text-xl md:text-2xl font-semibold text-zinc-800 dark:text-zinc-200 mb-3">
+              <h2 className="text-xl md:text-2xl font-semibold text-zinc-700 dark:text-zinc-300 mb-3">
                 {section.heading}
               </h2>
             )}
@@ -48,7 +48,7 @@ const Conveter = () => {
               <ul className="list-disc pl-5 space-y-2 mb-4">
                 {section.list.map((item, idx) => (
                   <li key={idx}>
-                    <strong className="text-zinc-800 dark:text-zinc-200">
+                    <strong className="text-zinc-700 dark:text-zinc-300">
                       {item.title}
                     </strong>{" "}
                     <span className="text-zinc-600 dark:text-zinc-400">
@@ -64,7 +64,7 @@ const Conveter = () => {
               <ul className="space-y-3 mb-4">
                 {section.formats.map((format, idx) => (
                   <li key={idx}>
-                    <strong className="text-zinc-800 dark:text-zinc-200">
+                    <strong className="text-zinc-700 dark:text-zinc-300">
                       {format.name}:
                     </strong>{" "}
                     <span className="text-zinc-600 dark:text-zinc-400">
@@ -80,7 +80,7 @@ const Conveter = () => {
               <ol className="list-decimal pl-5 space-y-2 mb-4">
                 {section.steps.map((stepItem, idx) => (
                   <li key={idx}>
-                    <strong className="text-zinc-800 dark:text-zinc-200">
+                    <strong className="text-zinc-700 dark:text-zinc-300">
                       {stepItem.step}:
                     </strong>{" "}
                     <span className="text-zinc-600 dark:text-zinc-400">
@@ -96,7 +96,7 @@ const Conveter = () => {
               <ul className="list-disc pl-5 space-y-2 mb-4">
                 {section.features.map((feature, idx) => (
                   <li key={idx}>
-                    <strong className="text-zinc-800 dark:text-zinc-200">
+                    <strong className="text-zinc-700 dark:text-zinc-300">
                       {feature.title}
                     </strong>{" "}
                     <span className="text-zinc-600 dark:text-zinc-400">
@@ -112,7 +112,7 @@ const Conveter = () => {
               <ul className="list-disc pl-5 space-y-2 mb-4">
                 {section.useCases.map((useCase, idx) => (
                   <li key={idx}>
-                    <strong className="text-zinc-800 dark:text-zinc-200">
+                    <strong className="text-zinc-700 dark:text-zinc-300">
                       {useCase.title}
                     </strong>{" "}
                     <span className="text-zinc-600 dark:text-zinc-400">
