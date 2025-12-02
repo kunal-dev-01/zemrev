@@ -184,13 +184,55 @@ export const PlusSvg = React.memo(() => (
     xmlns="http://www.w3.org/2000/svg"
     width="100%"
     height="100%"
-    viewBox="0 0 32 32"
+    viewBox="0 0 448 512"
   >
     <path
       fill="currentColor"
-      d="M19.05 5.06c0-1.68-1.37-3.06-3.06-3.06s-3.07 1.38-3.06 3.06v7.87H5.06C3.38 12.93 2 14.3 2 15.99c0 1.68 1.38 3.06 3.06 3.06h7.87v7.86c0 1.68 1.37 3.06 3.06 3.06c1.68 0 3.06-1.37 3.06-3.06v-7.86h7.86c1.68 0 3.06-1.37 3.06-3.06c0-1.68-1.37-3.06-3.06-3.06h-7.86V5.06Z"
+      d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32v144H48c-17.7 0-32 14.3-32 32s14.3 32 32 32h144v144c0 17.7 14.3 32 32 32s32-14.3 32-32V288h144c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z"
     />
   </svg>
 ));
 
 PlusSvg.displayName = "PlusSvg";
+
+// ================== ChevronDownIcon SVG ================== //
+export const ChevronDownSvg = React.memo(() => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="100%"
+    height="100%"
+    viewBox="0 0 16 16"
+    fill="none"
+  >
+    <path
+      d="M4 6L8 10L12 6"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+));
+
+ChevronDownSvg.displayName = "ChevronDownSvg";
+
+// ================== QualityIcon SVG ================== //
+export const QualitySvg = React.memo(() => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="100%"
+    height="100%"
+    viewBox="0 0 24 24"
+    fill="none"
+  >
+    <path
+      d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+));
+
+QualitySvg.displayName = "QualitySvg";
