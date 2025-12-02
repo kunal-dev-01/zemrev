@@ -2,15 +2,15 @@
 
 import type { Metadata } from "next";
 import {
-  blogContent,
-  blogMetadata,
+  converterContent,
+  converterMetadata,
 } from "@/components/ImageTools/ImageConverter/Blog";
 import ToolWrapper from "@/components/ImageTools/ImageConverter/ToolWrapper";
 
 export const metadata: Metadata = {
-  title: blogMetadata.title,
-  description: blogMetadata.description,
-  keywords: blogMetadata.keywords,
+  title: converterMetadata.title,
+  description: converterMetadata.description,
+  keywords: converterMetadata.keywords,
 };
 
 const Conveter = () => {
@@ -18,7 +18,7 @@ const Conveter = () => {
     <main className="w-full">
       {/* Page Title */}
       <h1 className="md:text-[1.8vw] text-[2.5vh] text-zinc-700 dark:text-zinc-300 text-center font-semibold leading-tight px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40">
-        {blogContent.mainHeading}
+        {converterContent.mainHeading}
       </h1>
 
       {/* Tool */}
@@ -26,7 +26,7 @@ const Conveter = () => {
 
       {/* Blog Section */}
       <div className="w-full border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 p-2 md:p-6 md:mt-[1vw] mt-[1vh]">
-        {blogContent.sections.map((section, index) => (
+        {converterContent.sections.map((section, index) => (
           <div key={index} className="mb-8">
 
             {/* Section heading */}
