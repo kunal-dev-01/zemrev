@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { LinkSvg } from "../Svg/ToolsSvg";
 import { ErrorSvg } from "../Svg/CommonSvg";
 import type { ToolConfig } from "@/services/imageService/types";
+import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 
 interface UrlUploadModalProps {
   isOpen: boolean;
@@ -20,20 +21,10 @@ export const UrlUploadModal = ({
 }: UrlUploadModalProps) => {
   // ---------------- Hooks ----------------
   const [url, setUrl] = useState("");
-  const [isDark, setIsDark] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [closing, setClosing] = useState(false);
-
-  // Detect theme
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    setIsDark(mq.matches);
-
-    const handler = (e: MediaQueryListEvent) => setIsDark(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
+  const isDark = useDarkMode();
 
   // If modal is closed → render nothing
   if (!isOpen) return null;
