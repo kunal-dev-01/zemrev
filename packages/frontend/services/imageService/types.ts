@@ -98,6 +98,7 @@ export interface ToolConfig {
   showPreview: boolean;
   primaryColor: string;
   dropzoneColor: string;
+  dropzoneColorDark: string;
   defaultSettings: Partial<FileSettings>;
 }
 
