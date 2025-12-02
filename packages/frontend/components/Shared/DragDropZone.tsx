@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { UploadSvg, LinkSvg} from "@/components/Svg/ToolsSvg";
 import { ErrorSvg } from "@/components/Svg/CommonSvg";
 import type { ToolConfig } from "@/services/imageService/types";
+import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 
 interface DragDropZoneProps {
   config: ToolConfig;
@@ -21,10 +22,10 @@ export const DragDropZone = ({
   currentFileCount,
 }: DragDropZoneProps) => {
   const [isDragging, setIsDragging] = useState(false);
-  const [isDark, setIsDark] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const zoneRef = useRef<HTMLDivElement>(null);
+  const isDark = useDarkMode();
 
   // Auto-hide error message (3 sec)
   useEffect(() => {
@@ -32,16 +33,6 @@ export const DragDropZone = ({
     const t = setTimeout(() => setErrorMsg(null), 3000);
     return () => clearTimeout(t);
   }, [errorMsg]);
-
-  // Detect light/dark mode
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    setIsDark(mq.matches);
-
-    const handler = (e: MediaQueryListEvent) => setIsDark(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
 
   const triggerError = (msg: string) => {
     setErrorMsg(msg);
