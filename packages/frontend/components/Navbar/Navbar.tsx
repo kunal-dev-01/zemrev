@@ -1,3 +1,5 @@
+// Navbar/Navbar.tsx
+
 import { memo, useCallback, FC } from "react";
 import Link from "next/link";
 import { SidebarOpenSvg } from "@/components/Svg/NavSvg";

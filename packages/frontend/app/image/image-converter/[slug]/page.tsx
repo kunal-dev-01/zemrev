@@ -5,7 +5,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { converterDynamicData } from "@/components/ImageTools/ImageConverter/DynamicData";
-import ConverterDynamicTool from "@/components/ImageTools/ImageConverter/ConverterDynamicTool";
+import ConverterDynamicTool from "@/components/ImageTools/ImageConverter/DynamicToolWrapper";
 
 type ConverterSlug = keyof typeof converterDynamicData;
 
@@ -47,7 +47,6 @@ export default async function ConverterDynamicPage({ params }: { params: Promise
       <ConverterDynamicTool
         inputFormat={inputFormat}
         outputFormat={outputFormat}
-        slug={slug}
       />
 
     </main>

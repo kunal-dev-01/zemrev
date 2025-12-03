@@ -245,7 +245,7 @@ const ImageConverter = () => {
   // ============================================================================
 
   return (
-    <div className="w-full space-y-6 md:mt-[1vw] mt-[1vh]">
+    <div className="w-full space-y-6">
       {files.length === 0 && (
         <DragDropZone
           config={config}

@@ -1,41 +1,68 @@
 // ============================================================================
 // FILE: src/utils/sessionStorage.utils.ts
-// PURPOSE: Browser session storage management for converted files
+// PURPOSE: Persistent browser storage for converted files (IndexedDB based)
+// Supports: 150–200MB storage + 2 hours TTL auto-clean
 // ============================================================================
 
+import { set, get, del } from "idb-keyval";
 import type { StoredFile, SessionStorageData, ToolType } from "@/services/imageService/types";
 
-const STORAGE_KEY = "zemrev_converted_files";
-const MAX_STORAGE_SIZE = 50 * 1024 * 1024; // 50MB limit
+// TTL = 2 hours
+const TTL = 2 * 60 * 60 * 1000;
+
+// Max 200MB logical limit
+const MAX_STORAGE_SIZE = 200 * 1024 * 1024;
+
+// Metadata stored in localStorage
+const META_KEY = "zemrev_meta";
 
 // ============================================================================
-// HELPER FUNCTIONS
+// Helpers: Get/Set Metadata
 // ============================================================================
 
-const getStorageData = (): SessionStorageData => {
+const getMeta = (): SessionStorageData => {
   if (typeof window === "undefined") {
     return { files: [], totalSize: 0, lastUpdated: Date.now() };
   }
 
   try {
-    const data = sessionStorage.getItem(STORAGE_KEY);
-    if (!data) {
-      return { files: [], totalSize: 0, lastUpdated: Date.now() };
-    }
-    return JSON.parse(data);
+    const raw = localStorage.getItem(META_KEY);
+    return raw ? JSON.parse(raw) : { files: [], totalSize: 0, lastUpdated: Date.now() };
   } catch {
     return { files: [], totalSize: 0, lastUpdated: Date.now() };
   }
 };
 
-const setStorageData = (data: SessionStorageData): void => {
+const setMeta = (data: SessionStorageData): void => {
   if (typeof window === "undefined") return;
-  
-  try {
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  } catch (error) {
-    console.error("Failed to save to session storage:", error);
+  localStorage.setItem(META_KEY, JSON.stringify(data));
+};
+
+// ============================================================================
+// TTL Clean Up (remove old files > 2 hours)
+// ============================================================================
+
+const cleanExpiredFiles = async (): Promise<void> => {
+  const meta = getMeta();
+  const now = Date.now();
+
+  const validFiles: StoredFile[] = [];
+
+  for (const file of meta.files) {
+    const expired = now - file.timestamp > TTL;
+
+    if (expired) {
+      await del(file.id);
+    } else {
+      validFiles.push(file);
+    }
   }
+
+  meta.files = validFiles;
+  meta.totalSize = validFiles.reduce((sum, f) => sum + f.size, 0);
+  meta.lastUpdated = Date.now();
+
+  setMeta(meta);
 };
 
 // ============================================================================
@@ -44,131 +71,123 @@ const setStorageData = (data: SessionStorageData): void => {
 
 export const sessionStorageUtils = {
   /**
-   * Save converted file to session storage
+   * Save converted file (Blob)
    */
-  saveFile: async (
-    blob: Blob,
-    name: string,
-    toolType: ToolType
-  ): Promise<string> => {
-    const data = getStorageData();
-    
-    // Convert blob to base64
-    const base64 = await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const result = reader.result as string;
-        resolve(result.split(",")[1]); // Remove data:image/...;base64, prefix
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
+  saveFile: async (blob: Blob, name: string, toolType: ToolType): Promise<string> => {
+    let meta = getMeta();
+    await cleanExpiredFiles();
 
     const fileSize = blob.size;
-    const id = `${toolType}_${Date.now()}_${Math.random().toString(36).slice(2)}`;
 
-    // Check if adding this file exceeds storage limit
-    if (data.totalSize + fileSize > MAX_STORAGE_SIZE) {
-      // Auto-clear old files to make space
-      sessionStorageUtils.clearAll();
+    // Auto-clear if exceeding storage limit
+    if (meta.totalSize + fileSize > MAX_STORAGE_SIZE) {
+      await sessionStorageUtils.clearAll();
+      meta = getMeta();
     }
 
-    const storedFile: StoredFile = {
+    const id = `${toolType}_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+
+    // Save blob in IndexedDB
+    await set(id, blob);
+
+    // Store metadata
+    const fileMeta: StoredFile = {
       id,
       name,
-      blob: base64,
+      blob: "", // not used now, kept for compatibility
       timestamp: Date.now(),
       size: fileSize,
       toolType,
     };
 
-    data.files.push(storedFile);
-    data.totalSize += fileSize;
-    data.lastUpdated = Date.now();
+    meta.files.push(fileMeta);
+    meta.totalSize += fileSize;
+    meta.lastUpdated = Date.now();
 
-    setStorageData(data);
+    setMeta(meta);
     return id;
   },
 
   /**
-   * Get all stored files
+   * Get all stored file metadata
    */
   getFiles: (): StoredFile[] => {
-    const data = getStorageData();
-    return data.files;
+    cleanExpiredFiles();
+    return getMeta().files;
   },
 
   /**
-   * Get files by tool type
+   * Get filtered files by tool type
    */
   getFilesByTool: (toolType: ToolType): StoredFile[] => {
-    const data = getStorageData();
-    return data.files.filter((f: { toolType: ToolType; }) => f.toolType === toolType);
+    cleanExpiredFiles();
+    return getMeta().files.filter((f) => f.toolType === toolType);
   },
 
   /**
-   * Get single file by ID
-   */
-  getFile: (id: string): StoredFile | null => {
-    const data = getStorageData();
-    return data.files.find((f: { id: string; }) => f.id === id) || null;
-  },
-
-  /**
-   * Convert stored file back to Blob
+   * Get Blob by ID
    */
   getBlob: async (id: string): Promise<Blob | null> => {
-    const file = sessionStorageUtils.getFile(id);
-    if (!file) return null;
+    await cleanExpiredFiles();
+    return (await get(id)) || null;
+  },
 
-    try {
-      const response = await fetch(`data:application/octet-stream;base64,${file.blob}`);
-      return await response.blob();
-    } catch {
-      return null;
-    }
+  /**
+   * Get single file metadata
+   */
+  getFile: (id: string): StoredFile | null => {
+    cleanExpiredFiles();
+    return getMeta().files.find((f) => f.id === id) || null;
   },
 
   /**
    * Delete single file
    */
-  deleteFile: (id: string): void => {
-    const data = getStorageData();
-    const index = data.files.findIndex((f: { id: string; }) => f.id === id);
-    
+  deleteFile: async (id: string): Promise<void> => {
+    const meta = getMeta();
+    const index = meta.files.findIndex((f) => f.id === id);
+
     if (index !== -1) {
-      const file = data.files[index];
-      data.totalSize -= file.size;
-      data.files.splice(index, 1);
-      data.lastUpdated = Date.now();
-      setStorageData(data);
+      meta.totalSize -= meta.files[index].size;
+      meta.files.splice(index, 1);
+      meta.lastUpdated = Date.now();
+
+      setMeta(meta);
+      await del(id);
     }
   },
 
   /**
    * Clear all stored files
    */
-  clearAll: (): void => {
-    if (typeof window === "undefined") return;
-    sessionStorage.removeItem(STORAGE_KEY);
+  clearAll: async (): Promise<void> => {
+    const meta = getMeta();
+
+    for (const f of meta.files) {
+      await del(f.id);
+    }
+
+    setMeta({ files: [], totalSize: 0, lastUpdated: Date.now() });
   },
 
   /**
-   * Get storage stats
+   * Stats
    */
   getStats: () => {
-    const data = getStorageData();
+    cleanExpiredFiles();
+    const meta = getMeta();
+
     return {
-      fileCount: data.files.length,
-      totalSize: data.totalSize,
+      fileCount: meta.files.length,
+      totalSize: meta.totalSize,
       maxSize: MAX_STORAGE_SIZE,
-      usagePercent: Math.round((data.totalSize / MAX_STORAGE_SIZE) * 100),
-      lastUpdated: data.lastUpdated,
+      usagePercent: Math.round((meta.totalSize / MAX_STORAGE_SIZE) * 100),
+      lastUpdated: meta.lastUpdated,
     };
   },
 
   /**
-   * Download file from session storage
+   * Download single file
    */
   downloadFile: async (id: string): Promise<void> => {
     const file = sessionStorageUtils.getFile(id);
@@ -178,28 +197,28 @@ export const sessionStorageUtils = {
     if (!blob) return;
 
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = file.name;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = file.name;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
     URL.revokeObjectURL(url);
   },
 
   /**
-   * Download all files as zip (future enhancement)
+   * Download all files
    */
   downloadAll: async (toolType?: ToolType): Promise<void> => {
-    const files = toolType 
+    const files = toolType
       ? sessionStorageUtils.getFilesByTool(toolType)
       : sessionStorageUtils.getFiles();
 
-    // For now, download individually
     for (const file of files) {
       await sessionStorageUtils.downloadFile(file.id);
-      // Add delay to prevent browser blocking multiple downloads
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((res) => setTimeout(res, 500));
     }
   },
 };

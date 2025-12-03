@@ -1,3 +1,8 @@
+// ===========================================================================
+// FILE: src/components/Shared/UrlUploadModal.tsx
+// PURPOSE: Modal for uploading images via URL
+// ===========================================================================
+
 "use client";
 
 import { useState } from "react";

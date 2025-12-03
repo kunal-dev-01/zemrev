@@ -20,13 +20,11 @@ import { RotateSvg, SettingsSvg } from "@/components/Svg/ToolsSvg";
 interface ConverterDynamicToolProps {
   inputFormat: string;
   outputFormat: string;
-  slug: string;
 }
 
 const ConverterDynamicTool = ({
   inputFormat,
   outputFormat,
-  slug,
 }: ConverterDynamicToolProps) => {
   const config = TOOL_CONFIGS.converter;
   
@@ -134,7 +132,7 @@ const ConverterDynamicTool = ({
   // ============================================================================
 
   return (
-    <div className="w-full md:mt-[1vw] mt-[1vh]">
+    <div className="w-full">
       {/* Drag & Drop (shown when no file) */}
       {!file && (
         <DragDropZone

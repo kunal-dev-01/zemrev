@@ -1,3 +1,8 @@
+// ===========================================================================
+// FILE: src/components/Shared/DragDropZone.tsx
+// PURPOSE: Drag-and-drop zone for file upload
+// ===========================================================================
+
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";

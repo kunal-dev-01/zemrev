@@ -13,7 +13,7 @@ const Index = dynamic(
 
 export default function ToolWrapper() {
   return (
-    <div className="w-full">
+    <div className="w-full md:mt-[1vw] mt-[1vh]">
       <Index />
     </div>
   );
