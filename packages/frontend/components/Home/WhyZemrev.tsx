@@ -66,7 +66,7 @@ const WhyZemrev: React.FC = () => {
                   key={index}
                   className="flex items-center gap-3 text-zinc-700 dark:text-zinc-300"
                 >
-                  <CheckSvg className="text-emerald-400" />
+                  <CheckSvg className="text-emerald-400 w-5 h-5" />
                   {item}
                 </li>
               ))}

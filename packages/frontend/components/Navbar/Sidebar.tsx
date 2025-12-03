@@ -1,19 +1,32 @@
-"use client";
-
 import { useCallback, FC } from "react";
 import Link from "next/link";
 import clsx from "clsx";
 import { useCommonModal } from "@/hooks/appHooks/common.hooks";
 import { SidebarCloseSvg } from "@/components/Svg/NavSvg";
-import { ResizeSvg, Minimize2,ArrowRightLeft, FileImage, CropSvg, Watermark } from "../Svg/HomeSvg";
+import {
+  ResizeSvg,
+  Minimize2,
+  ArrowRightLeft,
+  FileImage,
+  CropSvg,
+  Watermark,
+} from "@/components/Svg/HomeSvg";
 
 const Tools = [
-  { name: "Image Converter", href: "/image/image-converter", icon: <ArrowRightLeft /> },
-  { name: "Image Compressor", href: "/image/image-compressor", icon: <Minimize2 /> },
-  { name: "Image Optimizer", href: "/image/image-optimizer", icon: <FileImage /> },
-  { name: "Image Resizer", href: "/image/image-resizer", icon: <ResizeSvg /> },
-  { name: "Image Cropper", href: "/image/image-cropper", icon: <CropSvg /> },
-  { name: "Watermark Tool", href: "/image/image-watermark", icon: <Watermark /> },
+  {
+    name: "Image Converter",
+    href: "/image/image-converter",
+    icon: ArrowRightLeft,
+  },
+  {
+    name: "Image Compressor",
+    href: "/image/image-compressor",
+    icon: Minimize2,
+  },
+  { name: "Image Optimizer", href: "/image/image-optimizer", icon: FileImage },
+  { name: "Image Resizer", href: "/image/image-resizer", icon: ResizeSvg },
+  { name: "Image Cropper", href: "/image/image-cropper", icon: CropSvg },
+  { name: "Watermark Tool", href: "/image/image-watermark", icon: Watermark },
 ];
 
 /* ---------- Backdrop ---------- */
@@ -56,7 +69,10 @@ const SideBar: FC = () => {
     [isOpenSidebar, setOpenSidebar]
   );
 
-  const closeSidebar = useCallback(() => setOpenSidebar(false), [setOpenSidebar]);
+  const closeSidebar = useCallback(
+    () => setOpenSidebar(false),
+    [setOpenSidebar]
+  );
 
   return (
     <>
@@ -79,11 +95,9 @@ const SideBar: FC = () => {
               onClick={closeSidebar}
               className="relative flex items-center gap-3 px-3 py-1 rounded-lg border border-zinc-200/50 dark:border-zinc-800/50 bg-white/50 dark:bg-zinc-900/30 group"
             >
-              <div className="w-7 h-7 text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors">
-                {tool.icon}
-              </div>
+              <tool.icon className="w-7 h-7 text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors" />
 
-              <span className="text-sm md:text-md font-medium text-zinc-700 dark:text-zinc-300 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors">
+              <span className="text-md font-medium text-zinc-700 dark:text-zinc-300 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors">
                 {tool.name}
               </span>
 
