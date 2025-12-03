@@ -1,224 +1,197 @@
 // ============================================================================
 // FILE: src/utils/sessionStorage.utils.ts
-// PURPOSE: Persistent browser storage for converted files (IndexedDB based)
-// Supports: 150–200MB storage + 2 hours TTL auto-clean
+// PURPOSE: Shared 200MB persistent browser storage (IndexedDB-based)
+// 2-hour TTL for all tools + tool-wise metadata separation
 // ============================================================================
 
 import { set, get, del } from "idb-keyval";
 import type { StoredFile, SessionStorageData, ToolType } from "@/services/imageService/types";
 
+// GLOBAL LIMIT = 200MB TOTAL (shared by all tools)
+const MAX_GLOBAL_SIZE = 200 * 1024 * 1024;
+
 // TTL = 2 hours
 const TTL = 2 * 60 * 60 * 1000;
 
-// Max 200MB logical limit
-const MAX_STORAGE_SIZE = 200 * 1024 * 1024;
-
-// Metadata stored in localStorage
-const META_KEY = "zemrev_meta";
+// Metadata keys per tool
+const META_KEYS: Record<ToolType, string> = {
+  converter: "zemrev_meta_converter",
+  compressor: "zemrev_meta_compressor",
+  optimizer: "zemrev_meta_optimizer",
+  resizer: "zemrev_meta_resizer",
+  cropper: "zemrev_meta_cropper",
+  watermark: "zemrev_meta_watermark",
+};
 
 // ============================================================================
-// Helpers: Get/Set Metadata
+// Meta Helpers (each tool has its own metadata list)
 // ============================================================================
 
-const getMeta = (): SessionStorageData => {
-  if (typeof window === "undefined") {
-    return { files: [], totalSize: 0, lastUpdated: Date.now() };
-  }
+const getMeta = (tool: ToolType): SessionStorageData => {
+  if (typeof window === "undefined") return { files: [], totalSize: 0, lastUpdated: Date.now() };
 
   try {
-    const raw = localStorage.getItem(META_KEY);
+    const raw = localStorage.getItem(META_KEYS[tool]);
     return raw ? JSON.parse(raw) : { files: [], totalSize: 0, lastUpdated: Date.now() };
   } catch {
     return { files: [], totalSize: 0, lastUpdated: Date.now() };
   }
 };
 
-const setMeta = (data: SessionStorageData): void => {
+const setMeta = (tool: ToolType, data: SessionStorageData): void => {
   if (typeof window === "undefined") return;
-  localStorage.setItem(META_KEY, JSON.stringify(data));
+  localStorage.setItem(META_KEYS[tool], JSON.stringify(data));
 };
 
 // ============================================================================
-// TTL Clean Up (remove old files > 2 hours)
+// Helper: Get TOTAL used size across all tools
 // ============================================================================
 
-const cleanExpiredFiles = async (): Promise<void> => {
-  const meta = getMeta();
+const getTotalUsedSize = (): number =>
+  (["converter", "compressor", "optimizer", "resizer", "cropper", "watermark"] as ToolType[])
+    .reduce((acc, tool) => acc + getMeta(tool).totalSize, 0);
+
+// ============================================================================
+// TTL CLEAN (delete files older than 2 hours)
+// ============================================================================
+
+const cleanExpired = async (): Promise<void> => {
+  const tools = ["converter", "compressor", "optimizer", "resizer", "cropper", "watermark"] as ToolType[];
   const now = Date.now();
 
-  const validFiles: StoredFile[] = [];
+  for (const tool of tools) {
+    const meta = getMeta(tool);
+    const valid: StoredFile[] = [];
 
-  for (const file of meta.files) {
-    const expired = now - file.timestamp > TTL;
-
-    if (expired) {
-      await del(file.id);
-    } else {
-      validFiles.push(file);
+    for (const file of meta.files) {
+      const expired = now - file.timestamp > TTL;
+      if (expired) {
+        await del(`file/${file.id}`); // global database key
+      } else {
+        valid.push(file);
+      }
     }
+
+    meta.files = valid;
+    meta.totalSize = valid.reduce((s, f) => s + f.size, 0);
+    meta.lastUpdated = Date.now();
+
+    setMeta(tool, meta);
   }
-
-  meta.files = validFiles;
-  meta.totalSize = validFiles.reduce((sum, f) => sum + f.size, 0);
-  meta.lastUpdated = Date.now();
-
-  setMeta(meta);
 };
 
 // ============================================================================
-// PUBLIC API
+// GLOBAL CLEAN (Remove all files from all tools)
+// ============================================================================
+
+const clearGlobal = async (): Promise<void> => {
+  const tools = ["converter", "compressor", "optimizer", "resizer", "cropper", "watermark"] as ToolType[];
+
+  for (const tool of tools) {
+    const meta = getMeta(tool);
+
+    for (const file of meta.files) {
+      await del(`file/${file.id}`);
+    }
+
+    setMeta(tool, { files: [], totalSize: 0, lastUpdated: Date.now() });
+  }
+};
+
+// ============================================================================
+// MAIN API
 // ============================================================================
 
 export const sessionStorageUtils = {
-  /**
-   * Save converted file (Blob)
-   */
-  saveFile: async (blob: Blob, name: string, toolType: ToolType): Promise<string> => {
-    let meta = getMeta();
-    await cleanExpiredFiles();
+  // Save a new file
+  saveFile: async (blob: Blob, name: string, tool: ToolType): Promise<string> => {
+    await cleanExpired();
 
-    const fileSize = blob.size;
+    const newFileSize = blob.size;
+    const currentSize = getTotalUsedSize();
 
-    // Auto-clear if exceeding storage limit
-    if (meta.totalSize + fileSize > MAX_STORAGE_SIZE) {
-      await sessionStorageUtils.clearAll();
-      meta = getMeta();
+    // If total exceeds 200MB → CLEAR EVERYTHING
+    if (currentSize + newFileSize > MAX_GLOBAL_SIZE) {
+      await clearGlobal();
     }
 
-    const id = `${toolType}_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    const id = `${tool}_${Date.now()}_${Math.random().toString(36).slice(2)}`;
 
-    // Save blob in IndexedDB
-    await set(id, blob);
+    // Save blob in IDB (global shared)
+    await set(`file/${id}`, blob);
 
-    // Store metadata
+    // Update tool metadata
+    const meta = getMeta(tool);
+
     const fileMeta: StoredFile = {
       id,
       name,
-      blob: "", // not used now, kept for compatibility
+      blob: "",
       timestamp: Date.now(),
-      size: fileSize,
-      toolType,
+      size: newFileSize,
+      toolType: tool,
     };
 
     meta.files.push(fileMeta);
-    meta.totalSize += fileSize;
+    meta.totalSize += newFileSize;
     meta.lastUpdated = Date.now();
 
-    setMeta(meta);
+    setMeta(tool, meta);
+
     return id;
   },
 
-  /**
-   * Get all stored file metadata
-   */
-  getFiles: (): StoredFile[] => {
-    cleanExpiredFiles();
-    return getMeta().files;
+  // Get all files metadata for a tool
+  getFiles: (tool: ToolType): StoredFile[] => {
+    cleanExpired();
+    return getMeta(tool).files;
   },
 
-  /**
-   * Get filtered files by tool type
-   */
-  getFilesByTool: (toolType: ToolType): StoredFile[] => {
-    cleanExpiredFiles();
-    return getMeta().files.filter((f) => f.toolType === toolType);
+  // Get one file metadata
+  getFile: (tool: ToolType, id: string): StoredFile | null => {
+    cleanExpired();
+    return getMeta(tool).files.find((f) => f.id === id) || null;
   },
 
-  /**
-   * Get Blob by ID
-   */
+  // Get one file blob
   getBlob: async (id: string): Promise<Blob | null> => {
-    await cleanExpiredFiles();
-    return (await get(id)) || null;
+    await cleanExpired();
+    return (await get(`file/${id}`)) || null;
   },
 
-  /**
-   * Get single file metadata
-   */
-  getFile: (id: string): StoredFile | null => {
-    cleanExpiredFiles();
-    return getMeta().files.find((f) => f.id === id) || null;
-  },
-
-  /**
-   * Delete single file
-   */
-  deleteFile: async (id: string): Promise<void> => {
-    const meta = getMeta();
+  // Delete one file
+  deleteFile: async (tool: ToolType, id: string): Promise<void> => {
+    const meta = getMeta(tool);
     const index = meta.files.findIndex((f) => f.id === id);
 
     if (index !== -1) {
       meta.totalSize -= meta.files[index].size;
       meta.files.splice(index, 1);
-      meta.lastUpdated = Date.now();
-
-      setMeta(meta);
-      await del(id);
+      setMeta(tool, meta);
+      await del(`file/${id}`);
     }
   },
 
-  /**
-   * Clear all stored files
-   */
-  clearAll: async (): Promise<void> => {
-    const meta = getMeta();
+  // Clear all files for a tool
+  clearTool: async (tool: ToolType): Promise<void> => {
+    const meta = getMeta(tool);
 
     for (const f of meta.files) {
-      await del(f.id);
+      await del(`file/${f.id}`);
     }
 
-    setMeta({ files: [], totalSize: 0, lastUpdated: Date.now() });
+    setMeta(tool, { files: [], totalSize: 0, lastUpdated: Date.now() });
   },
 
-  /**
-   * Stats
-   */
+  // Get storage stats
   getStats: () => {
-    cleanExpiredFiles();
-    const meta = getMeta();
+    cleanExpired();
+    const totalUsed = getTotalUsedSize();
 
     return {
-      fileCount: meta.files.length,
-      totalSize: meta.totalSize,
-      maxSize: MAX_STORAGE_SIZE,
-      usagePercent: Math.round((meta.totalSize / MAX_STORAGE_SIZE) * 100),
-      lastUpdated: meta.lastUpdated,
+      totalUsed,
+      maxSize: MAX_GLOBAL_SIZE,
+      usagePercent: Math.round((totalUsed / MAX_GLOBAL_SIZE) * 100),
     };
-  },
-
-  /**
-   * Download single file
-   */
-  downloadFile: async (id: string): Promise<void> => {
-    const file = sessionStorageUtils.getFile(id);
-    if (!file) return;
-
-    const blob = await sessionStorageUtils.getBlob(id);
-    if (!blob) return;
-
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-
-    link.href = url;
-    link.download = file.name;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-
-    URL.revokeObjectURL(url);
-  },
-
-  /**
-   * Download all files
-   */
-  downloadAll: async (toolType?: ToolType): Promise<void> => {
-    const files = toolType
-      ? sessionStorageUtils.getFilesByTool(toolType)
-      : sessionStorageUtils.getFiles();
-
-    for (const file of files) {
-      await sessionStorageUtils.downloadFile(file.id);
-      await new Promise((res) => setTimeout(res, 500));
-    }
   },
 };
