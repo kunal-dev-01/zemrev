@@ -73,7 +73,7 @@ export interface FileSettings {
 export interface StoredFile {
   id: string;
   name: string;
-  blob: string; // base64
+  blob?: string;
   timestamp: number;
   size: number;
   toolType: ToolType;
