@@ -6,7 +6,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import { UploadSvg, LinkSvg} from "@/components/Svg/ToolsSvg";
+import { UploadSvg, LinkSvg } from "@/components/Svg/ToolsSvg";
 import { ErrorSvg } from "@/components/Svg/CommonSvg";
 import type { ToolConfig } from "@/services/imageService/types";
 import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
@@ -140,25 +140,21 @@ export const DragDropZone = ({
 
       {/* ==== MAIN AREA (Error OR Upload UI) ==== */}
       <div className="relative py-6 md:py-12 text-center flex flex-col items-center justify-center min-h-[220px]">
-
         {/* ERROR VIEW */}
         {errorMsg ? (
           <div className="flex flex-col items-center justify-center gap-3">
-            <div className="w-12 h-12 text-red-400 dark:text-red-500">
-              <ErrorSvg />
-            </div>
-
-            <p className="text-red-400 dark:text-red-500 font-medium text-lg">{errorMsg}</p>
+            <ErrorSvg className="w-12 h-12 text-red-400 dark:text-red-500" />
+            <p className="text-red-400 dark:text-red-500 font-medium text-lg">
+              {errorMsg}
+            </p>
           </div>
         ) : (
           <>
-            {/* Upload Icon */}
-            <div
-              className="w-12 h-12 mx-auto mb-4 transition-all"
-              style={{ color: isDragging ? borderColor : undefined }}
-            >
-              <UploadSvg />
-            </div>
+            <UploadSvg
+              className={`w-12 h-12 mx-auto mb-4 transition-all ${
+                isDragging ? `animate-bounce text-[${borderColor}]` : ""
+              }`}
+            />
 
             <h3 className="text-lg font-semibold text-zinc-800 dark:text-zinc-200 mb-2">
               {isDragging ? "Drop files here" : "Drag & drop files here"}
@@ -191,9 +187,7 @@ export const DragDropZone = ({
                   className="md:px-6 px-5 py-1.5 text-md rounded-lg font-medium border-2 hover:opacity-90 transition-all flex items-center gap-2 cursor-pointer"
                   style={{ borderColor, color: borderColor }}
                 >
-                  <div className="w-6 h-6">
-                    <LinkSvg />
-                  </div>
+                  <LinkSvg className="w-6 h-6" />
                   From URL
                 </button>
               </div>
