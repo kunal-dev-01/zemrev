@@ -1,5 +1,5 @@
-import { useCallback, FC } from "react";
 import Link from "next/link";
+import { memo, useCallback, FC } from "react";
 import clsx from "clsx";
 import { useCommonModal } from "@/hooks/appHooks/common.hooks";
 import { SidebarCloseSvg } from "@/components/Svg/NavSvg";
@@ -12,39 +12,32 @@ import {
   Watermark,
 } from "@/components/Svg/HomeSvg";
 
+/* ================= Tools List ================= */
 const Tools = [
-  {
-    name: "Image Converter",
-    href: "/image/image-converter",
-    icon: ArrowRightLeft,
-  },
-  {
-    name: "Image Compressor",
-    href: "/image/image-compressor",
-    icon: Minimize2,
-  },
+  { name: "Image Converter", href: "/image/image-converter", icon: ArrowRightLeft },
+  { name: "Image Compressor", href: "/image/image-compressor", icon: Minimize2 },
   { name: "Image Optimizer", href: "/image/image-optimizer", icon: FileImage },
   { name: "Image Resizer", href: "/image/image-resizer", icon: ResizeSvg },
   { name: "Image Cropper", href: "/image/image-cropper", icon: CropSvg },
   { name: "Watermark Tool", href: "/image/image-watermark", icon: Watermark },
 ];
 
-/* ---------- Backdrop ---------- */
-const Backdrop: FC<{ isOpen: boolean; onClick: () => void }> = ({
-  isOpen,
-  onClick,
-}) => (
-  <div
-    onClick={onClick}
-    className={clsx(
-      "fixed inset-0 z-40 bg-white/50 dark:bg-black/50 backdrop-blur-sm transition-opacity duration-300",
-      isOpen ? "opacity-100 visible" : "opacity-0 invisible"
-    )}
-  />
+/* ================= Backdrop ================= */
+const Backdrop: FC<{ isOpen: boolean; onClick: () => void }> = memo(
+  ({ isOpen, onClick }) => (
+    <div
+      onClick={onClick}
+      className={clsx(
+        "fixed inset-0 z-40 bg-white/50 dark:bg-black/50 backdrop-blur-sm transition-opacity duration-300",
+        isOpen ? "opacity-100 visible" : "opacity-0 invisible"
+      )}
+    />
+  )
 );
+Backdrop.displayName = "Backdrop";
 
-/* ---------- Header ---------- */
-const Header: FC<{ onToggle: () => void }> = ({ onToggle }) => (
+/* ================= Header ================= */
+const Header: FC<{ onToggle: () => void }> = memo(({ onToggle }) => (
   <div className="flex items-center p-1 rounded-xl border-2 border-zinc-100/80 dark:border-zinc-900/50 bg-zinc-100/10 dark:bg-zinc-900/10">
     <button
       aria-label="Toggle sidebar"
@@ -58,21 +51,20 @@ const Header: FC<{ onToggle: () => void }> = ({ onToggle }) => (
       Explore Tools
     </h2>
   </div>
-);
+));
+Header.displayName = "Header";
 
-/* ---------- Sidebar ---------- */
+/* ================= Sidebar ================= */
 const SideBar: FC = () => {
   const { isOpenSidebar, setOpenSidebar } = useCommonModal();
 
-  const toggleSidebar = useCallback(
-    () => setOpenSidebar(!isOpenSidebar),
-    [isOpenSidebar, setOpenSidebar]
-  );
+  const toggleSidebar = useCallback(() => {
+    setOpenSidebar(false);
+  }, [setOpenSidebar]);
 
-  const closeSidebar = useCallback(
-    () => setOpenSidebar(false),
-    [setOpenSidebar]
-  );
+  const closeSidebar = useCallback(() => {
+    setOpenSidebar(false);
+  }, [setOpenSidebar]);
 
   return (
     <>
@@ -86,11 +78,11 @@ const SideBar: FC = () => {
       >
         <Header onToggle={toggleSidebar} />
 
-        {/* TOOL LIST */}
+        {/* Tool List */}
         <div className="flex-1 overflow-y-auto my-4 p-3 space-y-2 rounded-xl border-2 border-zinc-100/80 dark:border-zinc-900/50 bg-zinc-100/10 dark:bg-zinc-900/10 custom-scrollbar scrollbar-hide">
-          {Tools.map((tool, i) => (
+          {Tools.map((tool, index) => (
             <Link
-              key={i}
+              key={index}
               href={tool.href}
               onClick={closeSidebar}
               className="relative flex items-center gap-3 px-3 py-1 rounded-lg border border-zinc-200/50 dark:border-zinc-800/50 bg-white/50 dark:bg-zinc-900/30 group"
@@ -110,4 +102,4 @@ const SideBar: FC = () => {
   );
 };
 
-export default SideBar;
+export default memo(SideBar);
