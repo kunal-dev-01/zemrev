@@ -92,10 +92,10 @@ const ToolsGridSection: React.FC = () => {
                 className={`
                   w-12 h-12 p-2.5 rounded-lg flex items-center justify-center
                   transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3
-                  ${bg} ${color}
+                  ${bg} 
                 `}
               >
-                <Icon />
+                <Icon className={color} />
               </div>
 
               <div>

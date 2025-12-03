@@ -66,9 +66,7 @@ const WhyZemrev: React.FC = () => {
                   key={index}
                   className="flex items-center gap-3 text-zinc-700 dark:text-zinc-300"
                 >
-                  <span className="w-5 h-5 text-emerald-400">
-                    <CheckSvg />
-                  </span>
+                  <CheckSvg className="text-emerald-400" />
                   {item}
                 </li>
               ))}
@@ -79,9 +77,7 @@ const WhyZemrev: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {features.map(({ icon: Icon, title, desc, color, extra }, i) => (
               <div key={i} className={`${cardBase} ${extra || ""}`}>
-                <div className={`mb-4 w-10 h-10 ${color}`}>
-                  <Icon />
-                </div>
+                <Icon className={`mb-4 w-10 h-10 ${color}`} />
                 <h3 className="text-xl font-semibold mb-2 text-zinc-700 dark:text-zinc-300">
                   {title}
                 </h3>

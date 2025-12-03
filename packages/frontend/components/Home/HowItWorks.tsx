@@ -86,7 +86,7 @@ const HowItWorks: React.FC = () => {
                       group-hover:bg-indigo-600 group-hover:border-indigo-600
                     "
                   >
-                    <Icon />
+                    <Icon className="w-full h-full" />
                   </div>
 
                   <span
