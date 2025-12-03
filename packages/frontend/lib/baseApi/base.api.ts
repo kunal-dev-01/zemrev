@@ -33,7 +33,7 @@ const baseQueryWithErrorHandling: BaseQueryFn<
   const result = await baseQueryWithSettings(args, api, extraOptions);
 
   if (result.error && process.env.NODE_ENV === "development") {
-    console.error("🔴 API Error:", result.error);
+    console.log("🔴 API Error:", result.error);
   }
 
   return result;

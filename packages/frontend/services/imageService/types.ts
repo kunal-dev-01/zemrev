@@ -24,7 +24,7 @@ export type ToolType =
 
 export interface ProcessedFile {
   id: string;
-  originalFile: File;
+  originalFile: File | null;
   name: string;
   size: number;
   type: string;

@@ -1,6 +1,6 @@
 // ============================================================================
 // FILE: src/components/ImageTools/ImageConverter/ImageConverter.tsx
-// PURPOSE: Complete Image Converter with batch processing & session storage
+// PURPOSE: Complete Image Converter with file + URL support
 // ============================================================================
 
 "use client";
@@ -11,10 +11,19 @@ import { DragDropZone } from "@/components/Shared/DragDropZone";
 import { UrlUploadModal } from "@/components/Shared/UrlUploadModal";
 import { FileSettingsPanel } from "./FileSettingsPanel";
 import { ConvertedFilesPanel } from "./ConvertedFilesPanel";
-import { useConvertImageMutation } from "@/services/imageService/image.api";
+import {
+  useConvertImageMutation,
+  useConvertImageFromUrlMutation,
+} from "@/services/imageService/image.api";
+
 import { sessionStorageUtils } from "@/utils/sessionStorage.utils";
 import { extractApiErrorMessage } from "@/utils/errorExtract.utils";
-import { TOOL_CONFIGS, detectFormatFromFilename, getOutputFilename } from "@/config/tool.config";
+import {
+  TOOL_CONFIGS,
+  detectFormatFromFilename,
+  getOutputFilename,
+} from "@/config/tool.config";
+
 import type { ProcessedFile, OutputFormat } from "@/services/imageService/types";
 import { Spinner } from "@/components/Layouts/Spinner";
 import { DownloadSvg, PlusSvg, TrashSvg } from "@/components/Svg/CommonSvg";
@@ -24,10 +33,13 @@ const ImageConverter = () => {
   const router = useRouter();
   const config = TOOL_CONFIGS.converter;
   const isDark = useDarkMode();
-  
+
   const [files, setFiles] = useState<ProcessedFile[]>([]);
   const [urlModalOpen, setUrlModalOpen] = useState(false);
+
   const [convertImage] = useConvertImageMutation();
+  const [convertImageFromUrl] = useConvertImageFromUrlMutation();
+
   const [converting, setConverting] = useState(false);
 
   // Load stored files on mount
@@ -40,31 +52,34 @@ const ImageConverter = () => {
   // FILE HANDLING
   // ============================================================================
 
-  const addFiles = useCallback((newFiles: File[]) => {
-    const processed: ProcessedFile[] = newFiles.map((file) => ({
-      id: `${Date.now()}_${Math.random().toString(36).slice(2)}`,
-      originalFile: file,
-      name: file.name,
-      size: file.size,
-      type: file.type,
-      settings: {
-        format: config.defaultSettings.format as OutputFormat,
-        quality: config.defaultSettings.quality,
-      },
-      status: "pending",
-    }));
+  const addFiles = useCallback(
+    (newFiles: File[]) => {
+      const processed: ProcessedFile[] = newFiles.map((file) => ({
+        id: `${Date.now()}_${Math.random().toString(36).slice(2)}`,
+        originalFile: file,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        settings: {
+          format: config.defaultSettings.format as OutputFormat,
+          quality: config.defaultSettings.quality,
+        },
+        status: "pending",
+      }));
 
-    setFiles((prev) => [...prev, ...processed]);
+      setFiles((prev) => [...prev, ...processed]);
 
-    // If single file, redirect to dynamic page
-    if (newFiles.length === 1 && files.length === 0) {
-      const inputFormat = detectFormatFromFilename(newFiles[0].name);
-      const outputFormat = config.defaultSettings.format;
-      if (inputFormat && outputFormat) {
-        router.push(`/image/image-converter/${inputFormat}-to-${outputFormat}`);
+      // Auto redirect when first file is added
+      if (newFiles.length === 1 && files.length === 0) {
+        const inputFormat = detectFormatFromFilename(newFiles[0].name);
+        const outputFormat = config.defaultSettings.format;
+        if (inputFormat && outputFormat) {
+          router.push(`/image/image-converter/${inputFormat}-to-${outputFormat}`);
+        }
       }
-    }
-  }, [files.length, config, router]);
+    },
+    [files.length, config, router]
+  );
 
   const removeFile = useCallback((id: string) => {
     setFiles((prev) => prev.filter((f) => f.id !== id));
@@ -72,64 +87,106 @@ const ImageConverter = () => {
 
   const updateFileSettings = useCallback((id: string, settings: any) => {
     setFiles((prev) =>
-      prev.map((f) => (f.id === id ? { ...f, settings: { ...f.settings, ...settings } } : f))
+      prev.map((f) =>
+        f.id === id ? { ...f, settings: { ...f.settings, ...settings } } : f
+      )
     );
   }, []);
 
   // ============================================================================
-  // URL UPLOAD
+  // URL UPLOAD (FINAL WORKING FLOW)
   // ============================================================================
 
-  const handleUrlUpload = useCallback(async (url: string) => {
-    // Create fake file object for URL
-    const fakeFile = new File([], "url-image", { type: "image/jpeg" });
-    addFiles([fakeFile]);
-  }, [addFiles]);
+  const handleUrlUpload = useCallback(
+    async (url: string) => {
+      try {
+        const blob = await convertImageFromUrl({
+          url,
+          format: config.defaultSettings.format as OutputFormat,
+          quality: config.defaultSettings.quality as number,
+        }).unwrap();
+
+        const outputName = `converted.${config.defaultSettings.format}`;
+
+        await sessionStorageUtils.saveFile(blob, outputName, "converter");
+
+        setFiles((prev) => [
+          ...prev,
+          {
+            id: `${Date.now()}_${Math.random().toString(36).slice(2)}`,
+            originalFile: null,
+            name: outputName,
+            size: blob.size,
+            type: blob.type,
+            settings: {
+              format: config.defaultSettings.format,
+              quality: config.defaultSettings.quality,
+            },
+            status: "completed",
+            resultBlob: blob,
+            resultName: outputName,
+          },
+        ]);
+      } catch (error) {
+        console.error("URL Upload Failed", error);
+      }
+    },
+    [convertImageFromUrl, config]
+  );
 
   // ============================================================================
-  // CONVERSION LOGIC
+  // CONVERSION LOGIC (FILE ONLY)
   // ============================================================================
 
-  const convertSingleFile = useCallback(async (file: ProcessedFile) => {
-    try {
-      setFiles((prev) =>
-        prev.map((f) => (f.id === file.id ? { ...f, status: "processing" } : f))
-      );
+  const convertSingleFile = useCallback(
+    async (file: ProcessedFile) => {
+      if (!file.originalFile) return; // URL files already completed
 
-      const blob = await convertImage({
-        file: file.originalFile,
-        options: {
-          format: file.settings.format!,
-          quality: file.settings.quality!,
-        },
-      }).unwrap();
+      try {
+        setFiles((prev) =>
+          prev.map((f) =>
+            f.id === file.id ? { ...f, status: "processing" } : f
+          )
+        );
 
-      const outputName = getOutputFilename(file.name, file.settings.format!);
+        const blob = await convertImage({
+          file: file.originalFile,
+          options: {
+            format: file.settings.format!,
+            quality: file.settings.quality!,
+          },
+        }).unwrap();
 
-      // Save to session storage
-      await sessionStorageUtils.saveFile(blob, outputName, "converter");
+        const outputName = getOutputFilename(
+          file.name,
+          file.settings.format!
+        );
 
-      setFiles((prev) =>
-        prev.map((f) =>
-          f.id === file.id
-            ? {
-                ...f,
-                status: "completed",
-                resultBlob: blob,
-                resultName: outputName,
-              }
-            : f
-        )
-      );
-    } catch (error) {
-      const errorMsg = extractApiErrorMessage(error);
-      setFiles((prev) =>
-        prev.map((f) =>
-          f.id === file.id ? { ...f, status: "error", error: errorMsg } : f
-        )
-      );
-    }
-  }, [convertImage]);
+        await sessionStorageUtils.saveFile(blob, outputName, "converter");
+
+        setFiles((prev) =>
+          prev.map((f) =>
+            f.id === file.id
+              ? {
+                  ...f,
+                  status: "completed",
+                  resultBlob: blob,
+                  resultName: outputName,
+                }
+              : f
+          )
+        );
+      } catch (error) {
+        const errorMsg = extractApiErrorMessage(error);
+        setFiles((prev) =>
+          prev.map((f) =>
+            f.id === file.id ? { ...f, status: "error", error: errorMsg } : f
+          )
+        );
+      }
+    },
+    [convertImage]
+  );
 
   const convertAllFiles = useCallback(async () => {
     setConverting(true);
@@ -155,7 +212,7 @@ const ImageConverter = () => {
     a.download = file.resultName;
     document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a);
+    a.remove();
     URL.revokeObjectURL(url);
   }, []);
 
@@ -163,7 +220,7 @@ const ImageConverter = () => {
     files
       .filter((f) => f.status === "completed")
       .forEach((f, index) => {
-        setTimeout(() => downloadFile(f), index * 500);
+        setTimeout(() => downloadFile(f), index * 300);
       });
   }, [files, downloadFile]);
 
@@ -171,10 +228,6 @@ const ImageConverter = () => {
     setFiles([]);
     sessionStorageUtils.clearAll();
   }, []);
-
-  // ============================================================================
-  // STATS
-  // ============================================================================
 
   const stats = {
     total: files.length,
@@ -188,12 +241,11 @@ const ImageConverter = () => {
   const canAddMore = files.length < config.maxFiles;
 
   // ============================================================================
-  // RENDER
+  // RENDER UI
   // ============================================================================
 
   return (
     <div className="w-full space-y-6 md:mt-[1vw] mt-[1vh]">
-      {/* Drag & Drop Zone */}
       {files.length === 0 && (
         <DragDropZone
           config={config}
@@ -203,7 +255,6 @@ const ImageConverter = () => {
         />
       )}
 
-      {/* Files Panel */}
       {files.length > 0 && (
         <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 md:p-6 p-2">
           {/* Header */}
@@ -221,12 +272,14 @@ const ImageConverter = () => {
                 <button
                   onClick={() => setUrlModalOpen(true)}
                   className="px-4 py-1.5 rounded-full font-medium flex items-center gap-2"
-                  style={{ background: isDark ? config.dropzoneColorDark : config.dropzoneColor, color: config.primaryColor }}
+                  style={{
+                    background: isDark
+                      ? config.dropzoneColorDark
+                      : config.dropzoneColor,
+                    color: config.primaryColor,
+                  }}
                 >
-                  <div className="w-5 h-5">
-                    <PlusSvg />
-                  </div>
-                  <span className="md:block hidden">Add More</span>
+                  <span className="w-5 h-5"><PlusSvg /></span> <span className="md:block hidden">Add More</span>
                 </button>
               )}
 
@@ -236,10 +289,7 @@ const ImageConverter = () => {
                   className="px-4 py-1.5 rounded-full font-medium text-white flex items-center gap-2"
                   style={{ backgroundColor: config.primaryColor }}
                 >
-                  <div className="w-5 h-5">
-                    <DownloadSvg />
-                  </div>
-                  Download All
+                  <span className="w-5 h-5"><DownloadSvg /></span> Download All
                 </button>
               )}
 
@@ -247,9 +297,7 @@ const ImageConverter = () => {
                 onClick={clearAll}
                 className="px-4 py-1.5 rounded-full font-medium text-red-600 bg-red-50 dark:bg-red-900/40 flex items-center gap-2"
               >
-                <div className="w-5 h-5">
-                  <TrashSvg />
-                </div>
+                <span className="w-5 h-5"><TrashSvg /></span>
                 <span className="md:block hidden">Clear All</span>
               </button>
             </div>
@@ -262,7 +310,9 @@ const ImageConverter = () => {
                 key={file.id}
                 file={file}
                 config={config}
-                onUpdateSettings={(settings) => updateFileSettings(file.id, settings)}
+                onUpdateSettings={(settings) =>
+                  updateFileSettings(file.id, settings)
+                }
                 onRemove={() => removeFile(file.id)}
                 onDownload={() => downloadFile(file)}
               />
@@ -279,20 +329,19 @@ const ImageConverter = () => {
             >
               {converting ? (
                 <>
-                  <div className="w-5 h-5">
-                    <Spinner />
-                  </div>
-                  Converting...
+                  <Spinner /> Converting...
                 </>
               ) : (
-                `Convert ${stats.pending} File${stats.pending !== 1 ? "s" : ""}`
+                `Convert ${stats.pending} File${
+                  stats.pending !== 1 ? "s" : ""
+                }`
               )}
             </button>
           )}
         </div>
       )}
 
-      {/* Converted Files */}
+      {/* Converted Files Panel */}
       <ConvertedFilesPanel config={config} />
 
       {/* URL Upload Modal */}

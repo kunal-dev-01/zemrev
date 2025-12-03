@@ -1,7 +1,6 @@
 // ============================================================================
 // FILE: src/lib/redux/store.ts
 // PURPOSE: Redux store configuration
-// COMMIT: feat: add Redux store for image service
 // ============================================================================
 
 import { configureStore } from "@reduxjs/toolkit";
@@ -14,10 +13,24 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
-        ignoredActionPaths: ["payload"],
-        ignoredPaths: ["api.mutations"],
+        // ❗ Ignore RTK Query internal mutation actions
+        ignoredActions: [
+          "api/executeMutation/pending",
+          "api/executeMutation/fulfilled",
+          "api/executeMutation/rejected",
+        ],
+
+        // ❗ Ignore the path where the File object exists
+        ignoredActionPaths: ["meta.arg.originalArgs.file"],
+
+        // ❗ (Optional) to ignore other non-serializable RTKQ metadata
+        ignoredPaths: [
+          "api.queries",
+          "api.mutations",
+        ],
       },
     }).concat(baseApi.middleware),
+
   devTools: process.env.NODE_ENV !== "production",
 });
 
