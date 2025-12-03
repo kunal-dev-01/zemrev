@@ -1,3 +1,4 @@
+"use client";
 import { useSearchParams } from "next/navigation";
 import AboutUs from "./About";
 import Contact from "./Contact";
