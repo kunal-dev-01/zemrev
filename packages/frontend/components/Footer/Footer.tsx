@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { memo } from "react";
 
+/* ================= Footer Links ================= */
 const footerLinks = {
   company: [
     { name: "About Us", href: "/legal?page=about" },
@@ -20,12 +22,21 @@ const footerLinks = {
     { name: "Image Cropper", href: "/image/image-cropper" },
     { name: "Watermark Tool", href: "/image/image-watermark" },
   ],
+
+  pdfTools: [
+    { name: "PDF to JPG", href: "/pdf/pdf-to-jpg" },
+    { name: "JPG to PDF", href: "/pdf/jpg-to-pdf" },
+    { name: "Compress PDF", href: "/pdf/compress-pdf" },
+    { name: "Merge PDF", href: "/pdf/merge-pdf" },
+    { name: "Split PDF", href: "/pdf/split-pdf" },
+  ],
 };
 
+/* ================= Section Component ================= */
 type FooterLink = { name: string; href: string };
 type FooterSectionProps = { title: string; links: FooterLink[] };
 
-const FooterSection = ({ title, links }: FooterSectionProps) => (
+const FooterSection = memo(({ title, links }: FooterSectionProps) => (
   <div className="flex flex-col gap-4">
     <h3 className="font-semibold text-sm text-zinc-900 dark:text-zinc-100">
       {title}
@@ -36,11 +47,9 @@ const FooterSection = ({ title, links }: FooterSectionProps) => (
         <li key={link.name}>
           <Link
             href={link.href}
-            className="
-              text-sm text-zinc-500 dark:text-zinc-400 
+            className="text-sm text-zinc-500 dark:text-zinc-400 
               hover:text-zinc-800 dark:hover:text-zinc-200 
-              transition-colors
-            "
+              transition-colors"
           >
             {link.name}
           </Link>
@@ -48,21 +57,21 @@ const FooterSection = ({ title, links }: FooterSectionProps) => (
       ))}
     </ul>
   </div>
-);
+));
+FooterSection.displayName = "FooterSection";
 
+/* ================= Footer ================= */
 const Footer = () => {
   const year = new Date().getFullYear();
 
   return (
     <footer
-      className="
-        w-full p-8 md:p-12 rounded-xl 
-        bg-white/50 dark:bg-zinc-900/40 
-        border border-zinc-200 dark:border-zinc-800 
-        backdrop-blur-sm
-      "
+      className="w-full p-8 md:p-12 rounded-xl 
+      bg-white/50 dark:bg-zinc-900/40 
+      border border-zinc-200 dark:border-zinc-800 
+      backdrop-blur-sm"
     >
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-10 mb-12">
         
         {/* Brand */}
         <div className="col-span-2 md:col-span-1">
@@ -75,24 +84,17 @@ const Footer = () => {
           </p>
         </div>
 
-        {/* Company */}
+        {/* Sections */}
         <FooterSection title="Company" links={footerLinks.company} />
-
-        {/* Legal */}
         <FooterSection title="Legal" links={footerLinks.legal} />
-
-        {/* Image Tools */}
         <FooterSection title="Image Tools" links={footerLinks.imageTools} />
-
+        <FooterSection title="PDF Tools" links={footerLinks.pdfTools} />
       </div>
 
       {/* Bottom Section */}
       <div
-        className="
-          border-t border-zinc-200 dark:border-zinc-800 
-          pt-8 flex flex-col md:flex-row 
-          justify-between items-center gap-4
-        "
+        className="border-t border-zinc-200 dark:border-zinc-800 
+        pt-8 flex flex-col md:flex-row justify-between items-center gap-4"
       >
         <p className="text-xs text-zinc-400 dark:text-zinc-500">
           © {year} Zemrev. Built for performance. Engineered for privacy.
@@ -102,11 +104,7 @@ const Footer = () => {
           {Array.from({ length: 3 }).map((_, i) => (
             <div
               key={i}
-              className="
-                w-4 h-4 rounded-full 
-                bg-zinc-200 dark:bg-zinc-800 
-                transition-colors
-              "
+              className="w-4 h-4 rounded-full bg-zinc-200 dark:bg-zinc-800 transition-colors"
             />
           ))}
         </div>
@@ -115,4 +113,4 @@ const Footer = () => {
   );
 };
 
-export default Footer;
+export default memo(Footer);
