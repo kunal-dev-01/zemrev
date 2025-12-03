@@ -99,7 +99,7 @@ export const UrlUploadModal = ({
               color: config.primaryColor,
             }}
           >
-            <LinkSvg />
+            <LinkSvg className="w-full h-full" />
           </div>
 
           <h2 className="text-xl font-semibold text-zinc-800 dark:text-zinc-200">
@@ -139,9 +139,7 @@ export const UrlUploadModal = ({
                 border border-red-200 dark:border-red-800
               "
             >
-              <span className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5">
-                <ErrorSvg />
-              </span>
+                <ErrorSvg className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5 mx-auto" />
               <p className="text-sm text-red-600 dark:text-red-400">
                 {error}
               </p>
