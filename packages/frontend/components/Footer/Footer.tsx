@@ -68,8 +68,7 @@ const Footer = () => {
     <footer
       className="w-full p-8 md:p-12 rounded-xl 
       bg-white/50 dark:bg-zinc-900/40 
-      border border-zinc-200 dark:border-zinc-800 
-      backdrop-blur-sm"
+      border border-zinc-200 dark:border-zinc-800"
     >
       <div className="grid grid-cols-2 md:grid-cols-5 gap-10 mb-12">
         
