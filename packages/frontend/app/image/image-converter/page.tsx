@@ -11,6 +11,55 @@ export const metadata: Metadata = {
   title: converterMetadata.title,
   description: converterMetadata.description,
   keywords: converterMetadata.keywords,
+
+  // 🔥 Canonical URL
+  alternates: {
+    canonical: "https://www.zemrev.com/image/image-converter",
+  },
+
+  // 🔥 OpenGraph (Social sharing)
+  openGraph: {
+    title: converterMetadata.title,
+    description: converterMetadata.description,
+    url: "https://www.zemrev.com/image/image-converter",
+    siteName: "Zemrev",
+    type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Zemrev Image Converter Tool",
+      },
+    ],
+  },
+
+  // 🔥 Twitter Card
+  twitter: {
+    card: "summary_large_image",
+    title: converterMetadata.title,
+    description: converterMetadata.description,
+    images: ["/og-image.png"],
+  },
+
+  // 🔥 JSON-LD Structured Data (Google Rich Results)
+  other: {
+    "script:ld+json": JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      name: "Zemrev Image Converter",
+      applicationCategory: "WebApplication",
+      operatingSystem: "All",
+      description:
+        "Free online image converter to convert images instantly without signup.",
+      url: "https://www.zemrev.com/image/image-converter",
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "USD",
+      },
+    }),
+  },
 };
 
 const Conveter = () => {
