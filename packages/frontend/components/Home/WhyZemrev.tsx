@@ -1,100 +1,122 @@
-import React from "react";
 import { Zap, Shield, HardDrive } from "@/components/Svg/HomeSvg";
 import { CheckSvg } from "@/components/Svg/CommonSvg";
-
-const cardBase =
-  "border dark:border-zinc-700/50 border-zinc-200/50 p-6 rounded-xl backdrop-blur-sm";
+import FeatureCard from "./FeatureCard";
 
 const features = [
   {
     icon: Shield,
     title: "Secure Processing",
-    desc: "Files are processed on isolated temporary servers and automatically deleted right after the task is completed.",
+    desc: "Files are handled on isolated temporary servers and wiped after every task — privacy by design.",
     color: "text-green-400",
   },
   {
     icon: Zap,
     title: "Insanely Fast",
-    desc: "Optimized backend, queued workers, and high-speed image engines ensure quick results—even for large files.",
+    desc: "A custom processing engine, worker queues, and low-level optimizations ensure blazing-fast performance.",
     color: "text-yellow-400",
-    extra: "sm:translate-y-8",
+    extra: "sm:translate-y-6",
   },
   {
     icon: HardDrive,
-    title: "No File Storage",
-    desc: "We never store your files. No backups, no logs, nothing retained after processing.",
+    title: "Zero File Storage",
+    desc: "We never store, inspect, or retain your uploads. Everything is processed in real-time and then destroyed.",
     color: "text-blue-400",
   },
 ];
 
-const WhyZemrev: React.FC = () => {
+const WhyZemrev = () => {
   return (
-    <section className="w-full md:mt-[10vw] mt-[10vh]">
-      <div className="w-full relative">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 relative z-10">
-          {/* Left Text Content */}
-          <div className="flex flex-col justify-center space-y-6">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-200/50 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 w-fit">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </span>
-              <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
-                Live Processing Engine
-              </span>
-            </div>
+    <section className="relative w-full py-10 md:py-30">
 
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-zinc-700 dark:text-zinc-300">
-              Built for speed, designed for privacy.
-            </h2>
+      {/* Background */}
+      <div className="absolute inset-0 -z-10 blur-[120px] opacity-70 pointer-events-none">
+        <div className="absolute top-1/2 left-[20%] w-[280px] h-[280px] bg-indigo-400/20 rounded-full" />
+        <div className="absolute bottom-[15%] right-[10%] w-[300px] h-[300px] bg-purple-400/20 rounded-full" />
+      </div>
 
-            <p className="text-lg leading-relaxed text-zinc-500">
-              Every file is processed on our fast backend using isolated
-              temporary storage. Nothing is stored permanently—your file exists
-              only during the conversion or compression step and is deleted
-              immediately after the output is generated.
-            </p>
+      <div className="relative z-10 w-full mx-auto">
 
-            <ul className="space-y-3 mt-4">
+        {/* Header */}
+        <div className="text-center mb-16 max-w-3xl mx-auto">
+
+          <div className="
+            inline-flex items-center gap-2 px-4 py-1.5 rounded-full
+            bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800
+          ">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
+              <span className="relative h-2 w-2 rounded-full bg-emerald-500" />
+            </span>
+
+            <span className="text-xs font-semibold tracking-wide uppercase text-zinc-700 dark:text-zinc-400">
+              Live Processing Engine
+            </span>
+          </div>
+
+          <h2 className="mt-4 text-2xl md:text-4xl font-bold tracking-tight text-zinc-800 dark:text-zinc-200">
+            Speed Meets Privacy
+          </h2>
+
+          <p className="mt-2 md:text-lg text-zinc-500 dark:text-zinc-400">
+            Fast, secure, real-time file processing with zero data retention.
+          </p>
+        </div>
+
+        {/* Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+
+          {/* Left */}
+          <div className="space-y-6 flex flex-col justify-center">
+            <ul className="space-y-4">
               {[
-                "No permanent file storage",
-                "End-to-end encrypted transfer",
-                "High-speed server processing",
-              ].map((item, index) => (
-                <li
-                  key={index}
-                  className="flex items-center gap-3 text-zinc-700 dark:text-zinc-300"
-                >
-                  <CheckSvg className="text-emerald-400 w-5 h-5" />
-                  {item}
+                "Temporary isolated file execution",
+                "End-to-end encrypted transfers",
+                "10k+ files processed every single day",
+                "Backend optimized for image, media & PDF tasks",
+                "Processing happens in real-time, no queue delays",
+              ].map((item, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <CheckSvg />
+                  <span className="text-lg text-zinc-700 dark:text-zinc-300">
+                    {item}
+                  </span>
                 </li>
               ))}
             </ul>
-          </div>
 
-          {/* Right Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {features.map(({ icon: Icon, title, desc, color, extra }, i) => (
-              <div key={i} className={`${cardBase} ${extra || ""}`}>
-                <Icon className={`mb-4 w-10 h-10 ${color}`} />
-                <h3 className="text-xl font-semibold mb-2 text-zinc-700 dark:text-zinc-300">
-                  {title}
-                </h3>
-                <p className="text-sm text-zinc-500">{desc}</p>
-              </div>
-            ))}
-
-            {/* Statistic Card */}
-            <div
-              className={`${cardBase} sm:translate-y-8 flex flex-col justify-center items-center text-center`}
-            >
-              <div className="text-4xl font-bold text-indigo-400 mb-1">
-                10k+
-              </div>
-              <p className="text-sm text-zinc-500">Files Processed Daily</p>
+            <div className="
+              rounded-xl p-6 backdrop-blur-sm shadow-md
+              border border-indigo-300/40 dark:border-indigo-700/40
+              bg-indigo-50/40 dark:bg-indigo-900/20
+            ">
+              <p className="text-zinc-700 dark:text-zinc-300 leading-relaxed">
+                Designed with enterprise-grade privacy and lightning-fast compute, Zemrev 
+                processes your files instantly and destroys them immediately after use. 
+                No user accounts, no databases, no retention — a system built entirely 
+                around speed, safety, and trust.
+              </p>
             </div>
           </div>
+
+          {/* Right */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {features.map((f, i) => (
+              <FeatureCard key={i} {...f} />
+            ))}
+
+            <div className="
+              relative border border-zinc-200 dark:border-zinc-800 p-6 rounded-xl backdrop-blur-sm 
+              bg-white/40 dark:bg-zinc-900/30 shadow-sm hover:shadow-md transition-all duration-300
+              sm:translate-y-6 flex flex-col items-center text-center justify-center
+            ">
+              <div className="text-5xl font-bold text-indigo-500 mb-1">10k+</div>
+              <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                Files processed daily
+              </p>
+            </div>
+
+          </div>
+
         </div>
       </div>
     </section>
