@@ -156,13 +156,16 @@ export const DragDropZone = ({
           </div>
         ) : (
           <>
-            <UploadSvg
-              className={`w-12 h-12 mx-auto mb-4 transition-all ${
-                isDragging ? `animate-bounce` : ""
+            <div
+              style={{ color: isDragging ? borderColor : undefined }}
+              className={`w-12 h-12 mx-auto mb-4 transition-all duration-200 ${
+                isDragging ? `animate-pulse` : ""
               }`}
-            />
+            >
+              <UploadSvg />
+            </div>
 
-            <h3 className="text-lg font-semibold text-zinc-800 dark:text-zinc-200 mb-5">
+            <h3 className="text-lg font-semibold text-zinc-800 dark:text-zinc-200 mb-5 transition-all duration-200">
               {isDragging ? "Drop files here" : "Drag & drop files here"}
             </h3>
 
@@ -191,7 +194,9 @@ export const DragDropZone = ({
                   className="md:px-6 px-5 py-1.5 text-md rounded-lg font-medium border-2 hover:opacity-90 transition-all flex items-center gap-2 cursor-pointer"
                   style={{ borderColor, color: borderColor }}
                 >
-                  <LinkSvg className="w-6 h-6" />
+                  <div className="w-6 h-6">
+                    <LinkSvg />
+                  </div>
                   From URL
                 </button>
               </div>
