@@ -1,13 +1,14 @@
 import React from "react";
 
 // ================ Check SVG ================ //
-export const CheckSvg = React.memo(() => (
+export const CheckSvg = React.memo(({ className= "w-5 h-5 text-emerald-400" }: { className?: string }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
     width="100%"
     height="100%"
     fill="currentColor"
+    className={className}
   >
     <path
       fillRule="evenodd"
