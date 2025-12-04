@@ -4,8 +4,8 @@
 
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { converterDynamicData } from "@/components/ImageTools/ImageConverter/DynamicData";
-import ConverterDynamicTool from "@/components/ImageTools/ImageConverter/DynamicToolWrapper";
+import { converterDynamicData } from "@/components/ImageTools/ImageConverter/SeoData/DynamicData";
+import ConverterDynamicTool from "@/components/ImageTools/ImageConverter/DynamicConverter/Index";
 
 type ConverterSlug = keyof typeof converterDynamicData;
 

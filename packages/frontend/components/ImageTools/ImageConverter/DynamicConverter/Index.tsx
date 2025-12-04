@@ -1,12 +1,12 @@
 "use client"
 import dynamic from "next/dynamic";
-import Skeleton from "@/components/Layouts/Skeleton";
+import ToolLoader from "@/components/Layouts/ToolLoader";
 
 const DynamicTool = dynamic(
-  () => import("./ConverterDynamicTool"),
+  () => import("./DynamicConverter"),
   {
     ssr: false,
-    loading: () => <Skeleton height="md:h-[15vw] h-[40vh]" />,
+    loading: () => <ToolLoader className="w-8 h-8 text-[#10b981]" />,
   }
 );
 

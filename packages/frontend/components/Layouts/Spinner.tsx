@@ -1,12 +1,13 @@
 // Spinner.tsx
 import {memo} from "react";
 
-export const Spinner = memo(() => (
+export const Spinner = memo(({ className }: { className?: string }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="100%"
     height="100%"
     viewBox="0 0 24 24"
+    className={className}
   >
     <g stroke="currentColor">
       <circle

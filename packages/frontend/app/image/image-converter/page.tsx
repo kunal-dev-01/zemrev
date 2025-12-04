@@ -4,8 +4,8 @@ import type { Metadata } from "next";
 import {
   converterContent,
   converterMetadata,
-} from "@/components/ImageTools/ImageConverter/Blog";
-import ToolWrapper from "@/components/ImageTools/ImageConverter/ToolWrapper";
+} from "@/components/ImageTools/ImageConverter/SeoData/Blog";
+import ToolWrapper from "@/components/ImageTools/ImageConverter/MainConverter/Index";
 
 export const metadata: Metadata = {
   title: converterMetadata.title,
