@@ -2,7 +2,6 @@ import Hero from "./Hero"
 import FeaturedTools from "./FeaturedTools"
 import WhyZemrev from "./WhyZemrev"
 import HowItWorks from "./HowItWorks"
-import UpcomingTools from "./UpcomingTools"
 
 const Index = () => {
   return (
@@ -11,7 +10,6 @@ const Index = () => {
       <FeaturedTools />
       <WhyZemrev />
       <HowItWorks />
-      <UpcomingTools />
     </div>
   )
 }
