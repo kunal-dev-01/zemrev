@@ -87,7 +87,9 @@ const SideBar: FC = () => {
               onClick={closeSidebar}
               className="relative flex items-center gap-3 px-3 py-1 rounded-lg border border-zinc-200/50 dark:border-zinc-800/50 bg-white/50 dark:bg-zinc-900/30 group"
             >
-              <tool.icon className="w-7 h-7 text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors" />
+              <div className="w-7 h-7 text-zinc-600 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors">
+                <tool.icon />
+              </div>
 
               <span className="text-md font-medium text-zinc-700 dark:text-zinc-300 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors">
                 {tool.name}
