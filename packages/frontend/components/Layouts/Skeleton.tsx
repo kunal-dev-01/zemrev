@@ -1,6 +1,6 @@
 const Skeleton = ({
   width = "w-full",
-  height = "md:h-[45vw] h-[80vh]",
+  height = "md:h-[15vw] h-[30vh]",
   rounded = "rounded-xl",
 }) => {
   const defaultColor = "bg-zinc-100 dark:bg-zinc-900/50";
