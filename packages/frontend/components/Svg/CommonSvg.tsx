@@ -42,12 +42,13 @@ export const CancelSvg = React.memo(() => (
 CancelSvg.displayName = "CancelSvg";
 
 // ================ Download SVG ================ //
-export const DownloadSvg = React.memo(() => (
+export const DownloadSvg = React.memo(({ className }: { className?: string }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="100%"
     height="100%"
     viewBox="0 0 24 24"
+    className={className}
   >
     <path
       fill="none"
@@ -62,34 +63,14 @@ export const DownloadSvg = React.memo(() => (
 
 DownloadSvg.displayName = "DownloadSvg";
 
-// ================ Edit SVG ================ //
-export const EditSvg = React.memo(() => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="100%"
-    height="100%"
-    viewBox="0 0 24 24"
-  >
-    <path
-      fill="none"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="1.5"
-      d="M14.44 5.78L4.198 16.02a2 2 0 0 0-.565 1.125l-.553 3.774l3.775-.553A2 2 0 0 0 7.98 19.8L18.22 9.56m-3.78-3.78l2.229-2.23a1.6 1.6 0 0 1 2.263 0l1.518 1.518a1.6 1.6 0 0 1 0 2.263l-2.23 2.23M14.44 5.78l3.78 3.78"
-    />
-  </svg>
-));
-
-EditSvg.displayName = "EditSvg";
-
 // ================ Error SVG ================ //
-export const ErrorSvg = React.memo(() => (
+export const ErrorSvg = React.memo(({ className }: { className?: string }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="100%"
     height="100%"
     viewBox="0 0 16 16"
+    className={className}
   >
     <path
       fill="currentColor"
@@ -142,12 +123,13 @@ export const BoltSvg = React.memo(() => (
 BoltSvg.displayName = "BoltSvg";
 
 // ================= Trash SVG ================= //
-export const TrashSvg = React.memo(() => (
+export const TrashSvg = React.memo(({ className }: { className?: string }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="100%"
     height="100%"
     viewBox="0 0 24 24"
+    className={className}
   >
     <path
       fill="none"
