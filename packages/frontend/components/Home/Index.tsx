@@ -1,7 +1,7 @@
-import Hero from "./Hero"
-import FeaturedTools from "./FeaturedTools"
-import WhyZemrev from "./WhyZemrev"
-import HowItWorks from "./HowItWorks"
+import Hero from "./Hero";
+import FeaturedTools from "./FeaturedTools";
+import WhyZemrev from "./WhyZemrev";
+import HowItWorks from "./HowItWorks";
 
 const Index = () => {
   return (
@@ -11,7 +11,7 @@ const Index = () => {
       <WhyZemrev />
       <HowItWorks />
     </div>
-  )
-}
+  );
+};
 
-export default Index
+export default Index;
