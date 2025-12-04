@@ -4,22 +4,43 @@
 
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { converterDynamicData } from "@/components/ImageTools/ImageConverter/SeoData/DynamicData";
-import ConverterDynamicTool from "@/components/ImageTools/ImageConverter/DynamicConverter/Index";
+import { 
+  getConverterData,
+  getAllConverterSlugs,
+} from "@/components/ImageTools/ImageConverter/SeoData/DynamicData-Index";
+import Index from "@/components/ImageTools/ImageConverter/DynamicConverter/Index";
 
-type ConverterSlug = keyof typeof converterDynamicData;
+// ============================================================================
+// GENERATE STATIC PARAMS
+// ============================================================================
 
 export async function generateStaticParams() {
-  return Object.keys(converterDynamicData).map(slug => ({ slug }));
+  // Use utility function from index
+  const allSlugs = getAllConverterSlugs();
+  return allSlugs.map(slug => ({ slug }));
 }
 
-// METADATA
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const { slug } = await params; // <-- FIX
+// ============================================================================
+// METADATA GENERATION
+// ============================================================================
 
-  if (!(slug in converterDynamicData)) return {};
+export async function generateMetadata({ 
+  params 
+}: { 
+  params: Promise<{ slug: string }> 
+}): Promise<Metadata> {
+  const { slug } = await params;
 
-  const data = converterDynamicData[slug as ConverterSlug];
+  // Use utility function to get converter data
+  const data = getConverterData(slug);
+
+  // If converter not found, return empty metadata
+  if (!data) {
+    return {
+      title: "Converter Not Found",
+      description: "The requested image converter could not be found."
+    };
+  }
 
   return {
     title: data.title,
@@ -28,15 +49,32 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-// PAGE
-export default async function ConverterDynamicPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params; // <-- FIX
+// ============================================================================
+// PAGE COMPONENT
+// ============================================================================
 
-  if (!(slug in converterDynamicData)) return notFound();
+export default async function ConverterDynamicPage({ 
+  params 
+}: { 
+  params: Promise<{ slug: string }> 
+}) {
+  const { slug } = await params;
 
-  const data = converterDynamicData[slug as ConverterSlug];
+  // Use utility function to get converter data
+  const data = getConverterData(slug);
 
+  // If converter not found, show 404
+  if (!data) {
+    return notFound();
+  }
+
+  // Extract formats from slug
   const [inputFormat, outputFormat] = slug.split("-to-");
+
+  // Validate formats exist
+  if (!inputFormat || !outputFormat) {
+    return notFound();
+  }
 
   return (
     <main className="w-full">
@@ -44,11 +82,10 @@ export default async function ConverterDynamicPage({ params }: { params: Promise
         {data.title}
       </h1>
 
-      <ConverterDynamicTool
+      <Index
         inputFormat={inputFormat}
         outputFormat={outputFormat}
       />
-
     </main>
   );
 }
