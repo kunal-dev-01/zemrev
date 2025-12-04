@@ -1,6 +1,6 @@
 // ===========================================================================
 // FILE: src/components/Shared/DragDropZone.tsx
-// PURPOSE: Drag-and-drop zone for file upload
+// PURPOSE: Drag-and-drop zone for file upload (Cleaned & Structured)
 // ===========================================================================
 
 "use client";
@@ -32,18 +32,44 @@ export const DragDropZone = ({
   const zoneRef = useRef<HTMLDivElement>(null);
   const isDark = useDarkMode();
 
-  // Auto-hide error message (3 sec)
+  const remainingSlots = config.maxFiles - currentFileCount;
+
+  // ----------------------------------------
+  // Auto-hide errors
+  // ----------------------------------------
   useEffect(() => {
     if (!errorMsg) return;
-    const t = setTimeout(() => setErrorMsg(null), 3000);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setErrorMsg(null), 3000);
+    return () => clearTimeout(timer);
   }, [errorMsg]);
 
-  const triggerError = (msg: string) => {
-    setErrorMsg(msg);
+  const triggerError = (msg: string) => setErrorMsg(msg);
+
+  // ----------------------------------------
+  // File validation helper
+  // ----------------------------------------
+  const validateFiles = (files: File[]) => {
+    if (files.length > remainingSlots) {
+      triggerError(`You can upload only ${config.maxFiles} files at a time.`);
+      return false;
+    }
+
+    const valid = files.filter((file) =>
+      config.acceptedFormats.includes(file.type)
+    );
+
+    if (valid.length === 0) {
+      triggerError("Unsupported file format.");
+      return false;
+    }
+
+    onFilesSelected(valid);
+    return true;
   };
 
-  // Drag events
+  // ----------------------------------------
+  // Drag Handlers
+  // ----------------------------------------
   const handleDragEnter = useCallback(
     (e: React.DragEvent) => {
       e.preventDefault();
@@ -75,45 +101,25 @@ export const DragDropZone = ({
     (e: React.DragEvent) => {
       e.preventDefault();
       setIsDragging(false);
-
       if (disabled) return;
 
-      const files = Array.from(e.dataTransfer.files);
-      const remaining = config.maxFiles - currentFileCount;
-
-      if (files.length > remaining) {
-        triggerError(`You can upload only ${config.maxFiles} files at a time.`);
-        return;
-      }
-
-      const valid = files.filter((f) =>
-        config.acceptedFormats.includes(f.type)
-      );
-
-      if (valid.length === 0) {
-        triggerError("Unsupported file format.");
-        return;
-      }
-
-      onFilesSelected(valid);
+      validateFiles(Array.from(e.dataTransfer.files));
     },
-    [disabled, config, currentFileCount, onFilesSelected]
+    [disabled, validateFiles]
   );
 
-  // File input
+  // ----------------------------------------
+  // File Input Handler
+  // ----------------------------------------
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    const remaining = config.maxFiles - currentFileCount;
-
-    if (files.length > remaining) {
-      triggerError(`You can upload only ${config.maxFiles} files at a time.`);
-      return;
-    }
-
-    if (files.length > 0) onFilesSelected(files);
+    validateFiles(files);
     e.target.value = "";
   };
 
+  // ----------------------------------------
+  // UI Variables
+  // ----------------------------------------
   const borderColor = config.primaryColor;
   const dragBG = isDark ? config.dropzoneColorDark : config.dropzoneColor;
 
@@ -138,11 +144,11 @@ export const DragDropZone = ({
         }}
       />
 
-      {/* ==== MAIN AREA (Error OR Upload UI) ==== */}
-      <div className="relative py-6 md:py-12 text-center flex flex-col items-center justify-center min-h-[220px]">
-        {/* ERROR VIEW */}
+      {/* Main Content */}
+      <div className="relative text-center flex flex-col items-center justify-center md:h-[15vw] h-[30vh]">
+        {/* Error View */}
         {errorMsg ? (
-          <div className="flex flex-col items-center justify-center gap-3">
+          <div className="flex flex-col items-center gap-3">
             <ErrorSvg className="w-12 h-12 text-red-400 dark:text-red-500" />
             <p className="text-red-400 dark:text-red-500 font-medium text-lg">
               {errorMsg}
@@ -152,20 +158,17 @@ export const DragDropZone = ({
           <>
             <UploadSvg
               className={`w-12 h-12 mx-auto mb-4 transition-all ${
-                isDragging ? `animate-bounce text-[${borderColor}]` : ""
+                isDragging ? `animate-bounce` : ""
               }`}
             />
 
-            <h3 className="text-lg font-semibold text-zinc-800 dark:text-zinc-200 mb-2">
+            <h3 className="text-lg font-semibold text-zinc-800 dark:text-zinc-200 mb-5">
               {isDragging ? "Drop files here" : "Drag & drop files here"}
             </h3>
 
-            <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-6">
-              {config.maxFiles - currentFileCount} slots remaining
-            </p>
-
-            {currentFileCount < config.maxFiles && (
+            {remainingSlots > 0 && (
               <div className="flex items-center justify-center gap-3">
+                {/* Select Files */}
                 <label
                   htmlFor="file-input"
                   className="md:px-6 px-5 py-2 text-md rounded-lg font-medium text-white hover:opacity-90 transition-all cursor-pointer"
@@ -182,6 +185,7 @@ export const DragDropZone = ({
                   />
                 </label>
 
+                {/* Upload By URL */}
                 <button
                   onClick={onUrlUpload}
                   className="md:px-6 px-5 py-1.5 text-md rounded-lg font-medium border-2 hover:opacity-90 transition-all flex items-center gap-2 cursor-pointer"
