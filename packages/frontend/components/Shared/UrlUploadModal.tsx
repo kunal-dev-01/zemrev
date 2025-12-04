@@ -99,7 +99,7 @@ export const UrlUploadModal = ({
               color: config.primaryColor,
             }}
           >
-            <LinkSvg className="w-full h-full" />
+            <LinkSvg />
           </div>
 
           <h2 className="text-xl font-semibold text-zinc-800 dark:text-zinc-200">
