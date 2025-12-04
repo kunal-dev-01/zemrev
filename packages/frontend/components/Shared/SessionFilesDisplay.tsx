@@ -189,7 +189,7 @@ export const SessionFilesDisplay = ({ toolType, config }: SessionFilesDisplayPro
                 style={{ color: config.primaryColor }}
                 title="Download"
               >
-                <DownloadSvg className="w-5 h-5" />
+                <DownloadSvg className="w-5 h-5 text-zinc-100" />
               </button>
 
               <button
