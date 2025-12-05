@@ -85,7 +85,7 @@ const WhyZemrev = () => {
             </ul>
 
             <div className="
-              rounded-xl p-6 backdrop-blur-sm shadow-md
+              rounded-xl p-6
               border border-indigo-300/40 dark:border-indigo-700/40
               bg-indigo-50/40 dark:bg-indigo-900/20
             ">
@@ -105,8 +105,8 @@ const WhyZemrev = () => {
             ))}
 
             <div className="
-              relative border border-zinc-200 dark:border-zinc-800 p-6 rounded-xl backdrop-blur-sm 
-              bg-white/40 dark:bg-zinc-900/30 shadow-sm hover:shadow-md transition-all duration-300
+              relative border border-zinc-200 dark:border-zinc-800 p-6 rounded-xl
+              bg-white/40 dark:bg-zinc-900/30
               sm:translate-y-6 flex flex-col items-center text-center justify-center
             ">
               <div className="text-5xl font-bold text-indigo-500 mb-1">10k+</div>
