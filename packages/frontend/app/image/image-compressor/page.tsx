@@ -1,11 +1,11 @@
-// app/image/image-compressor/page.tsx
+// Image/image-compressor/page.tsx
 
 import type { Metadata } from "next";
 import {
   compressorMetadata,
   compressorContent,
-} from "@/components/ImageTools/ImageCompressor/Blog";
-import ToolWrapper from "@/components/ImageTools/ImageCompressor/Index";
+} from "@/components/ImageTools/ImageCompressor/SeoData/Blog";
+import Index from "@/components/ImageTools/ImageCompressor/MainCompressor/Index";
 
 export const metadata: Metadata = {
   title: compressorMetadata.title,
@@ -22,7 +22,7 @@ const Compressor = () => {
       </h1>
 
       {/* Tool */}
-      <ToolWrapper />
+      <Index />
 
       {/* Blog Section */}
       <div className="w-full border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 p-2 md:p-6 md:mt-[1vw] mt-[1vh]">
