@@ -14,7 +14,6 @@ interface FileSettingsPanelProps {
   config: ToolConfig;
   onUpdateSettings: (settings: FileSettings) => void;
   onRemove: () => void;
-  onDownload: () => void;
 }
 
 export const FileSettingsPanel = ({
@@ -22,7 +21,6 @@ export const FileSettingsPanel = ({
   config,
   onUpdateSettings,
   onRemove,
-  onDownload,
 }: FileSettingsPanelProps) => {
   const isDark = useDarkMode();
   const [isFormatOpen, setIsFormatOpen] = useState(false);
@@ -115,12 +113,12 @@ export const FileSettingsPanel = ({
 
   const status = statusConfig[file.status];
   const isProcessing = file.status === "processing";
-  const isCompleted = file.status === "completed";
   const isError = file.status === "error";
   
-  // Show format & quality settings only for converter tool
+  // Show format & quality settings based on tool type
   const showFormatSettings = config.type === "converter";
-  const showQuality = showFormatSettings && ["jpeg", "jpg", "webp", "avif"].includes(file.settings.format!);
+  const showQualitySettings = config.type === "compressor" || 
+    (config.type === "converter" && ["jpeg", "jpg", "webp", "avif"].includes(file.settings.format!));
 
   const truncateFileName = (name: string, maxLength: number = 30) => {
     if (name.length <= maxLength) return name;
@@ -184,10 +182,11 @@ export const FileSettingsPanel = ({
       )}
 
       {/* SETTINGS SECTION (Only for pending files) */}
-      {file.status === "pending" && showFormatSettings && (
+      {file.status === "pending" && (showFormatSettings || showQualitySettings) && (
         <div className="mt-3">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {/* Format Selector */}
+          <div className={`grid grid-cols-1 ${showFormatSettings && showQualitySettings ? 'sm:grid-cols-2' : ''} gap-3`}>
+            {/* Format Selector - Only for Converter */}
+            {showFormatSettings && (
             <div>
               <div ref={formatRef} className="relative">
                 <button
@@ -202,7 +201,7 @@ export const FileSettingsPanel = ({
 
                 {/* Custom Dropdown */}
                 {isFormatOpen && (
-                  <div className="absolute z-10 w-full mt-1 p-2 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-lg">
+                  <div className="absolute z-10 w-full mt-1 p-2 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg">
                     <div className="grid grid-cols-3 gap-1">
                       {formats.map((format) => (
                         <button
@@ -231,10 +230,11 @@ export const FileSettingsPanel = ({
                 )}
               </div>
             </div>
+            )}
 
-            {/* Quality Selector */}
-            {showQuality && (
-              <div>
+            {/* Quality Selector - Show for compressor OR converter with lossy formats */}
+            {showQualitySettings && (
+              <div className={showFormatSettings ? '' : 'sm:col-span-1'}>
                 <div ref={qualityRef} className="relative">
                   <button
                     onClick={() => setIsQualityOpen(!isQualityOpen)}
@@ -253,8 +253,8 @@ export const FileSettingsPanel = ({
 
                   {/* Quality Dropdown */}
                   {isQualityOpen && (
-                    <div className="absolute z-10 w-full mt-1 p-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-lg">
-                      <div className="space-y-1">
+                    <div className="absolute z-10 w-full mt-1 p-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg">
+                      <div className="space-y-1 grid grid-cols-2">
                         {qualityOptions.map((option) => (
                           <button
                             key={option.value}
@@ -288,27 +288,7 @@ export const FileSettingsPanel = ({
         </div>
       )}
 
-      {/* RESULT SECTION (Only for completed files) */}
-      {isCompleted && file.resultName && (
-        <div className="mt-3 p-2 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <p className="text-md flex items-center justify-center gap-2 text-green-700 dark:text-green-300 font-medium truncate" title={file.resultName}>
-              <span className="w-5 h-5 text-emerald-400"><CheckSvg/></span>
-              {truncateFileName(file.resultName)}
-            </p>
-            <button
-              onClick={onDownload}
-              className="px-4 py-1.5 rounded-lg text-xs font-medium text-white transition-all hover:opacity-90 flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer"
-              style={{ backgroundColor: config.primaryColor }}
-            >
-              <div className="w-5 h-5">
-                <DownloadSvg />
-              </div>
-              Download
-            </button>
-          </div>
-        </div>
-      )}
+      {/* NO RESULT SECTION - Completed files are shown in SessionFilesDisplay */}
     </div>
   );
 };
