@@ -7,7 +7,7 @@
 
 import { useEffect, useState } from "react";
 import { sessionStorageUtils } from "@/utils/sessionStorage.utils";
-import { DownloadSvg, TrashSvg } from "@/components/Svg/CommonSvg";
+import { DownloadSvg, FolderOpenSvg, TrashSvg } from "@/components/Svg/CommonSvg";
 import { FileImage } from "@/components/Svg/HomeSvg";
 import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 import type { ToolConfig, ToolType, StoredFile } from "@/services/imageService/types";
@@ -111,14 +111,14 @@ export const SessionFilesDisplay = ({ toolType, config }: SessionFilesDisplayPro
             }}
           >
             <div style={{ color: config.primaryColor }} className="w-6 h-6">
-              <FileImage />
+              <FolderOpenSvg />
             </div>
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-zinc-800 dark:text-zinc-200">
+            <h3 className="ms:text-lg text-md font-semibold text-zinc-800 dark:text-zinc-200">
               Completed Files
             </h3>
-            <p className="text-sm text-zinc-600 dark:text-zinc-400">
+            <p className="md:text-sm text-xs text-zinc-600 dark:text-zinc-400">
               {sessionFiles.length} file{sessionFiles.length !== 1 ? "s" : ""} • Expires in 2 hours
             </p>
           </div>
@@ -149,15 +149,15 @@ export const SessionFilesDisplay = ({ toolType, config }: SessionFilesDisplayPro
       </div>
 
       {/* File List */}
-      <div className="space-y-3">
+      <div className="space-y-2">
         {sessionFiles.map((file) => (
           <div
             key={file.id}
-            className="flex items-center justify-between p-3 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50"
+            className="flex items-center justify-between px-3 py-1.5 rounded-full border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50"
           >
             <div className="flex items-center gap-3 flex-1 min-w-0">
               <div
-                className="p-2 rounded-lg shrink-0"
+                className="px-4 py-2 rounded-full shrink-0"
                 style={{
                   backgroundColor: isDark
                     ? config.dropzoneColorDark
@@ -182,19 +182,18 @@ export const SessionFilesDisplay = ({ toolType, config }: SessionFilesDisplayPro
               </div>
             </div>
 
-            <div className="flex items-center gap-2 ml-2">
+            <div className="flex items-center ml-2">
               <button
                 onClick={() => handleDownload(file.id)}
-                className="p-2 rounded-lg transition-all hover:bg-zinc-200 dark:hover:bg-zinc-700"
-                style={{ color: config.primaryColor }}
+                className="py-1.5 px-3 rounded-full transition-all hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer"
                 title="Download"
               >
-                <DownloadSvg className="w-5 h-5 text-zinc-100" />
+                <DownloadSvg className={`w-5 h-5 text-[${config.primaryColor}]`} />
               </button>
 
               <button
                 onClick={() => handleDelete(file.id)}
-                className="p-2 rounded-lg transition-all hover:bg-red-100 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400"
+                className="py-1.5 px-3 rounded-full transition-all hover:bg-red-100 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 cursor-pointer"
                 title="Delete"
               >
                 <TrashSvg className="w-5 h-5" />
