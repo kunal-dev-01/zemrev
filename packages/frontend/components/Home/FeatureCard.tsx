@@ -14,7 +14,7 @@ const FeatureCard = ({
   extra?: string;
 }) => {
   return (
-    <div className={`relative border border-zinc-200 dark:border-zinc-800 p-6 rounded-xl backdrop-blur-sm bg-white/40 dark:bg-zinc-900/30 shadow-sm hover:shadow-md transition-all duration-300 ${extra || ""}`}>
+    <div className={`relative border border-zinc-200 dark:border-zinc-800 p-6 rounded-xl backdrop-blur-sm bg-white/40 dark:bg-zinc-900/30 ${extra}`}>
 
       <div className={`mb-4 w-12 h-12 ${color}`}>
         <Icon />
