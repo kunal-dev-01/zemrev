@@ -29,7 +29,6 @@ const ImageConverter = () => {
     updateFileSettings,
     convertAllFiles,
     clearAll,
-    downloadFile,
   } = useImageConverter();
 
   // ============================================================================
@@ -100,7 +99,7 @@ const ImageConverter = () => {
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2 dark:bg-zinc-900 bg-zinc-50 border border-zinc-200 dark:border-zinc-800 rounded-full px-4 py-1.5">
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">
+              <p className="md:text-sm text-xs text-zinc-600 dark:text-zinc-400">
                 {stats.pending > 0 && `${stats.pending} pending`}
                 {stats.processing > 0 && ` • ${stats.processing} processing`}
                 {stats.error > 0 && ` • ${stats.error} failed`}
@@ -127,7 +126,6 @@ const ImageConverter = () => {
                 config={config}
                 onUpdateSettings={(settings) => updateFileSettings(file.id, settings)}
                 onRemove={() => removeFile(file.id)}
-                onDownload={() => downloadFile(file.id)}
               />
             ))}
           </div>

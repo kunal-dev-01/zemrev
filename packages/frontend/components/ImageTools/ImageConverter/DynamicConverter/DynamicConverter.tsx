@@ -37,7 +37,6 @@ const ConverterDynamicTool = ({
     updateFileSettings,
     convertAllFiles,
     clearAll,
-    downloadFile,
   } = useImageConverter();
 
   // ============================================================================
@@ -120,7 +119,7 @@ const ConverterDynamicTool = ({
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2 dark:bg-zinc-900 bg-zinc-50 border border-zinc-200 dark:border-zinc-800 rounded-full px-4 py-1.5">
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">
+              <p className="md:text-sm text-xs text-zinc-600 dark:text-zinc-400">
                 Converting {inputFormat.toUpperCase()} → {outputFormat.toUpperCase()}
                 {stats.pending > 0 && ` • ${stats.pending} pending`}
                 {stats.processing > 0 && ` • ${stats.processing} processing`}
@@ -148,7 +147,6 @@ const ConverterDynamicTool = ({
                 config={config}
                 onUpdateSettings={(settings) => updateFileSettings(file.id, settings)}
                 onRemove={() => removeFile(file.id)}
-                onDownload={() => downloadFile(file.id)}
               />
             ))}
           </div>
@@ -158,12 +156,12 @@ const ConverterDynamicTool = ({
             <button
               onClick={convertAllFiles}
               disabled={converting}
-              className="w-full mt-6 px-6 md:py-2 py-1.5 rounded-lg font-semibold text-white text-lg transition-all disabled:opacity-50 flex items-center justify-center gap-3"
+              className="w-full mt-6 px-6 md:py-2 py-1.5 rounded-lg font-semibold text-white text-lg transition-all disabled:opacity-50 flex items-center justify-center gap-3 cursor-pointer"
               style={{ backgroundColor: config.primaryColor }}
             >
               {converting ? (
                 <>
-                  <Spinner /> Converting...
+                  <Spinner className="w-5 h-5 text-white" /> Converting...
                 </>
               ) : (
                 `Convert ${stats.pending} File${stats.pending !== 1 ? "s" : ""}`
