@@ -38,7 +38,7 @@ const ToolsGrid = ({
             href={link}
             className="
               group relative p-5 flex flex-col gap-4 rounded-xl
-              border border-zinc-100 dark:border-zinc-800
+              border border-zinc-200 dark:border-zinc-800
               transition-all duration-300
             "
           >
