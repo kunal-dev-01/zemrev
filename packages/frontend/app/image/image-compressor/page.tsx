@@ -5,7 +5,7 @@ import {
   compressorMetadata,
   compressorContent,
 } from "@/components/ImageTools/ImageCompressor/Blog";
-import ToolWrapper from "@/components/ImageTools/ImageCompressor/ToolWrapper";
+import ToolWrapper from "@/components/ImageTools/ImageCompressor/Index";
 
 export const metadata: Metadata = {
   title: compressorMetadata.title,
