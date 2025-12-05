@@ -66,7 +66,7 @@ const Footer = () => {
 
   return (
     <footer
-      className="w-full p-8 md:p-12 rounded-xl 
+      className="w-full p-4 md:p-12 rounded-xl 
       bg-white/50 dark:bg-zinc-900/40 
       border border-zinc-200 dark:border-zinc-800"
     >
