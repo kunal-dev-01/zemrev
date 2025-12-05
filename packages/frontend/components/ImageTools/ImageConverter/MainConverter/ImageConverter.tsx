@@ -1,7 +1,4 @@
-// ============================================================================
-// FILE: src/components/ImageTools/ImageConverter/ImageConverter.tsx
-// PURPOSE: Multi-file converter with session display
-// ============================================================================
+// imageConverter/MainConverter/ImageConverter.tsx
 
 "use client";
 
@@ -9,19 +6,17 @@ import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { DragDropZone } from "@/components/Shared/DragDropZone";
 import { UrlUploadModal } from "@/components/Shared/UrlUploadModal";
-import { FileSettingsPanel } from "./FileSettingsPanel";
+import { FileSettingsPanel } from "@/components/Shared/FileSettingsPanel";
 import { SessionFilesDisplay } from "@/components/Shared/SessionFilesDisplay";
 import { TOOL_CONFIGS, detectFormatFromFilename } from "@/config/tool.config";
 import { Spinner } from "@/components/Layouts/Spinner";
 import { TrashSvg } from "@/components/Svg/CommonSvg";
-import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 import { useImageConverter } from "@/hooks/imageHooks/useImageConverter.hook";
 import type { OutputFormat } from "@/services/imageService/types";
 
 const ImageConverter = () => {
   const router = useRouter();
   const config = TOOL_CONFIGS.converter;
-  const isDark = useDarkMode();
   const [urlModalOpen, setUrlModalOpen] = useState(false);
 
   const {
@@ -34,31 +29,36 @@ const ImageConverter = () => {
     updateFileSettings,
     convertAllFiles,
     clearAll,
+    downloadFile,
   } = useImageConverter();
 
   // ============================================================================
-  // FILE HANDLING
+  // FILE HANDLING WITH SMART REDIRECT
   // ============================================================================
   const handleFilesSelected = useCallback(
     async (newFiles: File[]) => {
+      // Detect formats from filenames
+      const formats = newFiles.map((f) => detectFormatFromFilename(f.name));
+      const uniqueFormats = [...new Set(formats.filter(Boolean))];
+
+      // SMART REDIRECT LOGIC
+      // If all files are same format AND ≤5 files → redirect to dynamic converter
+      if (uniqueFormats.length === 1 && newFiles.length <= 5) {
+        const inputFormat = uniqueFormats[0];
+        const outputFormat = config.defaultSettings.format as string;
+        
+        if (inputFormat && outputFormat) {
+          router.push(`/image/image-converter/${inputFormat}-to-${outputFormat}`);
+          return;
+        }
+      }
+
+      // Otherwise, stay on main page and add files normally
       await addFiles(
         newFiles,
         config.defaultSettings.format as OutputFormat,
         config.defaultSettings.quality as number
       );
-
-      // Check if all files have same format
-      const allFormats = newFiles.map((f) => detectFormatFromFilename(f.name));
-      const uniqueFormats = [...new Set(allFormats.filter(Boolean))];
-
-      // If all files same format and converting to same format -> redirect
-      if (uniqueFormats.length === 1 && newFiles.length <= 5) {
-        const inputFormat = uniqueFormats[0];
-        const outputFormat = config.defaultSettings.format;
-        if (inputFormat && outputFormat) {
-          router.push(`/image/image-converter/${inputFormat}-to-${outputFormat}`);
-        }
-      }
     },
     [addFiles, config, router]
   );
@@ -127,7 +127,7 @@ const ImageConverter = () => {
                 config={config}
                 onUpdateSettings={(settings) => updateFileSettings(file.id, settings)}
                 onRemove={() => removeFile(file.id)}
-                onDownload={() => {}}
+                onDownload={() => downloadFile(file.id)}
               />
             ))}
           </div>
