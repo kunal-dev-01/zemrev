@@ -6,7 +6,7 @@ import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { DragDropZone } from "@/components/Shared/DragDropZone";
 import { UrlUploadModal } from "@/components/Shared/UrlUploadModal";
-import { FileSettingsPanel } from "@/components/Shared/FileSettingsPanel";
+import { ConverterFilePanel } from "../Settings/ConverterFilePanel";
 import { SessionFilesDisplay } from "@/components/Shared/SessionFilesDisplay";
 import { TOOL_CONFIGS, detectFormatFromFilename } from "@/config/tool.config";
 import { Spinner } from "@/components/Layouts/Spinner";
@@ -120,7 +120,7 @@ const ImageConverter = () => {
           {/* File List */}
           <div className="space-y-4">
             {files.map((file) => (
-              <FileSettingsPanel
+              <ConverterFilePanel
                 key={file.id}
                 file={file}
                 config={config}
