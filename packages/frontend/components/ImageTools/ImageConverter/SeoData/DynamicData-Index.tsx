@@ -1,5 +1,5 @@
 // ============================================================================
-// FILE: DynamicData-Index.tsx
+// FILE: /ImageConverter/SeoData/DynamicData-Index.tsx
 // PURPOSE: Main index file that combines all dynamic data parts
 // ============================================================================
 
