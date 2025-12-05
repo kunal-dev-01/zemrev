@@ -1,21 +1,18 @@
-// ============================================================================
-// FILE: src/components/ImageTools/ImageConverter/ConverterDynamicTool.tsx
-// PURPOSE: Single-file converter for dynamic routes
-// ============================================================================
+// imageConverter/Dynamicconverter/DynamicConverter.tsx
 
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { DragDropZone } from "@/components/Shared/DragDropZone";
 import { UrlUploadModal } from "@/components/Shared/UrlUploadModal";
-import { useConvertImageMutation } from "@/services/imageService/image.api";
-import { sessionStorageUtils } from "@/utils/sessionStorage.utils";
-import { extractApiErrorMessage } from "@/utils/errorExtract.utils";
-import { TOOL_CONFIGS, getOutputFilename } from "@/config/tool.config";
+import { FileSettingsPanel } from "@/components/Shared/FileSettingsPanel";
+import { SessionFilesDisplay } from "@/components/Shared/SessionFilesDisplay";
+import { TOOL_CONFIGS, detectFormatFromFilename } from "@/config/tool.config";
 import { Spinner } from "@/components/Layouts/Spinner";
+import { TrashSvg } from "@/components/Svg/CommonSvg";
+import { useImageConverter } from "@/hooks/imageHooks/useImageConverter.hook";
 import type { OutputFormat } from "@/services/imageService/types";
-import { CheckSvg, DownloadSvg, ErrorSvg } from "@/components/Svg/CommonSvg";
-import { RotateSvg, SettingsSvg } from "@/components/Svg/ToolsSvg";
 
 interface ConverterDynamicToolProps {
   inputFormat: string;
@@ -26,237 +23,158 @@ const ConverterDynamicTool = ({
   inputFormat,
   outputFormat,
 }: ConverterDynamicToolProps) => {
+  const router = useRouter();
   const config = TOOL_CONFIGS.converter;
-  
-  const [file, setFile] = useState<File | null>(null);
-  const [quality, setQuality] = useState(75);
-  const [converting, setConverting] = useState(false);
-  const [resultBlob, setResultBlob] = useState<Blob | null>(null);
-  const [resultName, setResultName] = useState("");
-  const [error, setError] = useState("");
   const [urlModalOpen, setUrlModalOpen] = useState(false);
 
-  const [convertImage] = useConvertImageMutation();
-
-  const showQualitySlider = ["jpeg", "jpg", "webp", "avif"].includes(outputFormat);
-
-  // ============================================================================
-  // FILE HANDLING
-  // ============================================================================
-
-  const handleFileSelect = useCallback((files: File[]) => {
-    if (files.length > 0) {
-      setFile(files[0]);
-      setResultBlob(null);
-      setError("");
-    }
-  }, []);
-
-  const handleUrlUpload = useCallback(async (url: string) => {
-    // Create fake file for URL
-    const fakeFile = new File([], "url-image", { type: "image/jpeg" });
-    setFile(fakeFile);
-    setResultBlob(null);
-    setError("");
-  }, []);
-
-  const handleReset = useCallback(() => {
-    setFile(null);
-    setResultBlob(null);
-    setError("");
-    setQuality(75);
-  }, []);
+  const {
+    files,
+    converting,
+    stats,
+    addFiles,
+    addFromUrl,
+    removeFile,
+    updateFileSettings,
+    convertAllFiles,
+    clearAll,
+    downloadFile,
+  } = useImageConverter();
 
   // ============================================================================
-  // CONVERSION
+  // FILE HANDLING WITH SMART REDIRECT
   // ============================================================================
+  const handleFilesSelected = useCallback(
+    async (newFiles: File[]) => {
+      // Detect formats from filenames
+      const formats = newFiles.map((f) => detectFormatFromFilename(f.name));
+      const uniqueFormats = [...new Set(formats.filter(Boolean))];
 
-  const handleConvert = useCallback(async () => {
-    if (!file) return;
-
-    setConverting(true);
-    setError("");
-
-    try {
-      const blob = await convertImage({
-        file,
-        options: {
-          format: outputFormat as OutputFormat,
-          quality,
-        },
-      }).unwrap();
-
-      const outputName = getOutputFilename(file.name, outputFormat);
+      // REDIRECT LOGIC FOR DYNAMIC PAGE:
       
-      // Save to session storage
-      await sessionStorageUtils.saveFile(blob, outputName, "converter");
+      // 1. If mixed formats uploaded → Go to main converter
+      if (uniqueFormats.length > 1) {
+        router.push('/image/image-converter');
+        return;
+      }
 
-      setResultBlob(blob);
-      setResultName(outputName);
-    } catch (err) {
-      setError(extractApiErrorMessage(err));
-    } finally {
-      setConverting(false);
-    }
-  }, [file, outputFormat, quality, convertImage]);
+      // 2. If uploaded format ≠ expected inputFormat → Go to main converter
+      const uploadedFormat = uniqueFormats[0];
+      if (uploadedFormat !== inputFormat) {
+        router.push('/image/image-converter');
+        return;
+      }
+
+      // 3. If user already has files with different output formats → Go to main converter
+      const existingOutputFormats = files.map(f => f.settings.format);
+      const uniqueOutputs = [...new Set([...existingOutputFormats, outputFormat])];
+      
+      if (uniqueOutputs.length > 1) {
+        router.push('/image/image-converter');
+        return;
+      }
+
+      // Otherwise, add files to dynamic converter (same input format, same output)
+      await addFiles(
+        newFiles,
+        outputFormat as OutputFormat,
+        config.defaultSettings.quality as number
+      );
+    },
+    [addFiles, config, router, inputFormat, outputFormat, files]
+  );
+
+  const handleUrlUpload = useCallback(
+    async (url: string) => {
+      await addFromUrl(
+        url,
+        outputFormat as OutputFormat,
+        config.defaultSettings.quality as number
+      );
+    },
+    [addFromUrl, outputFormat, config]
+  );
 
   // ============================================================================
-  // DOWNLOAD
+  // COMPUTED
   // ============================================================================
-
-  const handleDownload = useCallback(() => {
-    if (!resultBlob || !resultName) return;
-
-    const url = URL.createObjectURL(resultBlob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = resultName;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }, [resultBlob, resultName]);
-
-  // ============================================================================
-  // AUTO-CONVERT ON FILE SELECT
-  // ============================================================================
-
-  useEffect(() => {
-    if (file && !resultBlob) {
-      handleConvert();
-    }
-  }, [file]); // eslint-disable-line
+  const canConvert = stats.pending > 0 && !converting;
+  const canAddMore = files.length < config.maxFiles;
 
   // ============================================================================
   // RENDER
   // ============================================================================
-
   return (
-    <div className="w-full">
-      {/* Drag & Drop (shown when no file) */}
-      {!file && (
-        <DragDropZone
-          config={config}
-          onFilesSelected={handleFileSelect}
-          onUrlUpload={() => setUrlModalOpen(true)}
-          currentFileCount={0}
-        />
-      )}
+    <div className="w-full space-y-6">
+      {/* Always Show Drag Drop Zone */}
+      <DragDropZone
+        config={config}
+        onFilesSelected={handleFilesSelected}
+        onUrlUpload={() => setUrlModalOpen(true)}
+        currentFileCount={files.length}
+        disabled={!canAddMore}
+      />
 
-      {/* File Processing Area */}
-      {file && (
-        <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 p-6">
-          {/* File Info */}
+      {/* Pending Files Panel */}
+      {files.length > 0 && (
+        <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3">
+          {/* Header */}
           <div className="flex items-center justify-between mb-6">
-            <div>
-              <h3 className="text-lg font-semibold text-zinc-800 dark:text-zinc-200">
-                {file.name}
-              </h3>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1">
+            <div className="flex items-center gap-2 dark:bg-zinc-900 bg-zinc-50 border border-zinc-200 dark:border-zinc-800 rounded-full px-4 py-1.5">
+              <p className="text-sm text-zinc-600 dark:text-zinc-400">
                 Converting {inputFormat.toUpperCase()} → {outputFormat.toUpperCase()}
+                {stats.pending > 0 && ` • ${stats.pending} pending`}
+                {stats.processing > 0 && ` • ${stats.processing} processing`}
+                {stats.error > 0 && ` • ${stats.error} failed`}
               </p>
             </div>
 
             <button
-              onClick={handleReset}
-              className="px-4 py-1.5 flex items-center gap-2 rounded-lg font-medium border border-zinc-100 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-900"
+              onClick={clearAll}
+              className="px-4 py-1.5 rounded-full font-medium text-red-600 bg-red-50 dark:bg-red-900/40 flex items-center gap-2 hover:bg-red-100 dark:hover:bg-red-900/60 transition-all"
             >
-              <div className="w-5 h-5">
-                <RotateSvg/>
-              </div>
-              Change File
+              <span className="w-5 h-5">
+                <TrashSvg />
+              </span>
+              <span className="md:block hidden">Clear All</span>
             </button>
           </div>
 
-          {/* Quality Settings */}
-          {showQualitySlider && !resultBlob && (
-            <div className="mb-6 p-4 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-5 h-5 text-zinc-600 dark:text-zinc-400">
-                    <SettingsSvg/>
-                </div>
-                <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                  Quality: {quality}%
-                </label>
-              </div>
-              <input
-                type="range"
-                min="1"
-                max="100"
-                value={quality}
-                onChange={(e) => setQuality(parseInt(e.target.value))}
-                disabled={converting}
-                className="w-full"
-                style={{ accentColor: config.primaryColor }}
+          {/* File List */}
+          <div className="space-y-4">
+            {files.map((file) => (
+              <FileSettingsPanel
+                key={file.id}
+                file={file}
+                config={config}
+                onUpdateSettings={(settings) => updateFileSettings(file.id, settings)}
+                onRemove={() => removeFile(file.id)}
+                onDownload={() => downloadFile(file.id)}
               />
-            </div>
-          )}
+            ))}
+          </div>
 
-          {/* Converting State */}
-          {converting && (
-            <div className="flex flex-col items-center justify-center py-12">
-              <div className="w-6 h-6" style={{ color: config.primaryColor }}>
-                <Spinner/>
-              </div>
-              <p className="text-lg font-medium text-zinc-800 dark:text-zinc-200">
-                Converting your image...
-              </p>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-2">
-                This may take a few seconds
-              </p>
-            </div>
-          )}
-
-          {/* Error State */}
-          {error && (
-            <div className="flex items-start gap-3 p-4 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-              <div className="w-5 h-5 text-red-400 dark:text-red-500 shrink-0">
-                <ErrorSvg/>
-              </div>
-              <div className="flex-1">
-                <h4 className="font-medium text-red-800 dark:text-red-200 mb-1">
-                  Conversion Failed
-                </h4>
-                <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-              </div>
-            </div>
-          )}
-
-          {/* Success State */}
-          {resultBlob && !converting && (
-            <div className="space-y-4">
-              <div className="p-6 rounded-lg dark:bg-zinc-900 bg-zinc-50 text-center">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-emerald-400">
-                  <CheckSvg/>
-                </div>
-                <h3 className="text-lg font-semibold text-green-800 dark:text-green-200 mb-2">
-                  Conversion Successful!
-                </h3>
-                <p className="text-sm text-green-600 dark:text-green-400 mb-4">
-                  {resultName}
-                </p>
-                <button
-                  onClick={handleDownload}
-                  className="px-8 py-1.5 flex items-center gap-2 mx-auto rounded-lg font-semibold text-white text-lg "
-                  style={{ backgroundColor: config.primaryColor }}
-                >
-                  <div className="w-5 h-5">
-                    <DownloadSvg/>
-                  </div>
-                  Download File
-                </button>
-              </div>
-
-              <button
-                onClick={handleReset}
-                className="w-full px-4 py-2 rounded-lg font-medium border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-900 cursor-pointer"
-              >
-                Convert Another File
-              </button>
-            </div>
+          {/* Convert All Button */}
+          {canConvert && (
+            <button
+              onClick={convertAllFiles}
+              disabled={converting}
+              className="w-full mt-6 px-6 md:py-2 py-1.5 rounded-lg font-semibold text-white text-lg transition-all disabled:opacity-50 flex items-center justify-center gap-3"
+              style={{ backgroundColor: config.primaryColor }}
+            >
+              {converting ? (
+                <>
+                  <Spinner /> Converting...
+                </>
+              ) : (
+                `Convert ${stats.pending} File${stats.pending !== 1 ? "s" : ""}`
+              )}
+            </button>
           )}
         </div>
       )}
+
+      {/* Session Files Display (Completed) */}
+      <SessionFilesDisplay toolType="converter" config={config} />
 
       {/* URL Upload Modal */}
       <UrlUploadModal
