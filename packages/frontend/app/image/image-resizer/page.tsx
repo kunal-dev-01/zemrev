@@ -4,8 +4,8 @@ import type { Metadata } from "next";
 import {
   resizerMetadata,
   resizerContent,
-} from "@/components/ImageTools/ImageResizer/Blog";
-import ToolWrapper from "@/components/ImageTools/ImageResizer/ToolWrapper";
+} from "@/components/ImageTools/ImageResizer/SeoData/Blog";
+import ToolWrapper from "@/components/ImageTools/ImageResizer/MainResizer/Index";
 
 export const metadata: Metadata = {
   title: resizerMetadata.title,

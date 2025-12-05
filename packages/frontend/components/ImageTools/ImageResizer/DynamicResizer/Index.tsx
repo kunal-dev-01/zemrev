@@ -1,0 +1,1 @@
+// ImageResizer/DynamicResizer/Index.tsx

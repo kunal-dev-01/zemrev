@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import {
   cropperMetadata,
   cropperContent,
-} from "@/components/ImageTools/ImageCropper/Blog";
+} from "@/components/ImageTools/ImageCropper/SeoData/Blog";
 import ToolWrapper from "@/components/ImageTools/ImageOptimizer/MainOptimizer/Index";
 
 export const metadata: Metadata = {

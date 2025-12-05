@@ -1,0 +1,1 @@
+// ImageResizer/SeoData/DynamicData-Index.tsx

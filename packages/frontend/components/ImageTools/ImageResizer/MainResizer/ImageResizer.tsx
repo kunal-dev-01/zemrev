@@ -1,4 +1,4 @@
-import React from 'react'
+// ImageResizer/MainResizer/ImageResizer.tsx
 
 const ImageResizer = () => {
   return (

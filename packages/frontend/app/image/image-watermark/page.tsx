@@ -4,8 +4,8 @@ import type { Metadata } from "next";
 import {
   watermarkMetadata,
   watermarkContent,
-} from "@/components/ImageTools/ImageWatermark/Blog";
-import ToolWrapper from "@/components/ImageTools/ImageWatermark/ToolWrapper";
+} from "@/components/ImageTools/ImageWatermark/SeoData/Blog";
+import ToolWrapper from "@/components/ImageTools/ImageWatermark/MainWatermark/Index";
 
 export const metadata: Metadata = {
   title: watermarkMetadata.title,

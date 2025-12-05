@@ -1,13 +1,15 @@
+// imageResizer/MainResizer/Index.tsx
+
 "use client";
 
+import ToolLoader from "@/components/Layouts/ToolLoader";
 import dynamic from "next/dynamic";
-import Skeleton from "@/components/Layouts/Skeleton";
 
 const Index = dynamic(
-  () => import("./ImageWatermark"),
+  () => import("./ImageResizer"),
   {
     ssr: false,
-    loading: () => <Skeleton height="" />,
+    loading: () => <ToolLoader className="w-8 h-8 text-[#6366f1]" />,
   }
 );
 

@@ -1,5 +1,5 @@
 // ============================================================================
-// IMAGE RESIZER - Dimension-specific resizing
+// ImageResizer/SeoData/DynamicData.tsx
 // ============================================================================
 export const resizerDynamicData = {
   "resize-image-to-200x200": {

@@ -244,7 +244,7 @@ export const ConverterFilePanel = ({
                   {/* Quality Dropdown */}
                   {isQualityOpen && (
                     <div className="absolute z-10 w-full mt-1 p-2 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg">
-                      <div className="space-y-1 grid grid-cols-3 gap-1">
+                      <div className="space-y-1 grid grid-cols-2 gap-1">
                         {qualityOptions.map((option) => (
                           <button
                             key={option.value}

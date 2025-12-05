@@ -1,13 +1,13 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import Skeleton from "@/components/Layouts/Skeleton";
+import ToolLoader from "@/components/Layouts/ToolLoader";
 
 const Index = dynamic(
-  () => import("./ImageResizer"),
+  () => import("./ImageCropper"),
   {
     ssr: false,
-    loading: () => <Skeleton height="" />,
+    loading: () => <ToolLoader className="w-8 h-8 text-[#f59e0b]" />,
   }
 );
 
