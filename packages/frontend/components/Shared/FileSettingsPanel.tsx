@@ -1,3 +1,5 @@
+// components/Shared/FileSettingsPanel.tsx (REUSABLE FOR ALL TOOLS)
+
 "use client";
 
 import { Spinner } from "@/components/Layouts/Spinner";
@@ -115,7 +117,10 @@ export const FileSettingsPanel = ({
   const isProcessing = file.status === "processing";
   const isCompleted = file.status === "completed";
   const isError = file.status === "error";
-  const showQuality = ["jpeg", "jpg", "webp", "avif"].includes(file.settings.format!);
+  
+  // Show format & quality settings only for converter tool
+  const showFormatSettings = config.type === "converter";
+  const showQuality = showFormatSettings && ["jpeg", "jpg", "webp", "avif"].includes(file.settings.format!);
 
   const truncateFileName = (name: string, maxLength: number = 30) => {
     if (name.length <= maxLength) return name;
@@ -127,7 +132,7 @@ export const FileSettingsPanel = ({
 
   return (
     <div className="dark:bg-zinc-900 bg-white border border-zinc-200 dark:border-zinc-800 rounded-lg p-3 sm:p-4 transition-all duration-200">
-      {/* Header Section - File Icon, Name, Status, Remove Button */}
+      {/* Header Section */}
       <div className="flex items-start gap-3">
         {/* File Icon */}
         <div
@@ -152,26 +157,23 @@ export const FileSettingsPanel = ({
         </div>
 
         {/* Status Badge */}
-        <div
-          className="flex items-center justify-center gap-3"
-        >
+        <div className="flex items-center justify-center gap-3">
           <div className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${status.bg} ${status.color}`}>
             {status.icon}
-          <span>{status.text}</span>
+            <span>{status.text}</span>
           </div>
 
-                  {/* Remove Button */}
-        {!isProcessing && (
-          <button
-            onClick={onRemove}
-            className="text-zinc-700 w-5 h-5 dark:text-zinc-300 shrink-0 cursor-pointer"
-            aria-label="Remove file"
-          >
+          {/* Remove Button */}
+          {!isProcessing && (
+            <button
+              onClick={onRemove}
+              className="text-zinc-700 w-5 h-5 dark:text-zinc-300 shrink-0 cursor-pointer"
+              aria-label="Remove file"
+            >
               <CancelSvg />
-          </button>
-        )}
+            </button>
+          )}
         </div>
-
       </div>
 
       {/* ERROR MESSAGE */}
@@ -181,8 +183,8 @@ export const FileSettingsPanel = ({
         </div>
       )}
 
-      {/* SETTINGS SECTION */}
-      {file.status === "pending" && (
+      {/* SETTINGS SECTION (Only for pending files) */}
+      {file.status === "pending" && showFormatSettings && (
         <div className="mt-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {/* Format Selector */}
@@ -286,7 +288,7 @@ export const FileSettingsPanel = ({
         </div>
       )}
 
-      {/* RESULT SECTION */}
+      {/* RESULT SECTION (Only for completed files) */}
       {isCompleted && file.resultName && (
         <div className="mt-3 p-2 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
