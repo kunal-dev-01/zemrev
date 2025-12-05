@@ -5,7 +5,7 @@ import {
   cropperMetadata,
   cropperContent,
 } from "@/components/ImageTools/ImageCropper/Blog";
-import ToolWrapper from "@/components/ImageTools/ImageOptimizer/ToolWrapper";
+import ToolWrapper from "@/components/ImageTools/ImageOptimizer/MainOptimizer/Index";
 
 export const metadata: Metadata = {
   title: cropperMetadata.title,

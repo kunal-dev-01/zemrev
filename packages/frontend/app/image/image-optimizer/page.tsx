@@ -1,8 +1,8 @@
 // app/image/image-optimizer/page.tsx
 
 import type { Metadata } from "next";
-import {optimizerMetadata, optimizerContent} from "@/components/ImageTools/ImageOptimizer/Blog";
-import ToolWrapper from "@/components/ImageTools/ImageCropper/ToolWrapper";
+import {optimizerMetadata, optimizerContent} from "@/components/ImageTools/ImageOptimizer/SeoData/Blog";
+import Index from "@/components/ImageTools/ImageOptimizer/MainOptimizer/Index";
 
 export const metadata: Metadata = {
   title: optimizerMetadata.title,
@@ -19,7 +19,7 @@ const ImageOptimizer = () => {
       </h1>
 
       {/* Tool */}
-      <ToolWrapper />
+      <Index />
 
       {/* Blog Section */}
       <div className="w-full border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 p-2 md:p-6 md:mt-[1vw] mt-[1vh]">
