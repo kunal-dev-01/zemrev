@@ -1,7 +1,4 @@
-// ============================================================================
-// FILE: src/hooks/imageHooks/useImageConverter.hook.ts
-// PURPOSE: Production-ready Image Converter with pending + session storage
-// ============================================================================
+// hooks/imageHooks/useImageConverter.hook.ts (NO DUPLICATES IN SESSION)
 
 import { useState, useCallback, useEffect } from "react";
 import { useConvertImageMutation } from "@/services/imageService/image.api";
@@ -110,7 +107,7 @@ export const useImageConverter = () => {
   }, []);
 
   // ============================================================================
-  // CONVERT SINGLE FILE
+  // CONVERT SINGLE FILE (Saves to session storage, removes from pending)
   // ============================================================================
   const convertSingleFile = useCallback(
     async (file: ProcessedFile) => {
@@ -129,13 +126,13 @@ export const useImageConverter = () => {
 
         const outputName = getOutputFilename(file.name, file.settings.format as OutputFormat);
 
-        // Save to session storage
+        // Save to session storage (ONLY ONCE)
         await sessionStorageUtils.saveFile(blob, outputName, "converter");
 
         // Delete from pending storage
         await pendingStorage.delete("converter", file.id);
 
-        // Remove from state (completed files only in session panel)
+        // Remove from state (completed files only in SessionFilesDisplay)
         setFiles((prev) => prev.filter((f) => f.id !== file.id));
 
         return { success: true, blob, name: outputName };
