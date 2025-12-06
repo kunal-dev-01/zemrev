@@ -1,7 +1,7 @@
 """
 ============================================================================
-FILE: app/services/queue_worker.py
-PURPOSE: Background workers for processing jobs
+FILE: services/image-service/app/services/queue_worker.py
+PURPOSE: Background workers (uses shared queue package)
 ============================================================================
 """
 
@@ -9,7 +9,11 @@ import asyncio
 import time
 import logging
 from typing import Dict, Any
-from app.services.queue_manager import queue_manager
+
+# Import shared queue package
+from zemrev_queue import queue_manager
+
+# Import service-specific processors
 from app.services.converter import converter
 from app.services.compressor import compressor
 from app.services.resizer import resizer

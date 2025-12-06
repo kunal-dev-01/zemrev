@@ -1,7 +1,7 @@
 """
 ============================================================================
-FILE: app/main.py
-PURPOSE: FastAPI application with lifespan management
+FILE: services/image-service/app/main.py
+PURPOSE: Image Service FastAPI app (uses shared queue package)
 ============================================================================
 """
 
@@ -10,9 +10,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import logging
 from app.core.config import settings
-from app.core.redis_client import redis_client
-from app.services.queue_worker import worker_manager
 from app.api.routes.image_routes import router
+from app.services.queue_worker import worker_manager
+
+# Import shared queue package
+from zemrev_queue import redis_client
 
 # ============================================================================
 # LOGGING
@@ -32,13 +34,9 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     """Startup and shutdown"""
     
-    # ========================================================================
-    # STARTUP
-    # ========================================================================
+    logger.info("🚀 Starting ZEMREV Image Service...")
     
-    logger.info("🚀 Starting ZEMREV Image API...")
-    
-    # Connect Redis
+    # Connect to shared Redis queue
     try:
         await redis_client.connect()
     except Exception as e:
@@ -50,23 +48,18 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.error(f"❌ Workers failed: {e}")
     
-    logger.info("✅ Startup complete")
+    logger.info("✅ Image Service ready")
     
     yield
     
-    # ========================================================================
-    # SHUTDOWN
-    # ========================================================================
-    
+    # Shutdown
     logger.info("🔴 Shutting down...")
     
-    # Stop workers
     try:
         await worker_manager.stop_workers()
     except Exception as e:
         logger.error(f"❌ Worker shutdown error: {e}")
     
-    # Disconnect Redis
     await redis_client.disconnect()
     
     logger.info("🔴 Shutdown complete")
@@ -77,7 +70,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="ZEMREV Image API",
-    description="Ultra-fast PyVIPS-only image processing with HEIC support",
+    description="Ultra-fast PyVIPS image processing with HEIC support",
     version="1.0.0",
     lifespan=lifespan
 )
@@ -112,7 +105,8 @@ async def root():
         "service": "ZEMREV Image API",
         "version": "1.0.0",
         "status": "operational",
-        "engine": "PyVIPS (HEIC/HEIF supported)",
+        "engine": "PyVIPS",
+        "formats": ["JPEG", "PNG", "WebP", "AVIF", "HEIC", "HEIF", "TIFF"],
         "tools": [
             "convert",
             "compress",
@@ -143,7 +137,7 @@ async def health():
     except:
         redis_status = False
     
-    from app.services.queue_manager import queue_manager
+    from zemrev_queue import queue_manager
     queue_size = await queue_manager.get_queue_size()
     
     return {

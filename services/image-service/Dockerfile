@@ -1,6 +1,6 @@
 # ============================================================================
 # FILE: services/image-service/Dockerfile
-# PURPOSE: Production build with FULL AVIF/HEIC encoding support
+# PURPOSE: Production with shared package support
 # ============================================================================
 
 # ============================================================================
@@ -28,7 +28,6 @@ RUN wget https://github.com/strukturag/libheif/releases/download/v1.17.6/libheif
 
 FROM python:3.11-slim AS libvips-builder
 
-# Copy libheif from previous stage
 COPY --from=libheif-builder /usr/local /usr/local
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -49,24 +48,15 @@ RUN wget https://github.com/libvips/libvips/releases/download/v8.15.1/vips-8.15.
     cd build && ninja && ninja install && ldconfig
 
 # ============================================================================
-# STAGE 3: PYTHON BUILDER
+# STAGE 3: PYTHON BUILDER (Install shared package + dependencies)
 # ============================================================================
 
 FROM python:3.11-slim AS python-builder
 
-# Copy libheif + libvips
 COPY --from=libvips-builder /usr/local /usr/local
 
-# Install runtime libs for building pyvips
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    pkg-config gcc \
-    libaom3 libx265-209 libde265-0 \
-    libjpeg62-turbo libpng16-16 libwebp7 libtiff6 libgif7 \
-    librsvg2-2 libfreetype6 libfribidi0 libharfbuzz0b \
-    liblcms2-2 libopenjp2-7 zlib1g \
-    && rm -rf /var/lib/apt/lists/* || \
-    apt-get update && apt-get install -y --no-install-recommends \
-    pkg-config gcc \
+    pkg-config gcc git \
     libaom3 libde265-0 \
     libjpeg62-turbo libpng16-16 libwebp7 libtiff6 libgif7 \
     librsvg2-2 libfreetype6 libfribidi0 libharfbuzz0b \
@@ -75,8 +65,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN ldconfig
 
-# Install Python packages
-COPY requirements.txt .
+# Copy shared package source
+WORKDIR /build
+COPY packages/zemrev-queue ./packages/zemrev-queue
+
+# Install shared package in editable mode
+RUN pip install --no-cache-dir --user -e ./packages/zemrev-queue
+
+# Copy and install service requirements
+COPY services/image-service/requirements.txt ./
 RUN pip install --no-cache-dir --user -r requirements.txt
 
 # ============================================================================
@@ -85,19 +82,10 @@ RUN pip install --no-cache-dir --user -r requirements.txt
 
 FROM python:3.11-slim
 
-# Copy libheif + libvips + Python packages
 COPY --from=python-builder /usr/local /usr/local
 COPY --from=python-builder /root/.local /root/.local
 
-# Install ONLY runtime libraries
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    libaom3 libx265-209 libde265-0 \
-    libjpeg62-turbo libpng16-16 libwebp7 libwebpmux3 libwebpdemux2 \
-    libtiff6 libgif7 librsvg2-2 \
-    libfreetype6 libfribidi0 libharfbuzz0b liblcms2-2 libopenjp2-7 zlib1g \
-    && rm -rf /var/lib/apt/lists/* || \
-    apt-get update && apt-get install -y --no-install-recommends \
     curl \
     libaom3 libde265-0 \
     libjpeg62-turbo libpng16-16 libwebp7 libwebpmux3 libwebpdemux2 \
@@ -109,33 +97,22 @@ RUN ldconfig
 
 ENV PATH=/root/.local/bin:$PATH
 
-# ============================================================================
-# SECURITY: NON-ROOT USER
-# ============================================================================
-
+# Non-root user
 RUN useradd -m -u 1000 appuser && \
     mkdir -p /app && \
     chown -R appuser:appuser /app
 
 WORKDIR /app
 
-# Copy application
-COPY --chown=appuser:appuser . .
+# Copy application code
+COPY --chown=appuser:appuser services/image-service/ .
 
 USER appuser
-
-# ============================================================================
-# EXPOSE & HEALTH
-# ============================================================================
 
 EXPOSE 8000
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
-
-# ============================================================================
-# START COMMAND
-# ============================================================================
 
 CMD ["uvicorn", "app.main:app", \
      "--host", "0.0.0.0", \
