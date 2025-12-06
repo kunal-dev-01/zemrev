@@ -1,7 +1,7 @@
 """
 ============================================================================
 FILE: app/services/resizer.py
-PURPOSE: PyVIPS-only ultra-fast resizer
+PURPOSE: Pure PyVIPS resizer (JPEG, PNG, WebP only for editing)
 ============================================================================
 """
 
@@ -12,105 +12,65 @@ from app.models.schemas import ResizeRequest, ResizeMode
 logger = logging.getLogger(__name__)
 
 class ImageResizer:
-    """PyVIPS-only image resizer"""
+    """Pure PyVIPS resizer"""
     
     @staticmethod
     def resize(content: bytes, filename: str, options: ResizeRequest) -> tuple[bytes, str, tuple[int, int]]:
-        """
-        Resize image using PyVIPS
-        """
+        """Resize image"""
         
         try:
-            # Detect format from filename
             ext = filename.rsplit(".", 1)[-1].lower()
 
-            # ❌ Block formats we cannot resize safely
-            UNSUPPORTED_EDIT = ["heif", "heic", "avif", "tiff", "bmp"]
-            if ext in UNSUPPORTED_EDIT:
-                raise ValueError("This format cannot be resized. Convert to JPG/PNG/WebP first.")
+            # Only web formats can be edited
+            UNSUPPORTED = ["heif", "heic", "avif", "tiff"]
+            if ext in UNSUPPORTED:
+                raise ValueError("Cannot resize HEIF/HEIC/AVIF/TIFF. Convert to JPG/PNG/WebP first.")
 
-            # Load optimized (JPEG → shrink=2)
+            # Load
             if ext in ["jpeg", "jpg"]:
                 img = pyvips.Image.new_from_buffer(content, "", access="sequential", shrink=2)
             else:
                 img = pyvips.Image.new_from_buffer(content, "", access="sequential")
             
-            original_width = img.width
-            original_height = img.height
-            
-            # Calculate final width & height
             target_width, target_height = ImageResizer._calculate_dimensions(
-                original_width, original_height, options
+                img.width, img.height, options
             )
             
-            # Resize logic based on mode
+            # Resize by mode
             if options.mode == ResizeMode.CONTAIN:
-                resized = img.thumbnail_image(
-                    target_width,
-                    height=target_height,
-                    size=pyvips.Size.DOWN
-                )
+                resized = img.thumbnail_image(target_width, height=target_height, size=pyvips.Size.DOWN)
             
             elif options.mode == ResizeMode.COVER:
                 resized = img.thumbnail_image(
-                    target_width,
-                    height=target_height,
-                    size=pyvips.Size.BOTH,
-                    crop=pyvips.Interesting.ATTENTION
+                    target_width, height=target_height,
+                    size=pyvips.Size.BOTH, crop=pyvips.Interesting.ATTENTION
                 )
             
             elif options.mode in [ResizeMode.STRETCH, ResizeMode.EXACT]:
-                scale_w = target_width / original_width
-                scale_h = target_height / original_height
+                scale_w = target_width / img.width
+                scale_h = target_height / img.height
                 resized = img.resize(scale_w, vscale=scale_h)
             
             else:
-                raise ValueError(f"Unknown resize mode: {options.mode}")
+                raise ValueError(f"Unknown mode: {options.mode}")
             
-            # Determine output format
+            # Output format
             target_fmt = options.format.value if options.format else ImageResizer._detect_format(filename)
             
-            # Save based on format
+            # Save
             if target_fmt in ["jpeg", "jpg"]:
-                output = resized.jpegsave_buffer(
-                    Q=85,
-                    strip=True,
-                    optimize_coding=True
-                )
-
+                output = resized.jpegsave_buffer(Q=85, strip=True, optimize_coding=True)
+            
             elif target_fmt == "png":
-                output = resized.pngsave_buffer(
-                    compression=9,
-                    strip=True
-                )
-
+                output = resized.pngsave_buffer(compression=9, strip=True)
+            
             elif target_fmt == "webp":
-                output = resized.webpsave_buffer(
-                    Q=85,
-                    strip=True
-                )
-
-            elif target_fmt == "avif":
-                # Only if user forces AVIF output
-                try:
-                    output = resized.heifsave_buffer(
-                        Q=50,
-                        compression="av1",
-                        speed=8,
-                        strip=True
-                    )
-                except Exception:
-                    output = resized.heifsave_buffer(
-                        Q=50,
-                        speed=8,
-                        strip=True
-                    )
-
+                output = resized.webpsave_buffer(Q=85, strip=True)
+            
             else:
                 output = resized.write_to_buffer(f".{target_fmt}")
             
             logger.info(f"Resized {filename} to {resized.width}x{resized.height}")
-            
             return output, filename, (resized.width, resized.height)
         
         except Exception as e:
@@ -119,27 +79,20 @@ class ImageResizer:
     
     @staticmethod
     def _calculate_dimensions(orig_w: int, orig_h: int, options: ResizeRequest) -> tuple[int, int]:
-        """Calculate target dimensions"""
-        
         if options.width and options.height:
             return options.width, options.height
-        
         elif options.width:
             scale = options.width / orig_w
             return options.width, int(orig_h * scale)
-        
         elif options.height:
             scale = options.height / orig_h
             return int(orig_w * scale), options.height
-        
         else:
             raise ValueError("Width or height required")
     
     @staticmethod
     def _detect_format(filename: str) -> str:
-        """Detect format from filename"""
         ext = filename.rsplit(".", 1)[-1].lower()
         return "jpeg" if ext == "jpg" else ext
-
 
 resizer = ImageResizer()
