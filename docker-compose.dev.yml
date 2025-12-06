@@ -1,36 +1,91 @@
 # ============================================================================
-# FILE: docker-compose.dev.yml (ROOT)
-# PURPOSE: Development environment with hot-reload
+# FILE: docker-compose.dev.yml
+# PURPOSE: Development - All services locally
 # ============================================================================
 
 version: '3.9'
 
 services:
-  redis:
+  # ==========================================================================
+  # SHARED QUEUE (Redis)
+  # ==========================================================================
+  
+  queue:
     image: redis:7-alpine
-    container_name: zemrev_redis_dev
+    container_name: zemrev_queue_dev
     ports:
       - "6379:6379"
     networks:
       - zemrev_dev
     command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
 
-  api:
+  # ==========================================================================
+  # API GATEWAY (Nginx)
+  # ==========================================================================
+  
+  gateway:
+    build:
+      context: ./services/api-gateway
+      dockerfile: Dockerfile
+    container_name: zemrev_gateway_dev
+    ports:
+      - "80:80"
+    depends_on:
+      - image-service
+    networks:
+      - zemrev_dev
+    restart: unless-stopped
+
+  # ==========================================================================
+  # IMAGE SERVICE
+  # ==========================================================================
+  
+  image-service:
     build:
       context: ./services/image-service
       dockerfile: Dockerfile.dev
-    container_name: zemrev_api_dev
+    container_name: zemrev_image_dev
     ports:
-      - "8000:8000"
+      - "8000:8000"  # Direct access for debugging
     env_file:
       - ./services/image-service/.env
+    environment:
+      - REDIS_URL=redis://queue:6379
+      - QUEUE_NAME=zemrev_image_jobs
     volumes:
-      # Mount source code for hot-reload
+      # Hot-reload
       - ./services/image-service/app:/app/app:ro
     depends_on:
-      - redis
+      queue:
+        condition: service_healthy
     networks:
       - zemrev_dev
+
+  # ==========================================================================
+  # PDF SERVICE (Future - commented out)
+  # ==========================================================================
+  
+  # pdf-service:
+  #   build:
+  #     context: ./services/pdf-service
+  #     dockerfile: Dockerfile.dev
+  #   container_name: zemrev_pdf_dev
+  #   ports:
+  #     - "8001:8001"
+  #   env_file:
+  #     - ./services/pdf-service/.env
+  #   environment:
+  #     - REDIS_URL=redis://queue:6379
+  #     - QUEUE_NAME=zemrev_pdf_jobs
+  #   depends_on:
+  #     - queue
+  #   networks:
+  #     - zemrev_dev
 
 networks:
   zemrev_dev:
