@@ -65,15 +65,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN ldconfig
 
-# Copy shared package source
+# Copy shared package (relative to ROOT context)
 WORKDIR /build
 COPY packages/zemrev-queue ./packages/zemrev-queue
-
-# Install shared package in editable mode
 RUN pip install --no-cache-dir --user -e ./packages/zemrev-queue
 
-# Copy and install service requirements
-COPY services/image-service/requirements.txt ./
+# Copy service requirements (relative to ROOT context)
+COPY services/image-service/requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir --user -r requirements.txt
 
 # ============================================================================
@@ -104,7 +102,7 @@ RUN useradd -m -u 1000 appuser && \
 
 WORKDIR /app
 
-# Copy application code
+# Copy application code (relative to ROOT context)
 COPY --chown=appuser:appuser services/image-service/ .
 
 USER appuser

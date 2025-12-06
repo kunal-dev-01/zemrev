@@ -52,8 +52,8 @@ services:
   
   image-service:
     build:
-      context: ./services/image-service
-      dockerfile: Dockerfile.dev
+      context: . 
+      dockerfile: services/image-service/Dockerfile.dev
     container_name: zemrev_image_dev
     ports:
       - "8000:8000"

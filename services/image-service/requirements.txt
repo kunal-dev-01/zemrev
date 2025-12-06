@@ -20,6 +20,3 @@ httpx==0.26.0
 # Validation
 pydantic==2.5.0
 pydantic-settings==2.1.0
-
-# Shared
--e ../../packages/zemrev-queue
