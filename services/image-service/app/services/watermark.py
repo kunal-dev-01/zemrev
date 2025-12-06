@@ -1,7 +1,7 @@
 """
 ============================================================================
 FILE: app/services/watermark.py
-PURPOSE: PyVIPS-only watermark tool (text + image)
+PURPOSE: Pure PyVIPS watermark (JPEG, PNG, WebP only)
 ============================================================================
 """
 
@@ -12,31 +12,27 @@ from app.models.schemas import TextWatermarkRequest, ImageWatermarkRequest, Wate
 logger = logging.getLogger(__name__)
 
 class Watermarker:
-    """PyVIPS-only watermark tool"""
+    """Pure PyVIPS watermark tool"""
     
-    # =====================================================================
-    # TEXT WATERMARK
-    # =====================================================================
     @staticmethod
     def add_text_watermark(content: bytes, filename: str, options: TextWatermarkRequest) -> tuple[bytes, str]:
-        """
-        Add text watermark using PyVIPS
-        """
+        """Add text watermark"""
+        
         try:
             ext = filename.rsplit(".", 1)[-1].lower()
 
-            # ❌ Block unsupported formats
-            UNSUPPORTED = ["heif", "heic", "avif", "tiff", "bmp"]
+            # Only web formats
+            UNSUPPORTED = ["heif", "heic", "avif", "tiff"]
             if ext in UNSUPPORTED:
-                raise ValueError("This format cannot be watermarked. Convert to JPG/PNG/WebP first.")
+                raise ValueError("Cannot watermark HEIF/HEIC/AVIF/TIFF. Convert to JPG/PNG/WebP first.")
 
-            # Load optimized (JPEG → shrink=2)
+            # Load
             if ext in ["jpeg", "jpg"]:
                 img = pyvips.Image.new_from_buffer(content, "", access="sequential", shrink=2)
             else:
                 img = pyvips.Image.new_from_buffer(content, "", access="sequential")
 
-            # Create text layer
+            # Create text
             text = pyvips.Image.text(
                 options.text,
                 font=f"sans {options.font_size}",
@@ -47,14 +43,16 @@ class Watermarker:
             r, g, b = Watermarker._hex_to_rgb(options.color)
             text = (text * [r/255, g/255, b/255]).cast("uchar")
 
-            # Add opacity
+            # Alpha
             alpha = (text[0] * options.opacity).cast("uchar")
             text = text.bandjoin(alpha)
 
-            # Position watermark
-            x, y = Watermarker._calculate_position(img.width, img.height, text.width, text.height, options.position)
+            # Position
+            x, y = Watermarker._calculate_position(
+                img.width, img.height, text.width, text.height, options.position
+            )
 
-            # Ensure base image has alpha
+            # Ensure base has alpha
             if img.bands < 4:
                 img = img.bandjoin(255)
 
@@ -72,54 +70,48 @@ class Watermarker:
             logger.error(f"Text watermark failed: {e}")
             raise ValueError(f"Watermark error: {str(e)}")
 
-    # =====================================================================
-    # IMAGE WATERMARK
-    # =====================================================================
     @staticmethod
-    def add_image_watermark(content: bytes, watermark_content: bytes, filename: str, options: ImageWatermarkRequest) -> tuple[bytes, str]:
-        """
-        Add image watermark using PyVIPS
-        """
+    def add_image_watermark(
+        content: bytes, watermark_content: bytes, filename: str, options: ImageWatermarkRequest
+    ) -> tuple[bytes, str]:
+        """Add image watermark"""
+        
         try:
             ext = filename.rsplit(".", 1)[-1].lower()
 
-            # ❌ Block unsupported formats
-            UNSUPPORTED = ["heif", "heic", "avif", "tiff", "bmp"]
+            # Only web formats
+            UNSUPPORTED = ["heif", "heic", "avif", "tiff"]
             if ext in UNSUPPORTED:
-                raise ValueError("This format cannot be watermarked. Convert to JPG/PNG/WebP first.")
+                raise ValueError("Cannot watermark HEIF/HEIC/AVIF/TIFF. Convert to JPG/PNG/WebP first.")
 
-            # Load base image (JPEG → shrink=2)
+            # Load base
             if ext in ["jpeg", "jpg"]:
                 img = pyvips.Image.new_from_buffer(content, "", access="sequential", shrink=2)
             else:
                 img = pyvips.Image.new_from_buffer(content, "", access="sequential")
 
-            # Load watermark image
+            # Load watermark
             logo = pyvips.Image.new_from_buffer(watermark_content, "", access="sequential")
 
             # Resize watermark
             target_width = int(img.width * options.scale)
             logo = logo.thumbnail_image(target_width, height=9999)
 
-            # Apply opacity correctly
+            # Apply opacity
             if logo.bands < 4:
-                # Create full alpha channel
                 alpha = logo.bandjoin(255)[-1]
             else:
-                # Extract alpha channel
                 alpha = logo[-1]
 
-            # Multiply alpha by opacity factor
             alpha = (alpha * options.opacity).cast("uchar")
-
-            # Rebuild RGBA image
             logo = logo.extract_band(0, n=3).bandjoin(alpha)
 
+            # Position
+            x, y = Watermarker._calculate_position(
+                img.width, img.height, logo.width, logo.height, options.position
+            )
 
-            # Position watermark
-            x, y = Watermarker._calculate_position(img.width, img.height, logo.width, logo.height, options.position)
-
-            # Ensure base image has alpha
+            # Ensure base has alpha
             if img.bands < 4:
                 img = img.bandjoin(255)
 
@@ -137,12 +129,8 @@ class Watermarker:
             logger.error(f"Image watermark failed: {e}")
             raise ValueError(f"Watermark error: {str(e)}")
 
-    # =====================================================================
-    # HELPERS
-    # =====================================================================
     @staticmethod
     def _calculate_position(img_w: int, img_h: int, wm_w: int, wm_h: int, position: WatermarkPosition) -> tuple[int, int]:
-        """Calculate watermark placement"""
         padding = 20
         
         if position == WatermarkPosition.TOP_LEFT:
@@ -160,19 +148,16 @@ class Watermarker:
 
     @staticmethod
     def _hex_to_rgb(hex_color: str) -> tuple[int, int, int]:
-        """Convert HEX to RGB"""
         hex_color = hex_color.lstrip('#')
         return tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
 
     @staticmethod
     def _detect_format(filename: str) -> str:
-        """Detect file extension"""
         ext = filename.rsplit(".", 1)[-1].lower()
         return "jpeg" if ext == "jpg" else ext
 
     @staticmethod
     def _save_image(img: pyvips.Image, fmt: str) -> bytes:
-        """Save image in appropriate format"""
         if fmt in ["jpeg", "jpg"]:
             return img.jpegsave_buffer(Q=85, strip=True)
         if fmt == "png":
@@ -180,6 +165,5 @@ class Watermarker:
         if fmt == "webp":
             return img.webpsave_buffer(Q=85, strip=True)
         return img.write_to_buffer(f".{fmt}")
-
 
 watermarker = Watermarker()
