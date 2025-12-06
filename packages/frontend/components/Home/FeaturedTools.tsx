@@ -236,7 +236,7 @@ const FeaturedTools = () => {
 
       <ToolsGrid
         title="Powerful PDF Tools"
-        subtitle="Compress, merge, split, and convert PDFs effortlessly."
+        subtitle="Effortlessly refine your PDFs with stunning precision."
         tools={pdfTools}
       />
     </section>
