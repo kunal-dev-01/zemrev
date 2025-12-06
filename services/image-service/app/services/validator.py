@@ -18,9 +18,6 @@ class Validator:
         b'\xFF\xD8\xFF': 'image/jpeg',
         b'\x89PNG\r\n\x1a\n': 'image/png',
         b'RIFF': 'image/webp',
-        b'GIF87a': 'image/gif',
-        b'GIF89a': 'image/gif',
-        b'BM': 'image/bmp',
         b'II*\x00': 'image/tiff',
         b'MM\x00*': 'image/tiff',
     }
