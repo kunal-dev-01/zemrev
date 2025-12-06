@@ -6,6 +6,8 @@ import {
   ArrowRightLeft,
   CropSvg,
   Watermark,
+  FilterSvg,
+  ColorPaletteSvg
 } from "@/components/Svg/HomeSvg";
 import { ExtractImagesFromPdfSvg, ExtractTextFromPdfSvg, ImageToPDFSvg, PDFCompressSvg, PDFMergerSvg, PDFOptimizerSvg, PDFSplitterSvg, PDFToCSV, PDFToEPUB, PDFToExcelSvg, PDFToHTMLSvg, PDFToImageSVg, PDFToTextSvg, PDFToWordSvg, PDFWatermarkSvg, RotateImageSvg, SecurePdfSvg, UnlockPdfSvg } from "@/components/Svg/PdfSvg";
 
@@ -57,6 +59,22 @@ const imageTools: ToolItem[] = [
     link: "/image/image-watermark",
     color: "text-violet-500",
     bg: "bg-violet-50 dark:bg-violet-500/10",
+  },
+  {
+    title: "Image Filter",
+    desc: "Apply advanced image filters to enhance your images.",
+    icon: FilterSvg,
+    link: "/image/image-filter",
+    color: "text-purple-500",
+    bg: "bg-purple-50 dark:bg-purple-600/10",
+  },
+  {
+    title: "Image Color Palette",
+    desc: "Extract color palettes from your images for design inspiration.",
+    icon: ColorPaletteSvg,
+    link: "/image/image-color-palette",
+    color: "text-orange-500",
+    bg: "bg-orange-50 dark:bg-orange-500/10",
   },
 ];
 

@@ -101,6 +101,20 @@ export const Watermark = memo(() => (
 
 Watermark.displayName = "Watermark";
 
+// ================= Filter SVG ====================== //
+export const FilterSvg = memo(() => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17.58 9.71a6 6 0 0 0-7.16 3.58m7.16-3.58A6 6 0 1 1 12 19.972M17.58 9.71a6 6 0 1 0-11.16 0m4 3.58A6 6 0 0 0 10 15.5c0 1.777.773 3.374 2 4.472m-1.58-6.682a6.01 6.01 0 0 1-4-3.58m0 0A6 6 0 1 0 12 19.972" color="currentColor"/></svg>
+))
+
+FilterSvg.displayName = "FilterSvg"
+
+// ================= Color Palette SVG ====================== //
+export const ColorPaletteSvg = memo(() => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 14 14" fill="currentColor"><g fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"><path d="M1.5.5h3a1 1 0 0 1 1 1V11A2.5 2.5 0 0 1 3 13.5h0A2.5 2.5 0 0 1 .5 11V1.5a1 1 0 0 1 1-1Z"/><path d="M5.5 5L9 1.48a1 1 0 0 1 1.41 0l2.11 2.12a1 1 0 0 1 0 1.41l-7.75 7.76"/><path d="M9 8.5h3.5a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H3m-2.5-9h5m-5 4h5"/></g></svg>
+))
+
+ColorPaletteSvg.displayName = "ColorPaletteSvg"
+
 // ================= ArrowRightLeft ======================
 export const ArrowRightLeft = memo(() => (
   <svg
