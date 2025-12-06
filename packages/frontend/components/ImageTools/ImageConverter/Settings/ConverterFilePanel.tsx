@@ -33,8 +33,6 @@ export const ConverterFilePanel = ({
     { value: "png", label: "PNG" },
     { value: "webp", label: "WEBP" },
     { value: "avif", label: "AVIF" },
-    { value: "gif", label: "GIF" },
-    { value: "bmp", label: "BMP" },
     { value: "tiff", label: "TIFF" },
     { value: "heic", label: "HEIC" },
     { value: "heif", label: "HEIF" },

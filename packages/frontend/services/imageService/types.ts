@@ -5,7 +5,7 @@
 
 export type OutputFormat = 
   | "jpeg" | "jpg" | "png" | "webp" | "avif" 
-  | "tiff" | "gif" | "bmp" | "heic" | "heif";
+  | "tiff" | "heic" | "heif";
 
 export type ResizeMode = "contain" | "cover" | "stretch" | "exact";
 
