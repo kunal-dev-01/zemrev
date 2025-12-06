@@ -15,8 +15,7 @@ class URLDownloader:
     """Secure image downloader from URLs"""
     
     ALLOWED_TYPES = [
-        "image/jpeg", "image/png", "image/webp", "image/gif",
-        "image/bmp", "image/tiff", "image/avif", "image/heif",
+        "image/jpeg", "image/png", "image/webp", "image/tiff", "image/avif", "image/heif",
         "image/heic"
     ]
     
