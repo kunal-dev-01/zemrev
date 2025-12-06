@@ -116,13 +116,13 @@ async def root():
             "watermark"
         ],
         "endpoints": {
-            "convert": "/api/v1/convert",
-            "compress": "/api/v1/compress",
-            "resize": "/api/v1/resize",
-            "optimize": "/api/v1/optimize",
-            "crop": "/api/v1/crop",
-            "watermark_text": "/api/v1/watermark/text",
-            "watermark_image": "/api/v1/watermark/image",
+            "convert": "/api/v1/image/convert",
+            "compress": "/api/v1/image/compress",
+            "resize": "/api/v1/image/resize",
+            "optimize": "/api/v1/image/optimize",
+            "crop": "/api/v1/image/crop",
+            "watermark_text": "/api/v1/image/watermark/text",
+            "watermark_image": "/api/v1/image/watermark/image",
             "health": "/health",
             "docs": "/docs"
         }
