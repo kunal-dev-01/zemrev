@@ -1,7 +1,7 @@
 """
 ============================================================================
 FILE: app/core/config.py
-PURPOSE: Production-ready configuration
+PURPOSE: Image Service specific configuration
 ============================================================================
 """
 
@@ -10,19 +10,7 @@ from typing import List
 import os
 
 class Settings(BaseSettings):
-    """Application settings"""
-    
-    # Redis
-    REDIS_URL: str = "redis://redis:6379"
-    REDIS_MAX_CONNECTIONS: int = 50
-    REDIS_SOCKET_TIMEOUT: int = 5
-    
-    # Queue
-    QUEUE_NAME: str = "zemrev_jobs"
-    QUEUE_MAX_WORKERS: int = 4
-    QUEUE_MAX_RETRIES: int = 3
-    QUEUE_JOB_TIMEOUT: int = 600  # 10 minutes
-    QUEUE_RESULT_TTL: int = 300   # 5 minutes (auto-delete)
+    """Image Service settings"""
     
     # File limits
     MAX_FILE_SIZE: int = 52428800  # 50MB
@@ -44,6 +32,10 @@ class Settings(BaseSettings):
     # PyVips optimization
     VIPS_CONCURRENCY: int = 4
     VIPS_DISC_THRESHOLD: str = "100m"
+    
+    # Queue settings (imported from zemrev-queue package)
+    # REDIS_URL, QUEUE_NAME, etc. are in zemrev_queue.config
+    QUEUE_MAX_WORKERS: int = 4
     
     model_config = SettingsConfigDict(
         env_file=".env",
