@@ -5,7 +5,7 @@ import {
   cropperMetadata,
   cropperContent,
 } from "@/components/ImageTools/ImageCropper/SeoData/Blog";
-import ToolWrapper from "@/components/ImageTools/ImageOptimizer/MainOptimizer/Index";
+import Index from "@/components/ImageTools/ImageCropper/MainCropper/Index";
 
 export const metadata: Metadata = {
   title: cropperMetadata.title,
@@ -22,7 +22,7 @@ const ImageCropper = () => {
       </h1>
 
       {/* Tool */}
-      <ToolWrapper />
+      <Index />
 
       {/* Blog Section */}
       <div className="w-full border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 p-2 md:p-6 md:mt-[1vw] mt-[1vh]">

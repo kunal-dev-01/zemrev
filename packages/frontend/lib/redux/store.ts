@@ -1,6 +1,6 @@
 // ============================================================================
 // FILE: src/lib/redux/store.ts
-// PURPOSE: Redux store configuration
+// PURPOSE: Clean & optimized Redux store with RTK Query + File Upload support
 // ============================================================================
 
 import { configureStore } from "@reduxjs/toolkit";
@@ -10,29 +10,42 @@ export const store = configureStore({
   reducer: {
     [baseApi.reducerPath]: baseApi.reducer,
   },
+
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
-        // ❗ Ignore RTK Query internal mutation actions
+        /* 
+         |-----------------------------------------------------------|
+         |  RTK Query internal promises, metadata, abort signals     |
+         |  non-serializable hote hain → warnings avoid karte hain   |
+         |-----------------------------------------------------------|
+        */
         ignoredActions: [
           "api/executeMutation/pending",
           "api/executeMutation/fulfilled",
           "api/executeMutation/rejected",
         ],
 
-        // ❗ Ignore the path where the File object exists
+        /*
+         |-----------------------------------------------------------|
+         |  File Upload: File object non-serializable → ignore path  |
+         |-----------------------------------------------------------|
+        */
         ignoredActionPaths: ["meta.arg.originalArgs.file"],
 
-        // ❗ (Optional) to ignore other non-serializable RTKQ metadata
-        ignoredPaths: [
-          "api.queries",
-          "api.mutations",
-        ],
+        /*
+         |-----------------------------------------------------------|
+         |  RTK Query cache ke andar timestamps/functions hote hain  |
+         |  jisse unnecessary warnings aate → ignore them            |
+         |-----------------------------------------------------------|
+        */
+        ignoredPaths: ["api.queries", "api.mutations"],
       },
     }).concat(baseApi.middleware),
 
   devTools: process.env.NODE_ENV !== "production",
 });
 
+// ---------------------------------------------
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
