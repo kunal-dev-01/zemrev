@@ -11,7 +11,7 @@ from typing import Optional
 from app.api.controllers.image_controller import image_controller
 from app.models.schemas import *
 
-router = APIRouter(prefix="/api/v1", tags=["Image Tools"])
+router = APIRouter(prefix="/api/v1/image", tags=["Image Tools"])
 
 # ============================================================================
 # CONVERT

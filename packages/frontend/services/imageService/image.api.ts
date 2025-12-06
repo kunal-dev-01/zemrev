@@ -48,7 +48,7 @@ export const imageApi = baseApi.injectEndpoints({
     // ========================================================================
     convertImage: builder.mutation<Blob, { file: File; options: ConvertRequest }>({
       query: ({ file, options }) => ({
-        url: "/convert",
+        url: "/image/convert",
         method: "POST",
         body: buildFormData(file, options),
         responseHandler: async (response) => await response.blob(),
@@ -57,7 +57,7 @@ export const imageApi = baseApi.injectEndpoints({
 
     convertImageFromUrl: builder.mutation<Blob, ConvertRequest>({
       query: (options) => ({
-        url: "/convert",
+        url: "/image/convert",
         method: "POST",
         body: buildFormData(null, options),
         responseHandler: async (response) => await response.blob(),
@@ -69,7 +69,7 @@ export const imageApi = baseApi.injectEndpoints({
     // ========================================================================
     compressImage: builder.mutation<Blob, { file: File; options: CompressRequest }>({
       query: ({ file, options }) => ({
-        url: "/compress",
+        url: "/image/compress",
         method: "POST",
         body: buildFormData(file, options),
         responseHandler: async (response) => await response.blob(),
@@ -78,7 +78,7 @@ export const imageApi = baseApi.injectEndpoints({
 
     compressImageFromUrl: builder.mutation<Blob, CompressRequest>({
       query: (options) => ({
-        url: "/compress",
+        url: "/image/compress",
         method: "POST",
         body: buildFormData(null, options),
         responseHandler: async (response) => await response.blob(),
@@ -90,7 +90,7 @@ export const imageApi = baseApi.injectEndpoints({
     // ========================================================================
     resizeImage: builder.mutation<Blob, { file: File; options: ResizeRequest }>({
       query: ({ file, options }) => ({
-        url: "/resize",
+        url: "/image/resize",
         method: "POST",
         body: buildFormData(file, options),
         responseHandler: async (response) => await response.blob(),
@@ -99,7 +99,7 @@ export const imageApi = baseApi.injectEndpoints({
 
     resizeImageFromUrl: builder.mutation<Blob, ResizeRequest>({
       query: (options) => ({
-        url: "/resize",
+        url: "/image/resize",
         method: "POST",
         body: buildFormData(null, options),
         responseHandler: async (response) => await response.blob(),
@@ -111,7 +111,7 @@ export const imageApi = baseApi.injectEndpoints({
     // ========================================================================
     optimizeImage: builder.mutation<Blob, { file: File; options: OptimizeRequest }>({
       query: ({ file, options }) => ({
-        url: "/optimize",
+        url: "/image/optimize",
         method: "POST",
         body: buildFormData(file, options),
         responseHandler: async (response) => await response.blob(),
@@ -120,7 +120,7 @@ export const imageApi = baseApi.injectEndpoints({
 
     optimizeImageFromUrl: builder.mutation<Blob, OptimizeRequest>({
       query: (options) => ({
-        url: "/optimize",
+        url: "/image/optimize",
         method: "POST",
         body: buildFormData(null, options),
         responseHandler: async (response) => await response.blob(),
@@ -132,7 +132,7 @@ export const imageApi = baseApi.injectEndpoints({
     // ========================================================================
     cropImage: builder.mutation<Blob, { file: File; options: CropRequest }>({
       query: ({ file, options }) => ({
-        url: "/crop",
+        url: "/image/crop",
         method: "POST",
         body: buildFormData(file, options),
         responseHandler: async (response) => await response.blob(),
@@ -141,7 +141,7 @@ export const imageApi = baseApi.injectEndpoints({
 
     cropImageFromUrl: builder.mutation<Blob, CropRequest>({
       query: (options) => ({
-        url: "/crop",
+        url: "/image/crop",
         method: "POST",
         body: buildFormData(null, options),
         responseHandler: async (response) => await response.blob(),
@@ -153,7 +153,7 @@ export const imageApi = baseApi.injectEndpoints({
     // ========================================================================
     addTextWatermark: builder.mutation<Blob, { file: File; options: TextWatermarkRequest }>({
       query: ({ file, options }) => ({
-        url: "/watermark/text",
+        url: "/image/watermark/text",
         method: "POST",
         body: buildFormData(file, options),
         responseHandler: async (response) => await response.blob(),
@@ -162,7 +162,7 @@ export const imageApi = baseApi.injectEndpoints({
 
     addTextWatermarkFromUrl: builder.mutation<Blob, TextWatermarkRequest>({
       query: (options) => ({
-        url: "/watermark/text",
+        url: "/image/watermark/text",
         method: "POST",
         body: buildFormData(null, options),
         responseHandler: async (response) => await response.blob(),
@@ -180,7 +180,7 @@ export const imageApi = baseApi.injectEndpoints({
         const formData = buildFormData(file, options);
         formData.append("watermark", watermark);
         return {
-          url: "/watermark/image",
+          url: "/image/watermark/image",
           method: "POST",
           body: formData,
           responseHandler: async (response) => await response.blob(),
@@ -196,7 +196,7 @@ export const imageApi = baseApi.injectEndpoints({
         const formData = buildFormData(null, options);
         formData.append("watermark", watermark);
         return {
-          url: "/watermark/image",
+          url: "/image/watermark/image",
           method: "POST",
           body: formData,
           responseHandler: async (response) => await response.blob(),

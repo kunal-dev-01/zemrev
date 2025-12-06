@@ -12,7 +12,7 @@ import {
   FetchBaseQueryError,
 } from "@reduxjs/toolkit/query/react";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_TOOLS_API_URL || "http://localhost:8000/api/v1";
+const API_BASE_URL = process.env.NEXT_PUBLIC_TOOLS_API_URL!;
 
 const baseQueryWithSettings = fetchBaseQuery({
   baseUrl: API_BASE_URL,
