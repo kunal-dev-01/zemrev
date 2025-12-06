@@ -1,16 +1,20 @@
 # ============================================================================
-# FILE: docker-compose.prod.yml (ROOT)
-# PURPOSE: Production deployment with optimizations
+# FILE: docker-compose.prod.yml
+# PURPOSE: Production - Can scale horizontally
 # ============================================================================
 
 version: '3.9'
 
 services:
-  redis:
+  # ==========================================================================
+  # SHARED QUEUE (Redis with persistence)
+  # ==========================================================================
+  
+  queue:
     image: redis:7-alpine
-    container_name: zemrev_redis_prod
+    container_name: zemrev_queue_prod
     restart: unless-stopped
-    command: redis-server --maxmemory 512mb --maxmemory-policy allkeys-lru --appendonly no
+    command: redis-server --maxmemory 512mb --maxmemory-policy allkeys-lru --appendonly yes
     ports:
       - "6379:6379"
     volumes:
@@ -24,18 +28,46 @@ services:
       retries: 3
       start_period: 5s
 
-  api:
+  # ==========================================================================
+  # API GATEWAY (Nginx)
+  # ==========================================================================
+  
+  gateway:
+    build:
+      context: ./services/api-gateway
+      dockerfile: Dockerfile
+    container_name: zemrev_gateway_prod
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"  # HTTPS (add SSL config later)
+    depends_on:
+      - image-service
+    networks:
+      - zemrev_prod
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # ==========================================================================
+  # IMAGE SERVICE (Can scale with replicas)
+  # ==========================================================================
+  
+  image-service:
     build:
       context: ./services/image-service
       dockerfile: Dockerfile
-    container_name: zemrev_api_prod
     restart: unless-stopped
-    ports:
-      - "8000:8000"
     env_file:
       - ./services/image-service/.env.production
+    environment:
+      - REDIS_URL=redis://queue:6379
+      - QUEUE_NAME=zemrev_image_jobs
+      - LOG_LEVEL=info
     depends_on:
-      redis:
+      queue:
         condition: service_healthy
     networks:
       - zemrev_prod
@@ -46,6 +78,7 @@ services:
       retries: 3
       start_period: 15s
     deploy:
+      replicas: 2  # Scale to 2 instances
       resources:
         limits:
           cpus: '2'
@@ -53,6 +86,27 @@ services:
         reservations:
           cpus: '1'
           memory: 1G
+
+  # ==========================================================================
+  # PDF SERVICE (Future)
+  # ==========================================================================
+  
+  # pdf-service:
+  #   build:
+  #     context: ./services/pdf-service
+  #     dockerfile: Dockerfile
+  #   restart: unless-stopped
+  #   env_file:
+  #     - ./services/pdf-service/.env.production
+  #   environment:
+  #     - REDIS_URL=redis://queue:6379
+  #     - QUEUE_NAME=zemrev_pdf_jobs
+  #   depends_on:
+  #     - queue
+  #   networks:
+  #     - zemrev_prod
+  #   deploy:
+  #     replicas: 2
 
 volumes:
   redis_data:
