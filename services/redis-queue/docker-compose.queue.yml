@@ -1,0 +1,41 @@
+# ============================================================================
+# FILE: services/redis-queue/docker-compose.queue.yml
+# PURPOSE: Shared Redis Queue (deploy independently)
+# ============================================================================
+
+version: '3.9'
+
+services:
+  redis-queue:
+    image: redis:7-alpine
+    container_name: zemrev_redis_queue
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: |
+      redis-server
+      --maxmemory 1gb
+      --maxmemory-policy allkeys-lru
+      --save ""
+      --appendonly no
+    networks:
+      - zemrev_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1.5G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+networks:
+  zemrev_network:
+    driver: bridge
+    name: zemrev_network
