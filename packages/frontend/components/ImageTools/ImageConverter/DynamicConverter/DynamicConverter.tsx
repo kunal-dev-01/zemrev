@@ -44,40 +44,44 @@ const ConverterDynamicTool = ({
   // ============================================================================
   const handleFilesSelected = useCallback(
     async (newFiles: File[]) => {
-      // Detect formats from filenames
-      const formats = newFiles.map((f) => detectFormatFromFilename(f.name));
-      const uniqueFormats = [...new Set(formats.filter(Boolean))];
-
-      // REDIRECT LOGIC FOR DYNAMIC PAGE:
-      
-      // 1. If mixed formats uploaded → Go to main converter
-      if (uniqueFormats.length > 1) {
-        router.push('/image/image-converter');
-        return;
-      }
-
-      // 2. If uploaded format ≠ expected inputFormat → Go to main converter
-      const uploadedFormat = uniqueFormats[0];
-      if (uploadedFormat !== inputFormat) {
-        router.push('/image/image-converter');
-        return;
-      }
-
-      // 3. If user already has files with different output formats → Go to main converter
-      const existingOutputFormats = files.map(f => f.settings.format);
-      const uniqueOutputs = [...new Set([...existingOutputFormats, outputFormat])];
-      
-      if (uniqueOutputs.length > 1) {
-        router.push('/image/image-converter');
-        return;
-      }
-
-      // Otherwise, add files to dynamic converter (same input format, same output)
+      // STEP 1️⃣ — Save files to pending FIRST (always do this first)
       await addFiles(
         newFiles,
         outputFormat as OutputFormat,
         config.defaultSettings.quality as number
       );
+
+      // STEP 2️⃣ — Detect formats
+      const formats = newFiles.map((f) => detectFormatFromFilename(f.name));
+      const uniqueFormats = [...new Set(formats.filter(Boolean))];
+
+      // STEP 3️⃣ — Redirect logic AFTER file is saved
+
+      // 1. If mixed formats → go to main converter
+      if (uniqueFormats.length > 1) {
+        router.push("/image/image-converter");
+        return;
+      }
+
+      // 2. If uploaded format != expected inputFormat → go to main converter
+      const uploadedFormat = uniqueFormats[0];
+      if (uploadedFormat !== inputFormat) {
+        router.push("/image/image-converter");
+        return;
+      }
+
+      // 3. If existing files have different outputFormat → go to main converter
+      const existingOutputFormats = files.map((f) => f.settings.format);
+      const uniqueOutputs = [
+        ...new Set([...existingOutputFormats, outputFormat]),
+      ];
+
+      if (uniqueOutputs.length > 1) {
+        router.push("/image/image-converter");
+        return;
+      }
+
+      // NO redirect here — because this is already dynamic converter
     },
     [addFiles, config, router, inputFormat, outputFormat, files]
   );
@@ -120,7 +124,8 @@ const ConverterDynamicTool = ({
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2 dark:bg-zinc-900 bg-zinc-50 border border-zinc-200 dark:border-zinc-800 rounded-full px-4 py-1.5">
               <p className="md:text-sm text-xs text-zinc-600 dark:text-zinc-400">
-                Converting {inputFormat.toUpperCase()} → {outputFormat.toUpperCase()}
+                Converting {inputFormat.toUpperCase()} →{" "}
+                {outputFormat.toUpperCase()}
                 {stats.pending > 0 && ` • ${stats.pending} pending`}
                 {stats.processing > 0 && ` • ${stats.processing} processing`}
                 {stats.error > 0 && ` • ${stats.error} failed`}
@@ -145,7 +150,9 @@ const ConverterDynamicTool = ({
                 key={file.id}
                 file={file}
                 config={config}
-                onUpdateSettings={(settings) => updateFileSettings(file.id, settings)}
+                onUpdateSettings={(settings) =>
+                  updateFileSettings(file.id, settings)
+                }
                 onRemove={() => removeFile(file.id)}
               />
             ))}

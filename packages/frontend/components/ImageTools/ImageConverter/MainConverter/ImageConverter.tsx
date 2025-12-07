@@ -36,28 +36,32 @@ const ImageConverter = () => {
   // ============================================================================
   const handleFilesSelected = useCallback(
     async (newFiles: File[]) => {
-      // Detect formats from filenames
-      const formats = newFiles.map((f) => detectFormatFromFilename(f.name));
-      const uniqueFormats = [...new Set(formats.filter(Boolean))];
-
-      // SMART REDIRECT LOGIC
-      // If all files are same format AND ≤5 files → redirect to dynamic converter
-      if (uniqueFormats.length === 1 && newFiles.length <= 5) {
-        const inputFormat = uniqueFormats[0];
-        const outputFormat = config.defaultSettings.format as string;
-        
-        if (inputFormat && outputFormat) {
-          router.push(`/image/image-converter/${inputFormat}-to-${outputFormat}`);
-          return;
-        }
-      }
-
-      // Otherwise, stay on main page and add files normally
+      // 1️⃣ Pehle pending storage me SAVE kar do
       await addFiles(
         newFiles,
         config.defaultSettings.format as OutputFormat,
         config.defaultSettings.quality as number
       );
+
+      // 2️⃣ Detect formats
+      const formats = newFiles.map((f) => detectFormatFromFilename(f.name));
+      const uniqueFormats = [...new Set(formats.filter(Boolean))];
+
+      // 3️⃣ Smart Redirect Logic
+      if (uniqueFormats.length === 1 && newFiles.length <= 5) {
+        const inputFormat = uniqueFormats[0];
+        let outputFormat = config.defaultSettings.format as string;
+
+        // ❗ FIX: Avoid redirecting to webp-to-webp (or same format)
+        if (inputFormat === outputFormat) {
+          outputFormat = inputFormat === "webp" ? "jpg" : "png";
+        }
+
+        router.push(`/image/image-converter/${inputFormat}-to-${outputFormat}`);
+        return;
+      }
+
+      // 4️⃣ Otherwise normal flow
     },
     [addFiles, config, router]
   );
@@ -124,7 +128,9 @@ const ImageConverter = () => {
                 key={file.id}
                 file={file}
                 config={config}
-                onUpdateSettings={(settings) => updateFileSettings(file.id, settings)}
+                onUpdateSettings={(settings) =>
+                  updateFileSettings(file.id, settings)
+                }
                 onRemove={() => removeFile(file.id)}
               />
             ))}
