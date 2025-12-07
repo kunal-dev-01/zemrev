@@ -119,15 +119,8 @@ async def root():
             "optimize",
             "crop",
             "watermark",
-            "filter",
+            "metadata",
             "palette"
-        ],
-        "filters": [
-            "magic_auto",
-            "cinematic",
-            "vintage",
-            "hdr_boost",
-            "soft_matte"
         ],
         "endpoints": {
             "convert": "/api/v1/image/convert",
