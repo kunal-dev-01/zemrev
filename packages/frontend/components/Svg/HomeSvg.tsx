@@ -102,11 +102,11 @@ export const Watermark = memo(() => (
 Watermark.displayName = "Watermark";
 
 // ================= Filter SVG ====================== //
-export const FilterSvg = memo(() => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17.58 9.71a6 6 0 0 0-7.16 3.58m7.16-3.58A6 6 0 1 1 12 19.972M17.58 9.71a6 6 0 1 0-11.16 0m4 3.58A6 6 0 0 0 10 15.5c0 1.777.773 3.374 2 4.472m-1.58-6.682a6.01 6.01 0 0 1-4-3.58m0 0A6 6 0 1 0 12 19.972" color="currentColor"/></svg>
+export const MetadataSvg = memo(() => (
+<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M10.5 12.88a.625.625 0 1 1 0 1.249a.625.625 0 0 1 0-1.249zM12.5 2A1.5 1.5 0 0 1 14 3.5v3.637a1.5 1.5 0 0 1-.44 1.06l-.105.107a4.02 4.02 0 0 0-.764-.65l.163-.164A.5.5 0 0 0 13 7.137V3.5a.5.5 0 0 0-.5-.5H8.861l-.079.006a.5.5 0 0 0-.275.14L3.15 8.515a.5.5 0 0 0 0 .707l3.638 3.631a.5.5 0 0 0 .24.134c.19.33.424.631.697.894a1.5 1.5 0 0 1-1.644-.32L2.443 9.928a1.5 1.5 0 0 1-.002-2.121L7.8 2.44a1.5 1.5 0 0 1 .914-.433L8.86 2H12.5zm-2 6.003c1.031 0 1.853.846 1.853 1.95c0 .585-.214.907-.727 1.318l-.277.214c-.246.195-.329.3-.346.449l-.011.156A.5.5 0 0 1 10 12c0-.571.21-.884.716-1.289l.278-.215c.288-.228.36-.342.36-.543c0-.558-.382-.95-.854-.95c-.494 0-.859.366-.853.945a.5.5 0 1 1-1 .01c-.011-1.138.805-1.955 1.853-1.955zm.015-3.13a.625.625 0 1 1 0 1.25a.625.625 0 0 1 0-1.25z" fill="currentColor" fillRule="nonzero"/></svg>
 ))
 
-FilterSvg.displayName = "FilterSvg"
+MetadataSvg.displayName = "MetadataSvg"
 
 // ================= Color Palette SVG ====================== //
 export const ColorPaletteSvg = memo(() => (

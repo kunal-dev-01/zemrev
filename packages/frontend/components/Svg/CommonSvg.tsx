@@ -1,7 +1,7 @@
-import React from "react";
+import { memo } from "react";
 
 // ================ Check SVG ================ //
-export const CheckSvg = React.memo(
+export const CheckSvg = memo(
   ({ className = "w-5 h-5 text-emerald-400" }: { className?: string }) => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -23,7 +23,7 @@ export const CheckSvg = React.memo(
 CheckSvg.displayName = "CheckSvg";
 
 // ================ Cancel SVG ================ //
-export const CancelSvg = React.memo(() => (
+export const CancelSvg = memo(() => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="100%"
@@ -44,31 +44,29 @@ export const CancelSvg = React.memo(() => (
 CancelSvg.displayName = "CancelSvg";
 
 // ================ Download SVG ================ //
-export const DownloadSvg = React.memo(
-  ({ className }: { className?: string }) => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="100%"
-      height="100%"
-      viewBox="0 0 24 24"
-      className={className}
-    >
-      <path
-        fill="none"
-        stroke="currentColor"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="2"
-        d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M7 11l5 5l5-5m-5-7v12"
-      />
-    </svg>
-  )
-);
+export const DownloadSvg = memo(({ className }: { className?: string }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="100%"
+    height="100%"
+    viewBox="0 0 24 24"
+    className={className}
+  >
+    <path
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="2"
+      d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M7 11l5 5l5-5m-5-7v12"
+    />
+  </svg>
+));
 
 DownloadSvg.displayName = "DownloadSvg";
 
 // ================ Error SVG ================ //
-export const ErrorSvg = React.memo(({ className }: { className?: string }) => (
+export const ErrorSvg = memo(({ className }: { className?: string }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="100%"
@@ -88,7 +86,7 @@ export const ErrorSvg = React.memo(({ className }: { className?: string }) => (
 ErrorSvg.displayName = "ErrorSvg";
 
 // =============== Email SVG =============== //
-export const EmailSvg = React.memo(() => (
+export const EmailSvg = memo(() => (
   <svg
     width="100%"
     height="100%"
@@ -108,7 +106,7 @@ export const EmailSvg = React.memo(() => (
 EmailSvg.displayName = "EmailSvg";
 
 // =============== Bolt SVG =============== //
-export const BoltSvg = React.memo(() => (
+export const BoltSvg = memo(() => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
@@ -127,7 +125,7 @@ export const BoltSvg = React.memo(() => (
 BoltSvg.displayName = "BoltSvg";
 
 // ================= Trash SVG ================= //
-export const TrashSvg = React.memo(({ className }: { className?: string }) => (
+export const TrashSvg = memo(({ className }: { className?: string }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="100%"
@@ -149,7 +147,7 @@ export const TrashSvg = React.memo(({ className }: { className?: string }) => (
 TrashSvg.displayName = "TrashSvg";
 
 // ================= Folder Open SVG ================= //
-export const FolderOpenSvg = React.memo(() => (
+export const FolderOpenSvg = memo(() => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="100%"
@@ -166,7 +164,7 @@ export const FolderOpenSvg = React.memo(() => (
 FolderOpenSvg.displayName = "FolderOpenSvg";
 
 // ================= Plus SVG ================= //
-export const PlusSvg = React.memo(() => (
+export const PlusSvg = memo(() => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="100%"
@@ -183,7 +181,7 @@ export const PlusSvg = React.memo(() => (
 PlusSvg.displayName = "PlusSvg";
 
 // ================= ChevronDownIcon SVG ================= //
-export const ChevronDownSvg = React.memo(() => (
+export const ChevronDownSvg = memo(() => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="100%"
@@ -204,7 +202,7 @@ export const ChevronDownSvg = React.memo(() => (
 ChevronDownSvg.displayName = "ChevronDownSvg";
 
 // ================= QualityIcon SVG ================= //
-export const QualitySvg = React.memo(() => (
+export const QualitySvg = memo(() => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="100%"
@@ -223,3 +221,28 @@ export const QualitySvg = React.memo(() => (
 ));
 
 QualitySvg.displayName = "QualitySvg";
+
+// ================= CopyIcon SVG ================= //
+export const CopySvg = memo(({ className= "w-5 h-5 text-zinc-600 dark:text-zinc-400" }: { className?: string }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="100%"
+    height="100%"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className={className}
+  >
+    <g
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.5"
+    >
+      <path d="M16.75 5.75a3 3 0 0 0-3-3h-6.5a3 3 0 0 0-3 3v9.5a3 3 0 0 0 3 3h6.5a3 3 0 0 0 3-3z" />
+      <path d="M19.75 6.75v8.5a6 6 0 0 1-6 6h-5.5" />
+    </g>
+  </svg>
+));
+
+CopySvg.displayName = "CopySvg";

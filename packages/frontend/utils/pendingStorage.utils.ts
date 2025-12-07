@@ -16,6 +16,8 @@ const PENDING_META: Record<ToolType, string> = {
   resizer: "zemrev_pending_resizer",
   cropper: "zemrev_pending_cropper",
   watermark: "zemrev_pending_watermark",
+  palette: "zemrev_pending_palette",
+  metadata: "zemrev_pending_metadata",
 };
 
 export interface PendingMeta {

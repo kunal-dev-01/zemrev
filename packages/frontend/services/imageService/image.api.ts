@@ -12,6 +12,10 @@ import type {
   CropRequest,
   TextWatermarkRequest,
   ImageWatermarkRequest,
+  PaletteResponse,
+  PaletteRequest,
+  MetadataResponse,
+  MetadataRequest,
 } from "./types";
 
 // ============================================================================
@@ -203,6 +207,44 @@ export const imageApi = baseApi.injectEndpoints({
         };
       },
     }),
+
+        // ========================================================================
+    // PALETTE EXTRACTOR
+    // ========================================================================
+    extractPalette: builder.mutation<PaletteResponse, { file: File; options: PaletteRequest }>({
+      query: ({ file, options }) => ({
+        url: "/image/palette",
+        method: "POST",
+        body: buildFormData(file, options),
+      }),
+    }),
+
+    extractPaletteFromUrl: builder.mutation<PaletteResponse, PaletteRequest>({
+      query: (options) => ({
+        url: "/image/palette",
+        method: "POST",
+        body: buildFormData(null, options),
+      }),
+    }),
+
+    // ========================================================================
+    // METADATA EXTRACTOR
+    // ========================================================================
+    extractMetadata: builder.mutation<MetadataResponse, { file: File; options: MetadataRequest }>({
+      query: ({ file, options }) => ({
+        url: "/image/metadata",
+        method: "POST",
+        body: buildFormData(file, options),
+      }),
+    }),
+
+    extractMetadataFromUrl: builder.mutation<MetadataResponse, MetadataRequest>({
+      query: (options) => ({
+        url: "/image/metadata",
+        method: "POST",
+        body: buildFormData(null, options),
+      }),
+    }),
   }),
 });
 
@@ -225,4 +267,8 @@ export const {
   useAddTextWatermarkFromUrlMutation,
   useAddImageWatermarkMutation,
   useAddImageWatermarkFromUrlMutation,
+  useExtractPaletteMutation,
+  useExtractPaletteFromUrlMutation,
+  useExtractMetadataMutation,
+  useExtractMetadataFromUrlMutation,  
 } = imageApi;

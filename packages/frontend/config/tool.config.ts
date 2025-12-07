@@ -21,7 +21,7 @@ export const TOOL_CONFIGS: Record<string, ToolConfig> = {
     ],
     maxFiles: 5,
     showPreview: false,
-    primaryColor: "#10b981", 
+    primaryColor: "#10b981",
     dropzoneColor: "#ecfdf5",
     dropzoneColorDark: "#10b9811A",
     defaultSettings: {
@@ -34,14 +34,10 @@ export const TOOL_CONFIGS: Record<string, ToolConfig> = {
     type: "compressor",
     title: "Image Compressor",
     description: "Compress images to reduce file size",
-    acceptedFormats: [
-      "image/jpeg",
-      "image/png",
-      "image/webp",
-    ],
+    acceptedFormats: ["image/jpeg", "image/png", "image/webp"],
     maxFiles: 5,
     showPreview: false,
-    primaryColor: "#3b82f6", 
+    primaryColor: "#3b82f6",
     dropzoneColor: "#eff6ff",
     dropzoneColorDark: "#3b82f61A",
     defaultSettings: {
@@ -53,11 +49,7 @@ export const TOOL_CONFIGS: Record<string, ToolConfig> = {
     type: "resizer",
     title: "Image Resizer",
     description: "Resize images to specific dimensions",
-    acceptedFormats: [
-      "image/jpeg",
-      "image/png",
-      "image/webp",
-    ],
+    acceptedFormats: ["image/jpeg", "image/png", "image/webp"],
     maxFiles: 5,
     showPreview: false,
     primaryColor: "#6366f1",
@@ -74,11 +66,7 @@ export const TOOL_CONFIGS: Record<string, ToolConfig> = {
     type: "optimizer",
     title: "Image Optimizer",
     description: "Optimize images and remove metadata",
-    acceptedFormats: [
-      "image/jpeg",
-      "image/png",
-      "image/webp"
-    ],
+    acceptedFormats: ["image/jpeg", "image/png", "image/webp"],
     maxFiles: 5,
     showPreview: false,
     primaryColor: "#f43f5e",
@@ -95,11 +83,7 @@ export const TOOL_CONFIGS: Record<string, ToolConfig> = {
     type: "cropper",
     title: "Image Cropper",
     description: "Crop images to desired area",
-    acceptedFormats: [
-      "image/jpeg",
-      "image/png",
-      "image/webp",
-    ],
+    acceptedFormats: ["image/jpeg", "image/png", "image/webp"],
     maxFiles: 1,
     showPreview: true,
     primaryColor: "#f59e0b",
@@ -117,11 +101,7 @@ export const TOOL_CONFIGS: Record<string, ToolConfig> = {
     type: "watermark",
     title: "Image Watermark",
     description: "Add text or image watermarks",
-    acceptedFormats: [
-      "image/jpeg",
-      "image/png",
-      "image/webp",
-    ],
+    acceptedFormats: ["image/jpeg", "image/png", "image/webp"],
     maxFiles: 1,
     showPreview: true,
     primaryColor: "#8b5cf6",
@@ -134,6 +114,34 @@ export const TOOL_CONFIGS: Record<string, ToolConfig> = {
       opacity: 0.5,
       position: "bottom-right",
     },
+  },
+
+  palette: {
+    type: "palette",
+    title: "Color Palette Extractor",
+    description: "Extract dominant colors from images",
+    acceptedFormats: ["image/jpeg", "image/png", "image/webp"],
+    maxFiles: 1,
+    showPreview: true,
+    primaryColor: "#f97316",
+    dropzoneColor: "#fff7ed",
+    dropzoneColorDark: "#F9731619",
+    defaultSettings: {
+      num_colors: 5,
+    },
+  },
+
+  metadata: {
+    type: "metadata",
+    title: "Image Metadata Extractor",
+    description: "Extract EXIF and image properties",
+    acceptedFormats: ["image/jpeg", "image/png", "image/webp"],
+    maxFiles: 1,
+    showPreview: true,
+    primaryColor: "#a855f7",
+    dropzoneColor: "#faf5ff",
+    dropzoneColorDark: "#9333EA19",
+    defaultSettings: {},
   },
 };
 

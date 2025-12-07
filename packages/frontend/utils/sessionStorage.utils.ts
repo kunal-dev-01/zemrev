@@ -21,6 +21,8 @@ const META_KEYS: Record<ToolType, string> = {
   resizer: "zemrev_meta_resizer",
   cropper: "zemrev_meta_cropper",
   watermark: "zemrev_meta_watermark",
+  palette: "zemrev_meta_palette",
+  metadata: "zemrev_meta_metadata",
 };
 
 // ============================================================================
@@ -48,7 +50,7 @@ const setMeta = (tool: ToolType, data: SessionStorageData): void => {
 // ============================================================================
 
 const getTotalUsedSize = (): number =>
-  (["converter", "compressor", "optimizer", "resizer", "cropper", "watermark"] as ToolType[])
+  (["converter", "compressor", "optimizer", "resizer", "cropper", "watermark", "palette", "metadata"] as ToolType[])
     .reduce((acc, tool) => acc + getMeta(tool).totalSize, 0);
 
 // ============================================================================
@@ -56,7 +58,7 @@ const getTotalUsedSize = (): number =>
 // ============================================================================
 
 const cleanExpired = async (): Promise<void> => {
-  const tools = ["converter", "compressor", "optimizer", "resizer", "cropper", "watermark"] as ToolType[];
+  const tools = ["converter", "compressor", "optimizer", "resizer", "cropper", "watermark", "palette", "metadata"] as ToolType[];
   const now = Date.now();
 
   for (const tool of tools) {
@@ -85,7 +87,7 @@ const cleanExpired = async (): Promise<void> => {
 // ============================================================================
 
 const clearGlobal = async (): Promise<void> => {
-  const tools = ["converter", "compressor", "optimizer", "resizer", "cropper", "watermark"] as ToolType[];
+  const tools = ["converter", "compressor", "optimizer", "resizer", "cropper", "watermark", "palette", "metadata"] as ToolType[];
 
   for (const tool of tools) {
     const meta = getMeta(tool);
