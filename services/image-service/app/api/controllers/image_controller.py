@@ -18,6 +18,8 @@ from app.services.resizer import resizer
 from app.services.optimizer import optimizer
 from app.services.cropper import cropper
 from app.services.watermark import watermarker
+from app.services.metadata import metadata_extractor
+from app.services.palette import color_palette_generator
 
 logger = logging.getLogger(__name__)
 
@@ -241,6 +243,87 @@ class ImageController:
         except Exception as e:
             logger.error(f"Image watermark failed: {e}")
             raise
+
+
+    # ========================================================================
+    # IMAGE FILTER
+    # ========================================================================
+    
+    @staticmethod
+    async def extract_metadata(file: Optional[UploadFile], options: MetadataRequest):
+        """Extract image metadata"""
+        
+        # Handle URL or file upload
+        if options.url:
+            content, filename = await url_downloader.download(str(options.url))
+        else:
+            content = await validator.validate_file(file)
+            filename = file.filename
+        
+        # Extract metadata
+        try:
+            metadata = metadata_extractor.extract_metadata(content, filename)
+            
+            from fastapi.responses import JSONResponse
+            
+            return JSONResponse(
+                content={
+                    "success": True,
+                    "filename": filename,
+                    "metadata": metadata
+                }
+            )
+            
+        except Exception as e:
+            logger.error(f"Metadata extraction failed: {e}")
+            raise
+    
+    # ========================================================================
+    # COLOR PALETTE
+    # ========================================================================
+    
+    @staticmethod
+    async def extract_palette(file: Optional[UploadFile], options: PaletteRequest):
+        """Extract color palette"""
+        
+        # Handle URL or file upload
+        if options.url:
+            content, filename = await url_downloader.download(str(options.url))
+        else:
+            content = await validator.validate_file(file)
+            filename = file.filename
+        
+        # Extract palette
+        try:
+            palette_data, preview_bytes, preview_filename = color_palette_generator.extract_palette(
+                content, filename, options.num_colors
+            )
+            
+            # Return JSON response with palette data and preview image reference
+            from fastapi.responses import JSONResponse
+            
+            # Add preview image as base64 for easy display
+            import base64
+            preview_base64 = base64.b64encode(preview_bytes).decode('utf-8')
+            
+            return JSONResponse(
+                content={
+                    "success": True,
+                    "filename": filename,
+                    "palette": palette_data["palette"],
+                    "total_colors": palette_data["total_colors"],
+                    "preview_image": {
+                        "filename": preview_filename,
+                        "data": f"data:image/png;base64,{preview_base64}",
+                        "size": len(preview_bytes)
+                    }
+                }
+            )
+            
+        except Exception as e:
+            logger.error(f"Palette extraction failed: {e}")
+            raise
+
     
     # ========================================================================
     # HELPER

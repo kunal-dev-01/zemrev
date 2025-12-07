@@ -19,7 +19,13 @@ class ImageCompressor:
         """Compress image"""
         
         try:
-            img = pyvips.Image.new_from_buffer(content, "", access="sequential")
+            ext = filename.rsplit(".", 1)[-1].lower()
+            
+            # Load image
+            if ext in ["jpeg", "jpg"]:
+                img = pyvips.Image.new_from_buffer(content, "", access="sequential", shrink=2)
+            else:
+                img = pyvips.Image.new_from_buffer(content, "", access="sequential")
             
             current_fmt = ImageCompressor._detect_format(filename)
             target_fmt = options.format.value if options.format else current_fmt

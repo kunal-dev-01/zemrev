@@ -160,3 +160,35 @@ async def watermark_image(
         url=url
     )
     return await image_controller.add_image_watermark(file, watermark, options)
+
+
+# ============================================================================
+# IMAGE FILTER
+# ============================================================================
+
+
+@router.post("/metadata")
+async def extract_metadata(
+    file: Optional[UploadFile] = File(None),
+    url: Optional[str] = Form(None)
+):
+    """Extract image metadata (EXIF, properties, technical info)"""
+    
+    options = MetadataRequest(url=url)
+    return await image_controller.extract_metadata(file, options)
+
+
+# ============================================================================
+# COLOR PALETTE
+# ============================================================================
+
+@router.post("/palette")
+async def extract_palette(
+    file: Optional[UploadFile] = File(None),
+    num_colors: int = Form(5),
+    url: Optional[str] = Form(None)
+):
+    """Extract color palette"""
+    
+    options = PaletteRequest(num_colors=num_colors, url=url)
+    return await image_controller.extract_palette(file, options)    

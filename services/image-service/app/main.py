@@ -98,6 +98,11 @@ app.include_router(router)
 # ROOT ENDPOINTS
 # ============================================================================
 
+# ============================================================================
+# UPDATE: services/image-service/app/main.py
+# Replace the existing @app.get("/") endpoint with this updated version:
+# ============================================================================
+
 @app.get("/")
 async def root():
     """API info"""
@@ -113,7 +118,16 @@ async def root():
             "resize",
             "optimize",
             "crop",
-            "watermark"
+            "watermark",
+            "filter",
+            "palette"
+        ],
+        "filters": [
+            "magic_auto",
+            "cinematic",
+            "vintage",
+            "hdr_boost",
+            "soft_matte"
         ],
         "endpoints": {
             "convert": "/api/v1/image/convert",
@@ -123,6 +137,8 @@ async def root():
             "crop": "/api/v1/image/crop",
             "watermark_text": "/api/v1/image/watermark/text",
             "watermark_image": "/api/v1/image/watermark/image",
+            "metadata": "/api/v1/image/metadata",
+            "palette": "/api/v1/image/palette",
             "health": "/health",
             "docs": "/docs"
         }

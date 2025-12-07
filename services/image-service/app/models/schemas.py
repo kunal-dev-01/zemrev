@@ -39,6 +39,7 @@ class WatermarkPosition(str, Enum):
     BOTTOM_RIGHT = "bottom-right"
     CENTER = "center"
 
+
 # ============================================================================
 # REQUESTS
 # ============================================================================
@@ -100,6 +101,15 @@ class ImageWatermarkRequest(BaseModel):
     opacity: float = Field(default=0.5, ge=0.0, le=1.0)
     position: WatermarkPosition = Field(default=WatermarkPosition.BOTTOM_RIGHT)
     url: Optional[HttpUrl] = Field(default=None)
+
+class MetadataRequest(BaseModel):
+    """Metadata extraction"""
+    url: Optional[HttpUrl] = Field(default=None)
+
+class PaletteRequest(BaseModel):
+    """Color palette extraction"""
+    num_colors: int = Field(default=5, ge=3, le=10)
+    url: Optional[HttpUrl] = Field(default=None)    
 
 # ============================================================================
 # RESPONSES

@@ -20,6 +20,8 @@ from app.services.resizer import resizer
 from app.services.optimizer import optimizer
 from app.services.cropper import cropper
 from app.services.watermark import watermarker
+from app.services.metadata import metadata_extractor
+from app.services.palette import color_palette_generator
 from app.models.schemas import *
 
 logger = logging.getLogger(__name__)
@@ -123,6 +125,37 @@ class QueueWorker:
                     "filename": new_name,
                     "processing_time": time.time() - start_time
                 }
+
+            elif job_type == "metadata":
+                options = MetadataRequest(**task_data["options"])
+                metadata = metadata_extractor.extract_metadata(content, filename)
+                
+                result = {
+                    "filename": filename,
+                    "metadata": metadata,
+                    "processing_time": time.time() - start_time
+                }
+            
+            elif job_type == "palette":
+                options = PaletteRequest(**task_data["options"])
+                palette_data, preview_bytes, preview_name = color_palette_generator.extract_palette(
+                    content, filename, options.num_colors
+                )
+                
+                import base64
+                preview_base64 = base64.b64encode(preview_bytes).decode('utf-8')
+                
+                result = {
+                    "filename": filename,
+                    "palette": palette_data["palette"],
+                    "total_colors": palette_data["total_colors"],
+                    "preview_image": {
+                        "filename": preview_name,
+                        "data": f"data:image/png;base64,{preview_base64}",
+                        "size": len(preview_bytes)
+                    },
+                    "processing_time": time.time() - start_time
+                }                
             
             else:
                 raise ValueError(f"Unknown job type: {job_type}")
