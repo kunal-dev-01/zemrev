@@ -57,7 +57,6 @@ export const useImageMetadata = () => {
     try {
       const result = await extractMetadata({
         file,
-        options: {},
       }).unwrap();
 
       setMetadataData(result);
