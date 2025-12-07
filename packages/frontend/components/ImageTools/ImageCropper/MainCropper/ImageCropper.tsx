@@ -7,10 +7,10 @@ import Cropper from "react-easy-crop";
 import { DragDropZone } from "@/components/Shared/DragDropZone";
 import { UrlUploadModal } from "@/components/Shared/UrlUploadModal";
 import { SessionFilesDisplay } from "@/components/Shared/SessionFilesDisplay";
+import { RangeSlider } from "@/components/Shared/RangeSlider";
 import { TOOL_CONFIGS } from "@/config/tool.config";
 import { Spinner } from "@/components/Layouts/Spinner";
 import { RotateSvg } from "@/components/Svg/ToolsSvg";
-import { CheckSvg } from "@/components/Svg/CommonSvg";
 import { useImageCropper } from "@/hooks/imageHooks/useImageCropper.hook";
 
 const ImageCropper = () => {
@@ -19,9 +19,9 @@ const ImageCropper = () => {
 
   // Crop state
   const [crop, setCrop] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
+  const [zoom, setZoom] = useState(100); // Changed to percentage (100 = 1x)
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
-  const [aspectRatio, setAspectRatio] = useState<number | null>(null); // null = free aspect
+  const [aspectRatio, setAspectRatio] = useState<number | null>(null);
 
   const {
     file,
@@ -41,9 +41,8 @@ const ImageCropper = () => {
     (files: File[]) => {
       if (files.length > 0) {
         setImageFile(files[0]);
-        // Reset crop state
         setCrop({ x: 0, y: 0 });
-        setZoom(1);
+        setZoom(100);
       }
     },
     [setImageFile]
@@ -52,9 +51,8 @@ const ImageCropper = () => {
   const handleUrlUpload = useCallback(
     async (url: string) => {
       await setFromUrl(url);
-      // Reset crop state
       setCrop({ x: 0, y: 0 });
-      setZoom(1);
+      setZoom(100);
     },
     [setFromUrl]
   );
@@ -87,12 +85,17 @@ const ImageCropper = () => {
     { label: "9:16", value: 9 / 16 },
   ];
 
-  // ============================================================================
-  // RENDER
-  // ============================================================================
+  // Zoom presets
+  const zoomPresets = [
+    { label: "50%", value: 50 },
+    { label: "75%", value: 75 },
+    { label: "100%", value: 100 },
+    { label: "150%", value: 150 },
+    { label: "200%", value: 200 },
+  ];
   return (
     <div className="w-full space-y-6 md:mt-[1vw] mt-[1vh]">
-      {/* Drag & Drop (shown when no file) */}
+      {/* Drag & Drop */}
       {!file && (
         <DragDropZone
           config={config}
@@ -107,8 +110,8 @@ const ImageCropper = () => {
         <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 p-6">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
-            <div>
-              <h3 className="text-lg font-semibold text-zinc-800 dark:text-zinc-200">
+            <div className="flex-1 min-w-0">
+              <h3 className="text-lg font-semibold text-zinc-800 dark:text-zinc-200 truncate">
                 {file.name}
               </h3>
               <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1">
@@ -119,18 +122,18 @@ const ImageCropper = () => {
             <button
               onClick={reset}
               disabled={cropping}
-              className="px-4 py-1.5 flex items-center gap-2 rounded-lg font-medium border border-zinc-100 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-900 disabled:opacity-50"
+              className="ml-4 px-4 py-2 flex items-center gap-2 rounded-lg font-medium border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-700 disabled:opacity-50 transition-all"
             >
               <div className="w-5 h-5">
                 <RotateSvg />
               </div>
-              Change Image
+              <span className="md:block hidden">Change Image</span>
             </button>
           </div>
 
-          {/* Aspect Ratio Selector */}
-          <div className="mb-4">
-            <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2 block">
+          {/* Aspect Ratio Selector - Professional */}
+          <div className="mb-6">
+            <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-3 block">
               Aspect Ratio
             </label>
             <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
@@ -138,10 +141,10 @@ const ImageCropper = () => {
                 <button
                   key={ratio.label}
                   onClick={() => setAspectRatio(ratio.value)}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                  className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
                     aspectRatio === ratio.value
-                      ? "text-white"
-                      : "text-zinc-700 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                      ? "text-white shadow-md"
+                      : "text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700"
                   }`}
                   style={{
                     backgroundColor:
@@ -155,14 +158,14 @@ const ImageCropper = () => {
           </div>
 
           {/* Cropper Canvas */}
-          <div className="relative w-full h-[50vh] bg-zinc-900 rounded-lg overflow-hidden mb-4">
+          <div className="relative w-full h-[50vh] bg-zinc-900 rounded-lg overflow-hidden mb-6">
             <Cropper
               image={imageUrl}
               crop={crop}
-              zoom={zoom}
+              zoom={zoom / 100} // Convert back to 1-3 scale
               aspect={aspectRatio || undefined}
               onCropChange={setCrop}
-              onZoomChange={setZoom}
+              onZoomChange={(z) => setZoom(Math.round(z * 100))} // Convert to percentage
               onCropComplete={onCropComplete}
               style={{
                 containerStyle: {
@@ -172,22 +175,19 @@ const ImageCropper = () => {
             />
           </div>
 
-          {/* Zoom Control */}
-          <div className="mb-6">
-            <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2 block">
-              Zoom: {Math.round(zoom * 100)}%
-            </label>
-            <input
-              type="range"
-              min={1}
-              max={3}
-              step={0.1}
-              value={zoom}
-              onChange={(e) => setZoom(parseFloat(e.target.value))}
-              className="w-full"
-              style={{ accentColor: config.primaryColor }}
-            />
-          </div>
+          {/* Zoom Control - Professional Slider with Presets */}
+          <RangeSlider
+            label="Zoom Level"
+            value={zoom}
+            min={50}
+            max={300}
+            step={1}
+            unit="%"
+            color={config.primaryColor}
+            onChange={setZoom}
+            presets={zoomPresets}
+            className="mb-6"
+          />
 
           {/* Error Display */}
           {error && (
@@ -196,16 +196,17 @@ const ImageCropper = () => {
             </div>
           )}
 
-          {/* Crop Button */}
+          {/* Crop Button - Professional */}
           <button
             onClick={handleCrop}
             disabled={cropping}
-            className="w-full px-6 py-2 rounded-lg font-semibold text-white text-lg transition-all disabled:opacity-50 flex items-center justify-center gap-3"
+            className="w-full px-6 py-3 rounded-lg font-semibold text-white text-lg transition-all disabled:opacity-50 flex items-center justify-center gap-3 hover:shadow-lg"
             style={{ backgroundColor: config.primaryColor }}
           >
             {cropping ? (
               <>
-                <Spinner className="w-5 h-5 text-zinc-100" /> Cropping...
+                <Spinner className="w-5 h-5 text-white" />
+                <span>Cropping...</span>
               </>
             ) : (
               <>
@@ -216,7 +217,7 @@ const ImageCropper = () => {
         </div>
       )}
 
-      {/* Session Files Display (Completed) */}
+      {/* Session Files Display */}
       <SessionFilesDisplay toolType="cropper" config={config} />
 
       {/* URL Upload Modal */}
