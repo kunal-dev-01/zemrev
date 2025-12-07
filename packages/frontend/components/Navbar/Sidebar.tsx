@@ -10,6 +10,8 @@ import {
   FileImage,
   CropSvg,
   Watermark,
+  MetadataSvg,
+  ColorPaletteSvg,
 } from "@/components/Svg/HomeSvg";
 import {
   ExtractImagesFromPdfSvg,
@@ -40,6 +42,8 @@ const ImageTools = [
   { name: "Image Resizer", href: "/image/image-resizer", icon: ResizeSvg },
   { name: "Image Cropper", href: "/image/image-cropper", icon: CropSvg },
   { name: "Watermark Tool", href: "/image/image-watermark", icon: Watermark },
+  { name: "Metadata Extractor", href: "/image/extract-meta-data", icon: MetadataSvg },
+  { name: "Color Palette Generator", href: "/image/extract-color-palette", icon: ColorPaletteSvg },
 ];
 
 const PDFTools = [
