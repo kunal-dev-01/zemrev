@@ -48,13 +48,11 @@ class ConvertRequest(BaseModel):
     """Format conversion"""
     format: OutputFormat = Field(default=OutputFormat.WEBP)
     quality: int = Field(default=75, ge=1, le=100)
-    url: Optional[HttpUrl] = Field(default=None)
 
 class CompressRequest(BaseModel):
     """Image compression"""
     quality: int = Field(default=75, ge=1, le=100)
     format: Optional[OutputFormat] = Field(default=None)
-    url: Optional[HttpUrl] = Field(default=None)
 
 class ResizeRequest(BaseModel):
     """Resize"""
@@ -62,7 +60,6 @@ class ResizeRequest(BaseModel):
     height: Optional[int] = Field(default=None, ge=1, le=15000)
     mode: ResizeMode = Field(default=ResizeMode.CONTAIN)
     format: Optional[OutputFormat] = Field(default=None)
-    url: Optional[HttpUrl] = Field(default=None)
     
     @field_validator('height')
     def check_dimensions(cls, v, info):
@@ -75,7 +72,6 @@ class OptimizeRequest(BaseModel):
     strip_exif: bool = Field(default=True)
     strip_gps: bool = Field(default=True)
     fix_orientation: bool = Field(default=True)
-    url: Optional[HttpUrl] = Field(default=None)
 
 class CropRequest(BaseModel):
     """Cropping"""
@@ -84,7 +80,6 @@ class CropRequest(BaseModel):
     width: int = Field(ge=1, le=15000)
     height: int = Field(ge=1, le=15000)
     format: Optional[OutputFormat] = Field(default=None)
-    url: Optional[HttpUrl] = Field(default=None)
 
 class TextWatermarkRequest(BaseModel):
     """Text watermark"""
@@ -93,18 +88,15 @@ class TextWatermarkRequest(BaseModel):
     color: str = Field(default="#FFFFFF")
     opacity: float = Field(default=0.5, ge=0.0, le=1.0)
     position: WatermarkPosition = Field(default=WatermarkPosition.BOTTOM_RIGHT)
-    url: Optional[HttpUrl] = Field(default=None)
 
 class ImageWatermarkRequest(BaseModel):
     """Image watermark"""
     scale: float = Field(default=0.2, ge=0.01, le=1.0)
     opacity: float = Field(default=0.5, ge=0.0, le=1.0)
     position: WatermarkPosition = Field(default=WatermarkPosition.BOTTOM_RIGHT)
-    url: Optional[HttpUrl] = Field(default=None)
 
 class MetadataRequest(BaseModel):
     """Metadata extraction"""
-    url: Optional[HttpUrl] = Field(default=None)
 
 class PaletteRequest(BaseModel):
     """Color palette extraction"""
