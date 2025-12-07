@@ -1,14 +1,15 @@
 // ============================================================================
 // FILE: src/hooks/imageHooks/useImageWatermark.hook.ts
-// PURPOSE: Production-ready Image Watermark (text + image modes)
+// PURPOSE: Production-ready Image Watermark with pending file logic
 // ============================================================================
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   useAddTextWatermarkMutation,
   useAddImageWatermarkMutation,
 } from "@/services/imageService/image.api";
 import { sessionStorageUtils } from "@/utils/sessionStorage.utils";
+import { pendingStorage } from "@/utils/pendingStorage.utils";
 import { extractApiErrorMessage } from "@/utils/errorExtract.utils";
 import type { WatermarkPosition } from "@/services/imageService/types";
 
@@ -19,21 +20,59 @@ export const useImageWatermark = () => {
   const [watermarkPreview, setWatermarkPreview] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState("");
+  const [pendingId, setPendingId] = useState<string | null>(null);
+  const [watermarkPendingId, setWatermarkPendingId] = useState<string | null>(null);
 
   const [addTextWatermark] = useAddTextWatermarkMutation();
   const [addImageWatermark] = useAddImageWatermarkMutation();
 
   // ============================================================================
-  // SET MAIN FILE
+  // RESTORE PENDING FILES ON MOUNT
   // ============================================================================
-  const setImageFile = useCallback((newFile: File) => {
+  useEffect(() => {
+    const restorePending = async () => {
+      const pending = await pendingStorage.restore("watermark");
+      
+      if (pending.length > 0) {
+        // Restore main image (first file)
+        const mainFile = pending[0];
+        setPendingId(mainFile.id);
+        setFile(mainFile.file);
+        const url = URL.createObjectURL(mainFile.file);
+        setImageUrl(url);
+
+        // Restore watermark image if exists (second file)
+        if (pending.length > 1) {
+          const wmFile = pending[1];
+          setWatermarkPendingId(wmFile.id);
+          setWatermarkFile(wmFile.file);
+          const wmUrl = URL.createObjectURL(wmFile.file);
+          setWatermarkPreview(wmUrl);
+        }
+      }
+    };
+
+    restorePending();
+  }, []);
+
+  // ============================================================================
+  // SET MAIN FILE (with pending save, deletes old pending)
+  // ============================================================================
+  const setImageFile = useCallback(async (newFile: File) => {
+    // Clear previous file from URL and pending storage
     if (imageUrl) URL.revokeObjectURL(imageUrl);
+    if (pendingId) await pendingStorage.delete("watermark", pendingId);
     
+    // Save to pending storage
+    const id = await pendingStorage.save("watermark", newFile);
+    setPendingId(id);
+
+    // Set file for preview
     setFile(newFile);
     const url = URL.createObjectURL(newFile);
     setImageUrl(url);
     setError("");
-  }, [imageUrl]);
+  }, [imageUrl, pendingId]);
 
   // ============================================================================
   // SET FROM URL
@@ -45,25 +84,32 @@ export const useImageWatermark = () => {
       const filename = url.split("/").pop() || "url-image.jpg";
       const file = new File([blob], filename, { type: blob.type });
       
-      setImageFile(file);
+      await setImageFile(file);
     } catch (err) {
       setError("Failed to download image from URL");
     }
   }, [setImageFile]);
 
   // ============================================================================
-  // SET WATERMARK FILE (for image mode)
+  // SET WATERMARK FILE (for image mode, with pending save, deletes old pending)
   // ============================================================================
-  const setWatermark = useCallback((logoFile: File) => {
+  const setWatermark = useCallback(async (logoFile: File) => {
+    // Clear previous watermark from URL and pending storage
     if (watermarkPreview) URL.revokeObjectURL(watermarkPreview);
+    if (watermarkPendingId) await pendingStorage.delete("watermark", watermarkPendingId);
     
+    // Save to pending storage
+    const id = await pendingStorage.save("watermark", logoFile);
+    setWatermarkPendingId(id);
+
+    // Set watermark for preview
     setWatermarkFile(logoFile);
     const url = URL.createObjectURL(logoFile);
     setWatermarkPreview(url);
-  }, [watermarkPreview]);
+  }, [watermarkPreview, watermarkPendingId]);
 
   // ============================================================================
-  // ADD TEXT WATERMARK
+  // ADD TEXT WATERMARK (saves to session, deletes from pending)
   // ============================================================================
   const applyTextWatermark = useCallback(
     async (options: {
@@ -86,8 +132,19 @@ export const useImageWatermark = () => {
 
         const outputName = `watermarked_${file.name}`;
 
-        // Save to session storage
+        // Save to session storage (ONLY ONCE)
         await sessionStorageUtils.saveFile(blob, outputName, "watermark");
+
+        // Delete main image from pending storage after successful watermark
+        if (pendingId) {
+          await pendingStorage.delete("watermark", pendingId);
+          setPendingId(null);
+        }
+
+        // Clear file from state (completed files only in SessionFilesDisplay)
+        if (imageUrl) URL.revokeObjectURL(imageUrl);
+        setFile(null);
+        setImageUrl(null);
 
         setProcessing(false);
         return { success: true, blob, name: outputName };
@@ -98,11 +155,11 @@ export const useImageWatermark = () => {
         return { success: false, error: errorMsg };
       }
     },
-    [file, addTextWatermark]
+    [file, pendingId, imageUrl, addTextWatermark]
   );
 
   // ============================================================================
-  // ADD IMAGE WATERMARK
+  // ADD IMAGE WATERMARK (saves to session, deletes both from pending)
   // ============================================================================
   const applyImageWatermark = useCallback(
     async (options: {
@@ -125,8 +182,26 @@ export const useImageWatermark = () => {
 
         const outputName = `watermarked_${file.name}`;
 
-        // Save to session storage
+        // Save to session storage (ONLY ONCE)
         await sessionStorageUtils.saveFile(blob, outputName, "watermark");
+
+        // Delete both files from pending storage after successful watermark
+        if (pendingId) {
+          await pendingStorage.delete("watermark", pendingId);
+          setPendingId(null);
+        }
+        if (watermarkPendingId) {
+          await pendingStorage.delete("watermark", watermarkPendingId);
+          setWatermarkPendingId(null);
+        }
+
+        // Clear files from state (completed files only in SessionFilesDisplay)
+        if (imageUrl) URL.revokeObjectURL(imageUrl);
+        if (watermarkPreview) URL.revokeObjectURL(watermarkPreview);
+        setFile(null);
+        setImageUrl(null);
+        setWatermarkFile(null);
+        setWatermarkPreview(null);
 
         setProcessing(false);
         return { success: true, blob, name: outputName };
@@ -137,11 +212,11 @@ export const useImageWatermark = () => {
         return { success: false, error: errorMsg };
       }
     },
-    [file, watermarkFile, addImageWatermark]
+    [file, watermarkFile, pendingId, watermarkPendingId, imageUrl, watermarkPreview, addImageWatermark]
   );
 
   // ============================================================================
-  // DOWNLOAD FROM SESSION
+  // DOWNLOAD FROM SESSION (not from state)
   // ============================================================================
   const downloadFile = useCallback(async (fileId: string) => {
     const fileMeta = sessionStorageUtils.getFile("watermark", fileId);
@@ -161,11 +236,13 @@ export const useImageWatermark = () => {
   }, []);
 
   // ============================================================================
-  // RESET
+  // RESET (clear both pending files, clear state)
   // ============================================================================
-  const reset = useCallback(() => {
+  const reset = useCallback(async () => {
     if (imageUrl) URL.revokeObjectURL(imageUrl);
     if (watermarkPreview) URL.revokeObjectURL(watermarkPreview);
+    if (pendingId) await pendingStorage.delete("watermark", pendingId);
+    if (watermarkPendingId) await pendingStorage.delete("watermark", watermarkPendingId);
     
     setFile(null);
     setImageUrl(null);
@@ -173,7 +250,9 @@ export const useImageWatermark = () => {
     setWatermarkPreview(null);
     setError("");
     setProcessing(false);
-  }, [imageUrl, watermarkPreview]);
+    setPendingId(null);
+    setWatermarkPendingId(null);
+  }, [imageUrl, watermarkPreview, pendingId, watermarkPendingId]);
 
   return {
     file,
