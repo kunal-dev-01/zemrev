@@ -21,6 +21,8 @@ const footerLinks = {
     { name: "Image Optimizer", href: "/image/image-optimizer" },
     { name: "Image Cropper", href: "/image/image-cropper" },
     { name: "Watermark Tool", href: "/image/image-watermark" },
+    { name: "Metadata Extractor", href: "/image/extract-meta-data" },
+    { name: "Color Palette Generator", href: "/image/extract-color-palette" },
   ],
 
   pdfTools: [

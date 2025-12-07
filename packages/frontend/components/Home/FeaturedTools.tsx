@@ -6,10 +6,29 @@ import {
   ArrowRightLeft,
   CropSvg,
   Watermark,
-  FilterSvg,
-  ColorPaletteSvg
+  MetadataSvg,
+  ColorPaletteSvg,
 } from "@/components/Svg/HomeSvg";
-import { ExtractImagesFromPdfSvg, ExtractTextFromPdfSvg, ImageToPDFSvg, PDFCompressSvg, PDFMergerSvg, PDFOptimizerSvg, PDFSplitterSvg, PDFToCSV, PDFToEPUB, PDFToExcelSvg, PDFToHTMLSvg, PDFToImageSVg, PDFToTextSvg, PDFToWordSvg, PDFWatermarkSvg, RotateImageSvg, SecurePdfSvg, UnlockPdfSvg } from "@/components/Svg/PdfSvg";
+import {
+  ExtractImagesFromPdfSvg,
+  ExtractTextFromPdfSvg,
+  ImageToPDFSvg,
+  PDFCompressSvg,
+  PDFMergerSvg,
+  PDFOptimizerSvg,
+  PDFSplitterSvg,
+  PDFToCSV,
+  PDFToEPUB,
+  PDFToExcelSvg,
+  PDFToHTMLSvg,
+  PDFToImageSVg,
+  PDFToTextSvg,
+  PDFToWordSvg,
+  PDFWatermarkSvg,
+  RotateImageSvg,
+  SecurePdfSvg,
+  UnlockPdfSvg,
+} from "@/components/Svg/PdfSvg";
 
 const imageTools: ToolItem[] = [
   {
@@ -61,18 +80,18 @@ const imageTools: ToolItem[] = [
     bg: "bg-violet-50 dark:bg-violet-500/10",
   },
   {
-    title: "Image Filter",
-    desc: "Apply advanced image filters to enhance your images.",
-    icon: FilterSvg,
-    link: "/image/image-filter",
+    title: "Metadata Extractor",
+    desc: "Extract metadata from your images for easy organization.",
+    icon: MetadataSvg,
+    link: "/image/extract-meta-data",
     color: "text-purple-500",
     bg: "bg-purple-50 dark:bg-purple-600/10",
   },
   {
-    title: "Image Color Palette",
+    title: "Color Palette Generator",
     desc: "Extract color palettes from your images for design inspiration.",
     icon: ColorPaletteSvg,
-    link: "/image/image-color-palette",
+    link: "/image/extract-color-palette",
     color: "text-orange-500",
     bg: "bg-orange-50 dark:bg-orange-500/10",
   },
