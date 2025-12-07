@@ -49,7 +49,6 @@ const DynamicResizer = ({ slug }: DynamicResizerProps) => {
     updateFileSettings,
     resizeAllFiles,
     clearAll,
-    downloadFile,
   } = useImageResizer();
 
   // ============================================================================

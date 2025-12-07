@@ -27,7 +27,6 @@ const ImageResizer = () => {
     updateFileSettings,
     resizeAllFiles,
     clearAll,
-    downloadFile,
   } = useImageResizer();
 
   // ============================================================================

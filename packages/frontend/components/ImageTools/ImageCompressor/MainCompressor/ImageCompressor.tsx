@@ -35,36 +35,28 @@ const ImageCompressor = () => {
   // ============================================================================
   const handleFilesSelected = useCallback(
     async (newFiles: File[]) => {
-      // Detect formats from filenames
+      // STEP 1️⃣ — Always save files first into pending
+      await addFiles(newFiles, config.defaultSettings.quality as number);
+
+      // STEP 2️⃣ — Now detect formats
       const formats = newFiles.map((f) => detectFormatFromFilename(f.name));
       const uniqueFormats = [...new Set(formats.filter(Boolean))];
 
-      // SMART REDIRECT LOGIC
-      // If all files are same format AND ≤5 files → redirect to dynamic compressor
+      // STEP 3️⃣ — Redirect logic AFTER save
       if (uniqueFormats.length === 1 && newFiles.length <= 5) {
         const format = uniqueFormats[0];
-        
+
         if (format) {
           router.push(`/image/image-compressor/${format}-compressor`);
-          return;
         }
       }
-
-      // Otherwise, stay on main page and add files normally
-      await addFiles(
-        newFiles,
-        config.defaultSettings.quality as number
-      );
     },
     [addFiles, config, router]
   );
 
   const handleUrlUpload = useCallback(
     async (url: string) => {
-      await addFromUrl(
-        url,
-        config.defaultSettings.quality as number
-      );
+      await addFromUrl(url, config.defaultSettings.quality as number);
     },
     [addFromUrl, config]
   );
@@ -120,7 +112,9 @@ const ImageCompressor = () => {
                 key={file.id}
                 file={file}
                 config={config}
-                onUpdateSettings={(settings) => updateFileSettings(file.id, settings)}
+                onUpdateSettings={(settings) =>
+                  updateFileSettings(file.id, settings)
+                }
                 onRemove={() => removeFile(file.id)}
               />
             ))}
@@ -139,7 +133,9 @@ const ImageCompressor = () => {
                   <Spinner /> Compressing...
                 </>
               ) : (
-                `Compress ${stats.pending} File${stats.pending !== 1 ? "s" : ""}`
+                `Compress ${stats.pending} File${
+                  stats.pending !== 1 ? "s" : ""
+                }`
               )}
             </button>
           )}

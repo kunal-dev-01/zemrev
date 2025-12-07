@@ -26,7 +26,6 @@ const ImageOptimizer = () => {
     updateFileSettings,
     optimizeAllFiles,
     clearAll,
-    downloadFile,
   } = useImageOptimizer();
 
   // ============================================================================

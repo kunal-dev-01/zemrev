@@ -39,40 +39,36 @@ const DynamicCompressor = ({ format }: DynamicCompressorProps) => {
   // ============================================================================
   const handleFilesSelected = useCallback(
     async (newFiles: File[]) => {
-      // Detect formats from filenames
+      // STEP 1️⃣ — Always save files to pending first
+      await addFiles(newFiles, config.defaultSettings.quality as number);
+
+      // STEP 2️⃣ — Detect formats
       const formats = newFiles.map((f) => detectFormatFromFilename(f.name));
       const uniqueFormats = [...new Set(formats.filter(Boolean))];
 
-      // REDIRECT LOGIC FOR DYNAMIC PAGE:
-      
-      // 1. If mixed formats uploaded → Go to main compressor
+      // STEP 3️⃣ — Redirect logic AFTER saving files
+
+      // 1. If mixed formats → Go to main compressor
       if (uniqueFormats.length > 1) {
-        router.push('/image/image-compressor');
+        router.push("/image/image-compressor");
         return;
       }
 
-      // 2. If uploaded format ≠ expected format → Go to main compressor
+      // 2. If uploaded format ≠ expected dynamic format → Go to main compressor
       const uploadedFormat = uniqueFormats[0];
       if (uploadedFormat !== format) {
-        router.push('/image/image-compressor');
+        router.push("/image/image-compressor");
         return;
       }
 
-      // Otherwise, add files to dynamic compressor (same format)
-      await addFiles(
-        newFiles,
-        config.defaultSettings.quality as number
-      );
+      // NO redirect here — this is the dynamic compressor itself
     },
-    [addFiles, config, router, format, files]
+    [addFiles, config, router, format]
   );
 
   const handleUrlUpload = useCallback(
     async (url: string) => {
-      await addFromUrl(
-        url,
-        config.defaultSettings.quality as number
-      );
+      await addFromUrl(url, config.defaultSettings.quality as number);
     },
     [addFromUrl, config]
   );
@@ -129,7 +125,9 @@ const DynamicCompressor = ({ format }: DynamicCompressorProps) => {
                 key={file.id}
                 file={file}
                 config={config}
-                onUpdateSettings={(settings) => updateFileSettings(file.id, settings)}
+                onUpdateSettings={(settings) =>
+                  updateFileSettings(file.id, settings)
+                }
                 onRemove={() => removeFile(file.id)}
               />
             ))}
@@ -148,7 +146,9 @@ const DynamicCompressor = ({ format }: DynamicCompressorProps) => {
                   <Spinner /> Compressing...
                 </>
               ) : (
-                `Compress ${stats.pending} File${stats.pending !== 1 ? "s" : ""}`
+                `Compress ${stats.pending} File${
+                  stats.pending !== 1 ? "s" : ""
+                }`
               )}
             </button>
           )}
