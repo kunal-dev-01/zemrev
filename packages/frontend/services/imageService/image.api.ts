@@ -1,6 +1,6 @@
 // ============================================================================
 // FILE: src/services/image.service.ts
-// PURPOSE: RTK Query API endpoints for all image operations
+// PURPOSE: RTK Query API endpoints for all image operations (FILE ONLY)
 // ============================================================================
 
 import { baseApi } from "@/lib/baseApi/base.api";
@@ -14,168 +14,106 @@ import type {
   ImageWatermarkRequest,
   PaletteResponse,
   PaletteRequest,
-  MetadataResponse,
-  MetadataRequest,
+  MetadataResponse
 } from "./types";
 
 // ============================================================================
-// HELPER: BUILD FORM DATA
+// STRICT PARAM TYPE (NO ANY)
 // ============================================================================
 
-const buildFormData = (
+type FormDataParams = Record<string, string | number | boolean | undefined>;
+
+// ============================================================================
+// HELPER: BUILD FORM DATA (TYPE SAFE, ANY-FREE)
+// ============================================================================
+
+const buildFormData = <T extends FormDataParams>(
   file: File | null,
-  params: Record<string, any>
+  params?: T
 ): FormData => {
   const formData = new FormData();
 
-  if (file) {
-    formData.append("file", file);
-  }
+  if (file) formData.append("file", file);
 
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== null) {
-      formData.append(key, String(value));
-    }
-  });
+  if (params) {
+    (Object.keys(params) as (keyof T)[]).forEach((key) => {
+      const value = params[key];
+      if (value !== undefined) {
+        formData.append(key as string, String(value));
+      }
+    });
+  }
 
   return formData;
 };
 
 // ============================================================================
-// IMAGE API ENDPOINTS
+// IMAGE API ENDPOINTS (FILE ONLY)
 // ============================================================================
 
 export const imageApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    // ========================================================================
     // CONVERT
-    // ========================================================================
     convertImage: builder.mutation<Blob, { file: File; options: ConvertRequest }>({
       query: ({ file, options }) => ({
         url: "/image/convert",
         method: "POST",
         body: buildFormData(file, options),
-        responseHandler: async (response) => await response.blob(),
+        responseHandler: (r) => r.blob(),
       }),
     }),
 
-    convertImageFromUrl: builder.mutation<Blob, ConvertRequest>({
-      query: (options) => ({
-        url: "/image/convert",
-        method: "POST",
-        body: buildFormData(null, options),
-        responseHandler: async (response) => await response.blob(),
-      }),
-    }),
-
-    // ========================================================================
     // COMPRESS
-    // ========================================================================
     compressImage: builder.mutation<Blob, { file: File; options: CompressRequest }>({
       query: ({ file, options }) => ({
         url: "/image/compress",
         method: "POST",
         body: buildFormData(file, options),
-        responseHandler: async (response) => await response.blob(),
+        responseHandler: (r) => r.blob(),
       }),
     }),
 
-    compressImageFromUrl: builder.mutation<Blob, CompressRequest>({
-      query: (options) => ({
-        url: "/image/compress",
-        method: "POST",
-        body: buildFormData(null, options),
-        responseHandler: async (response) => await response.blob(),
-      }),
-    }),
-
-    // ========================================================================
     // RESIZE
-    // ========================================================================
     resizeImage: builder.mutation<Blob, { file: File; options: ResizeRequest }>({
       query: ({ file, options }) => ({
         url: "/image/resize",
         method: "POST",
         body: buildFormData(file, options),
-        responseHandler: async (response) => await response.blob(),
+        responseHandler: (r) => r.blob(),
       }),
     }),
 
-    resizeImageFromUrl: builder.mutation<Blob, ResizeRequest>({
-      query: (options) => ({
-        url: "/image/resize",
-        method: "POST",
-        body: buildFormData(null, options),
-        responseHandler: async (response) => await response.blob(),
-      }),
-    }),
-
-    // ========================================================================
     // OPTIMIZE
-    // ========================================================================
     optimizeImage: builder.mutation<Blob, { file: File; options: OptimizeRequest }>({
       query: ({ file, options }) => ({
         url: "/image/optimize",
         method: "POST",
         body: buildFormData(file, options),
-        responseHandler: async (response) => await response.blob(),
+        responseHandler: (r) => r.blob(),
       }),
     }),
 
-    optimizeImageFromUrl: builder.mutation<Blob, OptimizeRequest>({
-      query: (options) => ({
-        url: "/image/optimize",
-        method: "POST",
-        body: buildFormData(null, options),
-        responseHandler: async (response) => await response.blob(),
-      }),
-    }),
-
-    // ========================================================================
     // CROP
-    // ========================================================================
     cropImage: builder.mutation<Blob, { file: File; options: CropRequest }>({
       query: ({ file, options }) => ({
         url: "/image/crop",
         method: "POST",
         body: buildFormData(file, options),
-        responseHandler: async (response) => await response.blob(),
+        responseHandler: (r) => r.blob(),
       }),
     }),
 
-    cropImageFromUrl: builder.mutation<Blob, CropRequest>({
-      query: (options) => ({
-        url: "/image/crop",
-        method: "POST",
-        body: buildFormData(null, options),
-        responseHandler: async (response) => await response.blob(),
-      }),
-    }),
-
-    // ========================================================================
     // WATERMARK TEXT
-    // ========================================================================
     addTextWatermark: builder.mutation<Blob, { file: File; options: TextWatermarkRequest }>({
       query: ({ file, options }) => ({
         url: "/image/watermark/text",
         method: "POST",
         body: buildFormData(file, options),
-        responseHandler: async (response) => await response.blob(),
+        responseHandler: (r) => r.blob(),
       }),
     }),
 
-    addTextWatermarkFromUrl: builder.mutation<Blob, TextWatermarkRequest>({
-      query: (options) => ({
-        url: "/image/watermark/text",
-        method: "POST",
-        body: buildFormData(null, options),
-        responseHandler: async (response) => await response.blob(),
-      }),
-    }),
-
-    // ========================================================================
     // WATERMARK IMAGE
-    // ========================================================================
     addImageWatermark: builder.mutation<
       Blob,
       { file: File; watermark: File; options: ImageWatermarkRequest }
@@ -183,34 +121,17 @@ export const imageApi = baseApi.injectEndpoints({
       query: ({ file, watermark, options }) => {
         const formData = buildFormData(file, options);
         formData.append("watermark", watermark);
+
         return {
           url: "/image/watermark/image",
           method: "POST",
           body: formData,
-          responseHandler: async (response) => await response.blob(),
+          responseHandler: (r) => r.blob(),
         };
       },
     }),
 
-    addImageWatermarkFromUrl: builder.mutation<
-      Blob,
-      { watermark: File; options: ImageWatermarkRequest }
-    >({
-      query: ({ watermark, options }) => {
-        const formData = buildFormData(null, options);
-        formData.append("watermark", watermark);
-        return {
-          url: "/image/watermark/image",
-          method: "POST",
-          body: formData,
-          responseHandler: async (response) => await response.blob(),
-        };
-      },
-    }),
-
-        // ========================================================================
-    // PALETTE EXTRACTOR
-    // ========================================================================
+    // PALETTE
     extractPalette: builder.mutation<PaletteResponse, { file: File; options: PaletteRequest }>({
       query: ({ file, options }) => ({
         url: "/image/palette",
@@ -219,30 +140,12 @@ export const imageApi = baseApi.injectEndpoints({
       }),
     }),
 
-    extractPaletteFromUrl: builder.mutation<PaletteResponse, PaletteRequest>({
-      query: (options) => ({
-        url: "/image/palette",
-        method: "POST",
-        body: buildFormData(null, options),
-      }),
-    }),
-
-    // ========================================================================
-    // METADATA EXTRACTOR
-    // ========================================================================
-    extractMetadata: builder.mutation<MetadataResponse, { file: File; options: MetadataRequest }>({
-      query: ({ file, options }) => ({
+    // METADATA
+    extractMetadata: builder.mutation<MetadataResponse, { file: File }>({
+      query: ({ file }) => ({
         url: "/image/metadata",
         method: "POST",
-        body: buildFormData(file, options),
-      }),
-    }),
-
-    extractMetadataFromUrl: builder.mutation<MetadataResponse, MetadataRequest>({
-      query: (options) => ({
-        url: "/image/metadata",
-        method: "POST",
-        body: buildFormData(null, options),
+        body: buildFormData(file, {}), // No params required
       }),
     }),
   }),
@@ -254,21 +157,12 @@ export const imageApi = baseApi.injectEndpoints({
 
 export const {
   useConvertImageMutation,
-  useConvertImageFromUrlMutation,
   useCompressImageMutation,
-  useCompressImageFromUrlMutation,
   useResizeImageMutation,
-  useResizeImageFromUrlMutation,
   useOptimizeImageMutation,
-  useOptimizeImageFromUrlMutation,
   useCropImageMutation,
-  useCropImageFromUrlMutation,
   useAddTextWatermarkMutation,
-  useAddTextWatermarkFromUrlMutation,
   useAddImageWatermarkMutation,
-  useAddImageWatermarkFromUrlMutation,
   useExtractPaletteMutation,
-  useExtractPaletteFromUrlMutation,
   useExtractMetadataMutation,
-  useExtractMetadataFromUrlMutation,  
 } = imageApi;
