@@ -46,7 +46,7 @@ async def lifespan(app: FastAPI):
 # ============================================================================
 
 app = FastAPI(
-    title="ZEMREV Image API",
+    title="ZEMREV PDF API",
     description="Ultra-fast PDF Tools",
     version="1.0.0",
     lifespan=lifespan
@@ -83,7 +83,7 @@ app.add_middleware(
 async def root():
     """API info"""
     return {
-        "service": "ZEMREV Image API",
+        "service": "ZEMREV PDF API",
         "version": "1.0.0",
         "status": "operational"
     }
