@@ -16,10 +16,6 @@ class Settings(BaseSettings):
     MAX_FILE_SIZE: int = 52428800  # 50MB
     MAX_DIMENSION: int = 15000
     
-    # URL downloads
-    MAX_URL_SIZE: int = 52428800
-    URL_TIMEOUT: int = 30
-    
     # Server
     WORKERS: int = 4
     LOG_LEVEL: str = "info"
