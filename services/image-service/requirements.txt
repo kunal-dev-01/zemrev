@@ -11,12 +11,6 @@ python-multipart==0.0.6
 # Image Processing (PyVIPS ONLY)
 pyvips==2.2.3
 
-# Redis
-redis==5.0.1
-
-# HTTP Client
-httpx==0.26.0
-
 # Validation
 pydantic==2.5.0
 pydantic-settings==2.1.0
