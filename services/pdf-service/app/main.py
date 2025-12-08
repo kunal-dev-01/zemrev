@@ -1,25 +1,24 @@
 """
 ============================================================================
-FILE: services/image-service/app/main.py
-PURPOSE: Image Service FastAPI app (uses shared queue package)
+FILE: services/pdf-service/app/main.py
+PURPOSE: PDF Service FastAPI app
 ============================================================================
 """
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
-import logging
+
 from app.core.config import settings
+from app.core.logging import setup_logging, get_logger
+from app.api.routes import pypdf_routes
 
 # ============================================================================
-# LOGGING
+# SETUP LOGGING
 # ============================================================================
 
-logging.basicConfig(
-    level=getattr(logging, settings.LOG_LEVEL.upper()),
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
+setup_logging()
+logger = get_logger(__name__)
 
 # ============================================================================
 # LIFESPAN
@@ -27,19 +26,16 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Startup and shutdown"""
-
-    logger.info("🚀 Starting ZEMREV PDF Service...")
-
-    # Startup tasks here (optional)
-
-    yield   # <-- REQUIRED LINE
-
-    # Shutdown tasks here (optional)
-
-    logger.info("🔴 Shutting down PDF service...")
-
+    """Startup and shutdown events"""
     
+    logger.info("🚀 Starting ZEMREV PDF Service...")
+    logger.info(f"📁 Upload directory: {settings.UPLOAD_DIR}")
+    logger.info(f"📊 Max file size: {settings.MAX_FILE_SIZE / (1024*1024):.1f}MB")
+    logger.info(f"📄 Max pages: {settings.MAX_PAGES}")
+    
+    yield
+    
+    logger.info("🔴 Shutting down PDF service...")
 
 # ============================================================================
 # FASTAPI APP
@@ -47,7 +43,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="ZEMREV PDF API",
-    description="Ultra-fast PDF Tools",
+    description="Ultra-fast PDF Tools - Merge, Split, Rotate, Encrypt, Decrypt",
     version="1.0.0",
     lifespan=lifespan
 )
@@ -69,30 +65,41 @@ app.add_middleware(
 # ROUTES
 # ============================================================================
 
-# app.include_router(router)
+app.include_router(pypdf_routes.router)
 
 # ============================================================================
 # ROOT ENDPOINTS
 # ============================================================================
 
-# ============================================================================
-# HEALTH
-# ============================================================================
-
 @app.get("/")
 async def root():
-    """API info"""
+    """API information"""
     return {
         "service": "ZEMREV PDF API",
         "version": "1.0.0",
-        "status": "operational"
+        "status": "operational",
+        "tools": [
+            "merge",
+            "split",
+            "rotate",
+            "encrypt",
+            "decrypt"
+        ],
+        "endpoints": {
+            "merge": "/api/v1/pdf/merge",
+            "split": "/api/v1/pdf/split",
+            "rotate": "/api/v1/pdf/rotate",
+            "encrypt": "/api/v1/pdf/encrypt",
+            "decrypt": "/api/v1/pdf/decrypt"
+        }
     }
+
 
 @app.get("/health")
 async def health():
     """Health check"""
-    
     return {
         "status": "healthy",
-        "workers": len(worker_manager.workers)
+        "service": "pdf-service",
+        "version": "1.0.0"
     }
