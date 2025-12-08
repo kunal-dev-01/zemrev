@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "info"
     HOST: str = "0.0.0.0"
     PORT: int = 8001
-    
+
     # CORS
     ALLOWED_ORIGINS: str = "*"
     
