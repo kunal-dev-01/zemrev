@@ -5,7 +5,7 @@ PURPOSE: Pydantic models (7 formats: JPEG, PNG, WebP, AVIF, HEIC, HEIF, TIFF)
 ============================================================================
 """
 
-from pydantic import BaseModel, Field, HttpUrl, field_validator
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional
 from enum import Enum
 
@@ -100,8 +100,7 @@ class MetadataRequest(BaseModel):
 
 class PaletteRequest(BaseModel):
     """Color palette extraction"""
-    num_colors: int = Field(default=5, ge=3, le=10)
-    url: Optional[HttpUrl] = Field(default=None)    
+    num_colors: int = Field(default=5, ge=3, le=10)  
 
 # ============================================================================
 # RESPONSES
