@@ -1,0 +1,107 @@
+"""
+============================================================================
+FILE: app/api/controllers/ghostscript_controller.py
+PURPOSE: Controller logic for Ghostscript operations
+============================================================================
+"""
+
+from pathlib import Path
+from fastapi import UploadFile, HTTPException
+from fastapi.responses import FileResponse
+from concurrent.futures import ThreadPoolExecutor
+import asyncio
+
+from app.services.validator import validate_upload
+from app.services.ghostscript.compress_pdf import compress_pdf_ghostscript
+from app.services.ghostscript.flatten_pdf import flatten_pdf_ghostscript
+from app.models.ghostscript_schemas import CompressPdfRequest, FlattenPdfRequest
+from app.utils.file_io import create_temp_pdf_path, safe_remove
+from app.core.logging import get_logger
+
+logger = get_logger(__name__)
+
+# Thread pool for blocking operations
+executor = ThreadPoolExecutor(max_workers=2)
+
+
+async def compress_pdf_handler(
+    file: UploadFile,
+    request: CompressPdfRequest
+) -> FileResponse:
+    """Handle PDF compression with Ghostscript."""
+    input_path = None
+    output_path = None
+    
+    try:
+        # Validate upload
+        input_path = await validate_upload(file)
+        
+        # Create output path
+        output_path = create_temp_pdf_path(prefix="compressed")
+        
+        # Run compression
+        loop = asyncio.get_event_loop()
+        original_size, compressed_size = await loop.run_in_executor(
+            executor,
+            compress_pdf_ghostscript,
+            input_path,
+            output_path,
+            request.level.value
+        )
+        
+        return FileResponse(
+            path=str(output_path),
+            media_type="application/pdf",
+            filename="compressed.pdf",
+            background=None
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"PDF compression failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        if input_path:
+            safe_remove(input_path)
+
+
+async def flatten_pdf_handler(
+    file: UploadFile,
+    request: FlattenPdfRequest
+) -> FileResponse:
+    """Handle PDF flattening with Ghostscript."""
+    input_path = None
+    output_path = None
+    
+    try:
+        # Validate upload
+        input_path = await validate_upload(file)
+        
+        # Create output path
+        output_path = create_temp_pdf_path(prefix="flattened")
+        
+        # Run flattening
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(
+            executor,
+            flatten_pdf_ghostscript,
+            input_path,
+            output_path
+        )
+        
+        return FileResponse(
+            path=str(output_path),
+            media_type="application/pdf",
+            filename="flattened.pdf",
+            background=None
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"PDF flattening failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        if input_path:
+            safe_remove(input_path)
