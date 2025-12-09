@@ -1,12 +1,12 @@
 """
 ============================================================================
-FILE: app/api/routes/pypdf_routes.py
+FILE: services/pdf-service/app/api/routes/pypdf_routes.py
 PURPOSE: API routes for PDF operations
 ============================================================================
 """
 
 from fastapi import APIRouter, File, UploadFile, Form, HTTPException
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import FileResponse
 from typing import List
 
 from app.api.controllers.pypdf_controller import (
@@ -39,11 +39,11 @@ async def merge_pdfs_endpoint(
     return await merge_pdfs_handler(files)
 
 
-@router.post("/split", response_class=StreamingResponse)
+@router.post("/split", response_class=FileResponse)
 async def split_pdf_endpoint(
     file: UploadFile = File(..., description="PDF file to split"),
     pages: str = Form(..., description="Page ranges like '1-3,5,8-10'")
-) -> StreamingResponse:
+) -> FileResponse:
     """
     Split PDF into multiple files based on page ranges.
     
