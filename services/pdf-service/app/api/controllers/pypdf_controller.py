@@ -1,6 +1,6 @@
 """
 ============================================================================
-FILE: app/api/controllers/pypdf_controller.py
+FILE: services/pdf-service/app/api/controllers/pypdf_controller.py
 PURPOSE: Controller logic for PDF operations
 ============================================================================
 """
@@ -8,16 +8,16 @@ PURPOSE: Controller logic for PDF operations
 from pathlib import Path
 from typing import List
 from fastapi import UploadFile, HTTPException
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import FileResponse
 from concurrent.futures import ThreadPoolExecutor
 import asyncio
 
 from app.services.validator import validate_upload
-from app.services.merge_service import merge_pdfs
-from app.services.split_service import split_pdf
-from app.services.rotate_service import rotate_pdf_pages
-from app.services.encrypt_service import encrypt_pdf
-from app.services.decrypt_service import decrypt_pdf
+from app.services.pypdf.merge_service import merge_pdfs
+from app.services.pypdf.split_service import split_pdf
+from app.services.pypdf.rotate_service import rotate_pdf_pages
+from app.services.pypdf.encrypt_service import encrypt_pdf
+from app.services.pypdf.decrypt_service import decrypt_pdf
 from app.models.schemas import (
     SplitRequest, RotateRequest, EncryptRequest, DecryptRequest,
     parse_page_ranges, parse_rotations
@@ -92,7 +92,7 @@ async def merge_pdfs_handler(files: List[UploadFile]) -> FileResponse:
 async def split_pdf_handler(
     file: UploadFile,
     request: SplitRequest
-) -> StreamingResponse:
+) -> FileResponse:
     """
     Handle PDF split request.
     
@@ -101,7 +101,7 @@ async def split_pdf_handler(
         request: Split request with page ranges
         
     Returns:
-        StreamingResponse with ZIP containing split PDFs
+        FileResponse with ZIP containing split PDFs
     """
     input_path = None
     output_paths = []
@@ -131,15 +131,12 @@ async def split_pdf_handler(
         # Create ZIP archive
         zip_path = create_zip_from_pdfs(output_paths, zip_prefix="split")
         
-        # Return ZIP file as streaming response
-        def iterfile():
-            with open(zip_path, 'rb') as f:
-                yield from f
-        
-        return StreamingResponse(
-            iterfile(),
+        # Return ZIP file - FileResponse handles cleanup properly
+        return FileResponse(
+            path=str(zip_path),
             media_type="application/zip",
-            headers={"Content-Disposition": "attachment; filename=split_pages.zip"}
+            filename="split_pages.zip",
+            background=None
         )
         
     except HTTPException:
@@ -148,12 +145,11 @@ async def split_pdf_handler(
         logger.error(f"Split operation failed: {e}")
         raise HTTPException(status_code=500, detail=f"Split failed: {str(e)}")
     finally:
-        # Cleanup
+        # Cleanup input and intermediate files only
+        # ZIP will be cleaned up by caller after sending
         if input_path:
             safe_remove(input_path)
         safe_remove_multiple(output_paths)
-        if zip_path:
-            safe_remove(zip_path)
 
 
 async def rotate_pdf_handler(
