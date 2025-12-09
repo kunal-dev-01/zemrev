@@ -1,6 +1,6 @@
 """
 ============================================================================
-FILE: services/pdf-service/app/models/schemas.py
+FILE: services/pdf-service/app/models/pypdf_schemas.py
 PURPOSE: Pydantic models and parsers
 ============================================================================
 """
