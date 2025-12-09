@@ -6,6 +6,7 @@ import { Spinner } from "@/components/Layouts/Spinner";
 import { FileImage } from "@/components/Svg/HomeSvg";
 import { CancelSvg, ErrorSvg } from "@/components/Svg/CommonSvg";
 import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
+import { ToggleSwitch } from "@/components/Shared/ToggleSwitch";
 import type { FileSettings, ProcessedFile, ToolConfig } from "@/services/imageService/types";
 
 interface OptimizerFilePanelProps {
@@ -21,6 +22,7 @@ export const OptimizerFilePanel = ({
   onUpdateSettings,
   onRemove,
 }: OptimizerFilePanelProps) => {
+  
   const isDark = useDarkMode();
 
   const formatBytes = (bytes: number) => {
@@ -80,9 +82,11 @@ export const OptimizerFilePanel = ({
 
   return (
     <div className="dark:bg-zinc-900 bg-white border border-zinc-200 dark:border-zinc-800 rounded-lg p-3 sm:p-4 transition-all duration-200">
-      {/* Header Section */}
+
+      {/* Header */}
       <div className="flex items-start gap-3">
-        {/* File Icon */}
+        
+        {/* Icon */}
         <div
           className="p-2.5 sm:p-3 rounded-lg shrink-0"
           style={{
@@ -94,7 +98,7 @@ export const OptimizerFilePanel = ({
           </div>
         </div>
 
-        {/* File Info */}
+        {/* Info */}
         <div className="flex-1 min-w-0">
           <h3 className="text-sm font-medium text-zinc-800 dark:text-zinc-200 truncate" title={file.name}>
             {truncateFileName(file.name)}
@@ -104,14 +108,13 @@ export const OptimizerFilePanel = ({
           </p>
         </div>
 
-        {/* Status Badge */}
+        {/* Status badge + Remove */}
         <div className="flex items-center justify-center gap-3">
           <div className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${status.bg} ${status.color}`}>
             {status.icon}
             <span>{status.text}</span>
           </div>
 
-          {/* Remove Button */}
           {!isProcessing && (
             <button
               onClick={onRemove}
@@ -124,72 +127,41 @@ export const OptimizerFilePanel = ({
         </div>
       </div>
 
-      {/* ERROR MESSAGE */}
+      {/* ERROR */}
       {isError && file.error && (
         <div className="mt-3 p-2.5 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
           <p className="text-xs text-red-600 dark:text-red-400">{file.error}</p>
         </div>
       )}
 
-      {/* OPTIMIZER SETTINGS (Only for pending files) */}
+      {/* SETTINGS (only for pending files) */}
       {file.status === "pending" && (
         <div className="mt-3 space-y-3">
-          {/* Remove EXIF Data */}
-          <label className="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all">
-            <input
-              type="checkbox"
-              checked={file.settings.stripExif || false}
-              onChange={(e) => onUpdateSettings({ stripExif: e.target.checked })}
-              className="w-5 h-5 rounded cursor-pointer"
-              style={{ accentColor: config.primaryColor }}
-            />
-            <div className="flex-1">
-              <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300 block">
-                Remove EXIF Data
-              </span>
-              <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                Camera info, date, settings
-              </span>
-            </div>
-          </label>
 
-          {/* Remove GPS Location */}
-          <label className="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all">
-            <input
-              type="checkbox"
-              checked={file.settings.stripGps || false}
-              onChange={(e) => onUpdateSettings({ stripGps: e.target.checked })}
-              className="w-5 h-5 rounded cursor-pointer"
-              style={{ accentColor: config.primaryColor }}
-            />
-            <div className="flex-1">
-              <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300 block">
-                Remove GPS Location
-              </span>
-              <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                Coordinates, place info
-              </span>
-            </div>
-          </label>
+          <ToggleSwitch
+            checked={file.settings.stripExif || false}
+            onChange={(value) => onUpdateSettings({ stripExif: value })}
+            label="Remove EXIF Data"
+            description="Camera info, date, settings"
+            color={config.primaryColor}
+          />
 
-          {/* Fix Image Orientation */}
-          <label className="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all">
-            <input
-              type="checkbox"
-              checked={file.settings.fixOrientation || false}
-              onChange={(e) => onUpdateSettings({ fixOrientation: e.target.checked })}
-              className="w-5 h-5 rounded cursor-pointer"
-              style={{ accentColor: config.primaryColor }}
-            />
-            <div className="flex-1">
-              <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300 block">
-                Fix Image Orientation
-              </span>
-              <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                Auto-correct rotated photos
-              </span>
-            </div>
-          </label>
+          <ToggleSwitch
+            checked={file.settings.stripGps || false}
+            onChange={(value) => onUpdateSettings({ stripGps: value })}
+            label="Remove GPS Location"
+            description="Coordinates, place info"
+            color={config.primaryColor}
+          />
+
+          <ToggleSwitch
+            checked={file.settings.fixOrientation || false}
+            onChange={(value) => onUpdateSettings({ fixOrientation: value })}
+            label="Fix Image Orientation"
+            description="Auto-correct rotated photos"
+            color={config.primaryColor}
+          />
+
         </div>
       )}
     </div>

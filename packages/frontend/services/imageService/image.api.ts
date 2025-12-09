@@ -1,5 +1,5 @@
 // ============================================================================
-// FILE: src/services/image.service.ts
+// FILE: src/services/imageService/image.api.ts
 // PURPOSE: RTK Query API endpoints for all image operations (FILE ONLY)
 // ============================================================================
 

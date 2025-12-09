@@ -96,6 +96,7 @@ class AddWatermarkRequest(BaseModel):
     font_size: int = Field(default=50, ge=10, le=200, description="Text font size (10-200)")
     rotation: int = Field(default=45, ge=0, le=360, description="Watermark rotation (0-360)")
     color: str = Field(default="gray", description="Text color (e.g., 'red', 'blue', 'gray')")
+    scale: float = Field(default=0.25, ge=0.05, le=1.0, description="Image scale factor (0.05-1.0)")
     
     @field_validator('text')
     @classmethod
