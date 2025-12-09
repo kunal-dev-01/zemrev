@@ -11,7 +11,7 @@ from contextlib import asynccontextmanager
 
 from app.core.config import settings
 from app.core.logging import setup_logging, get_logger
-from app.api.routes import pypdf_routes, pymupdf_routes
+from app.api.routes import pypdf_routes, pymupdf_routes, ghostscript_routes, libreoffice_routes, ocr_routes
 
 # ============================================================================
 # SETUP LOGGING
@@ -67,6 +67,9 @@ app.add_middleware(
 
 app.include_router(pypdf_routes.router)
 app.include_router(pymupdf_routes.router)
+app.include_router(ghostscript_routes.router)
+app.include_router(libreoffice_routes.router)
+app.include_router(ocr_routes.router)
 
 # ============================================================================
 # ROOT ENDPOINTS
@@ -80,21 +83,11 @@ async def root():
         "version": "1.0.0",
         "status": "operational",
         "tools": {
-            "pypdf": [
-                "merge",
-                "split",
-                "rotate",
-                "encrypt",
-                "decrypt"
-            ],
-            "pymupdf": [
-                "pdf-to-images",
-                "images-to-pdf",
-                "extract-text",
-                "extract-images",
-                "add-watermark",
-                "optimize"
-            ]
+            "pypdf": ["merge", "split", "rotate", "encrypt", "decrypt"],
+            "pymupdf": ["pdf-to-images", "images-to-pdf", "extract-text", "extract-images", "add-watermark", "optimize"],
+            "ghostscript": ["compress", "flatten"],
+            "libreoffice": ["word-to-pdf", "pdf-to-word", "html-to-pdf", "excel-to-pdf", "powerpoint-to-pdf"],
+            "ocr": ["pdf-to-searchable", "extract-text"]
         },
         "endpoints": {
             "pypdf": {
@@ -111,6 +104,21 @@ async def root():
                 "extract_images": "/api/v1/pymupdf/extract-images",
                 "add_watermark": "/api/v1/pymupdf/add-watermark",
                 "optimize": "/api/v1/pymupdf/optimize"
+            },
+            "ghostscript": {
+                "compress": "/api/v1/ghostscript/compress",
+                "flatten": "/api/v1/ghostscript/flatten"
+            },
+            "libreoffice": {
+                "word_to_pdf": "/api/v1/libreoffice/word-to-pdf",
+                "pdf_to_word": "/api/v1/libreoffice/pdf-to-word",
+                "html_to_pdf": "/api/v1/libreoffice/html-to-pdf",
+                "excel_to_pdf": "/api/v1/libreoffice/excel-to-pdf",
+                "powerpoint_to_pdf": "/api/v1/libreoffice/powerpoint-to-pdf"
+            },
+            "ocr": {
+                "pdf_to_searchable": "/api/v1/ocr/pdf-to-searchable",
+                "extract_text": "/api/v1/ocr/extract-text"
             }
         }
     }
