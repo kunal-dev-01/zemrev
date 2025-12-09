@@ -16,7 +16,7 @@ from app.api.controllers.pypdf_controller import (
     encrypt_pdf_handler,
     decrypt_pdf_handler
 )
-from app.models.schemas import (
+from app.models.pypdf_schemas import (
     SplitRequest, RotateRequest, EncryptRequest, DecryptRequest
 )
 

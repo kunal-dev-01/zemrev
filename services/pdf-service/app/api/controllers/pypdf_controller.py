@@ -18,7 +18,7 @@ from app.services.pypdf.split_service import split_pdf
 from app.services.pypdf.rotate_service import rotate_pdf_pages
 from app.services.pypdf.encrypt_service import encrypt_pdf
 from app.services.pypdf.decrypt_service import decrypt_pdf
-from app.models.schemas import (
+from app.models.pypdf_schemas import (
     SplitRequest, RotateRequest, EncryptRequest, DecryptRequest,
     parse_page_ranges, parse_rotations
 )
