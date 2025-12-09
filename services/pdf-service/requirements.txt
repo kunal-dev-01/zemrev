@@ -19,8 +19,5 @@ PyMuPDF==1.23.8
 # Image watermark & extracted image support
 Pillow==10.1.0
 
-# PDF Compression
-ghostscript==0.7
-
 # OCR
 pytesseract==0.3.10
