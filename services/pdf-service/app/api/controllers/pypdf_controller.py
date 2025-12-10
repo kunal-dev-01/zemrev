@@ -35,15 +35,7 @@ executor = ThreadPoolExecutor(max_workers=2)
 
 
 async def merge_pdfs_handler(files: List[UploadFile]) -> FileResponse:
-    """
-    Handle PDF merge request.
     
-    Args:
-        files: List of uploaded PDF files (minimum 2)
-        
-    Returns:
-        FileResponse with merged PDF
-    """
     if len(files) < 2:
         raise HTTPException(
             status_code=400,
@@ -93,16 +85,7 @@ async def split_pdf_handler(
     file: UploadFile,
     request: SplitRequest
 ) -> FileResponse:
-    """
-    Handle PDF split request.
     
-    Args:
-        file: Uploaded PDF file
-        request: Split request with page ranges
-        
-    Returns:
-        FileResponse with ZIP containing split PDFs
-    """
     input_path = None
     output_paths = []
     zip_path = None
@@ -156,16 +139,7 @@ async def rotate_pdf_handler(
     file: UploadFile,
     request: RotateRequest
 ) -> FileResponse:
-    """
-    Handle PDF rotation request.
     
-    Args:
-        file: Uploaded PDF file
-        request: Rotation request
-        
-    Returns:
-        FileResponse with rotated PDF
-    """
     input_path = None
     output_path = None
     
@@ -213,16 +187,7 @@ async def encrypt_pdf_handler(
     file: UploadFile,
     request: EncryptRequest
 ) -> FileResponse:
-    """
-    Handle PDF encryption request.
     
-    Args:
-        file: Uploaded PDF file
-        request: Encryption request
-        
-    Returns:
-        FileResponse with encrypted PDF
-    """
     input_path = None
     output_path = None
     
@@ -267,16 +232,7 @@ async def decrypt_pdf_handler(
     file: UploadFile,
     request: DecryptRequest
 ) -> FileResponse:
-    """
-    Handle PDF decryption request.
     
-    Args:
-        file: Uploaded PDF file
-        request: Decryption request
-        
-    Returns:
-        FileResponse with decrypted PDF
-    """
     input_path = None
     output_path = None
     

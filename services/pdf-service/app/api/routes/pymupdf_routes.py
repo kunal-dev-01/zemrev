@@ -33,18 +33,7 @@ async def pdf_to_images_endpoint(
     dpi: int = Form(default=150, ge=72, le=300, description="DPI (72-300)"),
     page_range: Optional[str] = Form(None, description="Page range like '1-3,5'")
 ) -> FileResponse:
-    """
-    Convert PDF pages to images.
     
-    **Request:**
-    - file: PDF file
-    - format: Output format (png, jpeg, jpg)
-    - dpi: Resolution (72-300, default: 150)
-    - page_range: Optional page range (e.g., "1-3,5")
-    
-    **Response:**
-    - ZIP file containing images
-    """
     request = PdfToImagesRequest(
         format=format,
         dpi=dpi,
@@ -57,15 +46,7 @@ async def pdf_to_images_endpoint(
 async def images_to_pdf_endpoint(
     files: List[UploadFile] = File(..., description="Image files to convert")
 ) -> FileResponse:
-    """
-    Convert images to a single PDF.
     
-    **Request:**
-    - files: List of image files (JPG, PNG, etc.)
-    
-    **Response:**
-    - PDF file containing all images
-    """
     return await images_to_pdf_handler(files)
 
 
@@ -75,17 +56,7 @@ async def extract_text_endpoint(
     page_range: Optional[str] = Form(None, description="Page range like '1-3,5'"),
     preserve_layout: bool = Form(default=False, description="Preserve layout")
 ) -> ExtractTextResponse:
-    """
-    Extract text from PDF.
     
-    **Request:**
-    - file: PDF file
-    - page_range: Optional page range (e.g., "1-3,5")
-    - preserve_layout: Whether to preserve text layout
-    
-    **Response:**
-    - JSON with extracted text, page count, and character count
-    """
     request = ExtractTextRequest(
         page_range=page_range,
         preserve_layout=preserve_layout
@@ -100,18 +71,7 @@ async def extract_images_endpoint(
     min_width: int = Form(default=100, ge=10, description="Min image width"),
     min_height: int = Form(default=100, ge=10, description="Min image height")
 ) -> FileResponse:
-    """
-    Extract images from PDF.
     
-    **Request:**
-    - file: PDF file
-    - page_range: Optional page range (e.g., "1-3,5")
-    - min_width: Minimum image width (default: 100)
-    - min_height: Minimum image height (default: 100)
-    
-    **Response:**
-    - ZIP file containing extracted images
-    """
     request = ExtractImagesRequest(
         page_range=page_range,
         min_width=min_width,
@@ -131,24 +91,7 @@ async def add_watermark_endpoint(
     rotation: int = Form(default=45, ge=0, le=360, description="Rotation (0-360)"),
     color: str = Form(default="gray", description="Text color")
 ) -> FileResponse:
-    """
-    Add watermark to PDF (text or image).
-    
-    **Request:**
-    - file: PDF file
-    - text: Watermark text (optional if watermark_image provided)
-    - watermark_image: Watermark image file (optional if text provided)
-    - opacity: Opacity (0.1-1.0, default: 0.3)
-    - position: Position preset (center, top_left, top_right, bottom_left, bottom_right)
-    - font_size: Text font size (10-200, default: 50)
-    - rotation: Rotation angle (0-360, default: 45)
-    - color: Text color (e.g., 'red', 'blue', 'gray')
-    
-    **Response:**
-    - Watermarked PDF file
-    
-    **Note:** Either text or watermark_image must be provided.
-    """
+   
     if not text and not watermark_image:
         raise HTTPException(
             status_code=400,
@@ -175,20 +118,7 @@ async def optimize_pdf_endpoint(
     remove_links: bool = Form(default=True, description="Remove links"),
     compress_images: bool = Form(default=False, description="Compress images")
 ) -> FileResponse:
-    """
-    Optimize PDF by removing unnecessary elements.
-    
-    **Request:**
-    - file: PDF file
-    - remove_metadata: Remove metadata (default: true)
-    - remove_annotations: Remove annotations (default: true)
-    - remove_javascript: Remove JavaScript (default: true)
-    - remove_links: Remove hyperlinks (default: true)
-    - compress_images: Compress embedded images (default: false)
-    
-    **Response:**
-    - Optimized PDF file
-    """
+
     request = OptimizePdfRequest(
         remove_metadata=remove_metadata,
         remove_annotations=remove_annotations,
@@ -197,3 +127,28 @@ async def optimize_pdf_endpoint(
         compress_images=compress_images
     )
     return await optimize_pdf_handler(file, request)
+
+@router.post("/sign", response_class=FileResponse)
+async def sign_pdf_endpoint(
+    file: UploadFile = File(...),
+    signature_text: Optional[str] = Form(None),
+    signature_image: Optional[UploadFile] = File(None),
+    x: int = Form(50),
+    y: int = Form(50),
+    width: int = Form(200),
+    height: int = Form(100),
+    page: int = Form(0)
+) -> FileResponse:
+    # Implementation in controller
+    pass
+
+@router.post("/crop", response_class=FileResponse)
+async def crop_pdf_endpoint(
+    file: UploadFile = File(...),
+    x: int = Form(...),
+    y: int = Form(...),
+    width: int = Form(...),
+    height: int = Form(...)
+) -> FileResponse:
+    # Implementation in controller
+    pass
