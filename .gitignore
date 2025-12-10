@@ -117,4 +117,4 @@ tsconfig.tsbuildinfo
 # -----------------------------
 public/build/
 public/static/
-images/
+docs.pdf
