@@ -24,11 +24,6 @@ const META_KEYS: Record<PdfToolType, string> = {
   "optimize-pdf": "zemrev_pdf_meta_optimize",
   "compress-pdf": "zemrev_pdf_meta_compress",
   "flatten-pdf": "zemrev_pdf_meta_flatten",
-  "word-to-pdf": "zemrev_pdf_meta_word_to_pdf",
-  "pdf-to-word": "zemrev_pdf_meta_pdf_to_word",
-  "html-to-pdf": "zemrev_pdf_meta_html_to_pdf",
-  "excel-to-pdf": "zemrev_pdf_meta_excel_to_pdf",
-  "powerpoint-to-pdf": "zemrev_pdf_meta_ppt_to_pdf",
   "ocr-searchable": "zemrev_pdf_meta_ocr_searchable",
   "ocr-extract-text": "zemrev_pdf_meta_ocr_extract",
 };

@@ -223,60 +223,6 @@ export const pdfApi = baseApi.injectEndpoints({
     }),
 
     // ========================================================================
-    // LIBREOFFICE TOOLS
-    // ========================================================================
-
-    // WORD TO PDF
-    wordToPdf: builder.mutation<Blob, { file: File }>({
-      query: ({ file }) => ({
-        url: "/libreoffice/word-to-pdf",
-        method: "POST",
-        body: buildFormData(file, {}),
-        responseHandler: (r) => r.blob(),
-      }),
-    }),
-
-    // PDF TO WORD
-    pdfToWord: builder.mutation<Blob, { file: File }>({
-      query: ({ file }) => ({
-        url: "/libreoffice/pdf-to-word",
-        method: "POST",
-        body: buildFormData(file, {}),
-        responseHandler: (r) => r.blob(),
-      }),
-    }),
-
-    // HTML TO PDF
-    htmlToPdf: builder.mutation<Blob, { file: File }>({
-      query: ({ file }) => ({
-        url: "/libreoffice/html-to-pdf",
-        method: "POST",
-        body: buildFormData(file, {}),
-        responseHandler: (r) => r.blob(),
-      }),
-    }),
-
-    // EXCEL TO PDF
-    excelToPdf: builder.mutation<Blob, { file: File }>({
-      query: ({ file }) => ({
-        url: "/libreoffice/excel-to-pdf",
-        method: "POST",
-        body: buildFormData(file, {}),
-        responseHandler: (r) => r.blob(),
-      }),
-    }),
-
-    // POWERPOINT TO PDF
-    powerpointToPdf: builder.mutation<Blob, { file: File }>({
-      query: ({ file }) => ({
-        url: "/libreoffice/powerpoint-to-pdf",
-        method: "POST",
-        body: buildFormData(file, {}),
-        responseHandler: (r) => r.blob(),
-      }),
-    }),
-
-    // ========================================================================
     // OCR TOOLS
     // ========================================================================
 
@@ -328,13 +274,6 @@ export const {
   // Ghostscript
   useCompressPdfMutation,
   useFlattenPdfMutation,
-
-  // LibreOffice
-  useWordToPdfMutation,
-  usePdfToWordMutation,
-  useHtmlToPdfMutation,
-  useExcelToPdfMutation,
-  usePowerpointToPdfMutation,
 
   // OCR
   useOcrPdfToSearchableMutation,

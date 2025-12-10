@@ -78,19 +78,6 @@ export const PDF_TOOL_CONFIGS: Record<string, PdfToolConfig> = {
     defaultSettings: {},
   },
 
-  "pdf-to-word": {
-    type: "pdf-to-word",
-    title: "PDF to Word",
-    description: "Convert PDF to DOCX",
-    acceptedFormats: ["application/pdf"],
-    maxFiles: 1,
-    showPreview: false,
-    primaryColor: "#0ea5e9",
-    dropzoneColor: "#f0f9ff",
-    dropzoneColorDark: "#0ea5e91A",
-    defaultSettings: {},
-  },
-
   "pdf-extract-text": {
     type: "extract-text",
     title: "Extract Text from PDF",
@@ -216,67 +203,6 @@ export const PDF_TOOL_CONFIGS: Record<string, PdfToolConfig> = {
     primaryColor: "#6366f1",
     dropzoneColor: "#eef2ff",
     dropzoneColorDark: "#6366f11A",
-    defaultSettings: {},
-  },
-
-  "word-to-pdf": {
-    type: "word-to-pdf",
-    title: "Word to PDF",
-    description: "Convert DOCX to PDF",
-    acceptedFormats: [
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      "application/msword",
-    ],
-    maxFiles: 1,
-    showPreview: false,
-    primaryColor: "#0ea5e9",
-    dropzoneColor: "#f0f9ff",
-    dropzoneColorDark: "#0ea5e91A",
-    defaultSettings: {},
-  },
-
-  "html-to-pdf": {
-    type: "html-to-pdf",
-    title: "HTML to PDF",
-    description: "Convert HTML to PDF",
-    acceptedFormats: ["text/html"],
-    maxFiles: 1,
-    showPreview: false,
-    primaryColor: "#6366f1",
-    dropzoneColor: "#eef2ff",
-    dropzoneColorDark: "#6366f11A",
-    defaultSettings: {},
-  },
-
-  "excel-to-pdf": {
-    type: "excel-to-pdf",
-    title: "Excel to PDF",
-    description: "Convert XLSX to PDF",
-    acceptedFormats: [
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      "application/vnd.ms-excel",
-    ],
-    maxFiles: 1,
-    showPreview: false,
-    primaryColor: "#10b981",
-    dropzoneColor: "#f0fdf4",
-    dropzoneColorDark: "#10b9811A",
-    defaultSettings: {},
-  },
-
-  "powerpoint-to-pdf": {
-    type: "powerpoint-to-pdf",
-    title: "PowerPoint to PDF",
-    description: "Convert PPTX to PDF",
-    acceptedFormats: [
-      "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-      "application/vnd.ms-powerpoint",
-    ],
-    maxFiles: 1,
-    showPreview: false,
-    primaryColor: "#f97316",
-    dropzoneColor: "#fff7ed",
-    dropzoneColorDark: "#f973161A",
     defaultSettings: {},
   },
 

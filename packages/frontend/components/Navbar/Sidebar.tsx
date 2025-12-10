@@ -21,17 +21,16 @@ import {
   PDFMergerSvg,
   PDFOptimizerSvg,
   PDFSplitterSvg,
-  PDFToCSV,
-  PDFToEPUB,
-  PDFToExcelSvg,
-  PDFToHTMLSvg,
   PDFToImageSVg,
-  PDFToTextSvg,
-  PDFToWordSvg,
+  FlattenPDFSvg,
   PDFWatermarkSvg,
   RotateImageSvg,
   SecurePdfSvg,
   UnlockPdfSvg,
+  OCRPDFSvg,
+  SignPDFSvg,
+  PDFASvg,
+  CropPDFSvg
 } from "@/components/Svg/PdfSvg";
 
 /* ================= Tools List ================= */
@@ -52,19 +51,18 @@ const PDFTools = [
   { name: "PDF Splitter", href: "/pdf/pdf-split", icon: PDFSplitterSvg },
   { name: "PDF to Images", href: "/pdf/pdf-to-images", icon: PDFToImageSVg },
   { name: "Images to PDF", href: "/pdf/images-to-pdf", icon: ImageToPDFSvg },
-  { name: "PDF to Word", href: "/pdf/pdf-to-word", icon: PDFToWordSvg },
-  { name: "PDF to Excel", href: "/pdf/pdf-to-excel", icon: PDFToExcelSvg },
   { name: "Extract Text from PDF", href: "/pdf/pdf-text-extract", icon: ExtractTextFromPdfSvg },
   { name: "Extract Images from PDF", href: "/pdf/pdf-image-extract", icon: ExtractImagesFromPdfSvg },
-  { name: "Add Watermark to PDF", href: "/pdf/pdf-watermark", icon: PDFWatermarkSvg },
+  { name: "OCR PDF", href: "/pdf/pdf-ocr", icon: OCRPDFSvg },
   { name: "Rotate PDF Pages", href: "/pdf/pdf-rotate", icon: RotateImageSvg },
+  { name: "Crop PDF", href: "/pdf/pdf-crop", icon: CropPDFSvg },
+  { name: "Flatten PDF", href: "/pdf/pdf-flatten", icon: FlattenPDFSvg },
+  { name: "Add Watermark to PDF", href: "/pdf/pdf-watermark", icon: PDFWatermarkSvg },
+  { name: "Sign PDF", href: "/pdf/pdf-sign", icon: SignPDFSvg },
   { name: "Secure PDF", href: "/pdf/pdf-secure", icon: SecurePdfSvg },
   { name: "Unlock PDF", href: "/pdf/pdf-unlock", icon: UnlockPdfSvg },
   { name: "PDF Optimizer", href: "/pdf/pdf-optimize", icon: PDFOptimizerSvg },
-  { name: "PDF to HTML", href: "/pdf/pdf-to-html", icon: PDFToHTMLSvg },
-  { name: "PDF to Text", href: "/pdf/pdf-to-text", icon: PDFToTextSvg },
-  { name: "PDF to EPUB", href: "/pdf/pdf-to-epub", icon: PDFToEPUB },
-  { name: "PDF to CSV", href: "/pdf/pdf-to-csv", icon: PDFToCSV },
+  { name: "PDF/A Converter", href: "/pdf/pdf-a", icon: PDFASvg },
 ];
 
 /* ================= Backdrop ================= */

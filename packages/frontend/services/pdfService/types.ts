@@ -21,11 +21,6 @@ export type PdfToolType =
   | "optimize-pdf"
   | "compress-pdf"
   | "flatten-pdf"
-  | "word-to-pdf"
-  | "pdf-to-word"
-  | "html-to-pdf"
-  | "excel-to-pdf"
-  | "powerpoint-to-pdf"
   | "ocr-searchable"
   | "ocr-extract-text";
 
@@ -212,15 +207,6 @@ export interface CompressPdfRequest extends FormDataParams {
 }
 
 export interface FlattenPdfRequest extends FormDataParams {
-  // no params
-}
-
-// LibreOffice
-export interface ConvertToPdfRequest extends FormDataParams {
-  // no params
-}
-
-export interface ConvertFromPdfRequest extends FormDataParams {
   // no params
 }
 

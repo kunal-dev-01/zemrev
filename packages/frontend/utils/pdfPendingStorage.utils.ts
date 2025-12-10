@@ -23,11 +23,6 @@ const PENDING_META: Record<PdfToolType, string> = {
   "optimize-pdf": "zemrev_pdf_pending_optimize",
   "compress-pdf": "zemrev_pdf_pending_compress",
   "flatten-pdf": "zemrev_pdf_pending_flatten",
-  "word-to-pdf": "zemrev_pdf_pending_word_to_pdf",
-  "pdf-to-word": "zemrev_pdf_pending_pdf_to_word",
-  "html-to-pdf": "zemrev_pdf_pending_html_to_pdf",
-  "excel-to-pdf": "zemrev_pdf_pending_excel_to_pdf",
-  "powerpoint-to-pdf": "zemrev_pdf_pending_ppt_to_pdf",
   "ocr-searchable": "zemrev_pdf_pending_ocr_searchable",
   "ocr-extract-text": "zemrev_pdf_pending_ocr_extract",
 };
