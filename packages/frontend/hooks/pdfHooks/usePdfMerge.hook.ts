@@ -1,0 +1,106 @@
+// ============================================================================
+// FILE: src/hooks/pdfHooks/usePdfMerge.hook.ts
+// ============================================================================
+
+import { useState, useCallback, useEffect } from "react";
+import { useMergePdfMutation } from "@/services/pdfService/pdf.api";
+import { pdfSessionStorage } from "@/utils/pdfSessionStorage.utils";
+import { pdfPendingStorage } from "@/utils/pdfPendingStorage.utils";
+import { extractApiErrorMessage } from "@/utils/errorExtract.utils";
+import type { PdfProcessedFile } from "@/services/pdfService/types";
+
+export const usePdfMerge = () => {
+  const [files, setFiles] = useState<PdfProcessedFile[]>([]);
+  const [merging, setMerging] = useState(false);
+  const [mergePdf] = useMergePdfMutation();
+
+  useEffect(() => {
+    const restore = async () => {
+      const restored = await pdfPendingStorage.restore("pdf-merge");
+      if (restored.length > 0) {
+        setFiles(
+          restored.map(({ id, file }) => ({
+            id,
+            originalFile: file,
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            settings: {},
+            status: "pending" as const,
+          }))
+        );
+      }
+    };
+    restore();
+  }, []);
+
+  const addFiles = useCallback(async (newFiles: File[]) => {
+    const processed: PdfProcessedFile[] = [];
+    for (const file of newFiles) {
+      const id = await pdfPendingStorage.save("pdf-merge", file);
+      processed.push({
+        id,
+        originalFile: file,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        settings: {},
+        status: "pending",
+      });
+    }
+    setFiles((prev) => [...prev, ...processed]);
+  }, []);
+
+  const removeFile = useCallback(async (id: string) => {
+    await pdfPendingStorage.delete("pdf-merge", id);
+    setFiles((prev) => prev.filter((f) => f.id !== id));
+  }, []);
+
+  const mergeFiles = useCallback(async () => {
+    if (files.length < 2) return;
+
+    setMerging(true);
+
+    try {
+      const pdfFiles = files
+        .filter((f) => f.originalFile)
+        .map((f) => f.originalFile as File);
+
+      const blob = await mergePdf({ files: pdfFiles }).unwrap();
+
+      const outputName = `merged_${Date.now()}.pdf`;
+      await pdfSessionStorage.saveFile(blob, outputName, "pdf-merge");
+
+      for (const file of files) {
+        await pdfPendingStorage.delete("pdf-merge", file.id);
+      }
+
+      setFiles([]);
+    } catch (error) {
+      const errorMsg = extractApiErrorMessage(error);
+      console.error("Merge failed:", errorMsg);
+    } finally {
+      setMerging(false);
+    }
+  }, [files, mergePdf]);
+
+  const clearAll = useCallback(async () => {
+    await pdfPendingStorage.clearTool("pdf-merge");
+    setFiles([]);
+  }, []);
+
+  const stats = {
+    total: files.length,
+    pending: files.filter((f) => f.status === "pending").length,
+  };
+
+  return {
+    files,
+    merging,
+    stats,
+    addFiles,
+    removeFile,
+    mergeFiles,
+    clearAll,
+  };
+};
