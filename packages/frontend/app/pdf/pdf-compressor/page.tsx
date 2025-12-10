@@ -1,1 +1,11 @@
-export default function Page() { return (<div>pdf-compressor page</div>); }
+import Index from '@/components/PDFTools/PdfCompressor/Index'
+
+const PDFCompressor = () => {
+  return (
+    <div className='w-full'>
+        <Index />
+    </div>
+  )
+}
+
+export default PDFCompressor
