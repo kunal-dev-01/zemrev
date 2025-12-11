@@ -114,6 +114,31 @@ class OptimizePdfRequest(BaseModel):
     remove_links: bool = Field(default=True, description="Remove hyperlinks")
     compress_images: bool = Field(default=False, description="Compress embedded images")
 
+# ============================================================================
+# SIGN PDF
+# ============================================================================
+
+class SignPdfRequest(BaseModel):
+    """Sign PDF request"""
+    signature_text: Optional[str] = Field(None, description="Text signature")
+    x: int = Field(50, ge=0, description="X position")
+    y: int = Field(50, ge=0, description="Y position")
+    width: int = Field(200, ge=10, le=500, description="Signature width")
+    height: int = Field(100, ge=10, le=300, description="Signature height")
+    page: int = Field(0, ge=0, description="Page number (0-indexed)")
+
+
+# ============================================================================
+# CROP PDF
+# ============================================================================
+
+class CropPdfRequest(BaseModel):
+    """Crop PDF request"""
+    x: int = Field(..., ge=0, description="X position")
+    y: int = Field(..., ge=0, description="Y position")
+    width: int = Field(..., ge=10, description="Crop width")
+    height: int = Field(..., ge=10, description="Crop height")      
+
 
 # ============================================================================
 # RESPONSE SCHEMAS
@@ -138,3 +163,5 @@ class OptimizePdfResponse(BaseModel):
     original_size_kb: float
     optimized_size_kb: float
     reduction_percent: float
+
+  
