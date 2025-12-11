@@ -6,7 +6,7 @@ PURPOSE: Controller logic for PyMuPDF operations
 """
 
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 from fastapi import UploadFile, HTTPException
 from fastapi.responses import FileResponse, Response
 from concurrent.futures import ThreadPoolExecutor

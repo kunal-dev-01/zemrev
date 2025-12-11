@@ -10,10 +10,11 @@ from fastapi.responses import FileResponse
 
 from app.api.controllers.ghostscript_controller import (
     compress_pdf_handler,
-    flatten_pdf_handler
+    flatten_pdf_handler,
+    convert_to_pdfa_handler
 )
 from app.models.ghostscript_schemas import (
-    CompressPdfRequest, FlattenPdfRequest, CompressionLevel
+    CompressPdfRequest, FlattenPdfRequest, ConvertToPdfARequest, CompressionLevel
 )
 
 router = APIRouter(prefix="/api/v1/ghostscript", tags=["Ghostscript Tools"])

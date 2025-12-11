@@ -15,12 +15,14 @@ from app.api.controllers.pymupdf_controller import (
     extract_text_handler,
     extract_images_handler,
     add_watermark_handler,
-    optimize_pdf_handler
+    optimize_pdf_handler,
+    sign_pdf_handler,
+    crop_pdf_handler
 )
 from app.models.pymupdf_schemas import (
     PdfToImagesRequest, ImagesToPdfRequest, ExtractTextRequest,
     ExtractImagesRequest, AddWatermarkRequest, OptimizePdfRequest,
-    ExtractTextResponse, ImageFormat, WatermarkPosition
+    ExtractTextResponse, ImageFormat, WatermarkPosition,SignPdfRequest, CropPdfRequest,
 )
 
 router = APIRouter(prefix="/api/v1/pymupdf", tags=["PyMuPDF Tools"])

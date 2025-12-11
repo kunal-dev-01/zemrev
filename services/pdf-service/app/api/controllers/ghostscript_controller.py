@@ -108,3 +108,45 @@ async def flatten_pdf_handler(
     finally:
         if input_path:
             safe_remove(input_path)
+
+
+async def convert_to_pdfa_handler(
+    file: UploadFile,
+    request: ConvertToPdfARequest
+) -> FileResponse:
+    """Handle PDF to PDF/A conversion with Ghostscript."""
+    input_path = None
+    output_path = None
+    
+    try:
+        # Validate upload
+        input_path = await validate_upload(file)
+        
+        # Create output path
+        output_path = create_temp_pdf_path(prefix=f"pdfa_{request.version}")
+        
+        # Run PDF/A conversion
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(
+            executor,
+            convert_to_pdfa,
+            input_path,
+            output_path,
+            request.version
+        )
+        
+        return FileResponse(
+            path=str(output_path),
+            media_type="application/pdf",
+            filename=f"pdfa_{request.version}.pdf",
+            background=None
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"PDF/A conversion failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        if input_path:
+            safe_remove(input_path)
