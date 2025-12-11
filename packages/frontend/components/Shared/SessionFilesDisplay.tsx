@@ -1,11 +1,11 @@
 // ============================================================================
-// FILE: src/components/ImageTools/ImageConverter/SessionFilesDisplay.tsx
-// PURPOSE: Display completed files from session storage
+// FILE: src/components/Shared/SessionFilesDisplay.tsx
+// PURPOSE: Display completed files from session storage (Real-time, No Polling)
 // ============================================================================
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { sessionStorageUtils } from "@/utils/sessionStorage.utils";
 import { DownloadSvg, FolderOpenSvg, TrashSvg } from "@/components/Svg/CommonSvg";
 import { FileImage } from "@/components/Svg/HomeSvg";
@@ -21,21 +21,43 @@ export const SessionFilesDisplay = ({ toolType, config }: SessionFilesDisplayPro
   const isDark = useDarkMode();
   const [sessionFiles, setSessionFiles] = useState<StoredFile[]>([]);
 
-  // Load session files
-  useEffect(() => {
-    const loadFiles = () => {
-      const files = sessionStorageUtils.getFiles(toolType);
-      setSessionFiles(files);
-    };
-
-    loadFiles();
-
-    // Refresh every 5 seconds
-    const interval = setInterval(loadFiles, 5000);
-    return () => clearInterval(interval);
+  // ============================================================================
+  // LOAD FILES FROM SESSION STORAGE
+  // ============================================================================
+  const loadFiles = useCallback(() => {
+    const files = sessionStorageUtils.getFiles(toolType);
+    setSessionFiles(files);
   }, [toolType]);
 
-  // Download single file
+  // ============================================================================
+  // INITIAL LOAD
+  // ============================================================================
+  useEffect(() => {
+    loadFiles();
+  }, [loadFiles]);
+
+  // ============================================================================
+  // REAL-TIME UPDATES (Event-driven, NO POLLING!)
+  // ============================================================================
+  useEffect(() => {
+    const handleUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      // Only refresh if event is for this tool
+      if (customEvent.detail?.toolType === toolType) {
+        loadFiles();
+      }
+    };
+
+    window.addEventListener('sessionStorageUpdated', handleUpdate);
+
+    return () => {
+      window.removeEventListener('sessionStorageUpdated', handleUpdate);
+    };
+  }, [toolType, loadFiles]);
+
+  // ============================================================================
+  // DOWNLOAD SINGLE FILE
+  // ============================================================================
   const handleDownload = async (fileId: string) => {
     const fileMeta = sessionStorageUtils.getFile(toolType, fileId);
     if (!fileMeta) return;
@@ -53,33 +75,43 @@ export const SessionFilesDisplay = ({ toolType, config }: SessionFilesDisplayPro
     URL.revokeObjectURL(url);
   };
 
-  // Download all files
+  // ============================================================================
+  // DOWNLOAD ALL FILES
+  // ============================================================================
   const handleDownloadAll = async () => {
     for (const [index, file] of sessionFiles.entries()) {
       setTimeout(() => handleDownload(file.id), index * 500);
     }
   };
 
-  // Delete single file
+  // ============================================================================
+  // DELETE SINGLE FILE
+  // ============================================================================
   const handleDelete = async (fileId: string) => {
     await sessionStorageUtils.deleteFile(toolType, fileId);
-    setSessionFiles((prev) => prev.filter((f) => f.id !== fileId));
+    // No need to manually update state - event will trigger loadFiles()
   };
 
-  // Clear all session files
+  // ============================================================================
+  // CLEAR ALL SESSION FILES
+  // ============================================================================
   const handleClearAll = async () => {
     await sessionStorageUtils.clearTool(toolType);
-    setSessionFiles([]);
+    // No need to manually update state - event will trigger loadFiles()
   };
 
-  // Format file size
+  // ============================================================================
+  // FORMAT FILE SIZE
+  // ============================================================================
   const formatSize = (bytes: number): string => {
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
-  // Format time ago
+  // ============================================================================
+  // FORMAT TIME AGO
+  // ============================================================================
   const formatTimeAgo = (timestamp: number): string => {
     const seconds = Math.floor((Date.now() - timestamp) / 1000);
     if (seconds < 60) return "Just now";
@@ -87,6 +119,9 @@ export const SessionFilesDisplay = ({ toolType, config }: SessionFilesDisplayPro
     return `${Math.floor(seconds / 3600)}h ago`;
   };
 
+  // ============================================================================
+  // TRUNCATE FILE NAME
+  // ============================================================================
   const truncateFileName = (name: string, maxLength: number = 30) => {
     if (name.length <= maxLength) return name;
     const ext = name.split(".").pop();
@@ -95,8 +130,14 @@ export const SessionFilesDisplay = ({ toolType, config }: SessionFilesDisplayPro
     return `${truncated}...${ext}`;
   };
 
+  // ============================================================================
+  // EARLY RETURN IF NO FILES
+  // ============================================================================
   if (sessionFiles.length === 0) return null;
 
+  // ============================================================================
+  // RENDER
+  // ============================================================================
   return (
     <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 mt-[1vh] md:mt-[1vw]">
       {/* Header */}
