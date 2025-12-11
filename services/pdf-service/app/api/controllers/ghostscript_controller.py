@@ -14,7 +14,10 @@ import asyncio
 from app.services.validator import validate_upload
 from app.services.ghostscript.compress_pdf import compress_pdf_ghostscript
 from app.services.ghostscript.flatten_pdf import flatten_pdf_ghostscript
-from app.models.ghostscript_schemas import CompressPdfRequest, FlattenPdfRequest
+from app.services.ghostscript.convert_pdfa import convert_to_pdfa
+from app.models.ghostscript_schemas import (
+    CompressPdfRequest, FlattenPdfRequest, ConvertToPdfARequest
+)
 from app.utils.file_io import create_temp_pdf_path, safe_remove
 from app.core.logging import get_logger
 
