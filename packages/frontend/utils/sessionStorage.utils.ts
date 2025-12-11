@@ -140,6 +140,12 @@ export const sessionStorageUtils = {
 
     setMeta(tool, meta);
 
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent('sessionStorageUpdated', { 
+        detail: { toolType: tool } 
+      }));
+    }
+
     return id;
   },
 
@@ -171,6 +177,12 @@ export const sessionStorageUtils = {
       meta.files.splice(index, 1);
       setMeta(tool, meta);
       await del(`file/${id}`);
+
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent('sessionStorageUpdated', { 
+          detail: { toolType: tool } 
+        }));
+      }
     }
   },
 
@@ -183,6 +195,12 @@ export const sessionStorageUtils = {
     }
 
     setMeta(tool, { files: [], totalSize: 0, lastUpdated: Date.now() });
+
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent('sessionStorageUpdated', { 
+        detail: { toolType: tool } 
+      }));
+    }
   },
 
   // Get storage stats
