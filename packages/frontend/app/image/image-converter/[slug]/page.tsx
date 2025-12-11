@@ -77,7 +77,7 @@ export default async function ConverterDynamicPage({
   }
 
   return (
-    <main className="w-full">
+    <main className="w-full relative">
       <h1 className="md:text-[1.8vw] text-[2.5vh] text-zinc-700 dark:text-zinc-300 text-center font-semibold leading-tight px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40">
         {data.title}
       </h1>

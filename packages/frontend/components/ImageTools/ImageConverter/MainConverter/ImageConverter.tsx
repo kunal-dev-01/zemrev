@@ -9,7 +9,7 @@ import { UrlUploadModal } from "@/components/Shared/UrlUploadModal";
 import { ConverterFilePanel } from "../Settings/ConverterFilePanel";
 import { SessionFilesDisplay } from "@/components/Shared/SessionFilesDisplay";
 import { TOOL_CONFIGS, detectFormatFromFilename } from "@/config/tool.config";
-import { Spinner } from "@/components/Layouts/Spinner";
+import GlassButton from "@/components/Layouts/GlassButton";
 import { TrashSvg } from "@/components/Svg/CommonSvg";
 import { useImageConverter } from "@/hooks/imageHooks/useImageConverter.hook";
 import type { OutputFormat } from "@/services/imageService/types";
@@ -87,7 +87,13 @@ const ImageConverter = () => {
   // RENDER
   // ============================================================================
   return (
-    <div className="w-full space-y-6">
+    <div className="w-full space-y-6 relative">
+        <div
+    className="absolute inset-0 -z-10 backdrop-blur-xl opacity-20"
+    style={{
+      background: `radial-gradient(circle at center, ${config.primaryColor}50 0%, transparent 70%)`,
+    }}
+  />
       {/* Always Show Drag Drop Zone */}
       <DragDropZone
         config={config}
@@ -138,20 +144,17 @@ const ImageConverter = () => {
 
           {/* Convert All Button */}
           {canConvert && (
-            <button
+            <GlassButton
+              loading={converting}
+              primaryColor={config.primaryColor}
               onClick={convertAllFiles}
-              disabled={converting}
-              className="w-full mt-6 px-6 md:py-2 py-1.5 rounded-lg font-semibold text-white text-lg transition-all disabled:opacity-50 flex items-center justify-center gap-3"
-              style={{ backgroundColor: config.primaryColor }}
             >
-              {converting ? (
-                <>
-                  <Spinner /> Converting...
-                </>
-              ) : (
-                `Convert ${stats.pending} File${stats.pending !== 1 ? "s" : ""}`
-              )}
-            </button>
+              {converting
+                ? "Converting..."
+                : `Convert ${stats.pending} File${
+                    stats.pending !== 1 ? "s" : ""
+                  }`}
+            </GlassButton>
           )}
         </div>
       )}

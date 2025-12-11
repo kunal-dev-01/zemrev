@@ -13,6 +13,7 @@ import { Spinner } from "@/components/Layouts/Spinner";
 import { TrashSvg } from "@/components/Svg/CommonSvg";
 import { useImageConverter } from "@/hooks/imageHooks/useImageConverter.hook";
 import type { OutputFormat } from "@/services/imageService/types";
+import GlassButton from "@/components/Layouts/GlassButton";
 
 interface ConverterDynamicToolProps {
   inputFormat: string;
@@ -107,7 +108,13 @@ const ConverterDynamicTool = ({
   // RENDER
   // ============================================================================
   return (
-    <div className="w-full space-y-6">
+    <div className="w-full space-y-6 relative">
+      <div
+    className="absolute inset-0 -z-10 backdrop-blur-xl opacity-20"
+    style={{
+      background: `radial-gradient(circle at center, ${config.primaryColor}50 0%, transparent 70%)`,
+    }}
+  />
       {/* Always Show Drag Drop Zone */}
       <DragDropZone
         config={config}
@@ -160,20 +167,17 @@ const ConverterDynamicTool = ({
 
           {/* Convert All Button */}
           {canConvert && (
-            <button
+            <GlassButton
+              loading={converting}
+              primaryColor={config.primaryColor}
               onClick={convertAllFiles}
-              disabled={converting}
-              className="w-full mt-6 px-6 md:py-2 py-1.5 rounded-lg font-semibold text-white text-lg transition-all disabled:opacity-50 flex items-center justify-center gap-3 cursor-pointer"
-              style={{ backgroundColor: config.primaryColor }}
             >
-              {converting ? (
-                <>
-                  <Spinner className="w-5 h-5 text-white" /> Converting...
-                </>
-              ) : (
-                `Convert ${stats.pending} File${stats.pending !== 1 ? "s" : ""}`
-              )}
-            </button>
+              {converting
+                ? "Converting..."
+                : `Convert ${stats.pending} File${
+                    stats.pending !== 1 ? "s" : ""
+                  }`}
+            </GlassButton>
           )}
         </div>
       )}
