@@ -47,6 +47,7 @@ export interface FileSettings {
   // Converter
   format?: OutputFormat;
   quality?: number;
+  stripMetadata?: boolean;
 
   // Resizer
   width?: number;
@@ -137,6 +138,7 @@ export interface ToolConfig {
 export interface ConvertRequest extends FormDataParams {
   format: OutputFormat;
   quality: number;
+  strip_metadata?: boolean;
 }
 
 export interface CompressRequest extends FormDataParams {

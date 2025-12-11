@@ -30,6 +30,7 @@ export const useImageConverter = () => {
           settings: {
             format: "webp" as OutputFormat,
             quality: 75,
+            stripMetadata: true,
           },
           status: "pending" as const,
         }));
@@ -60,6 +61,7 @@ export const useImageConverter = () => {
           settings: {
             format: defaultFormat,
             quality: defaultQuality,
+            stripMetadata: true,
           },
           status: "pending",
         });
@@ -121,6 +123,7 @@ export const useImageConverter = () => {
           options: {
             format: file.settings.format as OutputFormat,
             quality: file.settings.quality as number,
+            strip_metadata: file.settings.stripMetadata ?? true,
           },
         }).unwrap();
 
