@@ -21,7 +21,7 @@ export default function GlassButton({
       {...rest}
       className={`
         w-full mt-6 px-6 py-1.5 text-white
-        md:rounded-2xl rounded-xl font-semibold md:text-lg
+        rounded-xl font-semibold md:text-lg
         flex items-center justify-center gap-3
         disabled:opacity-50 disabled:cursor-not-allowed
         focus:outline-none cursor-pointer 
