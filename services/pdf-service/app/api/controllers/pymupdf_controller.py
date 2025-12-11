@@ -20,10 +20,11 @@ from app.services.pymupdf.extract_text import extract_text_from_pdf
 from app.services.pymupdf.extract_images import extract_images_from_pdf
 from app.services.pymupdf.add_watermark import add_text_watermark, add_image_watermark
 from app.services.pymupdf.optimize_pdf import optimize_pdf
+from app.services.pymupdf.sign_pdf import sign_pdf
+from app.services.pymupdf.crop_pdf import crop_pdf
 from app.models.pymupdf_schemas import (
     PdfToImagesRequest, ImagesToPdfRequest, ExtractTextRequest,
-    ExtractImagesRequest, AddWatermarkRequest, OptimizePdfRequest,
-    ExtractTextResponse, OptimizePdfResponse
+    ExtractImagesRequest, AddWatermarkRequest, SignPdfRequest, CropPdfRequest, OptimizePdfRequest,ExtractTextResponse, OptimizePdfResponse
 )
 from app.utils.file_io import (
     create_temp_pdf_path, safe_remove, safe_remove_multiple, create_zip_from_pdfs,
@@ -373,6 +374,106 @@ async def optimize_pdf_handler(
         raise
     except Exception as e:
         logger.error(f"PDF optimization failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        if input_path:
+            safe_remove(input_path)
+
+async def sign_pdf_handler(
+    file: UploadFile,
+    request: SignPdfRequest,
+    signature_image: Optional[UploadFile] = None
+) -> FileResponse:
+    """Handle PDF signing."""
+    input_path = None
+    output_path = None
+    signature_image_path = None
+    
+    try:
+        input_path = await validate_upload(file)
+        output_path = create_temp_pdf_path(prefix="signed")
+        
+        if signature_image:
+            content = await signature_image.read()
+            temp_file = tempfile.NamedTemporaryFile(
+                mode='wb',
+                delete=False,
+                suffix=Path(signature_image.filename).suffix,
+                dir=settings.UPLOAD_DIR
+            )
+            temp_file.write(content)
+            temp_file.close()
+            signature_image_path = Path(temp_file.name)
+        
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(
+            executor,
+            sign_pdf,
+            input_path,
+            output_path,
+            request.signature_text,
+            signature_image_path,
+            request.x,
+            request.y,
+            request.width,
+            request.height,
+            request.page
+        )
+        
+        return FileResponse(
+            path=str(output_path),
+            media_type="application/pdf",
+            filename="signed.pdf",
+            background=None
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"PDF signing failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        if input_path:
+            safe_remove(input_path)
+        if signature_image_path:
+            safe_remove(signature_image_path)
+
+
+async def crop_pdf_handler(
+    file: UploadFile,
+    request: CropPdfRequest
+) -> FileResponse:
+    """Handle PDF cropping."""
+    input_path = None
+    output_path = None
+    
+    try:
+        input_path = await validate_upload(file)
+        output_path = create_temp_pdf_path(prefix="cropped")
+        
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(
+            executor,
+            crop_pdf,
+            input_path,
+            output_path,
+            request.x,
+            request.y,
+            request.width,
+            request.height
+        )
+        
+        return FileResponse(
+            path=str(output_path),
+            media_type="application/pdf",
+            filename="cropped.pdf",
+            background=None
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"PDF cropping failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         if input_path:
