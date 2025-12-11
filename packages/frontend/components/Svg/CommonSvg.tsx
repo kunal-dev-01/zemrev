@@ -182,13 +182,14 @@ export const PlusSvg = memo(() => (
 PlusSvg.displayName = "PlusSvg";
 
 // ================= ChevronDownIcon SVG ================= //
-export const ChevronDownSvg = memo(() => (
+export const ChevronDownSvg = memo(({ className="w-5 h-5" }: { className?: string }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="100%"
     height="100%"
     viewBox="0 0 16 16"
     fill="none"
+    className={className}
   >
     <path
       d="M4 6L8 10L12 6"
@@ -202,48 +203,64 @@ export const ChevronDownSvg = memo(() => (
 
 ChevronDownSvg.displayName = "ChevronDownSvg";
 
-// ================= QualityIcon SVG ================= //
-export const QualitySvg = memo(() => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="100%"
-    height="100%"
-    viewBox="0 0 24 24"
-    fill="none"
-  >
-    <path
-      d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-));
+// ================= Settings SVG ================= //
+export const SettingsSvg = memo(
+  ({
+    className = "w-5 h-5 text-zinc-600 dark:text-zinc-400",
+  }: {
+    className?: string;
+  }) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="100%"
+      height="100%"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={className}
+    >
+      <g
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+      >
+        <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 0 0-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 0 0-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 0 0-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 0 0-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 0 0 1.066-2.573c-.94-1.543.826-3.31 2.37-2.37c1 .608 2.296.07 2.572-1.065z" />
+        <path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0-6 0" />
+      </g>
+    </svg>
+  )
+);
 
-QualitySvg.displayName = "QualitySvg";
+SettingsSvg.displayName = "SettingsSvg";
 
 // ================= CopyIcon SVG ================= //
-export const CopySvg = memo(({ className= "w-5 h-5 text-zinc-600 dark:text-zinc-400" }: { className?: string }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="100%"
-    height="100%"
-    viewBox="0 0 24 24"
-    fill="currentColor"
-    className={className}
-  >
-    <g
-      fill="none"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="1.5"
+export const CopySvg = memo(
+  ({
+    className = "w-5 h-5 text-zinc-600 dark:text-zinc-400",
+  }: {
+    className?: string;
+  }) => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="100%"
+      height="100%"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={className}
     >
-      <path d="M16.75 5.75a3 3 0 0 0-3-3h-6.5a3 3 0 0 0-3 3v9.5a3 3 0 0 0 3 3h6.5a3 3 0 0 0 3-3z" />
-      <path d="M19.75 6.75v8.5a6 6 0 0 1-6 6h-5.5" />
-    </g>
-  </svg>
-));
+      <g
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.5"
+      >
+        <path d="M16.75 5.75a3 3 0 0 0-3-3h-6.5a3 3 0 0 0-3 3v9.5a3 3 0 0 0 3 3h6.5a3 3 0 0 0 3-3z" />
+        <path d="M19.75 6.75v8.5a6 6 0 0 1-6 6h-5.5" />
+      </g>
+    </svg>
+  )
+);
 
 CopySvg.displayName = "CopySvg";
