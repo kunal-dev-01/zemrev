@@ -161,7 +161,7 @@ export const pdfApi = baseApi.injectEndpoints({
     }),
 
     // ADD WATERMARK (TEXT)
-    addTextWatermark: builder.mutation<Blob, { file: File; options: AddWatermarkRequest }>({
+    addTextWatermarkPdf: builder.mutation<Blob, { file: File; options: AddWatermarkRequest }>({
       query: ({ file, options }) => ({
         url: "/pymupdf/add-watermark",
         method: "POST",
@@ -171,7 +171,7 @@ export const pdfApi = baseApi.injectEndpoints({
     }),
 
     // ADD WATERMARK (IMAGE)
-    addImageWatermark: builder.mutation<
+    addImageWatermarkPdf: builder.mutation<
       Blob,
       { file: File; watermark: File; options: AddWatermarkRequest }
     >({
@@ -267,8 +267,8 @@ export const {
   useImagesToPdfMutation,
   useExtractTextMutation,
   useExtractImagesMutation,
-  useAddTextWatermarkMutation,
-  useAddImageWatermarkMutation,
+  useAddTextWatermarkPdfMutation,
+  useAddImageWatermarkPdfMutation,
   useOptimizePdfMutation,
 
   // Ghostscript

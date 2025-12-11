@@ -2,8 +2,8 @@
 // 10. useAddWatermark.hook.ts
 // ============================================================================
 import {
-  useAddTextWatermarkMutation,
-  useAddImageWatermarkMutation,
+  useAddTextWatermarkPdfMutation,
+  useAddImageWatermarkPdfMutation,
 } from "@/services/pdfService/pdf.api";
 import { PdfFileSettings, PdfProcessedFile } from "@/services/pdfService/types";
 import { extractApiErrorMessage } from "@/utils/errorExtract.utils";
@@ -14,8 +14,8 @@ import { useCallback, useEffect, useState } from "react";
 export const useAddWatermark = () => {
   const [files, setFiles] = useState<PdfProcessedFile[]>([]);
   const [processing, setProcessing] = useState(false);
-  const [addTextWatermark] = useAddTextWatermarkMutation();
-  const [addImageWatermark] = useAddImageWatermarkMutation();
+  const [addTextWatermark] = useAddTextWatermarkPdfMutation();
+  const [addImageWatermark] = useAddImageWatermarkPdfMutation();
 
   useEffect(() => {
     const restore = async () => {
