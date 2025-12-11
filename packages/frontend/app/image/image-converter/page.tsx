@@ -5,19 +5,21 @@ import {
   converterContent,
   converterMetadata,
 } from "@/components/ImageTools/ImageConverter/SeoData/Blog";
+
 import ToolWrapper from "@/components/ImageTools/ImageConverter/MainConverter/Index";
 
+// ============================================================================
+// Metadata (SEO)
+// ============================================================================
 export const metadata: Metadata = {
   title: converterMetadata.title,
   description: converterMetadata.description,
   keywords: converterMetadata.keywords,
 
-  // 🔥 Canonical URL
   alternates: {
     canonical: "https://www.zemrev.com/image/image-converter",
   },
 
-  // 🔥 OpenGraph (Social sharing)
   openGraph: {
     title: converterMetadata.title,
     description: converterMetadata.description,
@@ -34,7 +36,6 @@ export const metadata: Metadata = {
     ],
   },
 
-  // 🔥 Twitter Card
   twitter: {
     card: "summary_large_image",
     title: converterMetadata.title,
@@ -42,7 +43,7 @@ export const metadata: Metadata = {
     images: ["/og-image.png"],
   },
 
-  // 🔥 JSON-LD Structured Data (Google Rich Results)
+  // JSON-LD Structured Data
   other: {
     "script:ld+json": JSON.stringify({
       "@context": "https://schema.org",
@@ -62,37 +63,39 @@ export const metadata: Metadata = {
   },
 };
 
+// ============================================================================
+// Page Component
+// ============================================================================
 const Conveter = () => {
   return (
     <main className="w-full">
-      {/* Page Title */}
+      {/* Title */}
       <h1 className="md:text-[1.8vw] text-[2.5vh] text-zinc-700 dark:text-zinc-300 text-center font-semibold leading-tight px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40">
         {converterContent.mainHeading}
       </h1>
 
-      {/* Tool */}
+      {/* Main Tool */}
       <ToolWrapper />
 
       {/* Blog Section */}
       <div className="w-full border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 p-2 md:p-6 md:mt-[1vw] mt-[1vh]">
         {converterContent.sections.map((section, index) => (
           <div key={index} className="mb-8">
-
-            {/* Section heading */}
+            {/* Heading */}
             {section.heading && (
               <h2 className="text-xl md:text-2xl font-semibold text-zinc-700 dark:text-zinc-300 mb-3">
                 {section.heading}
               </h2>
             )}
 
-            {/* Section main paragraph */}
+            {/* Paragraph */}
             {section.content && (
               <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed mb-4">
                 {section.content}
               </p>
             )}
 
-            {/* Generic list renderer */}
+            {/* Generic List */}
             {section.list && (
               <ul className="list-disc pl-5 space-y-2 mb-4">
                 {section.list.map((item, idx) => (
@@ -156,7 +159,7 @@ const Conveter = () => {
               </ul>
             )}
 
-            {/* Use Cases */}
+            {/* Use cases */}
             {section.useCases && (
               <ul className="list-disc pl-5 space-y-2 mb-4">
                 {section.useCases.map((useCase, idx) => (
@@ -172,7 +175,7 @@ const Conveter = () => {
               </ul>
             )}
 
-            {/* Footer text */}
+            {/* Footer */}
             {section.footer && (
               <p className="text-zinc-600 dark:text-zinc-400 mt-2 leading-relaxed">
                 {section.footer}
