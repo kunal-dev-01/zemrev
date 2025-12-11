@@ -1,6 +1,9 @@
-# ============================================================================
-# 3. PDF/A CONVERTER (services/ghostscript/convert_pdfa.py)
-# ============================================================================
+"""
+============================================================================
+FILE: services/pdf-service/app/services/ghostscript/convert_pdfa.py
+PURPOSE: Convert PDF to PDF/A using Ghostscript
+============================================================================
+"""
 
 from pathlib import Path
 import subprocess
@@ -8,27 +11,40 @@ from app.core.logging import get_logger
 
 logger = get_logger(__name__)
 
+
 def convert_to_pdfa(
     input_path: Path,
     output_path: Path,
-    version: str = "2b"  # 1b, 2b, 3b
+    version: str = "2b"
 ) -> None:
+    """
+    Convert PDF to PDF/A format (archival standard).
+    
+    Args:
+        input_path: Input PDF file path
+        output_path: Output PDF/A file path
+        version: PDF/A version - "1b", "2b", or "3b"
+    
+    Raises:
+        Exception: If conversion fails
+    """
     try:
         original_size = input_path.stat().st_size / 1024
         
         logger.info(f"Converting to PDF/A-{version}: {original_size:.2f} KB")
         
-        # PDF/A compliance levels
-        pdfa_defs = {
-            "1b": "PDFA_def.ps",
-            "2b": "PDFA_def.ps",
-            "3b": "PDFA_def.ps"
+        # Map version to PDFA level
+        pdfa_level_map = {
+            "1b": "1",
+            "2b": "2",
+            "3b": "3"
         }
+        pdfa_level = pdfa_level_map.get(version, "2")
         
-        # Build Ghostscript command for PDF/A
+        # Build Ghostscript command for PDF/A conversion
         gs_command = [
             "gs",
-            "-dPDFA=2" if version == "2b" else "-dPDFA=1",
+            f"-dPDFA={pdfa_level}",
             "-dBATCH",
             "-dNOPAUSE",
             "-dQUIET",
@@ -40,6 +56,8 @@ def convert_to_pdfa(
             str(input_path)
         ]
         
+        logger.info(f"Running Ghostscript: {' '.join(gs_command)}")
+        
         result = subprocess.run(
             gs_command,
             capture_output=True,
@@ -49,6 +67,7 @@ def convert_to_pdfa(
         
         if result.returncode != 0:
             error_msg = result.stderr or "Unknown Ghostscript error"
+            logger.error(f"Ghostscript error: {error_msg}")
             raise Exception(f"Ghostscript failed: {error_msg}")
         
         if not output_path.exists():
@@ -56,10 +75,13 @@ def convert_to_pdfa(
         
         converted_size = output_path.stat().st_size / 1024
         
-        logger.info(f"Successfully converted to PDF/A-{version}: {original_size:.2f} KB → {converted_size:.2f} KB")
+        logger.info(
+            f"Successfully converted to PDF/A-{version}: "
+            f"{original_size:.2f} KB → {converted_size:.2f} KB"
+        )
         
     except subprocess.TimeoutExpired:
-        logger.error("PDF/A conversion timed out")
+        logger.error("PDF/A conversion timed out (300s)")
         raise Exception("PDF/A conversion timed out")
     except Exception as e:
         logger.error(f"Failed to convert to PDF/A: {e}")
