@@ -194,7 +194,7 @@ export const SessionFilesDisplay = ({ toolType, config }: SessionFilesDisplayPro
         {sessionFiles.map((file) => (
           <div
             key={file.id}
-            className="flex items-center justify-between px-3 py-1.5 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-transparent"
+            className="flex items-center justify-between px-2.5 py-1.5 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-transparent"
           >
             <div className="flex items-center gap-3 flex-1 min-w-0">
               <div
