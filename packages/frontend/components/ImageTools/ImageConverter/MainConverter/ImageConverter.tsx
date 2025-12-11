@@ -87,7 +87,7 @@ const ImageConverter = () => {
   // RENDER
   // ============================================================================
   return (
-    <div className="w-full space-y-6 relative">
+    <div className="w-full relative">
       {/* Always Show Drag Drop Zone */}
       <DragDropZone
         config={config}
@@ -102,7 +102,7 @@ const ImageConverter = () => {
         <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2 dark:bg-zinc-900 bg-zinc-50 border border-zinc-200 dark:border-zinc-800 rounded-full px-4 py-1.5">
+            <div className="flex items-center gap-2 dark:bg-zinc-900 bg-zinc-50 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-1.5">
               <p className="md:text-sm text-xs text-zinc-600 dark:text-zinc-400">
                 {stats.pending > 0 && `${stats.pending} pending`}
                 {stats.processing > 0 && ` • ${stats.processing} processing`}
