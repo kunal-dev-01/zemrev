@@ -40,7 +40,7 @@ const Hero = () => {
       {/* Description */}
       <p className="
         max-w-xl mb-10 
-        text-lg leading-relaxed 
+        md:text-lg md:leading-relaxed 
         text-zinc-600 dark:text-zinc-400
       ">
         Professional-grade tools for seamless content processing. Free forever,

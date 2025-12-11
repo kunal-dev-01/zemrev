@@ -1,3 +1,4 @@
+// ToolsGrid.tsx
 import Link from "next/link";
 import React from "react";
 
@@ -6,72 +7,90 @@ export type ToolItem = {
   desc: string;
   link: string;
   icon: React.FC<React.SVGProps<SVGSVGElement>>;
-  color: string;
-  bg: string;
+  color: string; // text / icon colour utilities
+  bg: string; // background colour utilities
 };
 
-const ToolsGrid = ({
-  title,
-  subtitle,
-  tools,
-}: {
+type Props = {
   title: string;
   subtitle: string;
   tools: ToolItem[];
-}) => {
-  return (
-    <div className="w-full py-10 space-y-10 md:py-30 md:space-y-30">
+};
 
-      <div className="text-center mb-10">
+export default function ToolsGrid({ title, subtitle, tools }: Props) {
+  return (
+    <section className="w-full py-10 md:py-30">
+      {/* Heading */}
+      <header className="text-center mb-10 md:mb-20">
         <h2 className="text-2xl md:text-4xl font-extrabold text-zinc-700 dark:text-zinc-300">
           {title}
         </h2>
-        <p className="mt-2 text-zinc-500 dark:text-zinc-400 md:text-lg">
+        <p className="mt-2 text-sm md:text-lg text-zinc-500 dark:text-zinc-400">
           {subtitle}
         </p>
-      </div>
+      </header>
 
+      {/* Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {tools.map(({ title, desc, icon: Icon, link, bg, color }, i) => (
+        {tools.map((t, i) => (
           <Link
             key={i}
-            href={link}
+            href={t.link}
+            // make the card focusable so “focus” works on mobile
+            tabIndex={0}
             className="
-              group relative p-5 flex flex-col gap-4 rounded-xl
+              group relative isolate
+              flex flex-col gap-2 md:gap-4
+              p-5 rounded-xl
               border border-zinc-200 dark:border-zinc-800
-              transition-all duration-300
+              transition duration-300
+              focus:outline-none
             "
           >
+            {/* 1.  Background layer (hover on desktop, focus on mobile) */}
+            <span
+              className={`
+                absolute inset-0 -z-10 rounded-xl
+                opacity-0 scale-85
+                transition duration-300 ease-out
+                group-hover:opacity-100 group-hover:scale-100
+                group-focus:opacity-100 group-focus:scale-100
+                md:group-focus:opacity-0 md:group-focus:scale-90
+                ${t.bg}
+              `}
+            />
+
+            {/* 2.  Icon */}
             <div
               className={`
-                w-12 h-12 p-2.5 rounded-lg flex items-center justify-center
-                transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3
-                ${bg} ${color}
+                flex items-center justify-center
+                w-12 h-12 p-2.5 rounded-lg
+                transition-transform duration-300
+                group-hover:scale-110 group-hover:rotate-3
+                ${t.bg} ${t.color}
               `}
             >
-              <Icon />
+              <t.icon />
             </div>
 
+            {/* 3.  Text */}
             <div>
               <h3 className="text-lg font-semibold text-zinc-700 dark:text-zinc-300">
-                {title}
+                {t.title}
               </h3>
-              <p className="
-                mt-1.5 text-sm leading-relaxed text-zinc-500 dark:text-zinc-400
-                group-hover:text-zinc-600 dark:group-hover:text-zinc-300 transition-colors
-              ">
-                {desc}
+              <p
+                className="
+                  mt-1 md:mt-1.5 text-sm text-zinc-500 dark:text-zinc-400
+                  group-hover:text-zinc-600 dark:group-hover:text-zinc-300
+                  transition-colors
+                "
+              >
+                {t.desc}
               </p>
             </div>
-
-            <div
-              className={`absolute inset-0 rounded-xl opacity-0 scale-80 -z-1 transition-all duration-300 group-hover:opacity-100 group-hover:scale-100 ${bg}`}
-            />
           </Link>
         ))}
       </div>
-    </div>
+    </section>
   );
-};
-
-export default ToolsGrid;
+}
