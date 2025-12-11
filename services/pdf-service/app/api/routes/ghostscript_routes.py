@@ -42,8 +42,16 @@ async def flatten_pdf_endpoint(
 
 @router.post("/convert-pdfa", response_class=FileResponse)
 async def convert_to_pdfa_endpoint(
-    file: UploadFile = File(...),
+    file: UploadFile = File(..., description="PDF file to convert to PDF/A"),
     version: str = Form("2b", description="PDF/A version: 1b, 2b, or 3b")
 ) -> FileResponse:
-    # Implementation in controller
-    pass    
+    """
+    Convert a PDF to PDF/A format (archival standard).
+    
+    PDF/A versions:
+    - 1b: Basic conformance (ISO 19005-1)
+    - 2b: Enhanced features (ISO 19005-2) - Recommended
+    - 3b: Latest standard (ISO 19005-3)
+    """
+    request = ConvertToPdfARequest(version=version)
+    return await convert_to_pdfa_handler(file, request)
