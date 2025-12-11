@@ -130,25 +130,52 @@ async def optimize_pdf_endpoint(
 
 @router.post("/sign", response_class=FileResponse)
 async def sign_pdf_endpoint(
-    file: UploadFile = File(...),
-    signature_text: Optional[str] = Form(None),
-    signature_image: Optional[UploadFile] = File(None),
-    x: int = Form(50),
-    y: int = Form(50),
-    width: int = Form(200),
-    height: int = Form(100),
-    page: int = Form(0)
+    file: UploadFile = File(..., description="PDF file to sign"),
+    signature_text: Optional[str] = Form(None, description="Text signature (e.g., 'John Doe')"),
+    signature_image: Optional[UploadFile] = File(None, description="Signature image file"),
+    x: int = Form(50, ge=0, description="X position on page"),
+    y: int = Form(50, ge=0, description="Y position on page"),
+    width: int = Form(200, ge=10, le=500, description="Signature width (10-500)"),
+    height: int = Form(100, ge=10, le=300, description="Signature height (10-300)"),
+    page: int = Form(0, ge=0, description="Page number (0-indexed)")
 ) -> FileResponse:
-    # Implementation in controller
-    pass
+    """
+    Add a signature to a PDF document.
+    Either provide signature_text OR signature_image.
+    """
+    if not signature_text and not signature_image:
+        raise HTTPException(
+            status_code=400,
+            detail="Either 'signature_text' or 'signature_image' must be provided"
+        )
+    
+    request = SignPdfRequest(
+        signature_text=signature_text,
+        x=x,
+        y=y,
+        width=width,
+        height=height,
+        page=page
+    )
+    return await sign_pdf_handler(file, request, signature_image)
+
 
 @router.post("/crop", response_class=FileResponse)
 async def crop_pdf_endpoint(
-    file: UploadFile = File(...),
-    x: int = Form(...),
-    y: int = Form(...),
-    width: int = Form(...),
-    height: int = Form(...)
+    file: UploadFile = File(..., description="PDF file to crop"),
+    x: int = Form(..., ge=0, description="X coordinate (left)"),
+    y: int = Form(..., ge=0, description="Y coordinate (top)"),
+    width: int = Form(..., ge=10, description="Crop width"),
+    height: int = Form(..., ge=10, description="Crop height")
 ) -> FileResponse:
-    # Implementation in controller
-    pass
+    """
+    Crop all pages of a PDF to specified dimensions.
+    Coordinates are in points (1/72 inch).
+    """
+    request = CropPdfRequest(
+        x=x,
+        y=y,
+        width=width,
+        height=height
+    )
+    return await crop_pdf_handler(file, request)
