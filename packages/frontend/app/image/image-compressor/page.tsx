@@ -7,28 +7,83 @@ import {
 } from "@/components/ImageTools/ImageCompressor/SeoData/Blog";
 import Index from "@/components/ImageTools/ImageCompressor/MainCompressor/Index";
 
+// ============================================================================
+// FULL SEO METADATA
+// ============================================================================
 export const metadata: Metadata = {
   title: compressorMetadata.title,
   description: compressorMetadata.description,
   keywords: compressorMetadata.keywords,
+
+  // Canonical URL
+  alternates: {
+    canonical: "https://www.zemrev.com/image/image-compressor",
+  },
+
+  // OpenGraph for social preview
+  openGraph: {
+    title: compressorMetadata.title,
+    description: compressorMetadata.description,
+    url: "https://www.zemrev.com/image/image-compressor",
+    siteName: "Zemrev",
+    type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Zemrev Image Compressor Tool",
+      },
+    ],
+  },
+
+  // Twitter card preview
+  twitter: {
+    card: "summary_large_image",
+    title: compressorMetadata.title,
+    description: compressorMetadata.description,
+    images: ["/og-image.png"],
+  },
+
+  // JSON-LD Structured Data
+  other: {
+    "script:ld+json": JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      name: "Zemrev Image Compressor",
+      applicationCategory: "WebApplication",
+      operatingSystem: "All",
+      description:
+        "Free online image compressor to reduce image size without losing quality.",
+      url: "https://www.zemrev.com/image/image-compressor",
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "USD",
+      },
+    }),
+  },
 };
 
+// ============================================================================
+// PAGE COMPONENT
+// ============================================================================
 const Compressor = () => {
   return (
     <main className="w-full">
-      {/* Page Title */}
+      {/* Title */}
       <h1 className="md:text-[1.8vw] text-[2.5vh] text-zinc-700 dark:text-zinc-300 text-center font-semibold leading-tight px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40">
         {compressorContent.mainHeading}
       </h1>
 
-      {/* Tool */}
+      {/* Tool Component */}
       <Index />
 
       {/* Blog Section */}
       <div className="w-full border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 p-2 md:p-6 md:mt-[1vw] mt-[1vh]">
         {compressorContent.sections.map((section, index) => (
           <div key={index} className="mb-8">
-
+            
             {/* Introduction */}
             {compressorContent.intro && (
               <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed mb-4">
@@ -36,21 +91,21 @@ const Compressor = () => {
               </p>
             )}
 
-            {/* Section heading */}
+            {/* Section Heading */}
             {section.heading && (
               <h2 className="text-xl md:text-2xl font-semibold text-zinc-800 dark:text-zinc-200 mb-3">
                 {section.heading}
               </h2>
             )}
 
-            {/* Section main paragraph */}
+            {/* Section Content */}
             {section.content && (
               <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed mb-4">
                 {section.content}
               </p>
             )}
 
-            {/* Generic list renderer */}
+            {/* Generic List */}
             {section.list && (
               <ul className="list-disc pl-5 space-y-2 mb-4">
                 {section.list.map((item, idx) => (

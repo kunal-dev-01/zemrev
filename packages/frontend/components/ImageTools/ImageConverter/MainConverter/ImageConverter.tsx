@@ -88,7 +88,7 @@ const ImageConverter = () => {
   // RENDER
   // ============================================================================
   return (
-    <div className="w-full relative">
+    <div className="w-full mt-[1vh] md:mt-[1vw]">
       {/* Drag & Drop */}
       <DragDropZone
         config={config}

@@ -109,7 +109,7 @@ const ConverterDynamicTool = ({
   // RENDER
   // ============================================================================
   return (
-    <div className="w-full space-y-6 relative">
+    <div className="w-full md:mt-[1vw] mt-[1vh]">
       {/* Drag & Drop Zone */}
       <DragDropZone
         config={config}
