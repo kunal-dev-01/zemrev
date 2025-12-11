@@ -1,19 +1,20 @@
 // imageConverter/Dynamicconverter/DynamicConverter.tsx
 
-"use client";
-
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+
 import { DragDropZone } from "@/components/Shared/DragDropZone";
 import { UrlUploadModal } from "@/components/Shared/UrlUploadModal";
 import { ConverterFilePanel } from "../Settings/ConverterFilePanel";
 import { SessionFilesDisplay } from "@/components/Shared/SessionFilesDisplay";
+
 import { TOOL_CONFIGS, detectFormatFromFilename } from "@/config/tool.config";
-import { Spinner } from "@/components/Layouts/Spinner";
+
 import { TrashSvg } from "@/components/Svg/CommonSvg";
+import GlassButton from "@/components/Layouts/GlassButton";
+
 import { useImageConverter } from "@/hooks/imageHooks/useImageConverter.hook";
 import type { OutputFormat } from "@/services/imageService/types";
-import GlassButton from "@/components/Layouts/GlassButton";
 
 interface ConverterDynamicToolProps {
   inputFormat: string;
@@ -26,6 +27,7 @@ const ConverterDynamicTool = ({
 }: ConverterDynamicToolProps) => {
   const router = useRouter();
   const config = TOOL_CONFIGS.converter;
+
   const [urlModalOpen, setUrlModalOpen] = useState(false);
 
   const {
@@ -45,36 +47,34 @@ const ConverterDynamicTool = ({
   // ============================================================================
   const handleFilesSelected = useCallback(
     async (newFiles: File[]) => {
-      // STEP 1️⃣ — Save files to pending FIRST (always do this first)
+      // Save to pending first
       await addFiles(
         newFiles,
         outputFormat as OutputFormat,
         config.defaultSettings.quality as number
       );
 
-      // STEP 2️⃣ — Detect formats
+      // Detect unique formats
       const formats = newFiles.map((f) => detectFormatFromFilename(f.name));
       const uniqueFormats = [...new Set(formats.filter(Boolean))];
 
-      // STEP 3️⃣ — Redirect logic AFTER file is saved
-
-      // 1. If mixed formats → go to main converter
+      // Mixed formats → send to main converter
       if (uniqueFormats.length > 1) {
         router.push("/image/image-converter");
         return;
       }
 
-      // 2. If uploaded format != expected inputFormat → go to main converter
+      // Uploaded format mismatch → send to main converter
       const uploadedFormat = uniqueFormats[0];
       if (uploadedFormat !== inputFormat) {
         router.push("/image/image-converter");
         return;
       }
 
-      // 3. If existing files have different outputFormat → go to main converter
-      const existingOutputFormats = files.map((f) => f.settings.format);
+      // Check consistency of output format with existing files
+      const existingOutputs = files.map((f) => f.settings.format);
       const uniqueOutputs = [
-        ...new Set([...existingOutputFormats, outputFormat]),
+        ...new Set([...existingOutputs, outputFormat]),
       ];
 
       if (uniqueOutputs.length > 1) {
@@ -82,11 +82,12 @@ const ConverterDynamicTool = ({
         return;
       }
 
-      // NO redirect here — because this is already dynamic converter
+      // No redirect here — allowed
     },
     [addFiles, config, router, inputFormat, outputFormat, files]
   );
 
+  // URL upload handler
   const handleUrlUpload = useCallback(
     async (url: string) => {
       await addFromUrl(
@@ -109,7 +110,7 @@ const ConverterDynamicTool = ({
   // ============================================================================
   return (
     <div className="w-full space-y-6 relative">
-      {/* Always Show Drag Drop Zone */}
+      {/* Drag & Drop Zone */}
       <DragDropZone
         config={config}
         onFilesSelected={handleFilesSelected}
@@ -176,7 +177,7 @@ const ConverterDynamicTool = ({
         </div>
       )}
 
-      {/* Session Files Display (Completed) */}
+      {/* Completed Files */}
       <SessionFilesDisplay toolType="converter" config={config} />
 
       {/* URL Upload Modal */}
