@@ -43,7 +43,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="ZEMREV PDF API",
-    description="Ultra-fast PDF Tools - Merge, Split, Rotate, Encrypt, Decrypt",
+    description="Ultra-fast PDF Tools - Merge, Split, Rotate, Encrypt, Decrypt, OCR, Watermark, Sign, Crop",
     version="1.0.0",
     lifespan=lifespan
 )
@@ -82,10 +82,19 @@ async def root():
         "version": "1.0.0",
         "status": "operational",
         "tools": {
-            "pypdf": ["merge", "split", "rotate", "encrypt", "decrypt"],
-            "pymupdf": ["pdf-to-images", "images-to-pdf", "extract-text", "extract-images", "add-watermark", "optimize"],
-            "ghostscript": ["compress", "flatten"],
-            "ocr": ["pdf-to-searchable", "extract-text"]
+            "pypdf": [
+                "merge", "split", "rotate", "encrypt", "decrypt"
+            ],
+            "pymupdf": [
+                "pdf-to-images", "images-to-pdf", "extract-text", "extract-images", 
+                "add-watermark", "optimize", "sign", "crop"
+            ],
+            "ghostscript": [
+                "compress", "flatten", "convert-pdfa"
+            ],
+            "ocr": [
+                "pdf-to-searchable", "extract-text"
+            ]
         },
         "endpoints": {
             "pypdf": {
@@ -101,11 +110,14 @@ async def root():
                 "extract_text": "/api/v1/pymupdf/extract-text",
                 "extract_images": "/api/v1/pymupdf/extract-images",
                 "add_watermark": "/api/v1/pymupdf/add-watermark",
-                "optimize": "/api/v1/pymupdf/optimize"
+                "optimize": "/api/v1/pymupdf/optimize",
+                "sign": "/api/v1/pymupdf/sign",
+                "crop": "/api/v1/pymupdf/crop"
             },
             "ghostscript": {
                 "compress": "/api/v1/ghostscript/compress",
-                "flatten": "/api/v1/ghostscript/flatten"
+                "flatten": "/api/v1/ghostscript/flatten",
+                "convert_pdfa": "/api/v1/ghostscript/convert-pdfa"
             },
             "ocr": {
                 "pdf_to_searchable": "/api/v1/ocr/pdf-to-searchable",
