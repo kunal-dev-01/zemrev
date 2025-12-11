@@ -48,6 +48,7 @@ class ConvertRequest(BaseModel):
     """Format conversion"""
     format: OutputFormat = Field(default=OutputFormat.WEBP)
     quality: int = Field(default=75, ge=1, le=100)
+    strip_metadata: bool = Field(default=True)
 
 class CompressRequest(BaseModel):
     """Image compression"""

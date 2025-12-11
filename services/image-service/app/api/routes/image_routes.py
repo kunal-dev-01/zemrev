@@ -33,8 +33,9 @@ async def convert(
     file: UploadFile = File(...),
     format: OutputFormat = Form(OutputFormat.WEBP),
     quality: int = Form(75),
+    strip_metadata: bool = Form(True),
 ):
-    options = ConvertRequest(format=format, quality=quality)
+    options = ConvertRequest(format=format, quality=quality, strip_metadata=strip_metadata)
     return await image_controller.convert_image(file, options)
 
 
