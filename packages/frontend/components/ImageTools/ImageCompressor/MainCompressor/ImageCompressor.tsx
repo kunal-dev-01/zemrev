@@ -72,12 +72,6 @@ const ImageCompressor = () => {
   // ============================================================================
   return (
     <div className="w-full space-y-6 md:mt-[1vw] mt-[1vh] relative">
-      <div
-    className="absolute inset-0 -z-10 backdrop-blur-xl opacity-20"
-    style={{
-      background: `radial-gradient(circle at center, ${config.primaryColor}50 0%, transparent 70%)`,
-    }}
-  />
       {/* Always Show Drag Drop Zone */}
       <DragDropZone
         config={config}
