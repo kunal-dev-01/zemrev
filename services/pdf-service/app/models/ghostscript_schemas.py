@@ -38,6 +38,20 @@ class FlattenPdfRequest(BaseModel):
     pass
 
 
+class ConvertToPdfARequest(BaseModel):
+    """Convert to PDF/A request"""
+    version: str = Field(
+        default="2b",
+        description="PDF/A version: 1b, 2b, or 3b"
+    )
+    
+    @field_validator('version')
+    @classmethod
+    def validate_version(cls, v: str) -> str:
+        if v not in ['1b', '2b', '3b']:
+            raise ValueError("Version must be 1b, 2b, or 3b")
+        return v
+
 # ============================================================================
 # RESPONSE SCHEMAS
 # ============================================================================
