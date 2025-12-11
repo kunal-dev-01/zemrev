@@ -4,7 +4,7 @@
 
 import { Spinner } from "@/components/Layouts/Spinner";
 import { FileImage } from "@/components/Svg/HomeSvg";
-import { CancelSvg, ErrorSvg, ChevronDownSvg, QualitySvg } from "@/components/Svg/CommonSvg";
+import { CancelSvg, ErrorSvg, ChevronDownSvg, SettingsSvg } from "@/components/Svg/CommonSvg";
 import { ToggleSwitch } from "@/components/Shared/ToggleSwitch";
 import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 import type { FileSettings, ProcessedFile, ToolConfig } from "@/services/imageService/types";
@@ -24,10 +24,10 @@ export const ConverterFilePanel = ({
   onRemove,
 }: ConverterFilePanelProps) => {
   const isDark = useDarkMode();
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isFormatOpen, setIsFormatOpen] = useState(false);
-  const [isQualityOpen, setIsQualityOpen] = useState(false);
+  const settingsRef = useRef<HTMLDivElement>(null);
   const formatRef = useRef<HTMLDivElement>(null);
-  const qualityRef = useRef<HTMLDivElement>(null);
 
   const formats = [
     { value: "jpeg", label: "JPEG" },
@@ -51,11 +51,11 @@ export const ConverterFilePanel = ({
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      if (settingsRef.current && !settingsRef.current.contains(event.target as Node)) {
+        setIsSettingsOpen(false);
+      }
       if (formatRef.current && !formatRef.current.contains(event.target as Node)) {
         setIsFormatOpen(false);
-      }
-      if (qualityRef.current && !qualityRef.current.contains(event.target as Node)) {
-        setIsQualityOpen(false);
       }
     };
 
@@ -111,8 +111,16 @@ export const ConverterFilePanel = ({
   const isError = file.status === "error";
   const showQuality = ["jpeg", "jpg", "webp", "avif"].includes(file.settings.format!);
 
+  const truncateFileName = (name: string, maxLength: number = 30) => {
+    if (name.length <= maxLength) return name;
+    const ext = name.split('.').pop();
+    const nameWithoutExt = name.substring(0, name.lastIndexOf('.'));
+    const truncated = nameWithoutExt.substring(0, maxLength - ext!.length - 4);
+    return `${truncated}...${ext}`;
+  };
+
   return (
-    <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-4 transition-all duration-200 hover:border-zinc-300 dark:hover:border-zinc-700">
+    <div className="bg-transparent border border-zinc-200 dark:border-zinc-800 rounded-2xl md:p-3 p-2 transition-all duration-200 hover:border-zinc-300 dark:hover:border-zinc-700">
       {/* Main Content - Horizontal Layout */}
       <div className="flex items-center gap-4">
         {/* File Icon */}
@@ -127,38 +135,37 @@ export const ConverterFilePanel = ({
           </div>
         </div>
 
-        {/* File Info - Single Line */}
-        <div className="flex-1 min-w-0 flex items-center gap-3">
-          <h3 className="text-sm font-semibold text-zinc-800 dark:text-zinc-200 truncate" title={file.name}>
-            {file.name}
+        {/* File Info */}
+        <div className="flex-1 min-w-0">
+          <h3 className="text-sm leading-none font-semibold text-zinc-800 dark:text-zinc-200 truncate" title={file.name}>
+            {truncateFileName(file.name)}
           </h3>
-          <span className="text-xs text-zinc-500 dark:text-zinc-400 whitespace-nowrap">
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 px-1 bg-zinc-200 dark:bg-zinc-800 rounded-sm inline-block">
             {formatBytes(file.size)}
-          </span>
+          </p>
         </div>
 
-        {/* Format & Quality Selectors (Only Pending) */}
+        {/* Format Display & Settings */}
         {file.status === "pending" && (
-          <div className="flex items-center gap-2">
-            {/* Format Dropdown */}
-            <div ref={formatRef} className="relative">
-              <button
-                onClick={() => setIsFormatOpen(!isFormatOpen)}
-                className="px-4 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-sm font-bold text-zinc-800 dark:text-zinc-200 flex items-center gap-2 hover:border-zinc-300 dark:hover:border-zinc-600 transition-all"
-                style={{
-                  borderColor: isFormatOpen ? config.primaryColor : undefined,
-                }}
-              >
-                <span>{file.settings.format?.toUpperCase()}</span>
-                <div className="w-4 h-4">
-                  <ChevronDownSvg />
-                </div>
-              </button>
+          <div className="hidden md:flex items-center justify-center gap-2 flex-1">
+            {/* Format Button */}
+            <div ref={formatRef} className="relative ">
+            <button
+              onClick={() => setIsFormatOpen(!isFormatOpen)}
+              className="w-full px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-all duration-200 flex items-center justify-between gap-2"
+            >
+              <span className="text-sm font-semibold">{file.settings.format?.toUpperCase()}</span>
+              <ChevronDownSvg className={`w-4 h-4 transition-transform ${isFormatOpen ? 'rotate-180' : ''}`} />
+            </button>
 
-              {/* Format Dropdown Menu */}
-              {isFormatOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl shadow-xl z-50 p-2">
-                  <div className="grid grid-cols-4 gap-1">
+            {/* Format Dropdown */}
+            {isFormatOpen && (
+              <div className="absolute left-0 mt-2 w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl shadow-xl z-50 overflow-hidden">
+                <div className="p-3">
+                  <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-2">
+                    OUTPUT FORMAT
+                  </p>
+                  <div className="grid grid-cols-3 gap-2">
                     {formats.map((format) => (
                       <button
                         key={format.value}
@@ -183,38 +190,173 @@ export const ConverterFilePanel = ({
                     ))}
                   </div>
                 </div>
+              </div>
+            )}
+          </div>
+
+            {/* Settings Button */}
+            <div ref={settingsRef} className="relative">
+              <button
+                onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+                className="px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-all duration-200 cursor-pointer"
+                style={{
+                  borderColor: isSettingsOpen ? config.primaryColor : undefined,
+                  backgroundColor: isSettingsOpen ? `${config.primaryColor}15` : undefined,
+                }}
+              >
+                <SettingsSvg />
+              </button>
+
+              {/* Settings Dropdown */}
+              {isSettingsOpen && (
+                <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl shadow-xl z-50 overflow-hidden">
+                  {/* Quality Selection */}
+                  {showQuality && (
+                    <div className="p-4 border-b border-zinc-200 dark:border-zinc-800">
+                      <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-2">
+                        QUALITY
+                      </p>
+                      <div className="space-y-1">
+                        {qualityOptions.map((option) => (
+                          <button
+                            key={option.value}
+                            onClick={() => {
+                              onUpdateSettings({ quality: option.value });
+                            }}
+                            className={`w-full px-3 py-2 rounded-lg text-sm font-medium text-left transition-all flex items-center justify-between ${
+                              file.settings.quality === option.value
+                                ? "text-white shadow-sm"
+                                : "text-zinc-700 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-800/50 hover:bg-zinc-100 dark:hover:bg-zinc-700"
+                            }`}
+                            style={{
+                              backgroundColor:
+                                file.settings.quality === option.value
+                                  ? config.primaryColor
+                                  : undefined,
+                            }}
+                          >
+                            <div>
+                              <div className="font-semibold">{option.label}</div>
+                              <div className="text-xs opacity-75">{option.desc}</div>
+                            </div>
+                            <span className="text-xs font-bold">{option.value}%</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Strip Metadata Toggle */}
+                  <div className="p-4">
+                    <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-2">
+                      METADATA
+                    </p>
+                    <ToggleSwitch
+                      checked={file.settings.stripMetadata ?? true}
+                      onChange={(value) => onUpdateSettings({ stripMetadata: value })}
+                      label="Strip Metadata"
+                      description="Remove EXIF data from image"
+                      color={config.primaryColor}
+                    />
+                  </div>
+                </div>
               )}
             </div>
+          </div>
+        )}
 
-            {/* Quality Dropdown (Only for lossy formats) */}
-            {showQuality && (
-              <div ref={qualityRef} className="relative">
-                <button
-                  onClick={() => setIsQualityOpen(!isQualityOpen)}
-                  className="px-4 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-sm font-bold text-zinc-800 dark:text-zinc-200 flex items-center gap-2 hover:border-zinc-300 dark:hover:border-zinc-600 transition-all"
-                  style={{
-                    borderColor: isQualityOpen ? config.primaryColor : undefined,
-                  }}
-                >
-                  <div className="w-4 h-4" style={{ color: config.primaryColor }}>
-                    <QualitySvg />
-                  </div>
-                  <span>{file.settings.quality}%</span>
-                  <div className="w-4 h-4">
-                    <ChevronDownSvg />
-                  </div>
-                </button>
+        {/* Status Badge */}
+        <div className="flex items-center gap-3">
+          {/* Remove Button */}
+          {!isProcessing && (
+            <button
+              onClick={onRemove}
+              className="px-3 py-2 rounded-xl border border-zinc-300 dark:border-zinc-800 cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all duration-200"
+              aria-label="Remove file"
+            >
+              <CancelSvg className="w-5 h-5" />
+            </button>
+          )}
+        </div>
+      </div>
 
-                {/* Quality Dropdown Menu */}
-                {isQualityOpen && (
-                  <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl shadow-xl z-50 p-2">
+      {/* Mobile Format & Settings Buttons */}
+      {file.status === "pending" && (
+        <div className="md:hidden flex items-center gap-2 mt-3">
+          {/* Format Button */}
+          <div ref={formatRef} className="relative flex-1">
+            <button
+              onClick={() => setIsFormatOpen(!isFormatOpen)}
+              className="w-full px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-all duration-200 flex items-center justify-between"
+            >
+              <span className="text-sm font-semibold">{file.settings.format?.toUpperCase()}</span>
+              <ChevronDownSvg className={`w-4 h-4 transition-transform ${isFormatOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {/* Format Dropdown */}
+            {isFormatOpen && (
+              <div className="absolute left-0 mt-2 w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl shadow-xl z-50 overflow-hidden">
+                <div className="p-3">
+                  <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-2">
+                    OUTPUT FORMAT
+                  </p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {formats.map((format) => (
+                      <button
+                        key={format.value}
+                        onClick={() => {
+                          onUpdateSettings({ format: format.value } as FileSettings);
+                          setIsFormatOpen(false);
+                        }}
+                        className={`px-3 py-2 rounded-lg text-xs font-bold transition-all ${
+                          file.settings.format === format.value
+                            ? "text-white shadow-md"
+                            : "text-zinc-700 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                        }`}
+                        style={{
+                          backgroundColor:
+                            file.settings.format === format.value
+                              ? config.primaryColor
+                              : undefined,
+                        }}
+                      >
+                        {format.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Settings Button */}
+          <div ref={settingsRef} className="relative">
+            <button
+              onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+              className="px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-all duration-200"
+              style={{
+                borderColor: isSettingsOpen ? config.primaryColor : undefined,
+                backgroundColor: isSettingsOpen ? `${config.primaryColor}15` : undefined,
+              }}
+            >
+              <SettingsSvg />
+            </button>
+
+            {/* Settings Dropdown */}
+            {isSettingsOpen && (
+              <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl shadow-xl z-50 overflow-hidden">
+                {/* Quality Selection */}
+                {showQuality && (
+                  <div className="p-4 border-b border-zinc-200 dark:border-zinc-800">
+                    <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-2">
+                      QUALITY
+                    </p>
                     <div className="space-y-1">
                       {qualityOptions.map((option) => (
                         <button
                           key={option.value}
                           onClick={() => {
                             onUpdateSettings({ quality: option.value });
-                            setIsQualityOpen(false);
                           }}
                           className={`w-full px-3 py-2 rounded-lg text-sm font-medium text-left transition-all flex items-center justify-between ${
                             file.settings.quality === option.value
@@ -238,50 +380,25 @@ export const ConverterFilePanel = ({
                     </div>
                   </div>
                 )}
+
+                {/* Strip Metadata Toggle */}
+                <div className="p-4">
+                  <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-2">
+                    METADATA
+                  </p>
+                  <ToggleSwitch
+                    checked={file.settings.stripMetadata ?? true}
+                    onChange={(value) => onUpdateSettings({ stripMetadata: value })}
+                    label="Strip Metadata"
+                    description="Remove EXIF data from image"
+                    color={config.primaryColor}
+                  />
+                </div>
               </div>
             )}
-
-            {/* Strip Metadata Toggle */}
-            <div className="px-1 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50">
-              <ToggleSwitch
-                checked={file.settings.stripMetadata ?? true}
-                onChange={(value) => onUpdateSettings({ stripMetadata: value })}
-                color={config.primaryColor}
-              />
-            </div>
           </div>
-        )}
-
-        {/* Status Badge (Hidden on Mobile) */}
-        <div className="hidden md:flex items-center gap-3">
-          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap ${status.bg} ${status.color}`}>
-            {status.icon}
-            <span>{status.text}</span>
-          </div>
-
-          {/* Remove Button */}
-          {!isProcessing && (
-            <button
-              onClick={onRemove}
-              className="p-2 text-zinc-700 border border-zinc-200 dark:border-zinc-700 dark:text-zinc-300 rounded-full hover:bg-red-50 hover:border-red-200 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:border-red-800 dark:hover:text-red-400 transition-all"
-              aria-label="Remove file"
-            >
-              <CancelSvg className="w-4 h-4" />
-            </button>
-          )}
         </div>
-
-        {/* Mobile: Only Remove Button */}
-        {!isProcessing && (
-          <button
-            onClick={onRemove}
-            className="md:hidden p-2 text-zinc-700 border border-zinc-200 dark:border-zinc-700 dark:text-zinc-300 rounded-full hover:bg-red-50 hover:border-red-200 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:border-red-800 dark:hover:text-red-400 transition-all"
-            aria-label="Remove file"
-          >
-            <CancelSvg className="w-4 h-4" />
-          </button>
-        )}
-      </div>
+      )}
 
       {/* ERROR MESSAGE */}
       {isError && file.error && (
