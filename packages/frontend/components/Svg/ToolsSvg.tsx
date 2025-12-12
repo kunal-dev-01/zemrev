@@ -96,3 +96,89 @@ export const RotateSvg = memo(() => (
 ));
 
 RotateSvg.displayName = "RotateSvg";
+
+// ===================== FreeformSVG ===================== //
+export const FreeformSvg = memo(() => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className="w-full h-full"
+  >
+    <path
+      d="M3 3L9 3M3 3L3 9M3 3L8 8M21 3H15M21 3V9M21 3L16 8M3 21H9M3 21V15M3 21L8 16M21 21H15M21 21V15M21 21L16 16"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+));
+
+FreeformSvg.displayName = "FreeformSvg";
+
+// ===================== SquareSVG ===================== //
+export const SquareSvg = memo(() => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className="w-full h-full"
+  >
+    <rect
+      x="4"
+      y="4"
+      width="16"
+      height="16"
+      rx="2"
+      stroke="currentColor"
+      strokeWidth="2"
+    />
+  </svg>
+));
+
+SquareSvg.displayName = "SquareSvg";
+
+// ===================== LandscapeSVG ===================== //
+export const LandscapeSvg = memo(() => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className="w-full h-full"
+  >
+    <rect
+      x="2"
+      y="6"
+      width="20"
+      height="12"
+      rx="2"
+      stroke="currentColor"
+      strokeWidth="2"
+    />
+  </svg>
+));
+
+LandscapeSvg.displayName = "LandscapeSvg";
+
+// ===================== PortraitSVG ===================== //
+export const PortraitSvg = memo(() => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className="w-full h-full"
+  >
+    <rect
+      x="6"
+      y="2"
+      width="12"
+      height="20"
+      rx="2"
+      stroke="currentColor"
+      strokeWidth="2"
+    />
+  </svg>
+));
+
+PortraitSvg.displayName = "PortraitSvg";
