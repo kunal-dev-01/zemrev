@@ -29,7 +29,7 @@ export default function GlassButton({
       `}
       style={{backgroundColor: primaryColor}}
     >
-      {loading && <Spinner />}
+      {loading && <Spinner className='w-5 h-5 text-white' />}
       {children}
     </button>
   );
