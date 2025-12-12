@@ -11,7 +11,65 @@ export const metadata: Metadata = {
   title: watermarkMetadata.title,
   description: watermarkMetadata.description,
   keywords: watermarkMetadata.keywords,
+
+  // Canonical URL
+  alternates: {
+    canonical: "https://www.zemrev.com/image/image-watermark",
+  },
+
+  // OpenGraph
+  openGraph: {
+    title: watermarkMetadata.title,
+    description: watermarkMetadata.description,
+    url: "https://www.zemrev.com/image/image-watermark",
+    siteName: "Zemrev",
+    type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Zemrev Image Watermark Tool",
+      },
+    ],
+  },
+
+  // Twitter Card
+  twitter: {
+    card: "summary_large_image",
+    title: watermarkMetadata.title,
+    description: watermarkMetadata.description,
+    images: ["/og-image.png"],
+  },
+
+  // JSON-LD Structured Data
+  other: {
+    "script:ld+json": JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      name: "Zemrev Image Watermark Tool",
+      applicationCategory: "WebApplication",
+      operatingSystem: "All",
+      description: watermarkMetadata.description,
+      url: "https://www.zemrev.com/image/image-watermark",
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "USD",
+      },
+      featureList: [
+        "Add watermark to images for free",
+        "Supports text watermark",
+        "Supports image watermark",
+        "Adjust size, opacity, position",
+        "Batch watermark multiple images",
+        "No signup required",
+        "Fast and secure watermarking",
+      ],
+    }),
+  },
 };
+
 
 const WaterMark = () => {
   return (
