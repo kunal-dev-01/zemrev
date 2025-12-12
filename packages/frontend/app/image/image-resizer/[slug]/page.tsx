@@ -2,29 +2,31 @@
 
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { 
+
+import {
   getResizerData,
   getAllResizerSlugs,
 } from "@/components/ImageTools/ImageResizer/SeoData/DynamicData-Index";
+
 import Index from "@/components/ImageTools/ImageResizer/DynamicResizer/Index";
 
 // ============================================================================
-// GENERATE STATIC PARAMS
+// GENERATE STATIC PARAMS (SSG)
 // ============================================================================
 
 export async function generateStaticParams() {
   const allSlugs = getAllResizerSlugs();
-  return allSlugs.map(slug => ({ slug }));
+  return allSlugs.map((slug) => ({ slug }));
 }
 
 // ============================================================================
 // METADATA GENERATION
 // ============================================================================
 
-export async function generateMetadata({ 
-  params 
-}: { 
-  params: Promise<{ slug: string }> 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
   const data = getResizerData(slug);
@@ -32,7 +34,7 @@ export async function generateMetadata({
   if (!data) {
     return {
       title: "Resizer Not Found",
-      description: "The requested image resizer could not be found."
+      description: "The requested image resizer could not be found.",
     };
   }
 
@@ -40,13 +42,13 @@ export async function generateMetadata({
     title: data.title,
     description: data.description,
     keywords: data.keywords,
-    
+
     // Canonical URL
     alternates: {
       canonical: `https://www.zemrev.com/image/image-resizer/${slug}`,
     },
 
-    // OpenGraph
+    // OpenGraph (Social sharing)
     openGraph: {
       title: data.title,
       description: data.description,
@@ -70,6 +72,24 @@ export async function generateMetadata({
       description: data.description,
       images: ["/og-image.png"],
     },
+
+    // JSON-LD (Google Rich Results)
+    other: {
+      "script:ld+json": JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        name: data.title,
+        applicationCategory: "WebApplication",
+        operatingSystem: "All",
+        description: data.description,
+        url: `https://www.zemrev.com/image/image-resizer/${slug}`,
+        offers: {
+          "@type": "Offer",
+          price: "0",
+          priceCurrency: "USD",
+        },
+      }),
+    },
   };
 }
 
@@ -77,21 +97,22 @@ export async function generateMetadata({
 // PAGE COMPONENT
 // ============================================================================
 
-export default async function ResizerDynamicPage({ 
-  params 
-}: { 
-  params: Promise<{ slug: string }> 
+export default async function ResizerDynamicPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
   const data = getResizerData(slug);
 
-  if (!data) {
-    return notFound();
-  }
+  if (!data) return notFound();
 
   return (
     <main className="w-full">
-      <h1 className="md:text-[1.8vw] text-[2.5vh] text-zinc-700 dark:text-zinc-300 text-center font-semibold leading-tight px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40">
+      <h1 className="md:text-[1.8vw] text-[2.5vh] text-zinc-700 dark:text-zinc-300 
+                     text-center font-semibold leading-tight px-3 py-2 
+                     border border-zinc-200 dark:border-zinc-800 rounded-xl 
+                     bg-white/50 dark:bg-zinc-900/40">
         {data.title}
       </h1>
 

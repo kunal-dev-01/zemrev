@@ -11,6 +11,55 @@ export const metadata: Metadata = {
   title: resizerMetadata.title,
   description: resizerMetadata.description,
   keywords: resizerMetadata.keywords,
+
+  // Canonical URL
+  alternates: {
+    canonical: "https://www.zemrev.com/image/image-resizer",
+  },
+
+  // OpenGraph (Social Preview)
+  openGraph: {
+    title: resizerMetadata.title,
+    description: resizerMetadata.description,
+    url: "https://www.zemrev.com/image/image-resizer",
+    siteName: "Zemrev",
+    type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Zemrev Image Resizer Tool",
+      },
+    ],
+  },
+
+  // Twitter Card
+  twitter: {
+    card: "summary_large_image",
+    title: resizerMetadata.title,
+    description: resizerMetadata.description,
+    images: ["/og-image.png"],
+  },
+
+  // JSON-LD Structured Data
+  other: {
+    "script:ld+json": JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      name: "Zemrev Image Resizer",
+      applicationCategory: "WebApplication",
+      operatingSystem: "All",
+      description:
+        "Free online image resizer to adjust image dimensions instantly without losing quality.",
+      url: "https://www.zemrev.com/image/image-resizer",
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "USD",
+      },
+    }),
+  },
 };
 
 const Resizer = () => {
@@ -35,6 +84,7 @@ const Resizer = () => {
                 {resizerContent.intro}
               </p>
             )}
+
             {/* Section heading */}
             {section.heading && (
               <h2 className="text-xl md:text-2xl font-semibold text-zinc-800 dark:text-zinc-200 mb-3">
@@ -42,14 +92,14 @@ const Resizer = () => {
               </h2>
             )}
 
-            {/* Section main paragraph */}
+            {/* Paragraph */}
             {section.content && (
               <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed mb-4">
                 {section.content}
               </p>
             )}
 
-            {/* Generic list renderer */}
+            {/* List */}
             {section.list && (
               <ul className="list-disc pl-5 space-y-2 mb-4">
                 {section.list.map((item, idx) => (
@@ -128,6 +178,7 @@ const Resizer = () => {
                 ))}
               </ul>
             )}
+
           </div>
         ))}
       </div>
