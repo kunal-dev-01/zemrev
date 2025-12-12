@@ -165,7 +165,7 @@ const ImageWatermark = () => {
   // RENDER
   // ============================================================================
   return (
-    <>
+    <div className="md:mt-[1vw] mt-[1vh]">
       {/* Drag & Drop */}
       {!file && (
         <DragDropZone
@@ -224,7 +224,7 @@ const ImageWatermark = () => {
         onSubmit={handleUrlUpload}
         config={config}
       />
-    </>
+    </div>
   );
 };
 
