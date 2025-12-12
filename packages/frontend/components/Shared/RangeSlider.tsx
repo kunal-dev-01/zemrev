@@ -56,14 +56,16 @@ export const RangeSlider = ({
   };
 
   return (
-    <div className={`group relative select-none ${className} ${disabled ? "opacity-50 pointer-events-none" : ""}`}>
+    <div
+      className={`group relative select-none ${className} ${
+        disabled ? "opacity-50 pointer-events-none" : ""
+      }`}
+    >
       {/* Header Section */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           {icon && (
-            <div 
-              className="flex items-center justify-center w-8 h-8 rounded-lg text-lg bg-zinc-800/50 border border-zinc-700/50 shadow-sm"
-            >
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg text-lg bg-zinc-800/50 border border-zinc-700/50 shadow-sm">
               {icon}
             </div>
           )}
@@ -71,12 +73,13 @@ export const RangeSlider = ({
             {label}
           </label>
         </div>
-        
+
         {/* Value Display */}
-        <div 
-          className="flex items-center gap-1 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 shadow-inner min-w-14 justify-center"
-        >
-          <span className="text-sm font-bold tabular-nums tracking-wide" style={{ color }}>
+        <div className="flex items-center gap-1 px-3 py-1 rounded-xl bg-zinc-900 border border-zinc-800 shadow-inner min-w-14 justify-center">
+          <span
+            className="text-sm font-bold tabular-nums tracking-wide"
+            style={{ color }}
+          >
             {localValue}
           </span>
           <span className="text-xs text-zinc-500 font-medium">{unit}</span>
@@ -85,15 +88,14 @@ export const RangeSlider = ({
 
       {/* Slider Container */}
       <div className="relative w-full h-10 flex items-center">
-        
         {/* Background Track */}
         <div className="absolute w-full h-3 bg-zinc-800 rounded-full overflow-hidden border border-zinc-700/50 shadow-inner">
-           {/* Tick marks (optional subtle detail) */}
-           <div className="absolute inset-0 w-full h-full flex justify-between px-2 opacity-20">
-             {Array.from({ length: 11 }).map((_, i) => (
-                <div key={i} className="w-px h-full bg-zinc-500"></div>
-             ))}
-           </div>
+          {/* Tick marks (optional subtle detail) */}
+          <div className="absolute inset-0 w-full h-full flex justify-between px-2 opacity-20">
+            {Array.from({ length: 11 }).map((_, i) => (
+              <div key={i} className="w-px h-full bg-zinc-500"></div>
+            ))}
+          </div>
         </div>
 
         {/* Active Fill Track with Glow */}
@@ -132,12 +134,16 @@ export const RangeSlider = ({
             absolute h-6 w-6 rounded-full bg-white shadow-lg border-2 pointer-events-none
             transition-all duration-150 ease-out transform -translate-x-1/2
             flex items-center justify-center
-            ${isDragging ? 'scale-125 border-zinc-900 ring-4 ring-white/10' : 'scale-100'}
+            ${
+              isDragging
+                ? "scale-125 border-zinc-900 ring-4 ring-white/10"
+                : "scale-100"
+            }
           `}
           style={{
             left: `${percentage}%`,
             borderColor: color,
-            boxShadow: `0 2px 10px ${color}66`
+            boxShadow: `0 2px 10px ${color}66`,
           }}
         >
           <div className="w-1.5 h-1.5 rounded-full bg-zinc-300" />
@@ -146,7 +152,7 @@ export const RangeSlider = ({
 
       {/* Presets */}
       {presets && presets.length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-4">
+        <div className="flex flex-wrap gap-1 mt-2">
           {presets.map((preset) => {
             const isActive = Math.abs(localValue - preset.value) < step;
             return (
@@ -155,13 +161,18 @@ export const RangeSlider = ({
                 onClick={() => handlePresetClick(preset.value)}
                 disabled={disabled}
                 className={`
-                  px-3 py-1.5 rounded-md text-xs font-semibold transition-all duration-200 border
-                  ${isActive 
-                    ? `bg-zinc-800 text-white border-zinc-600 shadow-md transform scale-105` 
-                    : "text-zinc-500 bg-zinc-900/50 border-zinc-800 hover:bg-zinc-800 hover:text-zinc-300 hover:border-zinc-700"
+                  px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 border cursor-pointer
+                  ${
+                    isActive
+                      ? `bg-zinc-800 text-white border-none border-zinc-600`
+                      : "text-zinc-500 bg-zinc-900/50 border-zinc-800 hover:bg-zinc-800 hover:text-zinc-300 hover:border-zinc-700"
                   }
                 `}
-                style={isActive ? { borderColor: color, color: color, backgroundColor: `${color}1A` } : {}}
+                style={
+                  isActive
+                    ? { color: color, backgroundColor: `${color}1A` }
+                    : {}
+                }
               >
                 {preset.label}
               </button>
