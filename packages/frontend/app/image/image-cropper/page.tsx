@@ -11,6 +11,61 @@ export const metadata: Metadata = {
   title: cropperMetadata.title,
   description: cropperMetadata.description,
   keywords: cropperMetadata.keywords,
+
+  // Canonical URL
+  alternates: {
+    canonical: "https://www.zemrev.com/image/image-cropper",
+  },
+
+  // OpenGraph Data
+  openGraph: {
+    title: cropperMetadata.title,
+    description: cropperMetadata.description,
+    url: "https://www.zemrev.com/image/image-cropper",
+    siteName: "Zemrev",
+    type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Zemrev Image Cropper Tool",
+      },
+    ],
+  },
+
+  // Twitter Card
+  twitter: {
+    card: "summary_large_image",
+    title: cropperMetadata.title,
+    description: cropperMetadata.description,
+    images: ["/og-image.png"],
+  },
+
+  // JSON-LD Structured Data
+  other: {
+    "script:ld+json": JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      name: "Zemrev Image Cropper",
+      applicationCategory: "WebApplication",
+      operatingSystem: "All",
+      description: cropperMetadata.description,
+      url: "https://www.zemrev.com/image/image-cropper",
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "USD",
+      },
+      featureList: [
+        "Crop images instantly",
+        "Free online image cropping",
+        "Custom aspect ratios",
+        "Preset aspect ratios like 1:1, 4:3, 16:9",
+        "No watermark, no sign-up",
+      ],
+    }),
+  },
 };
 
 const ImageCropper = () => {
