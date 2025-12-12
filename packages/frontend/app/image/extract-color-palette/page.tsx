@@ -13,7 +13,38 @@ export const metadata: Metadata = {
   title: colorPaletteExtractorMetadata.title,
   description: colorPaletteExtractorMetadata.description,
   keywords: colorPaletteExtractorMetadata.keywords,
+
+  // Canonical URL
+  alternates: {
+    canonical: "https://www.zemrev.com/image/extract-color-palette",
+  },
+
+  // OpenGraph for social media rich preview
+  openGraph: {
+    title: colorPaletteExtractorMetadata.title,
+    description: colorPaletteExtractorMetadata.description,
+    url: "https://www.zemrev.com/image/extract-color-palette",
+    siteName: "Zemrev",
+    type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: colorPaletteExtractorMetadata.title,
+      },
+    ],
+  },
+
+  // Twitter Card
+  twitter: {
+    card: "summary_large_image",
+    title: colorPaletteExtractorMetadata.title,
+    description: colorPaletteExtractorMetadata.description,
+    images: ["/og-image.png"],
+  },
 };
+
 
 const ExtractColor = () => {
   return (
