@@ -15,6 +15,7 @@ const PENDING_META: Record<PdfToolType, string> = {
   "pdf-rotate": "zemrev_pdf_pending_rotate",
   "pdf-encrypt": "zemrev_pdf_pending_encrypt",
   "pdf-decrypt": "zemrev_pdf_pending_decrypt",
+  
   "pdf-to-images": "zemrev_pdf_pending_to_images",
   "images-to-pdf": "zemrev_pdf_pending_from_images",
   "extract-text": "zemrev_pdf_pending_extract_text",

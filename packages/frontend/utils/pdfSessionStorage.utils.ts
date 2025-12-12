@@ -16,6 +16,7 @@ const META_KEYS: Record<PdfToolType, string> = {
   "pdf-rotate": "zemrev_pdf_meta_rotate",
   "pdf-encrypt": "zemrev_pdf_meta_encrypt",
   "pdf-decrypt": "zemrev_pdf_meta_decrypt",
+  
   "pdf-to-images": "zemrev_pdf_meta_to_images",
   "images-to-pdf": "zemrev_pdf_meta_from_images",
   "extract-text": "zemrev_pdf_meta_extract_text",
