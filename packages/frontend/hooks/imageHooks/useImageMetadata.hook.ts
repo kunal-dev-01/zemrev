@@ -1,13 +1,14 @@
 // ============================================================================
 // FILE: src/hooks/imageHooks/useImageMetadata.hook.ts
-// PURPOSE: Image Metadata Extractor Hook with Pending + LocalStorage
+// PURPOSE: Image Metadata Extractor Hook (Pending + SessionDB)
 // ============================================================================
 
 import { useState, useCallback, useEffect } from "react";
 import { useExtractMetadataMutation } from "@/services/imageService/image.api";
 import { extractApiErrorMessage } from "@/utils/errorExtract.utils";
 import { pendingStorage } from "@/utils/pendingStorage.utils";
-import type { MetadataResponse } from "@/services/imageService/types";
+import { sessionStorageUtils } from "@/utils/sessionStorage.utils";
+import type { MetadataResponse, StoredFile } from "@/services/imageService/types";
 
 export const useImageMetadata = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -25,11 +26,13 @@ export const useImageMetadata = () => {
   useEffect(() => {
     const restorePending = async () => {
       const restored = await pendingStorage.restore("metadata");
-      
+
       if (restored.length > 0) {
-        const { id, file: restoredFile } = restored[0]; // Only one file for metadata
+        const { id, file: restoredFile } = restored[0];
+
         setFileId(id);
         setFile(restoredFile);
+
         const url = URL.createObjectURL(restoredFile);
         setImageUrl(url);
       }
@@ -39,40 +42,49 @@ export const useImageMetadata = () => {
   }, []);
 
   // ============================================================================
-  // SET FILE
+  // SET FILE (save to pending storage)
   // ============================================================================
-  const setImageFile = useCallback(async (newFile: File) => {
-    if (imageUrl) URL.revokeObjectURL(imageUrl);
-    
-    // Save to pending storage
-    const id = await pendingStorage.save("metadata", newFile);
-    
-    setFileId(id);
-    setFile(newFile);
-    const url = URL.createObjectURL(newFile);
-    setImageUrl(url);
-    setError("");
-    setMetadataData(null);
-  }, [imageUrl]);
+  const setImageFile = useCallback(
+    async (newFile: File) => {
+      if (imageUrl) URL.revokeObjectURL(imageUrl);
+
+      const id = await pendingStorage.save("metadata", newFile);
+
+      setFileId(id);
+      setFile(newFile);
+
+      const url = URL.createObjectURL(newFile);
+      setImageUrl(url);
+
+      setError("");
+      setMetadataData(null);
+    },
+    [imageUrl]
+  );
 
   // ============================================================================
   // SET FROM URL
   // ============================================================================
-  const setFromUrl = useCallback(async (url: string) => {
-    try {
-      const response = await fetch(url);
-      const blob = await response.blob();
-      const filename = url.split("/").pop() || "url-image.jpg";
-      const newFile = new File([blob], filename, { type: blob.type });
-      await setImageFile(newFile);
-    } catch (err) {
-      setError("Failed to download image from URL");
-    }
-  }, [setImageFile]);
+  const setFromUrl = useCallback(
+    async (url: string) => {
+      try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+
+        const filename = url.split("/").pop() || "url-image.jpg";
+        const newFile = new File([blob], filename, { type: blob.type });
+
+        await setImageFile(newFile);
+      } catch {
+        setError("Failed to download image from URL");
+      }
+    },
+    [setImageFile]
+  );
 
   // ============================================================================
-  // EXTRACT METADATA
-  // ============================================================================
+  // EXTRACT METADATA + SAVE TO SESSION DB (2hr TTL)
+// ============================================================================
   const extractImageMetadata = useCallback(async () => {
     if (!file) return { success: false, error: "No file selected" };
 
@@ -81,35 +93,24 @@ export const useImageMetadata = () => {
     setMetadataData(null);
 
     try {
-      const result = await extractMetadata({
-        file,
-      }).unwrap();
+      const result = await extractMetadata({ file }).unwrap();
 
       setMetadataData(result);
-      
-      // Save metadata to localStorage as JSON
-      const savedMetadata = JSON.parse(
-        localStorage.getItem("zemrev_saved_metadata") || "[]"
-      );
-      
-      const metadataEntry = {
-        id: `metadata_${Date.now()}_${Math.random().toString(36).slice(2)}`,
-        filename: file.name,
-        timestamp: Date.now(),
-        data: result, // Save entire metadata response
-      };
-      
-      savedMetadata.push(metadataEntry);
-      localStorage.setItem("zemrev_saved_metadata", JSON.stringify(savedMetadata));
 
-      // Delete from pending storage after successful extraction
+      // Save JSON metadata into sessionDB as blob
+      const jsonBlob = new Blob([JSON.stringify(result, null, 2)], {
+        type: "application/json",
+      });
+
+      await sessionStorageUtils.saveFile(
+        jsonBlob,
+        `${file.name}_metadata.json`,
+        "metadata"
+      );
+
+      // Remove from pending
       if (fileId) {
         await pendingStorage.delete("metadata", fileId);
-      }
-
-      // Trigger storage event
-      if (typeof window !== "undefined") {
-        window.dispatchEvent(new CustomEvent('savedMetadataUpdated'));
       }
 
       setExtracting(false);
@@ -123,58 +124,50 @@ export const useImageMetadata = () => {
   }, [file, fileId, extractMetadata]);
 
   // ============================================================================
-  // COPY TO CLIPBOARD
+  // GET SAVED METADATA FILES FROM SESSIONDB
   // ============================================================================
-  const copyToClipboard = useCallback((text: string) => {
-    navigator.clipboard.writeText(text);
+  const getSavedMetadata = useCallback((): StoredFile[] => {
+    return sessionStorageUtils.getFiles("metadata");
   }, []);
 
   // ============================================================================
-  // GET SAVED METADATA
+  // DELETE SPECIFIC SAVED FILE
   // ============================================================================
-  const getSavedMetadata = useCallback(() => {
-    const saved = localStorage.getItem("zemrev_saved_metadata");
-    return saved ? JSON.parse(saved) : [];
+  const deleteSavedMetadata = useCallback(async (id: string) => {
+    await sessionStorageUtils.deleteFile("metadata", id);
   }, []);
 
   // ============================================================================
-  // DELETE SAVED METADATA
+  // CLEAR ALL SAVED METADATA FOR THIS TOOL
   // ============================================================================
-  const deleteSavedMetadata = useCallback((id: string) => {
-    const saved = JSON.parse(localStorage.getItem("zemrev_saved_metadata") || "[]");
-    const filtered = saved.filter((m: any) => m.id !== id);
-    localStorage.setItem("zemrev_saved_metadata", JSON.stringify(filtered));
-    
-    if (typeof window !== "undefined") {
-      window.dispatchEvent(new CustomEvent('savedMetadataUpdated'));
-    }
+  const clearAllSavedMetadata = useCallback(async () => {
+    await sessionStorageUtils.clearTool("metadata");
   }, []);
 
   // ============================================================================
-  // CLEAR ALL SAVED METADATA
+  // EXPORT FILE DIRECT (blob from sessionDB)
   // ============================================================================
-  const clearAllSavedMetadata = useCallback(() => {
-    localStorage.removeItem("zemrev_saved_metadata");
-    
-    if (typeof window !== "undefined") {
-      window.dispatchEvent(new CustomEvent('savedMetadataUpdated'));
-    }
-  }, []);
+  const exportMetadataAsJson = useCallback(async (id: string, filename: string) => {
+    const blob = await sessionStorageUtils.getBlob(id);
+    if (!blob) return;
 
-  // ============================================================================
-  // EXPORT METADATA AS JSON
-  // ============================================================================
-  const exportMetadataAsJson = useCallback((metadata: MetadataResponse, filename: string) => {
-    const json = JSON.stringify(metadata, null, 2);
-    const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
+
     a.href = url;
-    a.download = `${filename.split('.')[0]}_metadata.json`;
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+
     URL.revokeObjectURL(url);
+  }, []);
+
+  // ============================================================================
+  // COPY ANY TEXT TO CLIPBOARD
+  // ============================================================================
+  const copyToClipboard = useCallback((text: string) => {
+    navigator.clipboard.writeText(text);
   }, []);
 
   // ============================================================================
@@ -182,12 +175,11 @@ export const useImageMetadata = () => {
   // ============================================================================
   const reset = useCallback(async () => {
     if (imageUrl) URL.revokeObjectURL(imageUrl);
-    
-    // Clear pending storage
+
     if (fileId) {
       await pendingStorage.delete("metadata", fileId);
     }
-    
+
     setFileId(null);
     setFile(null);
     setImageUrl(null);
@@ -202,14 +194,17 @@ export const useImageMetadata = () => {
     extracting,
     error,
     metadataData,
+
     setImageFile,
     setFromUrl,
     extractImageMetadata,
-    copyToClipboard,
+
     getSavedMetadata,
     deleteSavedMetadata,
     clearAllSavedMetadata,
     exportMetadataAsJson,
+
+    copyToClipboard,
     reset,
   };
 };
