@@ -1,1 +1,10 @@
-export default function PdfRotate() { return (<div>PdfRotate component</div>); }
+// PDFTools/PdfRotate/PdfRotate.tsx
+
+
+const PdfRotate = () => {
+  return (
+    <div>PdfRotate</div>
+  )
+}
+
+export default PdfRotate

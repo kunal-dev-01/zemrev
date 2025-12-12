@@ -1,1 +1,10 @@
-export default function PdfUnlock() { return (<div>PdfUnlock component</div>); }
+// PDFTools/PdfUnlock/PdfUnlock.tsx
+
+
+const PdfUnlock = () => {
+  return (
+    <div>PdfUnlock</div>
+  )
+}
+
+export default PdfUnlock
