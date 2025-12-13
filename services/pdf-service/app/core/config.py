@@ -12,8 +12,8 @@ from pathlib import Path
 
 class Settings(BaseSettings):
     # File limits
-    MAX_FILE_SIZE: int = 209715200 # 300MB
-    MAX_PAGES: int = 2000
+    MAX_FILE_SIZE: int = 104857600 # 300MB
+    MAX_PAGES: int = 500
     
     # Paths
     UPLOAD_DIR: str = "/tmp/zemrev_pdf_uploads"
