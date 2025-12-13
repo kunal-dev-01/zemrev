@@ -25,8 +25,7 @@ const META_KEYS: Record<PdfToolType, string> = {
   "optimize-pdf": "zemrev_pdf_meta_optimize",
   "compress-pdf": "zemrev_pdf_meta_compress",
   "flatten-pdf": "zemrev_pdf_meta_flatten",
-  "ocr-searchable": "zemrev_pdf_meta_ocr_searchable",
-  "ocr-extract-text": "zemrev_pdf_meta_ocr_extract",
+  "ocr-searchable": "zemrev_pdf_meta_ocr_searchable"
 };
 
 // ============================================================================

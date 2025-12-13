@@ -93,7 +93,7 @@ async def root():
                 "compress", "flatten", "convert-pdfa"
             ],
             "ocr": [
-                "pdf-to-searchable", "extract-text"
+                "pdf-to-searchable"
             ]
         },
         "endpoints": {
@@ -120,8 +120,7 @@ async def root():
                 "convert_pdfa": "/api/v1/ghostscript/convert-pdfa"
             },
             "ocr": {
-                "pdf_to_searchable": "/api/v1/ocr/pdf-to-searchable",
-                "extract_text": "/api/v1/ocr/extract-text"
+                "pdf_to_searchable": "/api/v1/ocr/pdf-to-searchable"
             }
         }
     }

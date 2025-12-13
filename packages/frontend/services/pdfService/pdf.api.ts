@@ -16,9 +16,7 @@ import type {
   AddWatermarkRequest,
   OptimizePdfRequest,
   CompressPdfRequest,
-  OcrPdfRequest,
-  ExtractTextOcrRequest,
-  ExtractTextOcrResponse,
+  OcrPdfRequest
 } from "./types";
 
 // ============================================================================
@@ -234,19 +232,7 @@ export const pdfApi = baseApi.injectEndpoints({
         body: buildFormData(file, options),
         responseHandler: (r) => r.blob(),
       }),
-    }),
-
-    // OCR: EXTRACT TEXT
-    ocrExtractText: builder.mutation<
-      ExtractTextOcrResponse,
-      { file: File; options: ExtractTextOcrRequest }
-    >({
-      query: ({ file, options }) => ({
-        url: "/ocr/extract-text",
-        method: "POST",
-        body: buildFormData(file, options),
-      }),
-    }),
+    })
   }),
 });
 

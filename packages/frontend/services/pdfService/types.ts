@@ -22,7 +22,6 @@ export type PdfToolType =
   | "compress-pdf"
   | "flatten-pdf"
   | "ocr-searchable"
-  | "ocr-extract-text";
 
 export type ImageFormat = "png" | "jpeg" | "jpg";
 export type CompressionLevel = "screen" | "ebook" | "printer" | "prepress";
@@ -216,11 +215,6 @@ export interface OcrPdfRequest extends FormDataParams {
   dpi: number;
 }
 
-export interface ExtractTextOcrRequest extends FormDataParams {
-  language: string;
-  page_range?: string;
-}
-
 // ============================================================================
 // API RESPONSE TYPES
 // ============================================================================
@@ -229,13 +223,6 @@ export interface ExtractTextResponse {
   text: string;
   page_count: number;
   char_count: number;
-}
-
-export interface ExtractTextOcrResponse {
-  text: string;
-  pages_processed: number;
-  char_count: number;
-  language: string;
 }
 
 export interface OptimizePdfResponse {

@@ -24,8 +24,7 @@ const PENDING_META: Record<PdfToolType, string> = {
   "optimize-pdf": "zemrev_pdf_pending_optimize",
   "compress-pdf": "zemrev_pdf_pending_compress",
   "flatten-pdf": "zemrev_pdf_pending_flatten",
-  "ocr-searchable": "zemrev_pdf_pending_ocr_searchable",
-  "ocr-extract-text": "zemrev_pdf_pending_ocr_extract",
+  "ocr-searchable": "zemrev_pdf_pending_ocr_searchable"
 };
 
 export interface PdfPendingMeta {
