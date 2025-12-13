@@ -1,11 +1,14 @@
-import { create } from 'zustand';
+import { useState, useCallback } from "react";
 
-interface CommonState {
-  isOpenSidebar: boolean;
-  setOpenSidebar: (v: boolean) => void;
-}
+export const useCommonModal = () => {
+  const [isOpenSidebar, setIsOpenSidebar] = useState(false);
 
-export const useCommonModal = create<CommonState>(set => ({
-  isOpenSidebar: false,
-  setOpenSidebar: v => set({ isOpenSidebar: v }),
-}));
+  const setOpenSidebar = useCallback((v: boolean) => {
+    setIsOpenSidebar(v);
+  }, []);
+
+  return {
+    isOpenSidebar,
+    setOpenSidebar,
+  };
+};
