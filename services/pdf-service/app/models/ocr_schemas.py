@@ -27,17 +27,6 @@ class OcrPdfRequest(BaseModel):
     )
 
 
-class ExtractTextOcrRequest(BaseModel):
-    """Extract text from scanned PDF with OCR"""
-    language: str = Field(
-        default="eng",
-        description="OCR language code (eng, fra, deu, spa, etc.)"
-    )
-    page_range: Optional[str] = Field(
-        None,
-        description="Page range like '1-3,5' (optional, default: all)"
-    )
-
 
 # ============================================================================
 # RESPONSE SCHEMAS
@@ -47,12 +36,4 @@ class OcrResponse(BaseModel):
     """OCR response"""
     message: str
     pages_processed: int
-    language: str
-
-
-class ExtractTextOcrResponse(BaseModel):
-    """Extract text OCR response"""
-    text: str
-    pages_processed: int
-    char_count: int
     language: str
