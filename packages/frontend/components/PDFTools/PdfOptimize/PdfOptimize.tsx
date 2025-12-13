@@ -1,1 +1,9 @@
-export default function PdfOptimize() { return (<div>PdfOptimize component</div>); }
+// PDFTools/PdfOptimize/PdfOptimize.tsx
+
+const PdfOptimize = () => {
+  return (
+    <div>PdfOptimize</div>
+  )
+}
+
+export default PdfOptimize
