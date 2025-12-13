@@ -206,6 +206,68 @@ export const PDF_TOOL_CONFIGS: Record<string, PdfToolConfig> = {
     defaultSettings: {},
   },
 
+  // ========================================================================
+  // NEW: SIGN PDF
+  // ========================================================================
+  "pdf-sign": {
+    type: "sign-pdf",
+    title: "Sign PDF",
+    description: "Add signature to PDF document",
+    acceptedFormats: ["application/pdf"],
+    maxFiles: 1,
+    showPreview: true,
+    primaryColor: "#8b5cf6",
+    dropzoneColor: "#f5f3ff",
+    dropzoneColorDark: "#8b5cf61A",
+    defaultSettings: {
+      signature_text: "John Doe",
+      x: 50,
+      y: 700,
+      width: 200,
+      height: 80,
+      page: 0,
+    },
+  },
+
+  // ========================================================================
+  // NEW: CROP PDF
+  // ========================================================================
+  "pdf-crop": {
+    type: "crop-pdf",
+    title: "Crop PDF Pages",
+    description: "Crop all pages to specific dimensions",
+    acceptedFormats: ["application/pdf"],
+    maxFiles: 1,
+    showPreview: false,
+    primaryColor: "#06b6d4",
+    dropzoneColor: "#ecfeff",
+    dropzoneColorDark: "#06b6d41A",
+    defaultSettings: {
+      crop_x: 50,
+      crop_y: 50,
+      crop_width: 500,
+      crop_height: 700,
+    },
+  },
+
+  // ========================================================================
+  // NEW: CONVERT TO PDF/A
+  // ========================================================================
+  "pdf-to-pdfa": {
+    type: "convert-pdfa",
+    title: "Convert to PDF/A",
+    description: "Convert to archival PDF/A format",
+    acceptedFormats: ["application/pdf"],
+    maxFiles: 1,
+    showPreview: false,
+    primaryColor: "#64748b",
+    dropzoneColor: "#f8fafc",
+    dropzoneColorDark: "#64748b1A",
+    defaultSettings: {
+      version: "2b",
+    },
+  },
+
   "ocr-searchable": {
     type: "ocr-searchable",
     title: "OCR: Make Searchable",
@@ -222,20 +284,7 @@ export const PDF_TOOL_CONFIGS: Record<string, PdfToolConfig> = {
     },
   },
 
-  "ocr-extract-text": {
-    type: "ocr-extract-text",
-    title: "OCR: Extract Text",
-    description: "Extract text from scanned PDF",
-    acceptedFormats: ["application/pdf"],
-    maxFiles: 1,
-    showPreview: false,
-    primaryColor: "#8b5cf6",
-    dropzoneColor: "#f5f3ff",
-    dropzoneColorDark: "#8b5cf61A",
-    defaultSettings: {
-      language: "eng",
-    },
-  },
+  
 };
 
 // ============================================================================
