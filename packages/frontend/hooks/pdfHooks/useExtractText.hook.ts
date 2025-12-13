@@ -7,12 +7,18 @@ import { extractApiErrorMessage } from "@/utils/errorExtract.utils";
 import { pdfPendingStorage } from "@/utils/pdfPendingStorage.utils";
 import { pdfSessionStorage } from "@/utils/pdfSessionStorage.utils";
 import { useCallback, useEffect, useState } from "react";
+import { useCloudPicker } from "../appHooks/usePdfCloudPicker.hook";
 
 export const useExtractText = () => {
   const [files, setFiles] = useState<PdfProcessedFile[]>([]);
   const [extracting, setExtracting] = useState(false);
-  const [extractText] = useExtractTextMutation();
 
+  const [extractText] = useExtractTextMutation();
+  const { pickFromGoogleDrive, pickFromDropbox } = useCloudPicker();
+
+  // ============================================================================
+  // RESTORE
+  // ============================================================================
   useEffect(() => {
     const restore = async () => {
       const restored = await pdfPendingStorage.restore("extract-text");
@@ -33,6 +39,9 @@ export const useExtractText = () => {
     restore();
   }, []);
 
+  // ============================================================================
+  // ADD FILES (LOCAL)
+  // ============================================================================
   const addFiles = useCallback(async (newFiles: File[]) => {
     for (const file of newFiles) {
       const id = await pdfPendingStorage.save("extract-text", file);
@@ -51,11 +60,59 @@ export const useExtractText = () => {
     }
   }, []);
 
+  // ============================================================================
+  // ADD FROM GOOGLE DRIVE
+  // ============================================================================
+  const addFromGoogleDrive = useCallback(async () => {
+    const file = await pickFromGoogleDrive();
+    const id = await pdfPendingStorage.save("extract-text", file);
+
+    setFiles((prev) => [
+      ...prev,
+      {
+        id,
+        originalFile: file,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        settings: { preserve_layout: false },
+        status: "pending",
+      },
+    ]);
+  }, [pickFromGoogleDrive]);
+
+  // ============================================================================
+  // ADD FROM DROPBOX
+  // ============================================================================
+  const addFromDropbox = useCallback(async () => {
+    const file = await pickFromDropbox();
+    const id = await pdfPendingStorage.save("extract-text", file);
+
+    setFiles((prev) => [
+      ...prev,
+      {
+        id,
+        originalFile: file,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        settings: { preserve_layout: false },
+        status: "pending",
+      },
+    ]);
+  }, [pickFromDropbox]);
+
+  // ============================================================================
+  // REMOVE FILE
+  // ============================================================================
   const removeFile = useCallback(async (id: string) => {
     await pdfPendingStorage.delete("extract-text", id);
     setFiles((prev) => prev.filter((f) => f.id !== id));
   }, []);
 
+  // ============================================================================
+  // UPDATE SETTINGS
+  // ============================================================================
   const updateSettings = useCallback(
     (id: string, settings: PdfFileSettings) => {
       setFiles((prev) =>
@@ -67,6 +124,9 @@ export const useExtractText = () => {
     []
   );
 
+  // ============================================================================
+  // EXTRACT SINGLE
+  // ============================================================================
   const extractSingle = useCallback(
     async (file: PdfProcessedFile) => {
       try {
@@ -75,6 +135,7 @@ export const useExtractText = () => {
             f.id === file.id ? { ...f, status: "processing" } : f
           )
         );
+
         const result = await extractText({
           file: file.originalFile as File,
           options: {
@@ -89,8 +150,10 @@ export const useExtractText = () => {
           `extracted_${file.name}.txt`,
           "extract-text"
         );
+
         await pdfPendingStorage.delete("extract-text", file.id);
         setFiles((prev) => prev.filter((f) => f.id !== file.id));
+
         return { success: true };
       } catch (error) {
         const errorMsg = extractApiErrorMessage(error);
@@ -105,13 +168,20 @@ export const useExtractText = () => {
     [extractText]
   );
 
+  // ============================================================================
+  // EXTRACT ALL
+  // ============================================================================
   const extractAll = useCallback(async () => {
     setExtracting(true);
-    for (const file of files.filter((f) => f.status === "pending"))
+    for (const file of files.filter((f) => f.status === "pending")) {
       await extractSingle(file);
+    }
     setExtracting(false);
   }, [files, extractSingle]);
 
+  // ============================================================================
+  // CLEAR ALL
+  // ============================================================================
   const clearAll = useCallback(async () => {
     await pdfPendingStorage.clearTool("extract-text");
     setFiles([]);
@@ -121,6 +191,8 @@ export const useExtractText = () => {
     files,
     extracting,
     addFiles,
+    addFromGoogleDrive,
+    addFromDropbox,
     removeFile,
     updateSettings,
     extractSingle,

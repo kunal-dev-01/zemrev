@@ -8,12 +8,18 @@ import { pdfSessionStorage } from "@/utils/pdfSessionStorage.utils";
 import { pdfPendingStorage } from "@/utils/pdfPendingStorage.utils";
 import { extractApiErrorMessage } from "@/utils/errorExtract.utils";
 import type { PdfProcessedFile } from "@/services/pdfService/types";
+import { useCloudPicker } from "../appHooks/usePdfCloudPicker.hook";
 
 export const useConvertToPdfA = () => {
   const [files, setFiles] = useState<PdfProcessedFile[]>([]);
   const [converting, setConverting] = useState(false);
-  const [convertToPdfA] = useConvertToPdfAMutation();
 
+  const [convertToPdfA] = useConvertToPdfAMutation();
+  const { pickFromGoogleDrive, pickFromDropbox } = useCloudPicker();
+
+  // ============================================================================
+  // RESTORE
+  // ============================================================================
   useEffect(() => {
     const restore = async () => {
       const restored = await pdfPendingStorage.restore("convert-pdfa");
@@ -36,8 +42,12 @@ export const useConvertToPdfA = () => {
     restore();
   }, []);
 
+  // ============================================================================
+  // ADD FILES (LOCAL)
+  // ============================================================================
   const addFiles = useCallback(async (newFiles: File[]) => {
     const processed: PdfProcessedFile[] = [];
+
     for (const file of newFiles) {
       const id = await pdfPendingStorage.save("convert-pdfa", file);
       processed.push({
@@ -52,9 +62,59 @@ export const useConvertToPdfA = () => {
         status: "pending",
       });
     }
+
     setFiles((prev) => [...prev, ...processed]);
   }, []);
 
+  // ============================================================================
+  // ADD FROM GOOGLE DRIVE
+  // ============================================================================
+  const addFromGoogleDrive = useCallback(async () => {
+    const file = await pickFromGoogleDrive();
+    const id = await pdfPendingStorage.save("convert-pdfa", file);
+
+    setFiles((prev) => [
+      ...prev,
+      {
+        id,
+        originalFile: file,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        settings: {
+          version: "2b",
+        },
+        status: "pending",
+      },
+    ]);
+  }, [pickFromGoogleDrive]);
+
+  // ============================================================================
+  // ADD FROM DROPBOX
+  // ============================================================================
+  const addFromDropbox = useCallback(async () => {
+    const file = await pickFromDropbox();
+    const id = await pdfPendingStorage.save("convert-pdfa", file);
+
+    setFiles((prev) => [
+      ...prev,
+      {
+        id,
+        originalFile: file,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        settings: {
+          version: "2b",
+        },
+        status: "pending",
+      },
+    ]);
+  }, [pickFromDropbox]);
+
+  // ============================================================================
+  // UPDATE SETTINGS
+  // ============================================================================
   const updateFileSettings = useCallback(
     (id: string, settings: Partial<PdfProcessedFile["settings"]>) => {
       setFiles((prev) =>
@@ -66,16 +126,24 @@ export const useConvertToPdfA = () => {
     []
   );
 
+  // ============================================================================
+  // REMOVE FILE
+  // ============================================================================
   const removeFile = useCallback(async (id: string) => {
     await pdfPendingStorage.delete("convert-pdfa", id);
     setFiles((prev) => prev.filter((f) => f.id !== id));
   }, []);
 
+  // ============================================================================
+  // CONVERT SINGLE
+  // ============================================================================
   const convertSingleFile = useCallback(
     async (file: PdfProcessedFile) => {
       try {
         setFiles((prev) =>
-          prev.map((f) => (f.id === file.id ? { ...f, status: "processing" } : f))
+          prev.map((f) =>
+            f.id === file.id ? { ...f, status: "processing" } : f
+          )
         );
 
         const { version } = file.settings;
@@ -107,6 +175,9 @@ export const useConvertToPdfA = () => {
     [convertToPdfA]
   );
 
+  // ============================================================================
+  // CONVERT ALL
+  // ============================================================================
   const convertAllFiles = useCallback(async () => {
     setConverting(true);
     for (const file of files.filter((f) => f.status === "pending")) {
@@ -115,11 +186,17 @@ export const useConvertToPdfA = () => {
     setConverting(false);
   }, [files, convertSingleFile]);
 
+  // ============================================================================
+  // CLEAR ALL
+  // ============================================================================
   const clearAll = useCallback(async () => {
     await pdfPendingStorage.clearTool("convert-pdfa");
     setFiles([]);
   }, []);
 
+  // ============================================================================
+  // STATS
+  // ============================================================================
   const stats = {
     total: files.length,
     pending: files.filter((f) => f.status === "pending").length,
@@ -132,6 +209,8 @@ export const useConvertToPdfA = () => {
     converting,
     stats,
     addFiles,
+    addFromGoogleDrive,
+    addFromDropbox,
     updateFileSettings,
     removeFile,
     convertSingleFile,

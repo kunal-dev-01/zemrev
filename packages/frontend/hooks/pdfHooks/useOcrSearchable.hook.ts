@@ -8,12 +8,18 @@ import { pdfSessionStorage } from "@/utils/pdfSessionStorage.utils";
 import { pdfPendingStorage } from "@/utils/pdfPendingStorage.utils";
 import { extractApiErrorMessage } from "@/utils/errorExtract.utils";
 import type { PdfProcessedFile } from "@/services/pdfService/types";
+import { useCloudPicker } from "../appHooks/usePdfCloudPicker.hook";
 
 export const useOcrSearchable = () => {
   const [files, setFiles] = useState<PdfProcessedFile[]>([]);
   const [processing, setProcessing] = useState(false);
-  const [ocrPdfToSearchable] = useOcrPdfToSearchableMutation();
 
+  const [ocrPdfToSearchable] = useOcrPdfToSearchableMutation();
+  const { pickFromGoogleDrive, pickFromDropbox } = useCloudPicker();
+
+  // ============================================================================
+  // RESTORE
+  // ============================================================================
   useEffect(() => {
     const restore = async () => {
       const restored = await pdfPendingStorage.restore("ocr-searchable");
@@ -37,8 +43,12 @@ export const useOcrSearchable = () => {
     restore();
   }, []);
 
+  // ============================================================================
+  // ADD FILES (LOCAL)
+  // ============================================================================
   const addFiles = useCallback(async (newFiles: File[]) => {
     const processed: PdfProcessedFile[] = [];
+
     for (const file of newFiles) {
       const id = await pdfPendingStorage.save("ocr-searchable", file);
       processed.push({
@@ -54,9 +64,61 @@ export const useOcrSearchable = () => {
         status: "pending",
       });
     }
+
     setFiles((prev) => [...prev, ...processed]);
   }, []);
 
+  // ============================================================================
+  // ADD FROM GOOGLE DRIVE
+  // ============================================================================
+  const addFromGoogleDrive = useCallback(async () => {
+    const file = await pickFromGoogleDrive();
+    const id = await pdfPendingStorage.save("ocr-searchable", file);
+
+    setFiles((prev) => [
+      ...prev,
+      {
+        id,
+        originalFile: file,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        settings: {
+          language: "eng",
+          dpi: 300,
+        },
+        status: "pending",
+      },
+    ]);
+  }, [pickFromGoogleDrive]);
+
+  // ============================================================================
+  // ADD FROM DROPBOX
+  // ============================================================================
+  const addFromDropbox = useCallback(async () => {
+    const file = await pickFromDropbox();
+    const id = await pdfPendingStorage.save("ocr-searchable", file);
+
+    setFiles((prev) => [
+      ...prev,
+      {
+        id,
+        originalFile: file,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        settings: {
+          language: "eng",
+          dpi: 300,
+        },
+        status: "pending",
+      },
+    ]);
+  }, [pickFromDropbox]);
+
+  // ============================================================================
+  // UPDATE SETTINGS
+  // ============================================================================
   const updateFileSettings = useCallback(
     (id: string, settings: Partial<PdfProcessedFile["settings"]>) => {
       setFiles((prev) =>
@@ -68,16 +130,24 @@ export const useOcrSearchable = () => {
     []
   );
 
+  // ============================================================================
+  // REMOVE FILE
+  // ============================================================================
   const removeFile = useCallback(async (id: string) => {
     await pdfPendingStorage.delete("ocr-searchable", id);
     setFiles((prev) => prev.filter((f) => f.id !== id));
   }, []);
 
+  // ============================================================================
+  // PROCESS SINGLE
+  // ============================================================================
   const processSingleFile = useCallback(
     async (file: PdfProcessedFile) => {
       try {
         setFiles((prev) =>
-          prev.map((f) => (f.id === file.id ? { ...f, status: "processing" } : f))
+          prev.map((f) =>
+            f.id === file.id ? { ...f, status: "processing" } : f
+          )
         );
 
         const { language, dpi } = file.settings;
@@ -110,6 +180,9 @@ export const useOcrSearchable = () => {
     [ocrPdfToSearchable]
   );
 
+  // ============================================================================
+  // PROCESS ALL
+  // ============================================================================
   const processAllFiles = useCallback(async () => {
     setProcessing(true);
     for (const file of files.filter((f) => f.status === "pending")) {
@@ -118,11 +191,17 @@ export const useOcrSearchable = () => {
     setProcessing(false);
   }, [files, processSingleFile]);
 
+  // ============================================================================
+  // CLEAR ALL
+  // ============================================================================
   const clearAll = useCallback(async () => {
     await pdfPendingStorage.clearTool("ocr-searchable");
     setFiles([]);
   }, []);
 
+  // ============================================================================
+  // STATS
+  // ============================================================================
   const stats = {
     total: files.length,
     pending: files.filter((f) => f.status === "pending").length,
@@ -135,6 +214,8 @@ export const useOcrSearchable = () => {
     processing,
     stats,
     addFiles,
+    addFromGoogleDrive,
+    addFromDropbox,
     updateFileSettings,
     removeFile,
     processSingleFile,

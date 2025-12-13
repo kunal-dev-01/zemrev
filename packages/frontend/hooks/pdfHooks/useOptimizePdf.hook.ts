@@ -7,13 +7,22 @@ import { useOptimizePdfMutation } from "@/services/pdfService/pdf.api";
 import { pdfSessionStorage } from "@/utils/pdfSessionStorage.utils";
 import { pdfPendingStorage } from "@/utils/pdfPendingStorage.utils";
 import { extractApiErrorMessage } from "@/utils/errorExtract.utils";
-import type { PdfFileSettings, PdfProcessedFile } from "@/services/pdfService/types";
+import type {
+  PdfFileSettings,
+  PdfProcessedFile,
+} from "@/services/pdfService/types";
+import { useCloudPicker } from "../appHooks/usePdfCloudPicker.hook";
 
 export const useOptimizePdf = () => {
   const [files, setFiles] = useState<PdfProcessedFile[]>([]);
   const [optimizing, setOptimizing] = useState(false);
-  const [optimizePdf] = useOptimizePdfMutation();
 
+  const [optimizePdf] = useOptimizePdfMutation();
+  const { pickFromGoogleDrive, pickFromDropbox } = useCloudPicker();
+
+  // ============================================================================
+  // RESTORE
+  // ============================================================================
   useEffect(() => {
     const restore = async () => {
       const restored = await pdfPendingStorage.restore("optimize-pdf");
@@ -40,8 +49,12 @@ export const useOptimizePdf = () => {
     restore();
   }, []);
 
+  // ============================================================================
+  // ADD FILES (LOCAL)
+  // ============================================================================
   const addFiles = useCallback(async (newFiles: File[]) => {
     const processed: PdfProcessedFile[] = [];
+
     for (const file of newFiles) {
       const id = await pdfPendingStorage.save("optimize-pdf", file);
       processed.push({
@@ -60,25 +73,98 @@ export const useOptimizePdf = () => {
         status: "pending",
       });
     }
+
     setFiles((prev) => [...prev, ...processed]);
   }, []);
 
+  // ============================================================================
+  // ADD FROM GOOGLE DRIVE
+  // ============================================================================
+  const addFromGoogleDrive = useCallback(async () => {
+    const file = await pickFromGoogleDrive();
+    const id = await pdfPendingStorage.save("optimize-pdf", file);
+
+    setFiles((prev) => [
+      ...prev,
+      {
+        id,
+        originalFile: file,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        settings: {
+          remove_metadata: true,
+          remove_annotations: true,
+          remove_javascript: true,
+          remove_links: true,
+          compress_images: false,
+        },
+        status: "pending",
+      },
+    ]);
+  }, [pickFromGoogleDrive]);
+
+  // ============================================================================
+  // ADD FROM DROPBOX
+  // ============================================================================
+  const addFromDropbox = useCallback(async () => {
+    const file = await pickFromDropbox();
+    const id = await pdfPendingStorage.save("optimize-pdf", file);
+
+    setFiles((prev) => [
+      ...prev,
+      {
+        id,
+        originalFile: file,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        settings: {
+          remove_metadata: true,
+          remove_annotations: true,
+          remove_javascript: true,
+          remove_links: true,
+          compress_images: false,
+        },
+        status: "pending",
+      },
+    ]);
+  }, [pickFromDropbox]);
+
+  // ============================================================================
+  // REMOVE FILE
+  // ============================================================================
   const removeFile = useCallback(async (id: string) => {
     await pdfPendingStorage.delete("optimize-pdf", id);
     setFiles((prev) => prev.filter((f) => f.id !== id));
   }, []);
 
-  const updateFileSettings = useCallback((id: string, settings: PdfFileSettings) => {
-    setFiles((prev) =>
-      prev.map((f) => (f.id === id ? { ...f, settings: { ...f.settings, ...settings } } : f))
-    );
-  }, []);
+  // ============================================================================
+  // UPDATE SETTINGS
+  // ============================================================================
+  const updateFileSettings = useCallback(
+    (id: string, settings: PdfFileSettings) => {
+      setFiles((prev) =>
+        prev.map((f) =>
+          f.id === id
+            ? { ...f, settings: { ...f.settings, ...settings } }
+            : f
+        )
+      );
+    },
+    []
+  );
 
+  // ============================================================================
+  // OPTIMIZE SINGLE
+  // ============================================================================
   const optimizeSingleFile = useCallback(
     async (file: PdfProcessedFile) => {
       try {
         setFiles((prev) =>
-          prev.map((f) => (f.id === file.id ? { ...f, status: "processing" } : f))
+          prev.map((f) =>
+            f.id === file.id ? { ...f, status: "processing" } : f
+          )
         );
 
         const blob = await optimizePdf({
@@ -112,6 +198,9 @@ export const useOptimizePdf = () => {
     [optimizePdf]
   );
 
+  // ============================================================================
+  // OPTIMIZE ALL
+  // ============================================================================
   const optimizeAllFiles = useCallback(async () => {
     setOptimizing(true);
     for (const file of files.filter((f) => f.status === "pending")) {
@@ -120,11 +209,17 @@ export const useOptimizePdf = () => {
     setOptimizing(false);
   }, [files, optimizeSingleFile]);
 
+  // ============================================================================
+  // CLEAR ALL
+  // ============================================================================
   const clearAll = useCallback(async () => {
     await pdfPendingStorage.clearTool("optimize-pdf");
     setFiles([]);
   }, []);
 
+  // ============================================================================
+  // STATS
+  // ============================================================================
   const stats = {
     total: files.length,
     pending: files.filter((f) => f.status === "pending").length,
@@ -137,6 +232,8 @@ export const useOptimizePdf = () => {
     optimizing,
     stats,
     addFiles,
+    addFromGoogleDrive,
+    addFromDropbox,
     removeFile,
     updateFileSettings,
     optimizeSingleFile,

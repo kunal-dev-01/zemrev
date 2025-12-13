@@ -8,12 +8,18 @@ import { pdfSessionStorage } from "@/utils/pdfSessionStorage.utils";
 import { pdfPendingStorage } from "@/utils/pdfPendingStorage.utils";
 import { extractApiErrorMessage } from "@/utils/errorExtract.utils";
 import type { PdfProcessedFile } from "@/services/pdfService/types";
+import { useCloudPicker } from "../appHooks/usePdfCloudPicker.hook";
 
 export const usePdfMerge = () => {
   const [files, setFiles] = useState<PdfProcessedFile[]>([]);
   const [merging, setMerging] = useState(false);
-  const [mergePdf] = useMergePdfMutation();
 
+  const [mergePdf] = useMergePdfMutation();
+  const { pickFromGoogleDrive, pickFromDropbox } = useCloudPicker();
+
+  // ============================================================================
+  // RESTORE
+  // ============================================================================
   useEffect(() => {
     const restore = async () => {
       const restored = await pdfPendingStorage.restore("pdf-merge");
@@ -34,8 +40,12 @@ export const usePdfMerge = () => {
     restore();
   }, []);
 
+  // ============================================================================
+  // ADD FILES (LOCAL)
+  // ============================================================================
   const addFiles = useCallback(async (newFiles: File[]) => {
     const processed: PdfProcessedFile[] = [];
+
     for (const file of newFiles) {
       const id = await pdfPendingStorage.save("pdf-merge", file);
       processed.push({
@@ -48,14 +58,63 @@ export const usePdfMerge = () => {
         status: "pending",
       });
     }
+
     setFiles((prev) => [...prev, ...processed]);
   }, []);
 
+  // ============================================================================
+  // ADD FROM GOOGLE DRIVE
+  // ============================================================================
+  const addFromGoogleDrive = useCallback(async () => {
+    const file = await pickFromGoogleDrive();
+    const id = await pdfPendingStorage.save("pdf-merge", file);
+
+    setFiles((prev) => [
+      ...prev,
+      {
+        id,
+        originalFile: file,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        settings: {},
+        status: "pending",
+      },
+    ]);
+  }, [pickFromGoogleDrive]);
+
+  // ============================================================================
+  // ADD FROM DROPBOX
+  // ============================================================================
+  const addFromDropbox = useCallback(async () => {
+    const file = await pickFromDropbox();
+    const id = await pdfPendingStorage.save("pdf-merge", file);
+
+    setFiles((prev) => [
+      ...prev,
+      {
+        id,
+        originalFile: file,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        settings: {},
+        status: "pending",
+      },
+    ]);
+  }, [pickFromDropbox]);
+
+  // ============================================================================
+  // REMOVE FILE
+  // ============================================================================
   const removeFile = useCallback(async (id: string) => {
     await pdfPendingStorage.delete("pdf-merge", id);
     setFiles((prev) => prev.filter((f) => f.id !== id));
   }, []);
 
+  // ============================================================================
+  // MERGE FILES
+  // ============================================================================
   const mergeFiles = useCallback(async () => {
     if (files.length < 2) return;
 
@@ -84,11 +143,17 @@ export const usePdfMerge = () => {
     }
   }, [files, mergePdf]);
 
+  // ============================================================================
+  // CLEAR ALL
+  // ============================================================================
   const clearAll = useCallback(async () => {
     await pdfPendingStorage.clearTool("pdf-merge");
     setFiles([]);
   }, []);
 
+  // ============================================================================
+  // STATS
+  // ============================================================================
   const stats = {
     total: files.length,
     pending: files.filter((f) => f.status === "pending").length,
@@ -99,6 +164,8 @@ export const usePdfMerge = () => {
     merging,
     stats,
     addFiles,
+    addFromGoogleDrive,
+    addFromDropbox,
     removeFile,
     mergeFiles,
     clearAll,

@@ -157,37 +157,6 @@ export const usePdfCompressor = () => {
   }, [files, compressSingleFile]);
 
   // ============================================================================
-  // DOWNLOAD FROM SESSION
-  // ============================================================================
-  const downloadFile = useCallback(async (fileId: string) => {
-    const fileMeta = pdfSessionStorage.getFile("compress-pdf", fileId);
-    if (!fileMeta) return;
-
-    const blob = await pdfSessionStorage.getBlob(fileId);
-    if (!blob) return;
-
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = fileMeta.name;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }, []);
-
-  // ============================================================================
-  // DOWNLOAD ALL
-  // ============================================================================
-  const downloadAll = useCallback(async () => {
-    const sessionFiles = pdfSessionStorage.getFiles("compress-pdf");
-
-    for (const [index, file] of sessionFiles.entries()) {
-      setTimeout(() => downloadFile(file.id), index * 500);
-    }
-  }, [downloadFile]);
-
-  // ============================================================================
   // CLEAR ALL
   // ============================================================================
   const clearAll = useCallback(async () => {
@@ -279,8 +248,6 @@ export const usePdfCompressor = () => {
     compressAllFiles,
     addFromGoogleDrive,
     addFromDropbox,
-    downloadFile,
-    downloadAll,
     clearAll,
     reset,
     setFiles,

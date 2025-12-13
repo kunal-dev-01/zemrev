@@ -7,12 +7,18 @@ import { extractApiErrorMessage } from "@/utils/errorExtract.utils";
 import { pdfPendingStorage } from "@/utils/pdfPendingStorage.utils";
 import { pdfSessionStorage } from "@/utils/pdfSessionStorage.utils";
 import { useCallback, useEffect, useState } from "react";
+import { useCloudPicker } from "../appHooks/usePdfCloudPicker.hook";
 
 export const useExtractImages = () => {
   const [files, setFiles] = useState<PdfProcessedFile[]>([]);
   const [extracting, setExtracting] = useState(false);
-  const [extractImages] = useExtractImagesMutation();
 
+  const [extractImages] = useExtractImagesMutation();
+  const { pickFromGoogleDrive, pickFromDropbox } = useCloudPicker();
+
+  // ============================================================================
+  // RESTORE
+  // ============================================================================
   useEffect(() => {
     const restore = async () => {
       const restored = await pdfPendingStorage.restore("extract-images");
@@ -32,6 +38,9 @@ export const useExtractImages = () => {
     restore();
   }, []);
 
+  // ============================================================================
+  // ADD FILES (LOCAL)
+  // ============================================================================
   const addFiles = useCallback(async (newFiles: File[]) => {
     for (const file of newFiles) {
       const id = await pdfPendingStorage.save("extract-images", file);
@@ -50,11 +59,59 @@ export const useExtractImages = () => {
     }
   }, []);
 
+  // ============================================================================
+  // ADD FROM GOOGLE DRIVE
+  // ============================================================================
+  const addFromGoogleDrive = useCallback(async () => {
+    const file = await pickFromGoogleDrive();
+    const id = await pdfPendingStorage.save("extract-images", file);
+
+    setFiles((prev) => [
+      ...prev,
+      {
+        id,
+        originalFile: file,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        settings: { min_width: 100, min_height: 100 },
+        status: "pending",
+      },
+    ]);
+  }, [pickFromGoogleDrive]);
+
+  // ============================================================================
+  // ADD FROM DROPBOX
+  // ============================================================================
+  const addFromDropbox = useCallback(async () => {
+    const file = await pickFromDropbox();
+    const id = await pdfPendingStorage.save("extract-images", file);
+
+    setFiles((prev) => [
+      ...prev,
+      {
+        id,
+        originalFile: file,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        settings: { min_width: 100, min_height: 100 },
+        status: "pending",
+      },
+    ]);
+  }, [pickFromDropbox]);
+
+  // ============================================================================
+  // REMOVE FILE
+  // ============================================================================
   const removeFile = useCallback(async (id: string) => {
     await pdfPendingStorage.delete("extract-images", id);
     setFiles((prev) => prev.filter((f) => f.id !== id));
   }, []);
 
+  // ============================================================================
+  // UPDATE SETTINGS
+  // ============================================================================
   const updateSettings = useCallback(
     (id: string, settings: PdfFileSettings) => {
       setFiles((prev) =>
@@ -66,6 +123,9 @@ export const useExtractImages = () => {
     []
   );
 
+  // ============================================================================
+  // EXTRACT SINGLE
+  // ============================================================================
   const extractSingle = useCallback(
     async (file: PdfProcessedFile) => {
       try {
@@ -74,6 +134,7 @@ export const useExtractImages = () => {
             f.id === file.id ? { ...f, status: "processing" } : f
           )
         );
+
         const blob = await extractImages({
           file: file.originalFile as File,
           options: {
@@ -82,13 +143,16 @@ export const useExtractImages = () => {
             page_range: file.settings.page_range,
           },
         }).unwrap();
+
         await pdfSessionStorage.saveFile(
           blob,
           `extracted_images_${file.name}.zip`,
           "extract-images"
         );
+
         await pdfPendingStorage.delete("extract-images", file.id);
         setFiles((prev) => prev.filter((f) => f.id !== file.id));
+
         return { success: true };
       } catch (error) {
         const errorMsg = extractApiErrorMessage(error);
@@ -103,13 +167,20 @@ export const useExtractImages = () => {
     [extractImages]
   );
 
+  // ============================================================================
+  // EXTRACT ALL
+  // ============================================================================
   const extractAll = useCallback(async () => {
     setExtracting(true);
-    for (const file of files.filter((f) => f.status === "pending"))
+    for (const file of files.filter((f) => f.status === "pending")) {
       await extractSingle(file);
+    }
     setExtracting(false);
   }, [files, extractSingle]);
 
+  // ============================================================================
+  // CLEAR ALL
+  // ============================================================================
   const clearAll = useCallback(async () => {
     await pdfPendingStorage.clearTool("extract-images");
     setFiles([]);
@@ -119,6 +190,8 @@ export const useExtractImages = () => {
     files,
     extracting,
     addFiles,
+    addFromGoogleDrive,
+    addFromDropbox,
     removeFile,
     updateSettings,
     extractSingle,

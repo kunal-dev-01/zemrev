@@ -8,13 +8,19 @@ import { extractApiErrorMessage } from "@/utils/errorExtract.utils";
 import { pdfPendingStorage } from "@/utils/pdfPendingStorage.utils";
 import { pdfSessionStorage } from "@/utils/pdfSessionStorage.utils";
 import { useCallback, useEffect, useState } from "react";
+import { useCloudPicker } from "../appHooks/usePdfCloudPicker.hook";
 
 // ============================================================================
 export const usePdfToImages = () => {
   const [files, setFiles] = useState<PdfProcessedFile[]>([]);
   const [converting, setConverting] = useState(false);
-  const [pdfToImages] = usePdfToImagesMutation();
 
+  const [pdfToImages] = usePdfToImagesMutation();
+  const { pickFromGoogleDrive, pickFromDropbox } = useCloudPicker();
+
+  // ============================================================================
+  // RESTORE
+  // ============================================================================
   useEffect(() => {
     const restore = async () => {
       const restored = await pdfPendingStorage.restore("pdf-to-images");
@@ -35,6 +41,9 @@ export const usePdfToImages = () => {
     restore();
   }, []);
 
+  // ============================================================================
+  // ADD FILES (LOCAL)
+  // ============================================================================
   const addFiles = useCallback(async (newFiles: File[]) => {
     for (const file of newFiles) {
       const id = await pdfPendingStorage.save("pdf-to-images", file);
@@ -53,11 +62,59 @@ export const usePdfToImages = () => {
     }
   }, []);
 
+  // ============================================================================
+  // ADD FROM GOOGLE DRIVE
+  // ============================================================================
+  const addFromGoogleDrive = useCallback(async () => {
+    const file = await pickFromGoogleDrive();
+    const id = await pdfPendingStorage.save("pdf-to-images", file);
+
+    setFiles((prev) => [
+      ...prev,
+      {
+        id,
+        originalFile: file,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        settings: { format: "png", dpi: 150 },
+        status: "pending",
+      },
+    ]);
+  }, [pickFromGoogleDrive]);
+
+  // ============================================================================
+  // ADD FROM DROPBOX
+  // ============================================================================
+  const addFromDropbox = useCallback(async () => {
+    const file = await pickFromDropbox();
+    const id = await pdfPendingStorage.save("pdf-to-images", file);
+
+    setFiles((prev) => [
+      ...prev,
+      {
+        id,
+        originalFile: file,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        settings: { format: "png", dpi: 150 },
+        status: "pending",
+      },
+    ]);
+  }, [pickFromDropbox]);
+
+  // ============================================================================
+  // REMOVE FILE
+  // ============================================================================
   const removeFile = useCallback(async (id: string) => {
     await pdfPendingStorage.delete("pdf-to-images", id);
     setFiles((prev) => prev.filter((f) => f.id !== id));
   }, []);
 
+  // ============================================================================
+  // UPDATE SETTINGS
+  // ============================================================================
   const updateSettings = useCallback(
     (id: string, settings: PdfFileSettings) => {
       setFiles((prev) =>
@@ -69,6 +126,9 @@ export const usePdfToImages = () => {
     []
   );
 
+  // ============================================================================
+  // CONVERT SINGLE
+  // ============================================================================
   const convertSingle = useCallback(
     async (file: PdfProcessedFile) => {
       try {
@@ -77,6 +137,7 @@ export const usePdfToImages = () => {
             f.id === file.id ? { ...f, status: "processing" } : f
           )
         );
+
         const blob = await pdfToImages({
           file: file.originalFile as File,
           options: {
@@ -85,13 +146,16 @@ export const usePdfToImages = () => {
             page_range: file.settings.page_range,
           },
         }).unwrap();
+
         await pdfSessionStorage.saveFile(
           blob,
           `images_${file.name}.zip`,
           "pdf-to-images"
         );
+
         await pdfPendingStorage.delete("pdf-to-images", file.id);
         setFiles((prev) => prev.filter((f) => f.id !== file.id));
+
         return { success: true };
       } catch (error) {
         const errorMsg = extractApiErrorMessage(error);
@@ -106,13 +170,20 @@ export const usePdfToImages = () => {
     [pdfToImages]
   );
 
+  // ============================================================================
+  // CONVERT ALL
+  // ============================================================================
   const convertAll = useCallback(async () => {
     setConverting(true);
-    for (const file of files.filter((f) => f.status === "pending"))
+    for (const file of files.filter((f) => f.status === "pending")) {
       await convertSingle(file);
+    }
     setConverting(false);
   }, [files, convertSingle]);
 
+  // ============================================================================
+  // CLEAR ALL
+  // ============================================================================
   const clearAll = useCallback(async () => {
     await pdfPendingStorage.clearTool("pdf-to-images");
     setFiles([]);
@@ -122,6 +193,8 @@ export const usePdfToImages = () => {
     files,
     converting,
     addFiles,
+    addFromGoogleDrive,
+    addFromDropbox,
     removeFile,
     updateSettings,
     convertSingle,
