@@ -1,1 +1,10 @@
-export default function PdfTextExtract() { return (<div>PdfTextExtract component</div>); }
+// PDFTools/PdfTextExtract/PdfTextExtract.tsx
+
+
+const PdfTextExtract = () => {
+  return (
+    <div>PdfTextExtract</div>
+  )
+}
+
+export default PdfTextExtract
