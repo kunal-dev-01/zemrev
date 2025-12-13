@@ -22,8 +22,13 @@ const PENDING_META: Record<PdfToolType, string> = {
   "extract-images": "zemrev_pdf_pending_extract_images",
   "add-watermark": "zemrev_pdf_pending_watermark",
   "optimize-pdf": "zemrev_pdf_pending_optimize",
+  "sign-pdf": "zemrev_pdf_meta_sign",
+  "crop-pdf": "zemrev_pdf_meta_crop",
+
   "compress-pdf": "zemrev_pdf_pending_compress",
   "flatten-pdf": "zemrev_pdf_pending_flatten",
+  "convert-pdfa": "zemrev_pdf_meta_pdfa",
+
   "ocr-searchable": "zemrev_pdf_pending_ocr_searchable"
 };
 

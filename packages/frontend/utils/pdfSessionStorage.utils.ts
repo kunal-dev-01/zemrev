@@ -22,9 +22,14 @@ const META_KEYS: Record<PdfToolType, string> = {
   "extract-text": "zemrev_pdf_meta_extract_text",
   "extract-images": "zemrev_pdf_meta_extract_images",
   "add-watermark": "zemrev_pdf_meta_watermark",
+  "sign-pdf": "zemrev_pdf_pending_sign",
+  "crop-pdf": "zemrev_pdf_pending_crop",
   "optimize-pdf": "zemrev_pdf_meta_optimize",
+
   "compress-pdf": "zemrev_pdf_meta_compress",
   "flatten-pdf": "zemrev_pdf_meta_flatten",
+  "convert-pdfa": "zemrev_pdf_pending_pdfa",
+
   "ocr-searchable": "zemrev_pdf_meta_ocr_searchable"
 };
 
