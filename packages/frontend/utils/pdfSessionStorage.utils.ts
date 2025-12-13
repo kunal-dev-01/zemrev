@@ -143,7 +143,7 @@ export const pdfSessionStorage = {
     setMeta(tool, meta);
 
     if (typeof window !== "undefined") {
-      window.dispatchEvent(new CustomEvent('sessionStorageUpdated', { 
+      window.dispatchEvent(new CustomEvent('pdfSessionStorageUpdated', { 
         detail: { toolType: tool } 
       }));
     }
@@ -177,7 +177,7 @@ export const pdfSessionStorage = {
       await del(`pdf_file/${id}`);
 
       if (typeof window !== "undefined") {
-        window.dispatchEvent(new CustomEvent('sessionStorageUpdated', { 
+        window.dispatchEvent(new CustomEvent('pdfSessionStorageUpdated', { 
           detail: { toolType: tool } 
         }));
       }
@@ -194,7 +194,7 @@ export const pdfSessionStorage = {
     setMeta(tool, { files: [], totalSize: 0, lastUpdated: Date.now() });
 
     if (typeof window !== "undefined") {
-      window.dispatchEvent(new CustomEvent('sessionStorageUpdated', { 
+      window.dispatchEvent(new CustomEvent('pdfSessionStorageUpdated', { 
         detail: { toolType: tool } 
       }));
     }

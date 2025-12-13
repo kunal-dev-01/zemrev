@@ -3,7 +3,7 @@
 // PURPOSE: Display completed PDF files from session storage
 // ============================================================================
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { pdfSessionStorage } from "@/utils/pdfSessionStorage.utils";
 import {
@@ -34,19 +34,38 @@ export const PdfSessionFilesDisplay = ({
   const [sessionFiles, setSessionFiles] = useState<PdfStoredFile[]>([]);
 
   // ============================================================================
-  // LOAD SESSION FILES
+  // LOAD FILES FROM SESSION STORAGE
+  // ============================================================================
+  const loadFiles = useCallback(() => {
+    const files = pdfSessionStorage.getFiles(toolType);
+    setSessionFiles(files);
+  }, [toolType]);
+
+  // ============================================================================
+  // INITIAL LOAD
   // ============================================================================
   useEffect(() => {
-    const loadFiles = () => {
-      const files = pdfSessionStorage.getFiles(toolType);
-      setSessionFiles(files);
+    loadFiles();
+  }, [loadFiles]);
+
+  // ============================================================================
+  // REAL-TIME UPDATES (Event-driven, NO POLLING!)
+  // ============================================================================
+  useEffect(() => {
+    const handleUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      // Only refresh if event is for this tool
+      if (customEvent.detail?.toolType === toolType) {
+        loadFiles();
+      }
     };
 
-    loadFiles();
+    window.addEventListener('pdfSessionStorageUpdated', handleUpdate);
 
-    const interval = setInterval(loadFiles, 5000);
-    return () => clearInterval(interval);
-  }, [toolType]);
+    return () => {
+      window.removeEventListener('pdfSessionStorageUpdated', handleUpdate);
+    };
+  }, [toolType, loadFiles]);
 
   // ============================================================================
   // ACTIONS
