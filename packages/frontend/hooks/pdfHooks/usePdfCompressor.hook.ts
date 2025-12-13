@@ -12,13 +12,13 @@ import type {
   PdfFileSettings,
   PdfProcessedFile,
 } from "@/services/pdfService/types";
-import { usePdfCloudPicker } from "./usePdfCloudPicker.hook";
+import { useCloudPicker } from "../appHooks/usePdfCloudPicker.hook";
 
 export const usePdfCompressor = () => {
   const [files, setFiles] = useState<PdfProcessedFile[]>([]);
   const [compressing, setCompressing] = useState(false);
   const [compressPdf] = useCompressPdfMutation();
-  const { pickFromGoogleDrive, pickFromDropbox } = usePdfCloudPicker();
+  const { pickFromGoogleDrive, pickFromDropbox } = useCloudPicker();
 
   // ============================================================================
   // RESTORE PENDING FILES ON MOUNT

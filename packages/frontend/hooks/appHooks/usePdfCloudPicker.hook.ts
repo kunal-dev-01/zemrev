@@ -1,5 +1,3 @@
-
-
 /* ============================================================================
  * TYPE DEFINITIONS
  * ========================================================================== */
@@ -147,7 +145,7 @@ const waitForDropbox = (): Promise<void> => {
   });
 };
 
-export const usePdfCloudPicker = () => {
+export const useCloudPicker = () => {
   /* ============================================================================
    * GOOGLE OAUTH (MODERN)
    * ========================================================================== */
@@ -198,7 +196,9 @@ export const usePdfCloudPicker = () => {
         .addView(
           new window.google.picker.View(
             window.google.picker.ViewId.DOCS
-          ).setMimeTypes("application/pdf")
+          ).setMimeTypes(
+            "application/pdf,image/jpeg,image/png,image/webp,image/avif,image/heic,image/heif"
+          )
         )
         .setOAuthToken(token)
         .setCallback(async (data: GooglePickerData) => {
@@ -217,10 +217,13 @@ export const usePdfCloudPicker = () => {
             );
 
             const blob = await res.blob();
+            const contentType =
+              res.headers.get("Content-Type") ||
+              "application/octet-stream";
 
             resolve(
               new File([blob], doc.name, {
-                type: "application/pdf",
+                type: contentType,
               })
             );
           } catch (err) {
@@ -251,10 +254,13 @@ export const usePdfCloudPicker = () => {
               const file = files[0];
               const res = await fetch(file.link);
               const blob = await res.blob();
+              const contentType =
+                res.headers.get("Content-Type") ||
+                "application/octet-stream";
 
               resolve(
                 new File([blob], file.name, {
-                  type: "application/pdf",
+                  type: contentType,
                 })
               );
             } catch (err) {
@@ -264,7 +270,16 @@ export const usePdfCloudPicker = () => {
           cancel: () => {},
           linkType: "direct",
           multiselect: false,
-          extensions: [".pdf"],
+          extensions: [
+            ".pdf",
+            ".jpg",
+            ".jpeg",
+            ".png",
+            ".webp",
+            ".avif",
+            ".heic",
+            ".heif",
+          ],
         };
 
         window.Dropbox.choose(options);
