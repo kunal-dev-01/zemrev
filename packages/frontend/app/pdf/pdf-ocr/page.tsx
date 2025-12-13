@@ -1,9 +1,13 @@
-import React from 'react'
+// app/pdf/pdf-ocr/page.tsx
 
-const page = () => {
+import Index from '@/components/PDFTools/PdfOCR/Index'
+
+const PDFOCR = () => {
   return (
-    <div>page</div>
+    <div className='w-full'>
+        <Index />
+    </div>
   )
 }
 
-export default page
+export default PDFOCR

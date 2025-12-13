@@ -277,5 +277,4 @@ export const {
 
   // OCR
   useOcrPdfToSearchableMutation,
-  useOcrExtractTextMutation,
 } = pdfApi;
