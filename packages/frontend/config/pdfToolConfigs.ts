@@ -69,7 +69,7 @@ export const PDF_TOOL_CONFIGS: Record<string, PdfToolConfig> = {
     type: "images-to-pdf",
     title: "Images to PDF",
     description: "Combine images into PDF",
-    acceptedFormats: ["image/jpeg", "image/png", "image/webp"],
+    acceptedFormats: ["image/jpeg", "image/png", "image/webp", "image/jpg"],
     maxFiles: 10,
     showPreview: false,
     primaryColor: "#f97316",

@@ -9,7 +9,7 @@ import { PDFToImageSVg } from "@/components/Svg/PdfSvg";
 const PdfMerge = () => {
   const config = PDF_TOOL_CONFIGS["pdf-merge"];
 
-  const { files, merging, stats, addFiles, removeFile, mergeFiles, clearAll } =
+  const { files, merging, stats, addFiles, removeFile, mergeFiles, addFromGoogleDrive, addFromDropbox, clearAll } =
     usePdfMerge();
 
   const canMerge = files.length >= 2 && !merging;
@@ -49,6 +49,8 @@ const PdfMerge = () => {
       <PdfDragDropZone
         config={config}
         onFilesSelected={addFiles}
+        onGooglePick={addFromGoogleDrive}
+        onDropboxPick={addFromDropbox}
         currentFileCount={files.length}
         disabled={!canAddMore}
       />
