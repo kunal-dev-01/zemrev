@@ -1,14 +1,33 @@
-import { useState, useCallback } from "react";
+import { useSyncExternalStore } from "react";
 
+/* ================= GLOBAL STATE ================= */
+let isOpenSidebar = false;
+const listeners = new Set<() => void>();
+
+const subscribe = (listener: () => void) => {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+};
+
+const emit = () => {
+  listeners.forEach(l => l());
+};
+
+/* ================= HOOK ================= */
 export const useCommonModal = () => {
-  const [isOpenSidebar, setIsOpenSidebar] = useState(false);
+  const isOpen = useSyncExternalStore(
+    subscribe,
+    () => isOpenSidebar,
+    () => isOpenSidebar
+  );
 
-  const setOpenSidebar = useCallback((v: boolean) => {
-    setIsOpenSidebar(v);
-  }, []);
+  const setOpenSidebar = (v: boolean) => {
+    isOpenSidebar = v;
+    emit();
+  };
 
   return {
-    isOpenSidebar,
+    isOpenSidebar: isOpen,
     setOpenSidebar,
   };
 };
