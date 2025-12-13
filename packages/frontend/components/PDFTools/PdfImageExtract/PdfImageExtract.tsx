@@ -1,1 +1,9 @@
-export default function PdfImageExtract() { return (<div>PdfImageExtract component</div>); }
+// PDFTools/PdfImageExtract/PdfImageExtract.tsx
+
+const PdfImageExtract = () => {
+  return (
+    <div>PdfImageExtract</div>
+  )
+}
+
+export default PdfImageExtract
