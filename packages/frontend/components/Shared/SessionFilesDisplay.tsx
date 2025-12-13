@@ -3,7 +3,6 @@
 // PURPOSE: Display completed files from session storage (Real-time, No Polling)
 // ============================================================================
 
-"use client";
 
 import { useEffect, useState, useCallback } from "react";
 import { sessionStorageUtils } from "@/utils/sessionStorage.utils";

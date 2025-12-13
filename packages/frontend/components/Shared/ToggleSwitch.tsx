@@ -1,14 +1,16 @@
-"use client";
+// ============================================================================
+// FILE: ToggleSwitch.tsx
+// PURPOSE: Reusable toggle switch component
+// ============================================================================
 
-import React from "react";
 import clsx from "clsx";
 
 interface ToggleSwitchProps {
   checked: boolean;
   onChange: (value: boolean) => void;
-  label?: string; // optional label
-  description?: string; // optional description
-  color?: string; // primary color (#hex or rgb)
+  label?: string;
+  description?: string;
+  color?: string; // hex / rgb / hsl
 }
 
 export const ToggleSwitch = ({
@@ -16,31 +18,42 @@ export const ToggleSwitch = ({
   onChange,
   label,
   description,
-  color = "#6366F1", // default indigo-500
+  color = "#6366F1", // indigo-500 default
 }: ToggleSwitchProps) => {
+  const handleToggle = () => onChange(!checked);
+
   return (
     <label className="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all">
       {/* Toggle */}
       <div
-        onClick={() => onChange(!checked)}
+        role="switch"
+        aria-checked={checked}
+        tabIndex={0}
+        onClick={handleToggle}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleToggle();
+          }
+        }}
         className={clsx(
-          "relative w-11 h-6 flex items-center rounded-full transition-all duration-300",
+          "relative w-11 h-6 flex items-center rounded-full transition-all duration-300 focus:outline-none",
           checked ? "bg-opacity-90" : "bg-zinc-300 dark:bg-zinc-700"
         )}
-        style={checked ? { backgroundColor: color } : {}}
+        style={checked ? { backgroundColor: color } : undefined}
       >
         <span
           className={clsx(
-            "absolute left-1 w-4 h-4 rounded-full bg-white shadow-md transform transition-transform duration-300",
+            "absolute left-1 w-4 h-4 rounded-full bg-white shadow-md transition-transform duration-300",
             checked && "translate-x-5"
           )}
         />
       </div>
 
-      {/* Text */}
-      <div className="flex-1 leading-none">
+      {/* Label & Description */}
+      <div className="flex-1 leading-tight">
         {label && (
-          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300 block">
+          <span className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
             {label}
           </span>
         )}

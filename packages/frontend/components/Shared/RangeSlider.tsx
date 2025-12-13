@@ -31,20 +31,26 @@ export const RangeSlider = ({
 }: RangeSliderProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [localValue, setLocalValue] = useState(value);
+
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Sync local value with prop value when not dragging
+  // Sync external value when not dragging
   useEffect(() => {
     if (!isDragging) {
       setLocalValue(value);
     }
   }, [value, isDragging]);
 
+  // Calculate filled percentage
   const percentage = useMemo(() => {
-    return Math.min(100, Math.max(0, ((localValue - min) / (max - min)) * 100));
+    return Math.min(
+      100,
+      Math.max(0, ((localValue - min) / (max - min)) * 100)
+    );
   }, [localValue, min, max]);
 
-  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // ---------------- Handlers ----------------
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = parseFloat(e.target.value);
     setLocalValue(newValue);
     onChange(newValue);
@@ -55,13 +61,14 @@ export const RangeSlider = ({
     onChange(presetValue);
   };
 
+  // ---------------- Render ----------------
   return (
     <div
       className={`group relative select-none ${className} ${
         disabled ? "opacity-50 pointer-events-none" : ""
       }`}
     >
-      {/* Header Section */}
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           {icon && (
@@ -74,7 +81,7 @@ export const RangeSlider = ({
           </label>
         </div>
 
-        {/* Value Display */}
+        {/* Value */}
         <div className="flex items-center gap-1 px-3 py-1 rounded-xl bg-zinc-900 border border-zinc-800 shadow-inner min-w-14 justify-center">
           <span
             className="text-sm font-bold tabular-nums tracking-wide"
@@ -86,29 +93,28 @@ export const RangeSlider = ({
         </div>
       </div>
 
-      {/* Slider Container */}
+      {/* Slider */}
       <div className="relative w-full h-10 flex items-center">
-        {/* Background Track */}
+        {/* Track */}
         <div className="absolute w-full h-3 bg-zinc-800 rounded-full overflow-hidden border border-zinc-700/50 shadow-inner">
-          {/* Tick marks (optional subtle detail) */}
-          <div className="absolute inset-0 w-full h-full flex justify-between px-2 opacity-20">
+          <div className="absolute inset-0 flex justify-between px-2 opacity-20">
             {Array.from({ length: 11 }).map((_, i) => (
-              <div key={i} className="w-px h-full bg-zinc-500"></div>
+              <div key={i} className="w-px h-full bg-zinc-500" />
             ))}
           </div>
         </div>
 
-        {/* Active Fill Track with Glow */}
+        {/* Active Fill */}
         <div
-          className="absolute h-3 rounded-full pointer-events-none transition-all duration-75 ease-out shadow-[0_0_15px_rgba(0,0,0,0.3)]"
+          className="absolute h-3 rounded-full pointer-events-none transition-all duration-75 shadow-[0_0_15px_rgba(0,0,0,0.3)]"
           style={{
             width: `${percentage}%`,
-            background: `linear-gradient(90deg, ${color}33 0%, ${color} 100%)`, // Fade from transparent to full color
+            background: `linear-gradient(90deg, ${color}33 0%, ${color} 100%)`,
             boxShadow: `0 0 10px ${color}40`,
           }}
         />
 
-        {/* Input Element (Invisible but Functional) */}
+        {/* Native Range Input */}
         <input
           ref={inputRef}
           type="range"
@@ -117,23 +123,20 @@ export const RangeSlider = ({
           step={step}
           value={localValue}
           disabled={disabled}
-          onChange={handleInput}
+          onChange={handleInputChange}
           onMouseDown={() => setIsDragging(true)}
           onMouseUp={() => setIsDragging(false)}
           onTouchStart={() => setIsDragging(true)}
           onTouchEnd={() => setIsDragging(false)}
-          className="
-            absolute w-full h-full opacity-0 cursor-pointer z-10 
-            focus:outline-none
-          "
+          className="absolute w-full h-full opacity-0 cursor-pointer z-10 focus:outline-none"
         />
 
-        {/* Custom Thumb (Visual Only) */}
+        {/* Thumb */}
         <div
           className={`
-            absolute h-6 w-6 rounded-full bg-white shadow-lg border-2 pointer-events-none
-            transition-all duration-150 ease-out transform -translate-x-1/2
-            flex items-center justify-center
+            absolute w-6 h-6 rounded-full bg-white shadow-lg border-2
+            pointer-events-none transform -translate-x-1/2
+            transition-all duration-150 ease-out
             ${
               isDragging
                 ? "scale-125 border-zinc-900 ring-4 ring-white/10"
@@ -155,23 +158,24 @@ export const RangeSlider = ({
         <div className="flex flex-wrap gap-1 mt-2">
           {presets.map((preset) => {
             const isActive = Math.abs(localValue - preset.value) < step;
+
             return (
               <button
                 key={preset.value}
                 onClick={() => handlePresetClick(preset.value)}
                 disabled={disabled}
                 className={`
-                  px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 border cursor-pointer
+                  px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border
                   ${
                     isActive
-                      ? `bg-zinc-800 text-white border-none border-zinc-600`
+                      ? "border-none"
                       : "text-zinc-500 bg-zinc-900/50 border-zinc-800 hover:bg-zinc-800 hover:text-zinc-300 hover:border-zinc-700"
                   }
                 `}
                 style={
                   isActive
-                    ? { color: color, backgroundColor: `${color}1A` }
-                    : {}
+                    ? { color, backgroundColor: `${color}1A` }
+                    : undefined
                 }
               >
                 {preset.label}

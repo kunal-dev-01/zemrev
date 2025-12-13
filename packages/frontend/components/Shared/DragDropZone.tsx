@@ -3,8 +3,6 @@
 // PURPOSE: Drag-and-drop zone for file upload (Cleaned & Structured)
 // ===========================================================================
 
-"use client";
-
 import { useState, useCallback, useEffect, useRef } from "react";
 import { UploadSvg, LinkSvg } from "@/components/Svg/ToolsSvg";
 import { ErrorSvg } from "@/components/Svg/CommonSvg";
