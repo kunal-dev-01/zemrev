@@ -6,7 +6,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import { UploadSvg } from "@/components/Svg/ToolsSvg";
+import { DropBox, GoogleDrive, UploadSvg } from "@/components/Svg/ToolsSvg";
 import { ErrorSvg } from "@/components/Svg/CommonSvg";
 import type { PdfToolConfig } from "@/services/pdfService/types";
 import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
@@ -14,6 +14,8 @@ import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 interface PdfDragDropZoneProps {
   config: PdfToolConfig;
   onFilesSelected: (files: File[]) => void;
+  onGooglePick: () => void;
+  onDropboxPick: () => void;
   disabled?: boolean;
   currentFileCount: number;
 }
@@ -21,6 +23,8 @@ interface PdfDragDropZoneProps {
 export const PdfDragDropZone = ({
   config,
   onFilesSelected,
+  onGooglePick,
+  onDropboxPick,
   disabled,
   currentFileCount,
 }: PdfDragDropZoneProps) => {
@@ -172,7 +176,7 @@ export const PdfDragDropZone = ({
                 {/* Select Files */}
                 <label
                   htmlFor="pdf-file-input"
-                  className="md:px-6 px-5 py-2 text-md rounded-lg font-medium text-white hover:opacity-90 transition-all cursor-pointer"
+                  className="md:px-6 px-8 py-2 text-md rounded-xl font-medium text-white hover:opacity-90 transition-all cursor-pointer"
                   style={{ backgroundColor: borderColor }}
                 >
                   Select Files
@@ -187,6 +191,28 @@ export const PdfDragDropZone = ({
                 </label>
               </div>
             )}
+
+            <div className="flex items-center justify-center gap-3 mt-4">
+              <button
+                onClick={onGooglePick}
+                className="px-4 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 cursor-pointer
+               hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all"
+              >
+                <div className="w-5 h-5">
+                  <GoogleDrive />
+                </div>
+              </button>
+
+              <button
+                onClick={onDropboxPick}
+                className="px-4 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 cursor-pointer
+               hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all"
+              >
+                <div className="w-5 h-5">
+                  <DropBox />
+                </div>
+              </button>
+            </div>
           </>
         )}
       </div>

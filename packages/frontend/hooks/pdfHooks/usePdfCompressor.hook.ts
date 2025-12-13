@@ -8,12 +8,17 @@ import { useCompressPdfMutation } from "@/services/pdfService/pdf.api";
 import { pdfSessionStorage } from "@/utils/pdfSessionStorage.utils";
 import { pdfPendingStorage } from "@/utils/pdfPendingStorage.utils";
 import { extractApiErrorMessage } from "@/utils/errorExtract.utils";
-import type { PdfFileSettings, PdfProcessedFile } from "@/services/pdfService/types";
+import type {
+  PdfFileSettings,
+  PdfProcessedFile,
+} from "@/services/pdfService/types";
+import { usePdfCloudPicker } from "./usePdfCloudPicker.hook";
 
 export const usePdfCompressor = () => {
   const [files, setFiles] = useState<PdfProcessedFile[]>([]);
   const [compressing, setCompressing] = useState(false);
   const [compressPdf] = useCompressPdfMutation();
+  const { pickFromGoogleDrive, pickFromDropbox } = usePdfCloudPicker();
 
   // ============================================================================
   // RESTORE PENDING FILES ON MOUNT
@@ -45,27 +50,30 @@ export const usePdfCompressor = () => {
   // ============================================================================
   // ADD FILES
   // ============================================================================
-  const addFiles = useCallback(async (newFiles: File[], defaultLevel: string) => {
-    const processed: PdfProcessedFile[] = [];
+  const addFiles = useCallback(
+    async (newFiles: File[], defaultLevel: string) => {
+      const processed: PdfProcessedFile[] = [];
 
-    for (const file of newFiles) {
-      const id = await pdfPendingStorage.save("compress-pdf", file);
+      for (const file of newFiles) {
+        const id = await pdfPendingStorage.save("compress-pdf", file);
 
-      processed.push({
-        id,
-        originalFile: file,
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        settings: {
-          level: defaultLevel as "screen" | "ebook" | "printer" | "prepress",
-        },
-        status: "pending",
-      });
-    }
+        processed.push({
+          id,
+          originalFile: file,
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          settings: {
+            level: defaultLevel as "screen" | "ebook" | "printer" | "prepress",
+          },
+          status: "pending",
+        });
+      }
 
-    setFiles((prev) => [...prev, ...processed]);
-  }, []);
+      setFiles((prev) => [...prev, ...processed]);
+    },
+    []
+  );
 
   // ============================================================================
   // REMOVE FILE
@@ -78,11 +86,16 @@ export const usePdfCompressor = () => {
   // ============================================================================
   // UPDATE SETTINGS
   // ============================================================================
-  const updateFileSettings = useCallback((id: string, settings: PdfFileSettings) => {
-    setFiles((prev) =>
-      prev.map((f) => (f.id === id ? { ...f, settings: { ...f.settings, ...settings } } : f))
-    );
-  }, []);
+  const updateFileSettings = useCallback(
+    (id: string, settings: PdfFileSettings) => {
+      setFiles((prev) =>
+        prev.map((f) =>
+          f.id === id ? { ...f, settings: { ...f.settings, ...settings } } : f
+        )
+      );
+    },
+    []
+  );
 
   // ============================================================================
   // COMPRESS SINGLE FILE
@@ -91,13 +104,19 @@ export const usePdfCompressor = () => {
     async (file: PdfProcessedFile) => {
       try {
         setFiles((prev) =>
-          prev.map((f) => (f.id === file.id ? { ...f, status: "processing" } : f))
+          prev.map((f) =>
+            f.id === file.id ? { ...f, status: "processing" } : f
+          )
         );
 
         const blob = await compressPdf({
           file: file.originalFile as File,
           options: {
-            level: file.settings.level as "screen" | "ebook" | "printer" | "prepress",
+            level: file.settings.level as
+              | "screen"
+              | "ebook"
+              | "printer"
+              | "prepress",
           },
         }).unwrap();
 
@@ -186,6 +205,60 @@ export const usePdfCompressor = () => {
   }, []);
 
   // ============================================================================
+  // ADD FROM GOOGLE DRIVE
+  // ============================================================================
+  const addFromGoogleDrive = useCallback(
+    async (defaultLevel: string) => {
+      const file = await pickFromGoogleDrive();
+
+      const id = await pdfPendingStorage.save("compress-pdf", file);
+
+      setFiles((prev) => [
+        ...prev,
+        {
+          id,
+          originalFile: file,
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          settings: {
+            level: defaultLevel as PdfFileSettings["level"],
+          },
+          status: "pending",
+        },
+      ]);
+    },
+    [pickFromGoogleDrive]
+  );
+
+  // ============================================================================
+  // ADD FROM DROPBOX
+  // ============================================================================
+  const addFromDropbox = useCallback(
+    async (defaultLevel: string) => {
+      const file = await pickFromDropbox();
+
+      const id = await pdfPendingStorage.save("compress-pdf", file);
+
+      setFiles((prev) => [
+        ...prev,
+        {
+          id,
+          originalFile: file,
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          settings: {
+            level: defaultLevel as PdfFileSettings["level"],
+          },
+          status: "pending",
+        },
+      ]);
+    },
+    [pickFromDropbox]
+  );
+
+  // ============================================================================
   // STATS
   // ============================================================================
   const stats = {
@@ -204,6 +277,8 @@ export const usePdfCompressor = () => {
     updateFileSettings,
     compressSingleFile,
     compressAllFiles,
+    addFromGoogleDrive,
+    addFromDropbox,
     downloadFile,
     downloadAll,
     clearAll,
