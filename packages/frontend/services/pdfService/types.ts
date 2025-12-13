@@ -22,10 +22,14 @@ export type PdfToolType =
   | "compress-pdf"
   | "flatten-pdf"
   | "ocr-searchable"
+  | "sign-pdf"
+  | "crop-pdf"
+  | "convert-pdfa"
 
 export type ImageFormat = "png" | "jpeg" | "jpg";
 export type CompressionLevel = "screen" | "ebook" | "printer" | "prepress";
 export type WatermarkPosition = "center" | "top_left" | "top_right" | "bottom_left" | "bottom_right";
+export type PdfAVersion = "1b" | "2b" | "3b";
 
 export type FormDataParams = Record<string, string | number | boolean | undefined>;
 
@@ -77,6 +81,24 @@ export interface PdfFileSettings {
   
   // Compress (Ghostscript)
   level?: CompressionLevel;
+
+  // Sign PDF
+  signature_text?: string;
+  signatureFile?: File;
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  page?: number;
+  
+  // Crop PDF
+  crop_x?: number;
+  crop_y?: number;
+  crop_width?: number;
+  crop_height?: number;
+  
+  // PDF/A
+  version?: PdfAVersion;
   
   // OCR
   language?: string;
@@ -208,6 +230,30 @@ export interface CompressPdfRequest extends FormDataParams {
 export interface FlattenPdfRequest extends FormDataParams {
   // no params
 }
+
+// NEW: Sign PDF
+export interface SignPdfRequest extends FormDataParams {
+  signature_text?: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  page: number;
+}
+
+// NEW: Crop PDF
+export interface CropPdfRequest extends FormDataParams {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+// NEW: Convert to PDF/A
+export interface ConvertToPdfARequest extends FormDataParams {
+  version: PdfAVersion;
+}
+
 
 // OCR
 export interface OcrPdfRequest extends FormDataParams {
