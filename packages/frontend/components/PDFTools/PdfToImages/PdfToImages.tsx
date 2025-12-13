@@ -1,1 +1,10 @@
-export default function PdfToImages() { return (<div>PdfToImages component</div>); }
+// PDFTools/PdfToImages/PdfToImages.tsx
+
+
+const PdfToImages = () => {
+  return (
+    <div>PdfToImages</div>
+  )
+}
+
+export default PdfToImages
