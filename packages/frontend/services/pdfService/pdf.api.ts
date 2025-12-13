@@ -16,7 +16,10 @@ import type {
   AddWatermarkRequest,
   OptimizePdfRequest,
   CompressPdfRequest,
-  OcrPdfRequest
+  OcrPdfRequest,
+  ConvertToPdfARequest,
+  CropPdfRequest,
+  SignPdfRequest
 } from "./types";
 
 // ============================================================================
@@ -196,6 +199,44 @@ export const pdfApi = baseApi.injectEndpoints({
       }),
     }),
 
+    // SIGN PDF (TEXT SIGNATURE)
+    signPdfText: builder.mutation<Blob, { file: File; options: SignPdfRequest }>({
+      query: ({ file, options }) => ({
+        url: "/pymupdf/sign",
+        method: "POST",
+        body: buildFormData(file, options),
+        responseHandler: (r) => r.blob(),
+      }),
+    }),
+
+    // SIGN PDF (IMAGE SIGNATURE)
+    signPdfImage: builder.mutation<
+      Blob,
+      { file: File; signature: File; options: SignPdfRequest }
+    >({
+      query: ({ file, signature, options }) => {
+        const formData = buildFormData(file, options);
+        formData.append("signature_image", signature);
+
+        return {
+          url: "/pymupdf/sign",
+          method: "POST",
+          body: formData,
+          responseHandler: (r) => r.blob(),
+        };
+      },
+    }),
+
+    //  CROP PDF
+    cropPdf: builder.mutation<Blob, { file: File; options: CropPdfRequest }>({
+      query: ({ file, options }) => ({
+        url: "/pymupdf/crop",
+        method: "POST",
+        body: buildFormData(file, options),
+        responseHandler: (r) => r.blob(),
+      }),
+    }),
+
     // ========================================================================
     // GHOSTSCRIPT TOOLS
     // ========================================================================
@@ -216,6 +257,16 @@ export const pdfApi = baseApi.injectEndpoints({
         url: "/ghostscript/flatten",
         method: "POST",
         body: buildFormData(file, {}),
+        responseHandler: (r) => r.blob(),
+      }),
+    }),
+
+    //  CONVERT TO PDF/A
+    convertToPdfA: builder.mutation<Blob, { file: File; options: ConvertToPdfARequest }>({
+      query: ({ file, options }) => ({
+        url: "/ghostscript/convert-pdfa",
+        method: "POST",
+        body: buildFormData(file, options),
         responseHandler: (r) => r.blob(),
       }),
     }),
@@ -256,10 +307,14 @@ export const {
   useAddTextWatermarkPdfMutation,
   useAddImageWatermarkPdfMutation,
   useOptimizePdfMutation,
+  useSignPdfTextMutation,
+  useSignPdfImageMutation,
+  useCropPdfMutation,
 
   // Ghostscript
   useCompressPdfMutation,
   useFlattenPdfMutation,
+  useConvertToPdfAMutation,
 
   // OCR
   useOcrPdfToSearchableMutation,
