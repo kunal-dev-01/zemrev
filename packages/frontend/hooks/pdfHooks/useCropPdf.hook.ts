@@ -36,6 +36,7 @@ export const useCropPdf = () => {
               crop_y: 50,
               crop_width: 500,
               crop_height: 700,
+              crop_page_range: undefined,
             },
             status: "pending" as const,
           }))
@@ -64,6 +65,7 @@ export const useCropPdf = () => {
           crop_y: 50,
           crop_width: 500,
           crop_height: 700,
+          crop_page_range: undefined,
         },
         status: "pending",
       });
@@ -92,6 +94,7 @@ export const useCropPdf = () => {
           crop_y: 50,
           crop_width: 500,
           crop_height: 700,
+          crop_page_range: undefined,
         },
         status: "pending",
       },
@@ -118,6 +121,7 @@ export const useCropPdf = () => {
           crop_y: 50,
           crop_width: 500,
           crop_height: 700,
+          crop_page_range: undefined,
         },
         status: "pending",
       },
@@ -158,7 +162,7 @@ export const useCropPdf = () => {
           )
         );
 
-        const { crop_x, crop_y, crop_width, crop_height } = file.settings;
+        const { crop_x, crop_y, crop_width, crop_height,crop_page_range } = file.settings;
 
         const blob = await cropPdf({
           file: file.originalFile as File,
@@ -167,6 +171,7 @@ export const useCropPdf = () => {
             y: crop_y || 50,
             width: crop_width || 500,
             height: crop_height || 700,
+            page_range: crop_page_range,
           },
         }).unwrap();
 

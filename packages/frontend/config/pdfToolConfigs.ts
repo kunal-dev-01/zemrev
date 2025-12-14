@@ -247,6 +247,7 @@ export const PDF_TOOL_CONFIGS: Record<string, PdfToolConfig> = {
       crop_y: 50,
       crop_width: 500,
       crop_height: 700,
+      crop_page_range: undefined,
     },
   },
 

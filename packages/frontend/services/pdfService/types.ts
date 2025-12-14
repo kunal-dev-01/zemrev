@@ -96,6 +96,7 @@ export interface PdfFileSettings {
   crop_y?: number;
   crop_width?: number;
   crop_height?: number;
+  crop_page_range?: string;
   
   // PDF/A
   version?: PdfAVersion;
@@ -247,6 +248,7 @@ export interface CropPdfRequest extends FormDataParams {
   y: number;
   width: number;
   height: number;
+  page_range?: string;
 }
 
 // NEW: Convert to PDF/A
