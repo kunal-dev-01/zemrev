@@ -9,6 +9,7 @@ import { extractApiErrorMessage } from "@/utils/errorExtract.utils";
 import { pendingStorage } from "@/utils/pendingStorage.utils";
 import { sessionStorageUtils } from "@/utils/sessionStorage.utils";
 import type { MetadataResponse, StoredFile } from "@/services/imageService/types";
+import { useCloudPicker } from "../appHooks/usePdfCloudPicker.hook";
 
 export const useImageMetadata = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -16,9 +17,11 @@ export const useImageMetadata = () => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [extracting, setExtracting] = useState(false);
   const [error, setError] = useState("");
-  const [metadataData, setMetadataData] = useState<MetadataResponse | null>(null);
+  const [metadataData, setMetadataData] =
+    useState<MetadataResponse | null>(null);
 
   const [extractMetadata] = useExtractMetadataMutation();
+  const { pickFromGoogleDrive, pickFromDropbox } = useCloudPicker();
 
   // ============================================================================
   // RESTORE PENDING FILE ON MOUNT
@@ -47,6 +50,7 @@ export const useImageMetadata = () => {
   const setImageFile = useCallback(
     async (newFile: File) => {
       if (imageUrl) URL.revokeObjectURL(imageUrl);
+      if (fileId) await pendingStorage.delete("metadata", fileId);
 
       const id = await pendingStorage.save("metadata", newFile);
 
@@ -59,7 +63,7 @@ export const useImageMetadata = () => {
       setError("");
       setMetadataData(null);
     },
-    [imageUrl]
+    [imageUrl, fileId]
   );
 
   // ============================================================================
@@ -83,8 +87,24 @@ export const useImageMetadata = () => {
   );
 
   // ============================================================================
-  // EXTRACT METADATA + SAVE TO SESSION DB (2hr TTL)
-// ============================================================================
+  // SET FROM GOOGLE DRIVE
+  // ============================================================================
+  const setFromGoogleDrive = useCallback(async () => {
+    const file = await pickFromGoogleDrive();
+    await setImageFile(file);
+  }, [pickFromGoogleDrive, setImageFile]);
+
+  // ============================================================================
+  // SET FROM DROPBOX
+  // ============================================================================
+  const setFromDropbox = useCallback(async () => {
+    const file = await pickFromDropbox();
+    await setImageFile(file);
+  }, [pickFromDropbox, setImageFile]);
+
+  // ============================================================================
+  // EXTRACT METADATA + SAVE TO SESSION DB
+  // ============================================================================
   const extractImageMetadata = useCallback(async () => {
     if (!file) return { success: false, error: "No file selected" };
 
@@ -97,7 +117,6 @@ export const useImageMetadata = () => {
 
       setMetadataData(result);
 
-      // Save JSON metadata into sessionDB as blob
       const jsonBlob = new Blob([JSON.stringify(result, null, 2)], {
         type: "application/json",
       });
@@ -108,7 +127,6 @@ export const useImageMetadata = () => {
         "metadata"
       );
 
-      // Remove from pending
       if (fileId) {
         await pendingStorage.delete("metadata", fileId);
       }
@@ -124,47 +142,50 @@ export const useImageMetadata = () => {
   }, [file, fileId, extractMetadata]);
 
   // ============================================================================
-  // GET SAVED METADATA FILES FROM SESSIONDB
+  // GET SAVED METADATA FILES
   // ============================================================================
   const getSavedMetadata = useCallback((): StoredFile[] => {
     return sessionStorageUtils.getFiles("metadata");
   }, []);
 
   // ============================================================================
-  // DELETE SPECIFIC SAVED FILE
+  // DELETE SAVED FILE
   // ============================================================================
   const deleteSavedMetadata = useCallback(async (id: string) => {
     await sessionStorageUtils.deleteFile("metadata", id);
   }, []);
 
   // ============================================================================
-  // CLEAR ALL SAVED METADATA FOR THIS TOOL
+  // CLEAR ALL SAVED METADATA
   // ============================================================================
   const clearAllSavedMetadata = useCallback(async () => {
     await sessionStorageUtils.clearTool("metadata");
   }, []);
 
   // ============================================================================
-  // EXPORT FILE DIRECT (blob from sessionDB)
+  // EXPORT METADATA JSON
   // ============================================================================
-  const exportMetadataAsJson = useCallback(async (id: string, filename: string) => {
-    const blob = await sessionStorageUtils.getBlob(id);
-    if (!blob) return;
+  const exportMetadataAsJson = useCallback(
+    async (id: string, filename: string) => {
+      const blob = await sessionStorageUtils.getBlob(id);
+      if (!blob) return;
 
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
 
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
 
-    URL.revokeObjectURL(url);
-  }, []);
+      URL.revokeObjectURL(url);
+    },
+    []
+  );
 
   // ============================================================================
-  // COPY ANY TEXT TO CLIPBOARD
+  // COPY TEXT
   // ============================================================================
   const copyToClipboard = useCallback((text: string) => {
     navigator.clipboard.writeText(text);
@@ -197,6 +218,9 @@ export const useImageMetadata = () => {
 
     setImageFile,
     setFromUrl,
+    setFromGoogleDrive,
+    setFromDropbox,
+
     extractImageMetadata,
 
     getSavedMetadata,
