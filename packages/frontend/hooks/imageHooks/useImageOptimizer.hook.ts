@@ -9,11 +9,14 @@ import { sessionStorageUtils } from "@/utils/sessionStorage.utils";
 import { pendingStorage } from "@/utils/pendingStorage.utils";
 import { extractApiErrorMessage } from "@/utils/errorExtract.utils";
 import type { FileSettings, ProcessedFile } from "@/services/imageService/types";
+import { useCloudPicker } from "../appHooks/usePdfCloudPicker.hook";
 
 export const useImageOptimizer = () => {
   const [files, setFiles] = useState<ProcessedFile[]>([]);
   const [optimizing, setOptimizing] = useState(false);
+
   const [optimizeImage] = useOptimizeImageMutation();
+  const { pickFromGoogleDrive, pickFromDropbox } = useCloudPicker();
 
   // ============================================================================
   // RESTORE PENDING FILES ON MOUNT
@@ -21,7 +24,7 @@ export const useImageOptimizer = () => {
   useEffect(() => {
     const restorePending = async () => {
       const restored = await pendingStorage.restore("optimizer");
-      
+
       if (restored.length > 0) {
         const processed: ProcessedFile[] = restored.map(({ id, file }) => ({
           id,
@@ -45,7 +48,7 @@ export const useImageOptimizer = () => {
   }, []);
 
   // ============================================================================
-  // ADD FILES
+  // ADD FILES (LOCAL)
   // ============================================================================
   const addFiles = useCallback(
     async (
@@ -80,6 +83,62 @@ export const useImageOptimizer = () => {
   );
 
   // ============================================================================
+  // ADD FROM GOOGLE DRIVE
+  // ============================================================================
+  const addFromGoogleDrive = useCallback(
+    async (stripExif: boolean, stripGps: boolean, fixOrientation: boolean) => {
+      const file = await pickFromGoogleDrive();
+      const id = await pendingStorage.save("optimizer", file);
+
+      setFiles((prev) => [
+        ...prev,
+        {
+          id,
+          originalFile: file,
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          settings: {
+            stripExif,
+            stripGps,
+            fixOrientation,
+          },
+          status: "pending",
+        },
+      ]);
+    },
+    [pickFromGoogleDrive]
+  );
+
+  // ============================================================================
+  // ADD FROM DROPBOX
+  // ============================================================================
+  const addFromDropbox = useCallback(
+    async (stripExif: boolean, stripGps: boolean, fixOrientation: boolean) => {
+      const file = await pickFromDropbox();
+      const id = await pendingStorage.save("optimizer", file);
+
+      setFiles((prev) => [
+        ...prev,
+        {
+          id,
+          originalFile: file,
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          settings: {
+            stripExif,
+            stripGps,
+            fixOrientation,
+          },
+          status: "pending",
+        },
+      ]);
+    },
+    [pickFromDropbox]
+  );
+
+  // ============================================================================
   // ADD FROM URL
   // ============================================================================
   const addFromUrl = useCallback(
@@ -96,7 +155,7 @@ export const useImageOptimizer = () => {
         const file = new File([blob], filename, { type: blob.type });
 
         await addFiles([file], stripExif, stripGps, fixOrientation);
-      } catch (error) {
+      } catch {
         throw new Error("Failed to download image from URL");
       }
     },
@@ -114,11 +173,16 @@ export const useImageOptimizer = () => {
   // ============================================================================
   // UPDATE SETTINGS
   // ============================================================================
-  const updateFileSettings = useCallback((id: string, settings: FileSettings) => {
-    setFiles((prev) =>
-      prev.map((f) => (f.id === id ? { ...f, settings: { ...f.settings, ...settings } } : f))
-    );
-  }, []);
+  const updateFileSettings = useCallback(
+    (id: string, settings: FileSettings) => {
+      setFiles((prev) =>
+        prev.map((f) =>
+          f.id === id ? { ...f, settings: { ...f.settings, ...settings } } : f
+        )
+      );
+    },
+    []
+  );
 
   // ============================================================================
   // OPTIMIZE SINGLE FILE
@@ -127,7 +191,9 @@ export const useImageOptimizer = () => {
     async (file: ProcessedFile) => {
       try {
         setFiles((prev) =>
-          prev.map((f) => (f.id === file.id ? { ...f, status: "processing" } : f))
+          prev.map((f) =>
+            f.id === file.id ? { ...f, status: "processing" } : f
+          )
         );
 
         const blob = await optimizeImage({
@@ -141,13 +207,8 @@ export const useImageOptimizer = () => {
 
         const outputName = `optimized_${file.name}`;
 
-        // Save to session storage
         await sessionStorageUtils.saveFile(blob, outputName, "optimizer");
-
-        // Delete from pending
         await pendingStorage.delete("optimizer", file.id);
-
-        // Remove from state
         setFiles((prev) => prev.filter((f) => f.id !== file.id));
 
         return { success: true, blob, name: outputName };
@@ -210,16 +271,13 @@ export const useImageOptimizer = () => {
   }, [downloadFile]);
 
   // ============================================================================
-  // CLEAR PENDING
+  // CLEAR / RESET
   // ============================================================================
   const clearAll = useCallback(async () => {
     await pendingStorage.clearTool("optimizer");
     setFiles([]);
   }, []);
 
-  // ============================================================================
-  // RESET
-  // ============================================================================
   const reset = useCallback(async () => {
     await pendingStorage.clearTool("optimizer");
     setFiles([]);
@@ -241,6 +299,8 @@ export const useImageOptimizer = () => {
     optimizing,
     stats,
     addFiles,
+    addFromGoogleDrive,
+    addFromDropbox,
     addFromUrl,
     removeFile,
     updateFileSettings,
