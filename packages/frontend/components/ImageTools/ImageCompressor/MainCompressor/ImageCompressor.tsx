@@ -9,7 +9,6 @@ import { CompressorFilePanel } from "../Settings/CompressorFilePanel";
 import { SessionFilesDisplay } from "@/components/Shared/SessionFilesDisplay";
 
 import { TOOL_CONFIGS, detectFormatFromFilename } from "@/config/tool.config";
-import { Spinner } from "@/components/Layouts/Spinner";
 import { TrashSvg } from "@/components/Svg/CommonSvg";
 import GlassButton from "@/components/Layouts/GlassButton";
 
@@ -26,6 +25,8 @@ const ImageCompressor = () => {
     compressing,
     stats,
     addFiles,
+    addFromGoogleDrive,
+    addFromDropbox,
     addFromUrl,
     removeFile,
     updateFileSettings,
@@ -79,6 +80,8 @@ const ImageCompressor = () => {
         config={config}
         onFilesSelected={handleFilesSelected}
         onUrlUpload={() => setUrlModalOpen(true)}
+        onGooglePick={ () => addFromGoogleDrive(config.defaultSettings.quality as number)}
+        onDropboxPick={ () => addFromDropbox(config.defaultSettings.quality as number)}
         currentFileCount={files.length}
         disabled={!canAddMore}
       />

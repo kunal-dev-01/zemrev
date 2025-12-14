@@ -9,11 +9,14 @@ import { sessionStorageUtils } from "@/utils/sessionStorage.utils";
 import { pendingStorage } from "@/utils/pendingStorage.utils";
 import { extractApiErrorMessage } from "@/utils/errorExtract.utils";
 import type { FileSettings, ProcessedFile } from "@/services/imageService/types";
+import { useCloudPicker } from "../appHooks/usePdfCloudPicker.hook";
 
 export const useImageCompressor = () => {
   const [files, setFiles] = useState<ProcessedFile[]>([]);
   const [compressing, setCompressing] = useState(false);
+
   const [compressImage] = useCompressImageMutation();
+  const { pickFromGoogleDrive, pickFromDropbox } = useCloudPicker();
 
   // ============================================================================
   // RESTORE PENDING FILES ON MOUNT
@@ -21,7 +24,7 @@ export const useImageCompressor = () => {
   useEffect(() => {
     const restorePending = async () => {
       const restored = await pendingStorage.restore("compressor");
-      
+
       if (restored.length > 0) {
         const processed: ProcessedFile[] = restored.map(({ id, file }) => ({
           id,
@@ -43,29 +46,84 @@ export const useImageCompressor = () => {
   }, []);
 
   // ============================================================================
-  // ADD FILES
+  // ADD FILES (LOCAL)
   // ============================================================================
-  const addFiles = useCallback(async (newFiles: File[], defaultQuality: number) => {
-    const processed: ProcessedFile[] = [];
+  const addFiles = useCallback(
+    async (newFiles: File[], defaultQuality: number) => {
+      const processed: ProcessedFile[] = [];
 
-    for (const file of newFiles) {
+      for (const file of newFiles) {
+        const id = await pendingStorage.save("compressor", file);
+
+        processed.push({
+          id,
+          originalFile: file,
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          settings: {
+            quality: defaultQuality,
+          },
+          status: "pending",
+        });
+      }
+
+      setFiles((prev) => [...prev, ...processed]);
+    },
+    []
+  );
+
+  // ============================================================================
+  // ADD FROM GOOGLE DRIVE
+  // ============================================================================
+  const addFromGoogleDrive = useCallback(
+    async (defaultQuality: number) => {
+      const file = await pickFromGoogleDrive();
       const id = await pendingStorage.save("compressor", file);
 
-      processed.push({
-        id,
-        originalFile: file,
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        settings: {
-          quality: defaultQuality,
+      setFiles((prev) => [
+        ...prev,
+        {
+          id,
+          originalFile: file,
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          settings: {
+            quality: defaultQuality,
+          },
+          status: "pending",
         },
-        status: "pending",
-      });
-    }
+      ]);
+    },
+    [pickFromGoogleDrive]
+  );
 
-    setFiles((prev) => [...prev, ...processed]);
-  }, []);
+  // ============================================================================
+  // ADD FROM DROPBOX
+  // ============================================================================
+  const addFromDropbox = useCallback(
+    async (defaultQuality: number) => {
+      const file = await pickFromDropbox();
+      const id = await pendingStorage.save("compressor", file);
+
+      setFiles((prev) => [
+        ...prev,
+        {
+          id,
+          originalFile: file,
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          settings: {
+            quality: defaultQuality,
+          },
+          status: "pending",
+        },
+      ]);
+    },
+    [pickFromDropbox]
+  );
 
   // ============================================================================
   // ADD FROM URL
@@ -79,7 +137,7 @@ export const useImageCompressor = () => {
         const file = new File([blob], filename, { type: blob.type });
 
         await addFiles([file], defaultQuality);
-      } catch (error) {
+      } catch {
         throw new Error("Failed to download image from URL");
       }
     },
@@ -97,11 +155,16 @@ export const useImageCompressor = () => {
   // ============================================================================
   // UPDATE SETTINGS
   // ============================================================================
-  const updateFileSettings = useCallback((id: string, settings: FileSettings) => {
-    setFiles((prev) =>
-      prev.map((f) => (f.id === id ? { ...f, settings: { ...f.settings, ...settings } } : f))
-    );
-  }, []);
+  const updateFileSettings = useCallback(
+    (id: string, settings: FileSettings) => {
+      setFiles((prev) =>
+        prev.map((f) =>
+          f.id === id ? { ...f, settings: { ...f.settings, ...settings } } : f
+        )
+      );
+    },
+    []
+  );
 
   // ============================================================================
   // COMPRESS SINGLE FILE
@@ -110,7 +173,9 @@ export const useImageCompressor = () => {
     async (file: ProcessedFile) => {
       try {
         setFiles((prev) =>
-          prev.map((f) => (f.id === file.id ? { ...f, status: "processing" } : f))
+          prev.map((f) =>
+            f.id === file.id ? { ...f, status: "processing" } : f
+          )
         );
 
         const blob = await compressImage({
@@ -122,13 +187,9 @@ export const useImageCompressor = () => {
 
         const outputName = `compressed_${file.name}`;
 
-        // Save to session storage
         await sessionStorageUtils.saveFile(blob, outputName, "compressor");
-
-        // Delete from pending
         await pendingStorage.delete("compressor", file.id);
 
-        // Remove from state
         setFiles((prev) => prev.filter((f) => f.id !== file.id));
 
         return { success: true, blob, name: outputName };
@@ -222,6 +283,8 @@ export const useImageCompressor = () => {
     compressing,
     stats,
     addFiles,
+    addFromGoogleDrive,
+    addFromDropbox,
     addFromUrl,
     removeFile,
     updateFileSettings,
