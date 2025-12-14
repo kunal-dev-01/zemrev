@@ -205,7 +205,7 @@ export const PdfCropOverlay = ({
 
   return (
     <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 10 }}>
-      <div className="absolute inset-0 bg-black/40 pointer-events-none" />
+      <div className="absolute inset-0 dark:bg-black/40 bg-zinc-100/10 pointer-events-none" />
 
       <div
         className="absolute pointer-events-auto"
@@ -215,7 +215,7 @@ export const PdfCropOverlay = ({
           width: scaledWidth,
           height: scaledHeight,
           border: "2px solid #4D7C0F",
-          boxShadow: "0 0 0 9999px rgba(0,0,0,0.5)",
+          boxShadow: "0 0 0 9999px rgba(0,0,0,0.1)",
           cursor: "move",
           touchAction: "none"
         }}
