@@ -4,7 +4,12 @@
 // ===========================================================================
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import { UploadSvg, LinkSvg } from "@/components/Svg/ToolsSvg";
+import {
+  UploadSvg,
+  LinkSvg,
+  DropBox,
+  GoogleDrive,
+} from "@/components/Svg/ToolsSvg";
 import { ErrorSvg } from "@/components/Svg/CommonSvg";
 import type { ToolConfig } from "@/services/imageService/types";
 import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
@@ -13,6 +18,8 @@ interface DragDropZoneProps {
   config: ToolConfig;
   onFilesSelected: (files: File[]) => void;
   onUrlUpload: () => void;
+  onGooglePick: () => void;
+  onDropboxPick: () => void;
   disabled?: boolean;
   currentFileCount: number;
 }
@@ -21,6 +28,8 @@ export const DragDropZone = ({
   config,
   onFilesSelected,
   onUrlUpload,
+  onGooglePick,
+  onDropboxPick,
   disabled,
   currentFileCount,
 }: DragDropZoneProps) => {
@@ -199,6 +208,27 @@ export const DragDropZone = ({
                 </button>
               </div>
             )}
+
+            {/* Cloud Providers */}
+            <div className="flex items-center justify-center gap-3 mt-4">
+              <button
+                onClick={onGooglePick}
+                className="px-4 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all cursor-pointer"
+              >
+                <div className="w-5 h-5">
+                  <GoogleDrive />
+                </div>
+              </button>
+
+              <button
+                onClick={onDropboxPick}
+                className="px-4 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all cursor-pointer"
+              >
+                <div className="w-5 h-5">
+                  <DropBox />
+                </div>
+              </button>
+            </div>
           </>
         )}
       </div>
