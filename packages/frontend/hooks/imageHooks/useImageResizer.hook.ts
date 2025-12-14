@@ -8,12 +8,18 @@ import { useResizeImageMutation } from "@/services/imageService/image.api";
 import { sessionStorageUtils } from "@/utils/sessionStorage.utils";
 import { pendingStorage } from "@/utils/pendingStorage.utils";
 import { extractApiErrorMessage } from "@/utils/errorExtract.utils";
-import type { FileSettings, ProcessedFile, ResizeMode } from "@/services/imageService/types";
+import type {
+  FileSettings,
+  ProcessedFile,
+  ResizeMode,
+} from "@/services/imageService/types";
+import { useCloudPicker } from "../appHooks/usePdfCloudPicker.hook";
 
 export const useImageResizer = () => {
   const [files, setFiles] = useState<ProcessedFile[]>([]);
   const [resizing, setResizing] = useState(false);
   const [resizeImage] = useResizeImageMutation();
+  const { pickFromGoogleDrive, pickFromDropbox } = useCloudPicker();
 
   // ============================================================================
   // RESTORE PENDING FILES ON MOUNT
@@ -21,7 +27,7 @@ export const useImageResizer = () => {
   useEffect(() => {
     const restorePending = async () => {
       const restored = await pendingStorage.restore("resizer");
-      
+
       if (restored.length > 0) {
         const processed: ProcessedFile[] = restored.map(({ id, file }) => ({
           id,
@@ -45,7 +51,7 @@ export const useImageResizer = () => {
   }, []);
 
   // ============================================================================
-  // ADD FILES
+  // ADD FILES (LOCAL / CLOUD COMMON)
   // ============================================================================
   const addFiles = useCallback(
     async (
@@ -96,11 +102,41 @@ export const useImageResizer = () => {
         const file = new File([blob], filename, { type: blob.type });
 
         await addFiles([file], defaultWidth, defaultHeight, defaultMode);
-      } catch (error) {
+      } catch {
         throw new Error("Failed to download image from URL");
       }
     },
     [addFiles]
+  );
+
+  // ============================================================================
+  // ADD FROM GOOGLE DRIVE
+  // ============================================================================
+  const addFromGoogleDrive = useCallback(
+    async (
+      defaultWidth: number,
+      defaultHeight: number,
+      defaultMode: ResizeMode
+    ) => {
+      const file = await pickFromGoogleDrive();
+      await addFiles([file], defaultWidth, defaultHeight, defaultMode);
+    },
+    [pickFromGoogleDrive, addFiles]
+  );
+
+  // ============================================================================
+  // ADD FROM DROPBOX
+  // ============================================================================
+  const addFromDropbox = useCallback(
+    async (
+      defaultWidth: number,
+      defaultHeight: number,
+      defaultMode: ResizeMode
+    ) => {
+      const file = await pickFromDropbox();
+      await addFiles([file], defaultWidth, defaultHeight, defaultMode);
+    },
+    [pickFromDropbox, addFiles]
   );
 
   // ============================================================================
@@ -114,11 +150,18 @@ export const useImageResizer = () => {
   // ============================================================================
   // UPDATE SETTINGS
   // ============================================================================
-  const updateFileSettings = useCallback((id: string, settings: FileSettings) => {
-    setFiles((prev) =>
-      prev.map((f) => (f.id === id ? { ...f, settings: { ...f.settings, ...settings } } : f))
-    );
-  }, []);
+  const updateFileSettings = useCallback(
+    (id: string, settings: FileSettings) => {
+      setFiles((prev) =>
+        prev.map((f) =>
+          f.id === id
+            ? { ...f, settings: { ...f.settings, ...settings } }
+            : f
+        )
+      );
+    },
+    []
+  );
 
   // ============================================================================
   // RESIZE SINGLE FILE
@@ -127,7 +170,9 @@ export const useImageResizer = () => {
     async (file: ProcessedFile) => {
       try {
         setFiles((prev) =>
-          prev.map((f) => (f.id === file.id ? { ...f, status: "processing" } : f))
+          prev.map((f) =>
+            f.id === file.id ? { ...f, status: "processing" } : f
+          )
         );
 
         const blob = await resizeImage({
@@ -141,13 +186,9 @@ export const useImageResizer = () => {
 
         const outputName = `resized_${file.name}`;
 
-        // Save to session storage
         await sessionStorageUtils.saveFile(blob, outputName, "resizer");
-
-        // Delete from pending
         await pendingStorage.delete("resizer", file.id);
 
-        // Remove from state
         setFiles((prev) => prev.filter((f) => f.id !== file.id));
 
         return { success: true, blob, name: outputName };
@@ -155,7 +196,9 @@ export const useImageResizer = () => {
         const errorMsg = extractApiErrorMessage(error);
         setFiles((prev) =>
           prev.map((f) =>
-            f.id === file.id ? { ...f, status: "error", error: errorMsg } : f
+            f.id === file.id
+              ? { ...f, status: "error", error: errorMsg }
+              : f
           )
         );
         return { success: false, error: errorMsg };
@@ -169,9 +212,8 @@ export const useImageResizer = () => {
   // ============================================================================
   const resizeAllFiles = useCallback(async () => {
     setResizing(true);
-    const pendingFiles = files.filter((f) => f.status === "pending");
 
-    for (const file of pendingFiles) {
+    for (const file of files.filter((f) => f.status === "pending")) {
       await resizeSingleFile(file);
     }
 
@@ -240,14 +282,20 @@ export const useImageResizer = () => {
     files,
     resizing,
     stats,
+
     addFiles,
     addFromUrl,
+    addFromGoogleDrive,
+    addFromDropbox,
+
     removeFile,
     updateFileSettings,
     resizeSingleFile,
     resizeAllFiles,
+
     downloadFile,
     downloadAll,
+
     clearAll,
     reset,
     setFiles,
