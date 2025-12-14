@@ -8,6 +8,7 @@ import { useCropImageMutation } from "@/services/imageService/image.api";
 import { sessionStorageUtils } from "@/utils/sessionStorage.utils";
 import { pendingStorage } from "@/utils/pendingStorage.utils";
 import { extractApiErrorMessage } from "@/utils/errorExtract.utils";
+import { useCloudPicker } from "../appHooks/usePdfCloudPicker.hook";
 
 export const useImageCropper = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -15,7 +16,9 @@ export const useImageCropper = () => {
   const [cropping, setCropping] = useState(false);
   const [error, setError] = useState("");
   const [pendingId, setPendingId] = useState<string | null>(null);
+
   const [cropImage] = useCropImageMutation();
+  const { pickFromGoogleDrive, pickFromDropbox } = useCloudPicker();
 
   // ============================================================================
   // RESTORE PENDING FILE ON MOUNT
@@ -23,9 +26,9 @@ export const useImageCropper = () => {
   useEffect(() => {
     const restorePending = async () => {
       const pending = await pendingStorage.restore("cropper");
-      
+
       if (pending.length > 0) {
-        const { file: restoredFile, id } = pending[0]; // Only take first file for cropper
+        const { file: restoredFile, id } = pending[0]; // only one file
         setPendingId(id);
         setFile(restoredFile);
         const url = URL.createObjectURL(restoredFile);
@@ -37,39 +40,59 @@ export const useImageCropper = () => {
   }, []);
 
   // ============================================================================
-  // SET FILE (with pending save, deletes old pending)
+  // SET FILE (LOCAL / CLOUD / URL ALL COME HERE)
   // ============================================================================
-  const setImageFile = useCallback(async (newFile: File) => {
-    // Clear previous file from URL and pending storage
-    if (imageUrl) URL.revokeObjectURL(imageUrl);
-    if (pendingId) await pendingStorage.delete("cropper", pendingId);
-    
-    // Save to pending storage
-    const id = await pendingStorage.save("cropper", newFile);
-    setPendingId(id);
+  const setImageFile = useCallback(
+    async (newFile: File) => {
+      // Clear previous preview + pending
+      if (imageUrl) URL.revokeObjectURL(imageUrl);
+      if (pendingId) await pendingStorage.delete("cropper", pendingId);
 
-    // Set file for preview
-    setFile(newFile);
-    const url = URL.createObjectURL(newFile);
-    setImageUrl(url);
-    setError("");
-  }, [imageUrl, pendingId]);
+      const id = await pendingStorage.save("cropper", newFile);
+      setPendingId(id);
+
+      setFile(newFile);
+      const url = URL.createObjectURL(newFile);
+      setImageUrl(url);
+      setError("");
+    },
+    [imageUrl, pendingId]
+  );
 
   // ============================================================================
   // SET FROM URL
   // ============================================================================
-  const setFromUrl = useCallback(async (url: string) => {
-    try {
-      const response = await fetch(url);
-      const blob = await response.blob();
-      const filename = url.split("/").pop() || "url-image.jpg";
-      const file = new File([blob], filename, { type: blob.type });
-      
-      await setImageFile(file);
-    } catch (err) {
-      setError("Failed to download image from URL");
-    }
-  }, [setImageFile]);
+  const setFromUrl = useCallback(
+    async (url: string) => {
+      try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const filename = url.split("/").pop() || "url-image.jpg";
+        const file = new File([blob], filename, { type: blob.type });
+
+        await setImageFile(file);
+      } catch {
+        setError("Failed to download image from URL");
+      }
+    },
+    [setImageFile]
+  );
+
+  // ============================================================================
+  // SET FROM GOOGLE DRIVE
+  // ============================================================================
+  const setFromGoogleDrive = useCallback(async () => {
+    const file = await pickFromGoogleDrive();
+    await setImageFile(file);
+  }, [pickFromGoogleDrive, setImageFile]);
+
+  // ============================================================================
+  // SET FROM DROPBOX
+  // ============================================================================
+  const setFromDropbox = useCallback(async () => {
+    const file = await pickFromDropbox();
+    await setImageFile(file);
+  }, [pickFromDropbox, setImageFile]);
 
   // ============================================================================
   // CROP IMAGE (saves to session, deletes from pending)
@@ -89,16 +112,16 @@ export const useImageCropper = () => {
 
         const outputName = `cropped_${file.name}`;
 
-        // Save to session storage (ONLY ONCE)
+        // Save to session storage
         await sessionStorageUtils.saveFile(blob, outputName, "cropper");
 
-        // Delete from pending storage after successful crop
+        // Delete pending after success
         if (pendingId) {
           await pendingStorage.delete("cropper", pendingId);
           setPendingId(null);
         }
 
-        // Clear file from state (completed files only in SessionFilesDisplay)
+        // Clear local state
         if (imageUrl) URL.revokeObjectURL(imageUrl);
         setFile(null);
         setImageUrl(null);
@@ -116,7 +139,7 @@ export const useImageCropper = () => {
   );
 
   // ============================================================================
-  // DOWNLOAD FROM SESSION (not from state)
+  // DOWNLOAD FROM SESSION
   // ============================================================================
   const downloadFile = useCallback(async (fileId: string) => {
     const fileMeta = sessionStorageUtils.getFile("cropper", fileId);
@@ -136,12 +159,12 @@ export const useImageCropper = () => {
   }, []);
 
   // ============================================================================
-  // RESET (clear pending, clear state)
+  // RESET
   // ============================================================================
   const reset = useCallback(async () => {
     if (imageUrl) URL.revokeObjectURL(imageUrl);
     if (pendingId) await pendingStorage.delete("cropper", pendingId);
-    
+
     setFile(null);
     setImageUrl(null);
     setError("");
@@ -156,6 +179,8 @@ export const useImageCropper = () => {
     error,
     setImageFile,
     setFromUrl,
+    setFromGoogleDrive,
+    setFromDropbox,
     cropImageFile,
     downloadFile,
     reset,
