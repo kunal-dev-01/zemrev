@@ -168,7 +168,11 @@ async def crop_pdf_endpoint(
     x: int = Form(..., ge=0, description="X coordinate (left)"),
     y: int = Form(..., ge=0, description="Y coordinate (top)"),
     width: int = Form(..., ge=10, description="Crop width"),
-    height: int = Form(..., ge=10, description="Crop height")
+    height: int = Form(..., ge=10, description="Crop height"),
+    page_range: Optional[str] = Form(
+       None,
+       description="Page range like '1-3,5'"
+    )
 ) -> FileResponse:
     """
     Crop all pages of a PDF to specified dimensions.
@@ -178,6 +182,7 @@ async def crop_pdf_endpoint(
         x=x,
         y=y,
         width=width,
-        height=height
+        height=height,
+        page_range=page_range
     )
     return await crop_pdf_handler(file, request)

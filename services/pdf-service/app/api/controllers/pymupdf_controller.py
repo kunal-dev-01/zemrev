@@ -460,7 +460,8 @@ async def crop_pdf_handler(
             request.x,
             request.y,
             request.width,
-            request.height
+            request.height,
+            request.page_range
         )
         
         return FileResponse(

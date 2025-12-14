@@ -137,7 +137,18 @@ class CropPdfRequest(BaseModel):
     x: int = Field(..., ge=0, description="X position")
     y: int = Field(..., ge=0, description="Y position")
     width: int = Field(..., ge=10, description="Crop width")
-    height: int = Field(..., ge=10, description="Crop height")      
+    height: int = Field(..., ge=10, description="Crop height")    
+    page_range: Optional[str] = Field(
+       None,
+       description="Page range like '1-3,5' (optional, default: all)"
+    )
+
+    @field_validator("page_range")
+    @classmethod
+    def validate_page_range(cls, v):
+        if v is None or not v.strip():
+            return None
+        return v.strip()  
 
 
 # ============================================================================
