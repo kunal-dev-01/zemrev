@@ -38,6 +38,8 @@ const ImageWatermark = () => {
     processing,
     error,
     setImageFile,
+    setFromGoogleDrive,
+    setFromDropbox,
     setFromUrl,
     setWatermark,
     applyTextWatermark,
@@ -172,6 +174,8 @@ const ImageWatermark = () => {
           config={config}
           onFilesSelected={handleFilesSelected}
           onUrlUpload={() => setUrlModalOpen(true)}
+          onGooglePick={() => setFromGoogleDrive}
+          onDropboxPick={setFromDropbox}
           currentFileCount={0}
         />
       )}

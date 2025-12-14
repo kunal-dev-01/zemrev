@@ -149,7 +149,6 @@ export const RangeSlider = ({
             boxShadow: `0 2px 10px ${color}66`,
           }}
         >
-          <div className="w-1.5 h-1.5 rounded-full bg-zinc-300" />
         </div>
       </div>
 

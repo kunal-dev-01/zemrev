@@ -25,6 +25,8 @@ const ImageMetadata = () => {
     error,
     metadataData,
     setImageFile,
+    setFromGoogleDrive,
+    setFromDropbox,
     setFromUrl,
     extractImageMetadata,
     reset,
@@ -69,6 +71,8 @@ const ImageMetadata = () => {
           config={config}
           onFilesSelected={handleFilesSelected}
           onUrlUpload={() => setUrlModalOpen(true)}
+          onGooglePick={() => setFromGoogleDrive}
+          onDropboxPick={() => setFromDropbox}
           currentFileCount={0}
         />
       )}

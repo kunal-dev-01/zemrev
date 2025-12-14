@@ -25,6 +25,8 @@ const ImageColorPalette = () => {
     error,
     paletteData,
     setImageFile,
+    setFromGoogleDrive,
+    setFromDropbox,
     setFromUrl,
     extractColorPalette,
     copyColorCode,
@@ -168,6 +170,8 @@ const ImageColorPalette = () => {
           config={config}
           onFilesSelected={handleFilesSelected}
           onUrlUpload={() => setUrlModalOpen(true)}
+          onGooglePick={() => setFromGoogleDrive}
+          onDropboxPick={() => setFromDropbox}
           currentFileCount={0}
         />
       )}

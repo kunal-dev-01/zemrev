@@ -23,6 +23,8 @@ const ImageResizer = () => {
     resizing,
     stats,
     addFiles,
+    addFromGoogleDrive,
+    addFromDropbox,
     addFromUrl,
     removeFile,
     updateFileSettings,
@@ -62,18 +64,27 @@ const ImageResizer = () => {
   // ============================================================================
   const canResize = stats.pending > 0 && !resizing;
   const canAddMore = files.length < config.maxFiles;
+  
+  const defaultWidth = Number(config.defaultSettings.width);
+  const defaultHeight = Number(config.defaultSettings.height);
+  const defaultMode = config.defaultSettings.mode as ResizeMode;
 
   // ============================================================================
   // RENDER
   // ============================================================================
   return (
     <div className="w-full md:mt-[1vw] mt-[1vh]">
-      
       {/* Drag & Drop Zone */}
       <DragDropZone
         config={config}
         onFilesSelected={handleFilesSelected}
         onUrlUpload={() => setUrlModalOpen(true)}
+        onGooglePick={() =>
+          addFromGoogleDrive(defaultWidth, defaultHeight, defaultMode)
+        }
+        onDropboxPick={() =>
+          addFromDropbox(defaultWidth, defaultHeight, defaultMode)
+        }
         currentFileCount={files.length}
         disabled={!canAddMore}
       />
@@ -87,7 +98,6 @@ const ImageResizer = () => {
         >
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
-            
             {/* Status */}
             <div
               className="flex items-center gap-2 px-4 py-1.5 rounded-xl 

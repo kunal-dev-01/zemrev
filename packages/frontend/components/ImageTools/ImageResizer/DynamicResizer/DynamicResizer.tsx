@@ -65,6 +65,8 @@ const DynamicResizer = ({ slug }: DynamicResizerProps) => {
     resizing,
     stats,
     addFiles,
+    addFromGoogleDrive,
+    addFromDropbox,
     addFromUrl,
     removeFile,
     updateFileSettings,
@@ -98,6 +100,10 @@ const DynamicResizer = ({ slug }: DynamicResizerProps) => {
   const canAddMore = files.length < config.maxFiles;
   const displayText = getDisplayLabel(slug, dimensions);
 
+  const defaultWidth = Number(config.defaultSettings.width);
+  const defaultHeight = Number(config.defaultSettings.height);
+  const defaultMode = config.defaultSettings.mode as ResizeMode;
+
   // ============================================================================
   // RENDER
   // ============================================================================
@@ -110,6 +116,12 @@ const DynamicResizer = ({ slug }: DynamicResizerProps) => {
         config={config}
         onFilesSelected={handleFilesSelected}
         onUrlUpload={() => setUrlModalOpen(true)}
+        onGooglePick={() =>
+          addFromGoogleDrive(defaultWidth, defaultHeight, defaultMode)
+        }
+        onDropboxPick={() =>
+          addFromDropbox(defaultWidth, defaultHeight, defaultMode)
+        }
         currentFileCount={files.length}
         disabled={!canAddMore}
       />

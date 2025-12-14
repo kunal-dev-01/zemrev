@@ -58,6 +58,8 @@ const DynamicOptimizer = ({ slug }: DynamicOptimizerProps) => {
     optimizing,
     stats,
     addFiles,
+    addFromGoogleDrive,
+    addFromDropbox,
     addFromUrl,
     removeFile,
     updateFileSettings,
@@ -130,6 +132,8 @@ const DynamicOptimizer = ({ slug }: DynamicOptimizerProps) => {
         config={config}
         onFilesSelected={handleFilesSelected}
         onUrlUpload={() => setUrlModalOpen(true)}
+        onGooglePick={() => addFromGoogleDrive(config.defaultSettings.stripExif as boolean, config.defaultSettings.stripGps as boolean, config.defaultSettings.fixOrientation as boolean)}
+        onDropboxPick={() => addFromDropbox(config.defaultSettings.stripExif as boolean, config.defaultSettings.stripGps as boolean, config.defaultSettings.fixOrientation as boolean)}
         currentFileCount={files.length}
         disabled={!canAddMore}
       />
