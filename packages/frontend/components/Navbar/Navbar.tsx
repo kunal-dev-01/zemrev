@@ -59,7 +59,7 @@ const Navbar: FC = memo(() => {
         <button
           aria-label="Nav Sidebar"
           onClick={openSidebar}
-          className="text-zinc-700 dark:text-zinc-300 w-8 h-8 flex items-center justify-center"
+          className="text-zinc-700 dark:text-zinc-300 w-8 h-8 flex items-center justify-center cursor-pointer"
         >
           <SidebarOpenSvg />
         </button>

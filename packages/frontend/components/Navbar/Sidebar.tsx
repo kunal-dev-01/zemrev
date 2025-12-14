@@ -85,7 +85,7 @@ const Header: FC<{ onToggle: () => void }> = memo(({ onToggle }) => (
     <button
       aria-label="Toggle sidebar"
       onClick={onToggle}
-      className="rounded-lg text-zinc-700 dark:text-zinc-300 w-8 md:w-9"
+      className="rounded-lg text-zinc-700 dark:text-zinc-300 w-8 md:w-9 cursor-pointer"
     >
       <SidebarCloseSvg />
     </button>
