@@ -60,7 +60,7 @@ export const PDF_TOOL_CONFIGS: Record<string, PdfToolConfig> = {
     dropzoneColor: "#F0FDFA",
     dropzoneColorDark: "#0D94881A",
     defaultSettings: {
-      format: "png",
+      format: "jpeg",
       dpi: 150,
     },
   },

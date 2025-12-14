@@ -32,7 +32,7 @@ export const usePdfToImages = () => {
             name: file.name,
             size: file.size,
             type: file.type,
-            settings: { format: "png", dpi: 150 },
+            settings: { format: "jpeg", dpi: 150 },
             status: "pending" as const,
           }))
         );
@@ -55,7 +55,7 @@ export const usePdfToImages = () => {
           name: file.name,
           size: file.size,
           type: file.type,
-          settings: { format: "png", dpi: 150 },
+          settings: { format: "jpeg", dpi: 150 },
           status: "pending",
         },
       ]);
@@ -77,7 +77,7 @@ export const usePdfToImages = () => {
         name: file.name,
         size: file.size,
         type: file.type,
-        settings: { format: "png", dpi: 150 },
+        settings: { format: "jpeg", dpi: 150 },
         status: "pending",
       },
     ]);
@@ -98,7 +98,7 @@ export const usePdfToImages = () => {
         name: file.name,
         size: file.size,
         type: file.type,
-        settings: { format: "png", dpi: 150 },
+        settings: { format: "jpeg", dpi: 150 },
         status: "pending",
       },
     ]);
