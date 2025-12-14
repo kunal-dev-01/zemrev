@@ -290,7 +290,7 @@ const PdfOCR = () => {
               onClick={clearAll}
               className="flex items-center gap-2 rounded-xl bg-red-50 px-3 py-1.5 font-medium text-red-600 transition-all hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30"
             >
-              <TrashSvg />
+              <TrashSvg className="w-5 h-5" />
               <span className="hidden md:block">Clear All</span>
             </button>
           </div>
