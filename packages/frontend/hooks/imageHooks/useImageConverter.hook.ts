@@ -1,4 +1,4 @@
-// hooks/imageHooks/useImageConverter.hook.ts (NO DUPLICATES IN SESSION)
+// hooks/imageHooks/useImageConverter.hook.ts 
 
 import { useState, useCallback, useEffect } from "react";
 import { useConvertImageMutation } from "@/services/imageService/image.api";
@@ -6,12 +6,19 @@ import { sessionStorageUtils } from "@/utils/sessionStorage.utils";
 import { pendingStorage } from "@/utils/pendingStorage.utils";
 import { extractApiErrorMessage } from "@/utils/errorExtract.utils";
 import { getOutputFilename } from "@/config/tool.config";
-import type { ProcessedFile, OutputFormat, FileSettings } from "@/services/imageService/types";
+import type {
+  ProcessedFile,
+  OutputFormat,
+  FileSettings,
+} from "@/services/imageService/types";
+import { useCloudPicker } from "../appHooks/usePdfCloudPicker.hook";
 
 export const useImageConverter = () => {
   const [files, setFiles] = useState<ProcessedFile[]>([]);
   const [converting, setConverting] = useState(false);
+
   const [convertImage] = useConvertImageMutation();
+  const { pickFromGoogleDrive, pickFromDropbox } = useCloudPicker();
 
   // ============================================================================
   // RESTORE PENDING FILES ON MOUNT
@@ -19,7 +26,7 @@ export const useImageConverter = () => {
   useEffect(() => {
     const restorePending = async () => {
       const restored = await pendingStorage.restore("converter");
-      
+
       if (restored.length > 0) {
         const processed: ProcessedFile[] = restored.map(({ id, file }) => ({
           id,
@@ -43,10 +50,14 @@ export const useImageConverter = () => {
   }, []);
 
   // ============================================================================
-  // ADD FILES (with pending storage)
+  // ADD FILES (LOCAL)
   // ============================================================================
   const addFiles = useCallback(
-    async (newFiles: File[], defaultFormat: OutputFormat, defaultQuality: number) => {
+    async (
+      newFiles: File[],
+      defaultFormat: OutputFormat,
+      defaultQuality: number
+    ) => {
       const processed: ProcessedFile[] = [];
 
       for (const file of newFiles) {
@@ -73,10 +84,70 @@ export const useImageConverter = () => {
   );
 
   // ============================================================================
+  // ADD FROM GOOGLE DRIVE
+  // ============================================================================
+  const addFromGoogleDrive = useCallback(
+    async (defaultFormat: OutputFormat, defaultQuality: number) => {
+      const file = await pickFromGoogleDrive();
+      const id = await pendingStorage.save("converter", file);
+
+      setFiles((prev) => [
+        ...prev,
+        {
+          id,
+          originalFile: file,
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          settings: {
+            format: defaultFormat,
+            quality: defaultQuality,
+            stripMetadata: true,
+          },
+          status: "pending",
+        },
+      ]);
+    },
+    [pickFromGoogleDrive]
+  );
+
+  // ============================================================================
+  // ADD FROM DROPBOX
+  // ============================================================================
+  const addFromDropbox = useCallback(
+    async (defaultFormat: OutputFormat, defaultQuality: number) => {
+      const file = await pickFromDropbox();
+      const id = await pendingStorage.save("converter", file);
+
+      setFiles((prev) => [
+        ...prev,
+        {
+          id,
+          originalFile: file,
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          settings: {
+            format: defaultFormat,
+            quality: defaultQuality,
+            stripMetadata: true,
+          },
+          status: "pending",
+        },
+      ]);
+    },
+    [pickFromDropbox]
+  );
+
+  // ============================================================================
   // ADD FROM URL
   // ============================================================================
   const addFromUrl = useCallback(
-    async (url: string, defaultFormat: OutputFormat, defaultQuality: number) => {
+    async (
+      url: string,
+      defaultFormat: OutputFormat,
+      defaultQuality: number
+    ) => {
       try {
         const response = await fetch(url);
         const blob = await response.blob();
@@ -84,7 +155,7 @@ export const useImageConverter = () => {
         const file = new File([blob], filename, { type: blob.type });
 
         await addFiles([file], defaultFormat, defaultQuality);
-      } catch (error) {
+      } catch {
         throw new Error("Failed to download image from URL");
       }
     },
@@ -102,20 +173,27 @@ export const useImageConverter = () => {
   // ============================================================================
   // UPDATE SETTINGS
   // ============================================================================
-  const updateFileSettings = useCallback((id: string, settings: FileSettings) => {
-    setFiles((prev) =>
-      prev.map((f) => (f.id === id ? { ...f, settings: { ...f.settings, ...settings } } : f))
-    );
-  }, []);
+  const updateFileSettings = useCallback(
+    (id: string, settings: FileSettings) => {
+      setFiles((prev) =>
+        prev.map((f) =>
+          f.id === id ? { ...f, settings: { ...f.settings, ...settings } } : f
+        )
+      );
+    },
+    []
+  );
 
   // ============================================================================
-  // CONVERT SINGLE FILE (Saves to session storage, removes from pending)
+  // CONVERT SINGLE FILE (NO DUPLICATES)
   // ============================================================================
   const convertSingleFile = useCallback(
     async (file: ProcessedFile) => {
       try {
         setFiles((prev) =>
-          prev.map((f) => (f.id === file.id ? { ...f, status: "processing" } : f))
+          prev.map((f) =>
+            f.id === file.id ? { ...f, status: "processing" } : f
+          )
         );
 
         const blob = await convertImage({
@@ -127,15 +205,15 @@ export const useImageConverter = () => {
           },
         }).unwrap();
 
-        const outputName = getOutputFilename(file.name, file.settings.format as OutputFormat);
+        const outputName = getOutputFilename(
+          file.name,
+          file.settings.format as OutputFormat
+        );
 
-        // Save to session storage (ONLY ONCE)
+        // Save ONLY once to session storage
         await sessionStorageUtils.saveFile(blob, outputName, "converter");
 
-        // Delete from pending storage
         await pendingStorage.delete("converter", file.id);
-
-        // Remove from state (completed files only in SessionFilesDisplay)
         setFiles((prev) => prev.filter((f) => f.id !== file.id));
 
         return { success: true, blob, name: outputName };
@@ -167,7 +245,7 @@ export const useImageConverter = () => {
   }, [files, convertSingleFile]);
 
   // ============================================================================
-  // DOWNLOAD FROM SESSION (not from state)
+  // DOWNLOAD FROM SESSION
   // ============================================================================
   const downloadFile = useCallback(async (fileId: string) => {
     const fileMeta = sessionStorageUtils.getFile("converter", fileId);
@@ -187,7 +265,7 @@ export const useImageConverter = () => {
   }, []);
 
   // ============================================================================
-  // DOWNLOAD ALL FROM SESSION
+  // DOWNLOAD ALL
   // ============================================================================
   const downloadAll = useCallback(async () => {
     const sessionFiles = sessionStorageUtils.getFiles("converter");
@@ -198,16 +276,13 @@ export const useImageConverter = () => {
   }, [downloadFile]);
 
   // ============================================================================
-  // CLEAR PENDING FILES
+  // CLEAR / RESET
   // ============================================================================
   const clearAll = useCallback(async () => {
     await pendingStorage.clearTool("converter");
     setFiles([]);
   }, []);
 
-  // ============================================================================
-  // RESET
-  // ============================================================================
   const reset = useCallback(async () => {
     await pendingStorage.clearTool("converter");
     setFiles([]);
@@ -229,6 +304,8 @@ export const useImageConverter = () => {
     converting,
     stats,
     addFiles,
+    addFromGoogleDrive,
+    addFromDropbox,
     addFromUrl,
     removeFile,
     updateFileSettings,

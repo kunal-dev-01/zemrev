@@ -29,6 +29,8 @@ const DynamicCompressor = ({ format }: DynamicCompressorProps) => {
     compressing,
     stats,
     addFiles,
+    addFromGoogleDrive,
+    addFromDropbox,
     addFromUrl,
     removeFile,
     updateFileSettings,
@@ -91,6 +93,8 @@ const DynamicCompressor = ({ format }: DynamicCompressorProps) => {
         config={config}
         onFilesSelected={handleFilesSelected}
         onUrlUpload={() => setUrlModalOpen(true)}
+        onGooglePick={ () => addFromGoogleDrive(config.defaultSettings.quality as number)}
+        onDropboxPick={ () => addFromDropbox(config.defaultSettings.quality as number)}
         currentFileCount={files.length}
         disabled={!canAddMore}
       />

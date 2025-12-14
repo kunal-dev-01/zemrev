@@ -26,6 +26,8 @@ const ImageConverter = () => {
     converting,
     stats,
     addFiles,
+    addFromGoogleDrive,
+    addFromDropbox,
     addFromUrl,
     removeFile,
     updateFileSettings,
@@ -94,6 +96,8 @@ const ImageConverter = () => {
         config={config}
         onFilesSelected={handleFilesSelected}
         onUrlUpload={() => setUrlModalOpen(true)}
+        onGooglePick={() => addFromGoogleDrive(config.defaultSettings.format as OutputFormat , config.defaultSettings.quality as number)}
+        onDropboxPick={() => addFromDropbox(config.defaultSettings.format as OutputFormat, config.defaultSettings.quality as number)}
         currentFileCount={files.length}
         disabled={!canAddMore}
       />

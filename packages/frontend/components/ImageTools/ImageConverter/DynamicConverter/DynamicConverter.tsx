@@ -35,6 +35,8 @@ const ConverterDynamicTool = ({
     converting,
     stats,
     addFiles,
+    addFromGoogleDrive,
+    addFromDropbox,
     addFromUrl,
     removeFile,
     updateFileSettings,
@@ -115,6 +117,8 @@ const ConverterDynamicTool = ({
         config={config}
         onFilesSelected={handleFilesSelected}
         onUrlUpload={() => setUrlModalOpen(true)}
+        onGooglePick={() => addFromGoogleDrive(config.defaultSettings.format as OutputFormat , config.defaultSettings.quality as number)}
+        onDropboxPick={() => addFromDropbox(config.defaultSettings.format as OutputFormat, config.defaultSettings.quality as number)}
         currentFileCount={files.length}
         disabled={!canAddMore}
       />
