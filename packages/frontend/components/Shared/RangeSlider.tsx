@@ -76,13 +76,13 @@ export const RangeSlider = ({
               {icon}
             </div>
           )}
-          <label className="text-sm font-medium text-zinc-300 group-hover:text-zinc-100 transition-colors">
+          <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
             {label}
           </label>
         </div>
 
         {/* Value */}
-        <div className="flex items-center gap-1 px-3 py-1 rounded-xl bg-zinc-900 border border-zinc-800 shadow-inner min-w-14 justify-center">
+        <div className="flex items-center gap-1 px-3 py-1 rounded-xl dark:bg-zinc-900 bg-zinc-100 border border-zinc-200 dark:border-zinc-800 shadow-inner min-w-14 justify-center">
           <span
             className="text-sm font-bold tabular-nums tracking-wide"
             style={{ color }}
@@ -96,7 +96,7 @@ export const RangeSlider = ({
       {/* Slider */}
       <div className="relative w-full h-10 flex items-center">
         {/* Track */}
-        <div className="absolute w-full h-3 bg-zinc-800 rounded-full overflow-hidden border border-zinc-700/50 shadow-inner">
+        <div className="absolute w-full h-3 dark:bg-zinc-800 bg-zinc-200 rounded-full overflow-hidden border dark:border-zinc-700/50 border-zinc-50 shadow-inner">
           <div className="absolute inset-0 flex justify-between px-2 opacity-20">
             {Array.from({ length: 11 }).map((_, i) => (
               <div key={i} className="w-px h-full bg-zinc-500" />
@@ -168,7 +168,7 @@ export const RangeSlider = ({
                   ${
                     isActive
                       ? "border-none"
-                      : "text-zinc-500 bg-zinc-900/50 border-zinc-800 hover:bg-zinc-800 hover:text-zinc-300 hover:border-zinc-700"
+                      : "text-zinc-500 bg-zinc-100 dark:bg-zinc-900/50 dark:border-zinc-800 border-zinc-200 dark:hover:bg-zinc-800 dark:hover:text-zinc-300 hover:text-zinc-700 hover:bg-zinc-200 hover:border-zinc-300 cursor-pointer dark:hover:border-zinc-700"
                   }
                 `}
                 style={

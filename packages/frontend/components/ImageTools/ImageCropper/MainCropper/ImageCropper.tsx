@@ -48,7 +48,6 @@ const ZOOM_PRESETS = [
 
 const ImageCropper = () => {
   const config = TOOL_CONFIGS.cropper;
-
   const [urlModalOpen, setUrlModalOpen] = useState(false);
   const [crop, setCrop] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(100);
@@ -121,9 +120,9 @@ const ImageCropper = () => {
       )}
 
       {file && imageUrl && (
-        <div className="border border-zinc-200 dark:border-zinc-800 rounded-2xl bg-white/50 dark:bg-zinc-900/40 p-4 md:p-6 mt-[1vh] md:mt-[1vw]">
+        <div className="border border-zinc-200 dark:border-zinc-800 rounded-2xl bg-white/50 dark:bg-zinc-900/40 p-3 md:p-6 mt-[1vh] md:mt-[1vw]">
           {/* Header */}
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-4">
             <div className="flex-1 min-w-0">
               <h3 className="md:text-lg text-md font-semibold text-zinc-800 dark:text-zinc-200 truncate">
                 {file.name}
@@ -152,7 +151,7 @@ const ImageCropper = () => {
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Cropper Canvas */}
             <div className="flex-1 lg:w-[60%]">
-              <div className="relative w-full h-[50vh] lg:h-[60vh] bg-zinc-900 rounded-xl overflow-hidden shadow-lg">
+              <div className="relative w-full h-[50vh] lg:h-[60vh] dark:bg-zinc-900 bg-zinc-100 rounded-xl overflow-hidden">
                 <Cropper
                   image={imageUrl}
                   crop={crop}
