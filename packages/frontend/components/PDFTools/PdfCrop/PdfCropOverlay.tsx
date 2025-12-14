@@ -1,6 +1,6 @@
 // ============================================================================
-// FILE 1: src/components/PDFTools/PdfCrop/PdfCropOverlay.tsx
-// Interactive draggable & resizable crop overlay
+// FILE: src/components/PDFTools/PdfCrop/PdfCropOverlay.tsx
+// Interactive draggable & resizable crop overlay with TOUCH SUPPORT
 // ============================================================================
 
 import { useState, useRef, useEffect, useCallback } from "react";
@@ -22,16 +22,7 @@ interface PdfCropOverlayProps {
 }
 
 type DragHandle =
-  | "tl"
-  | "tr"
-  | "bl"
-  | "br"
-  | "t"
-  | "r"
-  | "b"
-  | "l"
-  | "move"
-  | null;
+  | "tl" | "tr" | "bl" | "br" | "t" | "r" | "b" | "l" | "move" | null;
 
 export const PdfCropOverlay = ({
   containerWidth,
@@ -45,9 +36,11 @@ export const PdfCropOverlay = ({
 }: PdfCropOverlayProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [dragHandle, setDragHandle] = useState<DragHandle>(null);
+  
+  // Ref to store start positions
   const dragStartRef = useRef({
-    x: 0,
-    y: 0,
+    clientX: 0,
+    clientY: 0,
     cropX: 0,
     cropY: 0,
     width: 0,
@@ -55,133 +48,113 @@ export const PdfCropOverlay = ({
   });
 
   // ============================================================================
-  // DRAG START
+  // COMMON LOGIC (Shared for Mouse & Touch)
   // ============================================================================
-  const handleMouseDown = useCallback(
-    (e: React.MouseEvent, handle: DragHandle) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setIsDragging(true);
-      setDragHandle(handle);
-      dragStartRef.current = {
-        x: e.clientX,
-        y: e.clientY,
-        cropX,
-        cropY,
-        width: cropWidth,
-        height: cropHeight,
-      };
-    },
-    [cropX, cropY, cropWidth, cropHeight]
-  );
+  const startDrag = (clientX: number, clientY: number, handle: DragHandle) => {
+    setIsDragging(true);
+    setDragHandle(handle);
+    dragStartRef.current = {
+      clientX,
+      clientY,
+      cropX,
+      cropY,
+      width: cropWidth,
+      height: cropHeight,
+    };
+  };
 
-  // ============================================================================
-  // DRAG MOVE
-  // ============================================================================
-  const handleMouseMove = useCallback(
-    (e: MouseEvent) => {
-      if (!isDragging || !dragHandle) return;
+  const processMove = (clientX: number, clientY: number) => {
+    if (!isDragging || !dragHandle) return;
 
-      const deltaX = (e.clientX - dragStartRef.current.x) / scale;
-      const deltaY = (e.clientY - dragStartRef.current.y) / scale;
+    const deltaX = (clientX - dragStartRef.current.clientX) / scale;
+    const deltaY = (clientY - dragStartRef.current.clientY) / scale;
 
-      const start = dragStartRef.current;
-      let newX = start.cropX;
-      let newY = start.cropY;
-      let newWidth = start.width;
-      let newHeight = start.height;
+    const start = dragStartRef.current;
+    let newX = start.cropX;
+    let newY = start.cropY;
+    let newWidth = start.width;
+    let newHeight = start.height;
 
-      const minSize = 50;
+    const minSize = 30; // Min size in PDF points
 
-      // Move entire crop area
-      if (dragHandle === "move") {
-        newX = start.cropX + deltaX;
-        newY = start.cropY + deltaY;
-      }
-      // Top-left corner
-      else if (dragHandle === "tl") {
-        const maxDx = start.width - minSize;
-        const maxDy = start.height - minSize;
-        const dx = Math.min(deltaX, maxDx);
-        const dy = Math.min(deltaY, maxDy);
-        newX = start.cropX + dx;
-        newY = start.cropY + dy;
-        newWidth = start.width - dx;
-        newHeight = start.height - dy;
-      }
-      // Top-right corner
-      else if (dragHandle === "tr") {
-        const maxDy = start.height - minSize;
-        const dy = Math.min(deltaY, maxDy);
-        newY = start.cropY + dy;
-        newWidth = start.width + deltaX;
-        newHeight = start.height - dy;
-      }
-      // Bottom-left corner
-      else if (dragHandle === "bl") {
-        const maxDx = start.width - minSize;
-        const dx = Math.min(deltaX, maxDx);
-        newX = start.cropX + dx;
-        newWidth = start.width - dx;
-        newHeight = start.height + deltaY;
-      }
-      // Bottom-right corner
-      else if (dragHandle === "br") {
-        newWidth = start.width + deltaX;
-        newHeight = start.height + deltaY;
-      }
-      // Top edge
-      else if (dragHandle === "t") {
-        const maxDy = start.height - minSize;
-        const dy = Math.min(deltaY, maxDy);
-        newY = start.cropY + dy;
-        newHeight = start.height - dy;
-      }
-      // Right edge
-      else if (dragHandle === "r") {
-        newWidth = start.width + deltaX;
-      }
-      // Bottom edge
-      else if (dragHandle === "b") {
-        newHeight = start.height + deltaY;
-      }
-      // Left edge
-      else if (dragHandle === "l") {
-        const maxDx = start.width - minSize;
-        const dx = Math.min(deltaX, maxDx);
+    // Logic to update coordinates based on handle
+    if (dragHandle === "move") {
+      newX = start.cropX + deltaX;
+      newY = start.cropY + deltaY;
+    } else {
+      if (dragHandle.includes("l")) {
+        const dx = Math.min(deltaX, start.width - minSize);
         newX = start.cropX + dx;
         newWidth = start.width - dx;
       }
-
-      // Constrain to container bounds
-      newX = Math.max(0, newX);
-      newY = Math.max(0, newY);
-      newWidth = Math.max(minSize, newWidth);
-      newHeight = Math.max(minSize, newHeight);
-
-      // Don't exceed container
-      if (newX + newWidth > containerWidth) {
-        newWidth = containerWidth - newX;
+      if (dragHandle.includes("r")) {
+        newWidth = Math.max(minSize, start.width + deltaX);
       }
-      if (newY + newHeight > containerHeight) {
-        newHeight = containerHeight - newY;
+      if (dragHandle.includes("t")) {
+        const dy = Math.min(deltaY, start.height - minSize);
+        newY = start.cropY + dy;
+        newHeight = start.height - dy;
       }
+      if (dragHandle.includes("b")) {
+        newHeight = Math.max(minSize, start.height + deltaY);
+      }
+    }
 
-      // Update crop
-      onCropChange({
-        x: Math.round(newX),
-        y: Math.round(newY),
-        width: Math.round(newWidth),
-        height: Math.round(newHeight),
-      });
-    },
-    [isDragging, dragHandle, containerWidth, containerHeight, scale, onCropChange]
-  );
+    // Boundary Constraints
+    if (newX < 0) newX = 0;
+    if (newY < 0) newY = 0;
+    if (newX + newWidth > containerWidth) {
+      if (dragHandle === "move") newX = containerWidth - newWidth;
+      else newWidth = containerWidth - newX;
+    }
+    if (newY + newHeight > containerHeight) {
+      if (dragHandle === "move") newY = containerHeight - newHeight;
+      else newHeight = containerHeight - newY;
+    }
+
+    onCropChange({
+      x: Math.round(newX),
+      y: Math.round(newY),
+      width: Math.round(newWidth),
+      height: Math.round(newHeight),
+    });
+  };
 
   // ============================================================================
-  // DRAG END
+  // MOUSE HANDLERS
   // ============================================================================
+  const handleMouseDown = (e: React.MouseEvent, handle: DragHandle) => {
+    e.preventDefault();
+    e.stopPropagation();
+    startDrag(e.clientX, e.clientY, handle);
+  };
+
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    processMove(e.clientX, e.clientY);
+  }, [isDragging, dragHandle, scale, containerWidth, containerHeight]); // Added deps
+
   const handleMouseUp = useCallback(() => {
+    setIsDragging(false);
+    setDragHandle(null);
+  }, []);
+
+  // ============================================================================
+  // TOUCH HANDLERS (Mobile Fix)
+  // ============================================================================
+  const handleTouchStart = (e: React.TouchEvent, handle: DragHandle) => {
+    // Stop propagation to prevent scrolling while dragging
+    e.stopPropagation(); 
+    const touch = e.touches[0];
+    startDrag(touch.clientX, touch.clientY, handle);
+  };
+
+  const handleTouchMove = useCallback((e: TouchEvent) => {
+    if(isDragging) e.preventDefault(); // Prevent scrolling page while cropping
+    const touch = e.touches[0];
+    processMove(touch.clientX, touch.clientY);
+  }, [isDragging, dragHandle, scale, containerWidth, containerHeight]);
+
+  const handleTouchEnd = useCallback(() => {
     setIsDragging(false);
     setDragHandle(null);
   }, []);
@@ -191,137 +164,94 @@ export const PdfCropOverlay = ({
   // ============================================================================
   useEffect(() => {
     if (isDragging) {
+      // Mouse listeners
       document.addEventListener("mousemove", handleMouseMove);
       document.addEventListener("mouseup", handleMouseUp);
+      // Touch listeners (Global)
+      document.addEventListener("touchmove", handleTouchMove, { passive: false });
+      document.addEventListener("touchend", handleTouchEnd);
+      
       return () => {
         document.removeEventListener("mousemove", handleMouseMove);
         document.removeEventListener("mouseup", handleMouseUp);
+        document.removeEventListener("touchmove", handleTouchMove);
+        document.removeEventListener("touchend", handleTouchEnd);
       };
     }
-  }, [isDragging, handleMouseMove, handleMouseUp]);
+  }, [isDragging, handleMouseMove, handleMouseUp, handleTouchMove, handleTouchEnd]);
 
   // ============================================================================
-  // SCALED POSITIONS
+  // STYLES
   // ============================================================================
   const scaledX = cropX * scale;
   const scaledY = cropY * scale;
   const scaledWidth = cropWidth * scale;
   const scaledHeight = cropHeight * scale;
+  const handleSize = 24; // Bigger handles for mobile touch
 
-  const handleSize = 14;
-  const edgeThickness = 10;
+  // Common handle style
+  const handleStyle = (cursor: string): React.CSSProperties => ({
+    position: "absolute",
+    width: handleSize,
+    height: handleSize,
+    backgroundColor: "#4D7C0F",
+    border: "2px solid white",
+    borderRadius: "50%",
+    boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+    zIndex: 20,
+    cursor,
+    touchAction: "none"
+  });
 
-  // ============================================================================
-  // RENDER
-  // ============================================================================
   return (
-    <div
-      className="absolute inset-0 pointer-events-none select-none"
-      style={{ cursor: isDragging ? "grabbing" : "default" }}
-    >
-      {/* Dark overlay */}
-      <div className="absolute inset-0 bg-black/50 pointer-events-none" />
+    <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 10 }}>
+      <div className="absolute inset-0 bg-black/40 pointer-events-none" />
 
-      {/* Crop area */}
       <div
-        className="absolute pointer-events-auto cursor-move transition-shadow hover:shadow-2xl"
+        className="absolute pointer-events-auto"
         style={{
           left: scaledX,
           top: scaledY,
           width: scaledWidth,
           height: scaledHeight,
-          border: "3px solid #3b82f6",
+          border: "2px solid #4D7C0F",
           boxShadow: "0 0 0 9999px rgba(0,0,0,0.5)",
+          cursor: "move",
+          touchAction: "none"
         }}
         onMouseDown={(e) => handleMouseDown(e, "move")}
+        onTouchStart={(e) => handleTouchStart(e, "move")}
       >
-        {/* Corner handles */}
-        <div
-          className="absolute bg-blue-500 rounded-full cursor-nwse-resize hover:scale-125 transition-transform shadow-lg border-2 border-white"
-          style={{
-            left: -handleSize / 2,
-            top: -handleSize / 2,
-            width: handleSize,
-            height: handleSize,
-          }}
-          onMouseDown={(e) => handleMouseDown(e, "tl")}
-        />
-        <div
-          className="absolute bg-blue-500 rounded-full cursor-nesw-resize hover:scale-125 transition-transform shadow-lg border-2 border-white"
-          style={{
-            right: -handleSize / 2,
-            top: -handleSize / 2,
-            width: handleSize,
-            height: handleSize,
-          }}
-          onMouseDown={(e) => handleMouseDown(e, "tr")}
-        />
-        <div
-          className="absolute bg-blue-500 rounded-full cursor-nesw-resize hover:scale-125 transition-transform shadow-lg border-2 border-white"
-          style={{
-            left: -handleSize / 2,
-            bottom: -handleSize / 2,
-            width: handleSize,
-            height: handleSize,
-          }}
-          onMouseDown={(e) => handleMouseDown(e, "bl")}
-        />
-        <div
-          className="absolute bg-blue-500 rounded-full cursor-nwse-resize hover:scale-125 transition-transform shadow-lg border-2 border-white"
-          style={{
-            right: -handleSize / 2,
-            bottom: -handleSize / 2,
-            width: handleSize,
-            height: handleSize,
-          }}
-          onMouseDown={(e) => handleMouseDown(e, "br")}
-        />
+        {/* Corners */}
+        <div style={{ ...handleStyle("nwse-resize"), left: -12, top: -12 }} 
+             onMouseDown={(e) => handleMouseDown(e, "tl")} 
+             onTouchStart={(e) => handleTouchStart(e, "tl")} />
+        
+        <div style={{ ...handleStyle("nesw-resize"), right: -12, top: -12 }} 
+             onMouseDown={(e) => handleMouseDown(e, "tr")} 
+             onTouchStart={(e) => handleTouchStart(e, "tr")} />
+        
+        <div style={{ ...handleStyle("nesw-resize"), left: -12, bottom: -12 }} 
+             onMouseDown={(e) => handleMouseDown(e, "bl")} 
+             onTouchStart={(e) => handleTouchStart(e, "bl")} />
+        
+        <div style={{ ...handleStyle("nwse-resize"), right: -12, bottom: -12 }} 
+             onMouseDown={(e) => handleMouseDown(e, "br")} 
+             onTouchStart={(e) => handleTouchStart(e, "br")} />
 
-        {/* Edge handles */}
-        <div
-          className="absolute cursor-ns-resize"
-          style={{
-            left: handleSize,
-            right: handleSize,
-            top: -edgeThickness / 2,
-            height: edgeThickness,
-          }}
-          onMouseDown={(e) => handleMouseDown(e, "t")}
-        />
-        <div
-          className="absolute cursor-ew-resize"
-          style={{
-            right: -edgeThickness / 2,
-            top: handleSize,
-            bottom: handleSize,
-            width: edgeThickness,
-          }}
-          onMouseDown={(e) => handleMouseDown(e, "r")}
-        />
-        <div
-          className="absolute cursor-ns-resize"
-          style={{
-            left: handleSize,
-            right: handleSize,
-            bottom: -edgeThickness / 2,
-            height: edgeThickness,
-          }}
-          onMouseDown={(e) => handleMouseDown(e, "b")}
-        />
-        <div
-          className="absolute cursor-ew-resize"
-          style={{
-            left: -edgeThickness / 2,
-            top: handleSize,
-            bottom: handleSize,
-            width: edgeThickness,
-          }}
-          onMouseDown={(e) => handleMouseDown(e, "l")}
-        />
+        {/* Edges (Invisible clickable areas for resize) */}
+        <div className="absolute top-0 inset-x-4 h-4 -mt-2 cursor-ns-resize"
+             onMouseDown={(e) => handleMouseDown(e, "t")} onTouchStart={(e) => handleTouchStart(e, "t")} />
+        <div className="absolute bottom-0 inset-x-4 h-4 -mb-2 cursor-ns-resize"
+             onMouseDown={(e) => handleMouseDown(e, "b")} onTouchStart={(e) => handleTouchStart(e, "b")} />
+        <div className="absolute left-0 inset-y-4 w-4 -ml-2 cursor-ew-resize"
+             onMouseDown={(e) => handleMouseDown(e, "l")} onTouchStart={(e) => handleTouchStart(e, "l")} />
+        <div className="absolute right-0 inset-y-4 w-4 -mr-2 cursor-ew-resize"
+             onMouseDown={(e) => handleMouseDown(e, "r")} onTouchStart={(e) => handleTouchStart(e, "r")} />
 
-        {/* Dimension label */}
-        <div className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 px-3 py-1.5 bg-blue-500 text-white text-xs font-semibold rounded-lg shadow-lg whitespace-nowrap pointer-events-none">
-          {cropWidth} x {cropHeight} pts
+        {/* Size Label */}
+        <div className="absolute -top-8 left-0 bg-[#4D7C0F] text-white text-[10px] px-2 py-0.5 rounded shadow whitespace-nowrap">
+          {Math.round(cropWidth)} x {Math.round(cropHeight)}
         </div>
       </div>
     </div>

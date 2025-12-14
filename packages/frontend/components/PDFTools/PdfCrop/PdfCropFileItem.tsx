@@ -1,10 +1,10 @@
 // ============================================================================
 // FILE: src/components/PDFTools/PdfCrop/PdfCropFileItem.tsx
-// Individual file card with toggle + PDF crop viewer (always visible)
+// Fixed: Smooth Toggle Animation + Proper Props
 // ============================================================================
 
 import { useState, useEffect } from "react";
-import { PdfCropViewer } from "./PdfCropPreview";
+import { PdfCropViewer } from "./PdfCropViewer";
 import { ToggleSwitch } from "@/components/Shared/ToggleSwitch";
 import { CancelSvg } from "@/components/Svg/CommonSvg";
 import { PDFToImageSVg } from "@/components/Svg/PdfSvg";
@@ -88,12 +88,12 @@ export const PdfCropFileItem = ({
   // RENDER
   // ============================================================================
   return (
-    <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-2xl overflow-hidden transition-all duration-200 shadow-sm hover:shadow-md">
+    <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-2xl overflow-hidden transition-all duration-200">
       {/* File header */}
       <div className="flex items-center gap-3 p-4 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/40">
         {/* PDF icon */}
         <div
-          className="p-3 rounded-xl shrink-0 shadow-sm"
+          className="p-3 rounded-xl shrink-0"
           style={{
             backgroundColor: isDark
               ? config.dropzoneColorDark
@@ -125,7 +125,7 @@ export const PdfCropFileItem = ({
         {/* Remove button */}
         <button
           onClick={() => removeFile(file.id)}
-          className="p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:border-red-200 dark:hover:border-red-800 hover:text-red-600 dark:hover:text-red-400 transition-all"
+          className="px-3 py-1.5 rounded-xl border dark:border-zinc-700 border-zinc-200 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all duration-200 cursor-pointer"
           aria-label="Remove file"
         >
           <CancelSvg className="w-5 h-5" />
@@ -133,9 +133,9 @@ export const PdfCropFileItem = ({
       </div>
 
       {/* Crop settings + viewer */}
-      <div className="p-4 space-y-4">
+      <div className="p-3 space-y-2">
         {/* Page range toggle */}
-        <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-xl p-3 border border-zinc-200 dark:border-zinc-700">
+        <div className="bg-transparent rounded-xl p-3 border border-zinc-200 dark:border-zinc-800 transition-all duration-300">
           <ToggleSwitch
             checked={cropAllPages}
             onChange={handlePageRangeToggle}
@@ -148,36 +148,41 @@ export const PdfCropFileItem = ({
             color={config.primaryColor}
           />
 
-          {/* Page range input */}
-          {!cropAllPages && (
-            <div className="mt-3 animate-in fade-in slide-in-from-top-1 duration-200">
-              <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-2 block">
-                Page Range
-              </label>
-              <input
-                type="text"
-                value={file.settings.crop_page_range || ""}
-                onChange={(e) => handlePageRangeInput(e.target.value)}
-                placeholder="e.g. 1-3, 5, 8-10"
-                className="w-full px-3 py-2.5 rounded-lg border-2 border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 text-sm focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 transition-colors"
-              />
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5">
-                Separate with commas. Use hyphens for ranges.
-              </p>
+          {/* SMOOTH ANIMATION WRAPPER */}
+          <div
+            className={`grid transition-[grid-template-rows,opacity,padding] duration-300 ease-in-out ${
+              !cropAllPages
+                ? "grid-rows-[1fr] opacity-100 pt-3"
+                : "grid-rows-[0fr] opacity-0 pt-0 pointer-events-none"
+            }`}
+          >
+            <div className="overflow-hidden min-h-0">
+              <div className="animate-in slide-in-from-top-2 duration-300">
+                <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-2 block">
+                  Page Range
+                </label>
+                <input
+                  type="text"
+                  value={file.settings.crop_page_range || ""}
+                  onChange={(e) => handlePageRangeInput(e.target.value)}
+                  placeholder="e.g. 1-3, 5, 8-10"
+                  className="w-full px-3 py-2.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-transparent text-zinc-800 dark:text-zinc-200 text-sm outline-none placeholder:text-zinc-400 dark:placeholder:text-zinc-500 transition-colors"
+                />
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5">
+                  Separate with commas. Use hyphens for ranges.
+                </p>
+              </div>
             </div>
-          )}
+          </div>
         </div>
 
         {/* PDF crop viewer - Always visible */}
         {file.originalFile && (
-          <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
             <PdfCropViewer
               file={file.originalFile}
               settings={file.settings}
               onCropChange={handleCropChange}
-              primaryColor={config.primaryColor}
             />
-          </div>
         )}
       </div>
     </div>
