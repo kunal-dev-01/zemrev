@@ -161,7 +161,7 @@ const PdfFileItem = ({
           </button>
 
           {isSettingsOpen && (
-            <div className="absolute right-0 z-20 mt-1 w-[280px] rounded-xl border border-zinc-200 bg-white p-3 shadow-xl dark:border-zinc-700 dark:bg-zinc-900">
+            <div className="absolute right-0 z-20 mt-1 w-[280px] rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-900">
               <label className="mb-1.5 block text-xs font-semibold text-zinc-600 dark:text-zinc-400">
                 OCR Quality (DPI)
               </label>
@@ -174,7 +174,7 @@ const PdfFileItem = ({
                     <button
                       key={preset.value}
                       onClick={() => handleDpiChange(preset.value)}
-                      className={`flex w-full items-center justify-between rounded-xl border px-3 py-2 text-left text-sm font-medium transition-all ${
+                      className={`flex w-full items-center justify-between rounded-xl border border-zinc-200 dark:border-zinc-700 px-3 py-2 text-left text-sm font-medium transition-all ${
                         active
                           ? "text-white"
                           : "bg-zinc-50 text-zinc-700 hover:bg-zinc-100 dark:bg-zinc-800/50 dark:text-zinc-300 dark:hover:bg-zinc-700"
