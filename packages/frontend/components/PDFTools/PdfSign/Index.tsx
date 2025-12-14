@@ -7,7 +7,7 @@ import dynamic from "next/dynamic";
 
 const PdfSign = dynamic(() => import("./PdfSign"), {
     ssr: false,
-    loading: () => <ToolLoader className="w-8 h-8 text-[#3b82f6]" />
+    loading: () => <ToolLoader className="w-8 h-8 text-[#B45309]" />
 });
 
 export default PdfSign

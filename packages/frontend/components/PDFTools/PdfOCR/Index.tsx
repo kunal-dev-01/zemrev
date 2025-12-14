@@ -7,7 +7,7 @@ import dynamic from "next/dynamic";
 
 const PdfOCR = dynamic(() => import("./PdfOCR"), {
     ssr: false,
-    loading: () => <ToolLoader className="w-8 h-8 text-[#a855f7]" />
+    loading: () => <ToolLoader className="w-8 h-8 text-[#4F46E5]" />
 });
 
 export default PdfOCR

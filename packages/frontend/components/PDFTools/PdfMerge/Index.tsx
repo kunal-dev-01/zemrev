@@ -7,7 +7,7 @@ import dynamic from "next/dynamic";
 
 const PdfMerge = dynamic(() => import("./PdfMerge"), {
     ssr: false,
-    loading: () => <ToolLoader className="w-8 h-8 text-[#9333ea]" />
+    loading: () => <ToolLoader className="w-8 h-8 text-[#9333EA]" />
 });
 
 export default PdfMerge

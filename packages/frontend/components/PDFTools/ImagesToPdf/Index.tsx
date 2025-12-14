@@ -6,7 +6,7 @@ import dynamic from "next/dynamic";
 
 const ImagesToPdf = dynamic(() => import("./ImagesToPdf"), {
     ssr: false,
-    loading: () => <ToolLoader className="w-8 h-8 text-[#f97316]" />,
+    loading: () => <ToolLoader className="w-8 h-8 text-[#EA580C]" />,
 });
 
 export default ImagesToPdf

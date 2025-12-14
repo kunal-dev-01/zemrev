@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 
 const DynamicTool = dynamic(() => import("./PdfCompressor"), {
     ssr: false,
-    loading: () => <ToolLoader className="w-8 h-8 text-[#ef4444]" />,
+    loading: () => <ToolLoader className="w-8 h-8 text-[#DC2626]" />,
 });
 
 export default DynamicTool;

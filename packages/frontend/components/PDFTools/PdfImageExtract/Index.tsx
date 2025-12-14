@@ -7,7 +7,7 @@ import dynamic from "next/dynamic";
 
 const PdfImageExtract = dynamic(() => import("./PdfImageExtract"), {
     ssr: false,
-    loading: () => <ToolLoader className="w-8 h-8 text-[#3b82f6]" />,
+    loading: () => <ToolLoader className="w-8 h-8 text-[#2563EB]" />,
 });
 
 export default PdfImageExtract
