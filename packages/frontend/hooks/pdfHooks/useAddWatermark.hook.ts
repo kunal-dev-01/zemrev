@@ -5,7 +5,7 @@ import {
   useAddTextWatermarkPdfMutation,
   useAddImageWatermarkPdfMutation,
 } from "@/services/pdfService/pdf.api";
-import { PdfFileSettings, PdfProcessedFile } from "@/services/pdfService/types";
+import { PdfFileSettings, PdfProcessedFile, WatermarkPosition } from "@/services/pdfService/types";
 import { extractApiErrorMessage } from "@/utils/errorExtract.utils";
 import { pdfPendingStorage } from "@/utils/pdfPendingStorage.utils";
 import { pdfSessionStorage } from "@/utils/pdfSessionStorage.utils";
@@ -39,8 +39,8 @@ export const useAddWatermark = () => {
               text: "CONFIDENTIAL",
               opacity: 0.3,
               position: "center",
-              font_size: 50,
-              rotation: 45,
+              font_size: 40,
+              rotation: 0,
               color: "gray",
             },
             status: "pending" as const,
@@ -68,8 +68,8 @@ export const useAddWatermark = () => {
             text: "CONFIDENTIAL",
             opacity: 0.3,
             position: "center",
-            font_size: 50,
-            rotation: 45,
+            font_size: 40,
+            rotation: 0,
             color: "gray",
           },
           status: "pending",
@@ -97,8 +97,8 @@ export const useAddWatermark = () => {
           text: "CONFIDENTIAL",
           opacity: 0.3,
           position: "center",
-          font_size: 50,
-          rotation: 45,
+          font_size: 40,
+          rotation: 0,
           color: "gray",
         },
         status: "pending",
@@ -125,8 +125,8 @@ export const useAddWatermark = () => {
           text: "CONFIDENTIAL",
           opacity: 0.3,
           position: "center",
-          font_size: 50,
-          rotation: 45,
+          font_size: 40,
+          rotation: 0,
           color: "gray",
         },
         status: "pending",
@@ -175,7 +175,7 @@ export const useAddWatermark = () => {
             watermark: file.settings.watermarkFile as File,
             options: {
               opacity: file.settings.opacity as number,
-              position: file.settings.position as any,
+              position: file.settings.position as WatermarkPosition,
               scale: 0.3,
             },
           }).unwrap();
@@ -185,7 +185,7 @@ export const useAddWatermark = () => {
             options: {
               text: file.settings.text as string,
               opacity: file.settings.opacity as number,
-              position: file.settings.position as any,
+              position: file.settings.position as WatermarkPosition,
               font_size: file.settings.font_size as number,
               rotation: file.settings.rotation as number,
               color: file.settings.color as string,
