@@ -122,10 +122,13 @@ export const PDF_TOOL_CONFIGS: Record<string, PdfToolConfig> = {
     defaultSettings: {
       text: "CONFIDENTIAL",
       opacity: 0.3,
-      position: "center",
       font_size: 50,
       rotation: 45,
       color: "gray",
+      x: 150,      
+      y: 350,     
+      width: 300,   
+      height: 150,
     },
   },
 

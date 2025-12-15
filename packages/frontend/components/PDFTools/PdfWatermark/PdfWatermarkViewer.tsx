@@ -11,9 +11,6 @@ interface PdfWatermarkViewerProps {
   primaryColor: string;
 }
 
-// Backend Margin Constant (50pt)
-const MARGIN_PT = 50;
-
 export const PdfWatermarkViewer = ({
   file,
   settings,
@@ -21,8 +18,8 @@ export const PdfWatermarkViewer = ({
 }: PdfWatermarkViewerProps) => {
   const [numPages, setNumPages] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageWidth, setPageWidth] = useState(0); // PDF Point Width
-  const [renderedWidth, setRenderedWidth] = useState(0); // Pixel Width
+  const [pageWidth, setPageWidth] = useState(0);
+  const [renderedWidth, setRenderedWidth] = useState(0);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
@@ -52,40 +49,32 @@ export const PdfWatermarkViewer = ({
 
   // Calculate Scale (Pixels per Point)
   const scale = pageWidth > 0 && renderedWidth > 0 ? renderedWidth / pageWidth : 1;
-  const marginPx = MARGIN_PT * scale;
 
-  // Position Styles
-  const getPositionStyle = (): React.CSSProperties => {
-    const base: React.CSSProperties = {
+  // COORDINATE-BASED POSITIONING (like Sign PDF)
+  const getWatermarkStyle = (): React.CSSProperties => {
+    const x = (settings.x || 150) * scale;
+    const y = (settings.y || 350) * scale;
+    const width = (settings.width || 300) * scale;
+    const height = (settings.height || 150) * scale;
+
+    return {
       position: "absolute",
+      left: `${x}px`,
+      top: `${y}px`,
+      width: `${width}px`,
+      height: `${height}px`,
       zIndex: 20,
+      pointerEvents: "none",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
       transform: `rotate(${settings.rotation || 0}deg)`,
       transformOrigin: "center center",
-      pointerEvents: "none",
-      whiteSpace: "nowrap",
-      maxWidth: "80%", // Prevent huge overflow
+      opacity: settings.opacity || 0.3,
+      border: "2px dashed rgba(192, 38, 211, 0.3)",
+      backgroundColor: "rgba(192, 38, 211, 0.05)",
+      borderRadius: "4px",
     };
-
-    const pos = settings.position || "center";
-
-    switch (pos) {
-      case "top_left":
-        return { ...base, top: marginPx, left: marginPx, transformOrigin: "top left" };
-      case "top_right":
-        return { ...base, top: marginPx, right: marginPx, transformOrigin: "top right" };
-      case "bottom_left":
-        return { ...base, bottom: marginPx, left: marginPx, transformOrigin: "bottom left" };
-      case "bottom_right":
-        return { ...base, bottom: marginPx, right: marginPx, transformOrigin: "bottom right" };
-      case "center":
-      default:
-        return {
-          ...base,
-          top: "50%",
-          left: "50%",
-          transform: `translate(-50%, -50%) rotate(${settings.rotation || 0}deg)`,
-        };
-    }
   };
 
   return (
@@ -101,7 +90,7 @@ export const PdfWatermarkViewer = ({
               disabled={currentPage <= 1}
               className="p-1 hover:bg-white dark:hover:bg-zinc-700 rounded-md disabled:opacity-30"
             >
-              <ChevronDownSvg  className="w-4 h-4 rotate-90" />
+              <ChevronDownSvg className="w-4 h-4 rotate-90" />
             </button>
             <span className="text-xs font-mono w-10 text-center">{currentPage}/{numPages}</span>
             <button
@@ -110,7 +99,7 @@ export const PdfWatermarkViewer = ({
               disabled={currentPage >= numPages}
               className="p-1 hover:bg-white dark:hover:bg-zinc-700 rounded-md disabled:opacity-30"
             >
-              <ChevronDownSvg  className="w-4 h-4 -rotate-90" />
+              <ChevronDownSvg className="w-4 h-4 -rotate-90" />
             </button>
           </div>
         )}
@@ -129,7 +118,7 @@ export const PdfWatermarkViewer = ({
           <div className="shadow-lg relative inline-block">
             <Page
               pageNumber={currentPage}
-              width={containerWidth > 600 ? 500 : containerWidth - 32} // Fixed width for stability
+              width={containerWidth > 600 ? 500 : containerWidth - 32}
               onLoadSuccess={(page) => {
                 setPageWidth(page.originalWidth);
                 const canvas = document.querySelector(`.react-pdf__Page[data-page-number="${currentPage}"] canvas`);
@@ -139,24 +128,29 @@ export const PdfWatermarkViewer = ({
               renderAnnotationLayer={false}
               className="bg-white"
             >
-              {/* WATERMARK IS NOW A CHILD OF PAGE - GUARANTEED ALIGNMENT */}
-              <div style={getPositionStyle()}>
+              {/* WATERMARK PREVIEW - COORDINATE BASED */}
+              <div style={getWatermarkStyle()}>
                 {settings.watermarkFile && imagePreview ? (
                   <img
                     src={imagePreview}
-                    alt="wm"
+                    alt="watermark"
                     style={{
-                      width: `${(pageWidth * 0.4) * scale}px`, // ~40% of page width
-                      opacity: settings.opacity || 0.3,
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain",
                     }}
                   />
                 ) : (
                   <div
                     style={{
-                      fontSize: `${(settings.font_size || 50) * scale}px`,
+                      fontSize: `${Math.min((settings.font_size || 50) * scale, ((settings.height || 150) * scale) / 2)}px`,
                       color: settings.color || "gray",
-                      opacity: settings.opacity || 0.3,
                       fontWeight: "bold",
+                      textAlign: "center",
+                      padding: "4px",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
                     }}
                   >
                     {settings.text || "WATERMARK"}

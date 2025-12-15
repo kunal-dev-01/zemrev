@@ -28,7 +28,6 @@ export type PdfToolType =
 
 export type ImageFormat = "png" | "jpeg" | "jpg";
 export type CompressionLevel = "screen" | "ebook" | "printer" | "prepress";
-export type WatermarkPosition = "center" | "top_left" | "top_right" | "bottom_left" | "bottom_right";
 export type PdfAVersion = "1b" | "2b" | "3b";
 
 export type FormDataParams = Record<string, string | number | boolean | undefined>;
@@ -66,11 +65,10 @@ export interface PdfFileSettings {
   // Watermark
   text?: string;
   opacity?: number;
-  position?: WatermarkPosition;
   font_size?: number;
   rotation?: number;
   color?: string;
-  watermarkFile?: File;
+  watermarkFile?: File;   
   
   // Optimize
   remove_metadata?: boolean;
@@ -209,10 +207,13 @@ export interface ExtractImagesRequest extends FormDataParams {
 export interface AddWatermarkRequest extends FormDataParams {
   text?: string;
   opacity: number;
-  position: WatermarkPosition;
   font_size?: number;
   rotation?: number;
   color?: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 }
 
 export interface OptimizePdfRequest extends FormDataParams {

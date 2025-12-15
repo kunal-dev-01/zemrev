@@ -1,11 +1,12 @@
 // ============================================================================
-// 10. useAddWatermark.hook.ts
+// UPDATE: useAddWatermark hook with coordinate-based positioning
 // ============================================================================
+
 import {
   useAddTextWatermarkPdfMutation,
   useAddImageWatermarkPdfMutation,
 } from "@/services/pdfService/pdf.api";
-import { PdfFileSettings, PdfProcessedFile, WatermarkPosition } from "@/services/pdfService/types";
+import { PdfFileSettings, PdfProcessedFile } from "@/services/pdfService/types";
 import { extractApiErrorMessage } from "@/utils/errorExtract.utils";
 import { pdfPendingStorage } from "@/utils/pdfPendingStorage.utils";
 import { pdfSessionStorage } from "@/utils/pdfSessionStorage.utils";
@@ -38,10 +39,13 @@ export const useAddWatermark = () => {
             settings: {
               text: "CONFIDENTIAL",
               opacity: 0.3,
-              position: "center",
-              font_size: 40,
-              rotation: 0,
+              font_size: 50,
+              rotation: 45,
               color: "gray",
+              x: 150,      // NEW
+              y: 350,      // NEW
+              width: 300,  // NEW
+              height: 150, // NEW
             },
             status: "pending" as const,
           }))
@@ -67,10 +71,13 @@ export const useAddWatermark = () => {
           settings: {
             text: "CONFIDENTIAL",
             opacity: 0.3,
-            position: "center",
-            font_size: 40,
-            rotation: 0,
+            font_size: 50,
+            rotation: 45,
             color: "gray",
+            x: 150,
+            y: 350,
+            width: 300,
+            height: 150,
           },
           status: "pending",
         },
@@ -96,10 +103,13 @@ export const useAddWatermark = () => {
         settings: {
           text: "CONFIDENTIAL",
           opacity: 0.3,
-          position: "center",
-          font_size: 40,
-          rotation: 0,
+          font_size: 50,
+          rotation: 45,
           color: "gray",
+          x: 150,
+          y: 350,
+          width: 300,
+          height: 150,
         },
         status: "pending",
       },
@@ -124,10 +134,13 @@ export const useAddWatermark = () => {
         settings: {
           text: "CONFIDENTIAL",
           opacity: 0.3,
-          position: "center",
-          font_size: 40,
-          rotation: 0,
+          font_size: 50,
+          rotation: 45,
           color: "gray",
+          x: 150,
+          y: 350,
+          width: 300,
+          height: 150,
         },
         status: "pending",
       },
@@ -157,7 +170,7 @@ export const useAddWatermark = () => {
   );
 
   // ============================================================================
-  // PROCESS SINGLE
+  // PROCESS SINGLE - UPDATED WITH COORDINATES
   // ============================================================================
   const processSingle = useCallback(
     async (file: PdfProcessedFile) => {
@@ -175,8 +188,11 @@ export const useAddWatermark = () => {
             watermark: file.settings.watermarkFile as File,
             options: {
               opacity: file.settings.opacity as number,
-              position: file.settings.position as WatermarkPosition,
-              scale: 0.3,
+              x: file.settings.x as number,
+              y: file.settings.y as number,
+              width: file.settings.width as number,
+              height: file.settings.height as number,
+              rotation: file.settings.rotation || 0,
             },
           }).unwrap();
         } else {
@@ -185,10 +201,13 @@ export const useAddWatermark = () => {
             options: {
               text: file.settings.text as string,
               opacity: file.settings.opacity as number,
-              position: file.settings.position as WatermarkPosition,
               font_size: file.settings.font_size as number,
               rotation: file.settings.rotation as number,
               color: file.settings.color as string,
+              x: file.settings.x as number,
+              y: file.settings.y as number,
+              width: file.settings.width as number,
+              height: file.settings.height as number,
             },
           }).unwrap();
         }
