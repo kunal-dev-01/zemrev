@@ -7,7 +7,6 @@ import { useCallback, useState, useRef, useEffect } from "react";
 import { PdfDragDropZone } from "@/components/Shared/PdfDragDropZone";
 import { PdfSessionFilesDisplay } from "@/components/Shared/PdfSessionFilesDisplay";
 import { PDF_TOOL_CONFIGS } from "@/config/pdfToolConfigs";
-import { Spinner } from "@/components/Layouts/Spinner";
 import {
   CancelSvg,
   TrashSvg,
@@ -16,6 +15,7 @@ import {
 } from "@/components/Svg/CommonSvg";
 import { usePdfCompressor } from "@/hooks/pdfHooks/usePdfCompressor.hook";
 import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
+import { useFileUtils } from "@/hooks/appHooks/useFileUtils";
 import GlassButton from "@/components/Layouts/GlassButton";
 import { PDFToImageSVg } from "@/components/Svg/PdfSvg";
 
@@ -32,6 +32,7 @@ const PdfFileItem = ({
 }: any) => {
   const [isQualityOpen, setIsQualityOpen] = useState(false);
   const qualityRef = useRef<HTMLDivElement>(null);
+  const { formatBytes, truncateFileName } = useFileUtils();
 
   const compressionOptions = [
     { value: "screen", label: "Screen", desc: "72 DPI - Smallest size" },
@@ -53,22 +54,6 @@ const PdfFileItem = ({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  const formatBytes = (bytes: number) => {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
-  };
-
-  const truncateFileName = (name: string, maxLength: number = 30) => {
-    if (name.length <= maxLength) return name;
-    const ext = name.split(".").pop();
-    const nameWithoutExt = name.substring(0, name.lastIndexOf("."));
-    const truncated = nameWithoutExt.substring(0, maxLength - ext!.length - 4);
-    return `${truncated}...${ext}`;
-  };
 
   const getCurrentLabel = (val: string) => {
     return (
@@ -115,7 +100,7 @@ const PdfFileItem = ({
             onClick={() => setIsQualityOpen(!isQualityOpen)}
             className="min-w-[120px] px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-800 dark:text-zinc-200 flex items-center justify-between transition-all cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-700"
           >
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
               <div className="w-5 h-5" style={{ color: config.primaryColor }}>
                 <SettingsSvg />
               </div>
@@ -220,18 +205,22 @@ const PdfCompressor = () => {
   return (
     <div className="w-full md:mt-[1vw] mt-[1vh]">
       {/* Drag Drop Zone */}
-      <PdfDragDropZone
-        config={config}
-        onFilesSelected={handleFilesSelected}
-        onGooglePick={() => addFromGoogleDrive(config.defaultSettings.level as string)}
-        onDropboxPick={() => addFromDropbox(config.defaultSettings.level as string)}
-        currentFileCount={files.length}
-        disabled={!canAddMore}
-      />
+        <PdfDragDropZone
+          config={config}
+          onFilesSelected={handleFilesSelected}
+          onGooglePick={() =>
+            addFromGoogleDrive(config.defaultSettings.level as string)
+          }
+          onDropboxPick={() =>
+            addFromDropbox(config.defaultSettings.level as string)
+          }
+          currentFileCount={files.length}
+          disabled={!canAddMore}
+        />
 
       {/* Pending Files Panel */}
       {files.length > 0 && (
-        <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 md:mt-[1vw] mt-[1vh]">
+        <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 md:mt-[1vw] mt-[1vh] fade-in">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2 dark:bg-zinc-900 bg-zinc-50 border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-1.5">
