@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 
 import { PdfCropViewer } from "./PdfCropViewer";
-import { CancelSvg } from "@/components/Svg/CommonSvg";
 import { PDFToImageSVg } from "@/components/Svg/PdfSvg";
 
 import type {

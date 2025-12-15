@@ -13,7 +13,6 @@ import type {
 import {
   ClearAllButton,
   FileInfo,
-  FilesSummary,
   RemoveButton,
 } from "@/components/Shared/FileUI";
 
@@ -157,7 +156,9 @@ const ImagesToPdf = () => {
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-             <FilesSummary count={files.length} />
+              <p className="text-lg font-semibold text-zinc-700 dark:text-zinc-300">
+                {files.length} image{files.length === 1 ? "" : "s"}
+              </p>
 
               {/* Info Badge */}
               <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900">

@@ -3,7 +3,6 @@ import { PdfCropFileItem } from "./PdfCropFileItem";
 import { PdfDragDropZone } from "@/components/Shared/PdfDragDropZone";
 import { PdfSessionFilesDisplay } from "@/components/Shared/PdfSessionFilesDisplay";
 import { PDF_TOOL_CONFIGS } from "@/config/pdfToolConfigs";
-import { TrashSvg } from "@/components/Svg/CommonSvg";
 import { useCropPdf } from "@/hooks/pdfHooks/useCropPdf.hook";
 import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 import GlassButton from "@/components/Layouts/GlassButton";
