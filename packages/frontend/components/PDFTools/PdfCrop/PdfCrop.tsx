@@ -65,7 +65,8 @@ const PdfCrop = () => {
   return (
     <div className="w-full md:mt-[1vw] mt-[1vh]">
       {/* Drag Drop Zone */}
-      <PdfDragDropZone
+      {files.length !== 1 &&(
+        <PdfDragDropZone
         config={config}
         onFilesSelected={handleFilesSelected}
         onGooglePick={handleGoogleDrive}
@@ -73,6 +74,7 @@ const PdfCrop = () => {
         currentFileCount={files.length}
         disabled={!canAddMore}
       />
+      )}
 
       {/* Pending Files Panel */}
       {files.length > 0 && (
