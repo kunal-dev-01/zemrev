@@ -32,7 +32,7 @@ const PdfFileItem = ({
 }: any) => {
   const [isQualityOpen, setIsQualityOpen] = useState(false);
   const qualityRef = useRef<HTMLDivElement>(null);
-  const { formatBytes, truncateFileName } = useFileUtils();
+  const { formatBytes } = useFileUtils();
 
   const compressionOptions = [
     { value: "screen", label: "Screen", desc: "72 DPI - Smallest size" },
@@ -87,7 +87,7 @@ const PdfFileItem = ({
             className="text-sm leading-none font-medium text-zinc-800 dark:text-zinc-200 truncate"
             title={file.name}
           >
-            {truncateFileName(file.name)}
+            {file.name}
           </h3>
           <p className="text-xs px-1 rounded-md bg-zinc-200 dark:bg-zinc-800 inline-block text-zinc-500 dark:text-zinc-400 mt-1">
             {formatBytes(file.size)}

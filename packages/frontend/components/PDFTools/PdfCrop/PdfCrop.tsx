@@ -65,7 +65,7 @@ const PdfCrop = () => {
   return (
     <div className="w-full md:mt-[1vw] mt-[1vh]">
       {/* Drag Drop Zone */}
-      {files.length !== 1 &&(
+      {canAddMore &&(
         <PdfDragDropZone
         config={config}
         onFilesSelected={handleFilesSelected}
