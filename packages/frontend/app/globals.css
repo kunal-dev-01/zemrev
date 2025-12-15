@@ -68,8 +68,13 @@ body {
 ::-webkit-scrollbar {
   display: none;
 }
+
+::-webkit-inner-spin-button
+::-webkit-outer-spin-button
+
 body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
 
