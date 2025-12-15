@@ -89,14 +89,20 @@ class ExtractImagesRequest(BaseModel):
 
 
 class AddWatermarkRequest(BaseModel):
-    """Add watermark to PDF request"""
+    """Add watermark to PDF request - COORDINATE BASED"""
     text: Optional[str] = Field(None, description="Watermark text")
     opacity: float = Field(default=0.3, ge=0.1, le=1.0, description="Watermark opacity (0.1-1.0)")
-    position: WatermarkPosition = Field(default=WatermarkPosition.CENTER, description="Watermark position")
     font_size: int = Field(default=50, ge=10, le=200, description="Text font size (10-200)")
     rotation: int = Field(default=45, ge=0, le=360, description="Watermark rotation (0-360)")
     color: str = Field(default="gray", description="Text color (e.g., 'red', 'blue', 'gray')")
-    scale: float = Field(default=0.25, ge=0.05, le=1.0, description="Image scale factor (0.05-1.0)")
+    
+    # NEW: Coordinate-based positioning
+    x: int = Field(default=150, ge=0, le=1000, description="X position in PDF points")
+    y: int = Field(default=350, ge=0, le=1500, description="Y position in PDF points")
+    width: int = Field(default=300, ge=50, le=800, description="Width in PDF points")
+    height: int = Field(default=150, ge=20, le=600, description="Height in PDF points")
+    
+    # REMOVED: position field (no longer needed)
     
     @field_validator('text')
     @classmethod

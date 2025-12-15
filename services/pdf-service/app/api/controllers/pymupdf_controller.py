@@ -255,22 +255,17 @@ async def add_watermark_handler(
     request: AddWatermarkRequest,
     watermark_image: UploadFile = None
 ) -> FileResponse:
-    """Handle watermark addition to PDF."""
+    """Handle watermark addition to PDF - COORDINATE BASED."""
     input_path = None
     output_path = None
     watermark_image_path = None
     
     try:
-        # Validate PDF upload
         input_path = await validate_upload(file)
-        
-        # Create output path
         output_path = create_temp_pdf_path(prefix="watermarked")
         
-        # Check if text or image watermark
         if watermark_image:
             # Image watermark
-            # Save watermark image
             content = await watermark_image.read()
             temp_file = tempfile.NamedTemporaryFile(
                 mode='wb',
@@ -282,7 +277,6 @@ async def add_watermark_handler(
             temp_file.close()
             watermark_image_path = Path(temp_file.name)
             
-            # Add image watermark
             loop = asyncio.get_event_loop()
             await loop.run_in_executor(
                 executor,
@@ -291,8 +285,11 @@ async def add_watermark_handler(
                 output_path,
                 watermark_image_path,
                 request.opacity,
-                request.position.value,
-                0.3  # scale
+                request.x,        # NEW
+                request.y,        # NEW
+                request.width,    # NEW
+                request.height,   # NEW
+                request.rotation, # NEW
             )
         elif request.text:
             # Text watermark
@@ -304,10 +301,13 @@ async def add_watermark_handler(
                 output_path,
                 request.text,
                 request.opacity,
-                request.position.value,
                 request.font_size,
                 request.rotation,
-                request.color
+                request.color,
+                request.x,      # NEW
+                request.y,      # NEW
+                request.width,  # NEW
+                request.height, # NEW
             )
         else:
             raise HTTPException(

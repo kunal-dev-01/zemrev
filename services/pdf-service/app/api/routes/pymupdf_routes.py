@@ -88,12 +88,19 @@ async def add_watermark_endpoint(
     text: Optional[str] = Form(None, description="Watermark text"),
     watermark_image: Optional[UploadFile] = File(None, description="Watermark image"),
     opacity: float = Form(default=0.3, ge=0.1, le=1.0, description="Opacity (0.1-1.0)"),
-    position: WatermarkPosition = Form(default=WatermarkPosition.CENTER, description="Position"),
     font_size: int = Form(default=50, ge=10, le=200, description="Font size (10-200)"),
     rotation: int = Form(default=45, ge=0, le=360, description="Rotation (0-360)"),
-    color: str = Form(default="gray", description="Text color")
+    color: str = Form(default="gray", description="Text color"),
+    
+    # NEW: Coordinate parameters
+    x: int = Form(default=150, ge=0, le=1000, description="X position"),
+    y: int = Form(default=350, ge=0, le=1500, description="Y position"),
+    width: int = Form(default=300, ge=50, le=800, description="Width"),
+    height: int = Form(default=150, ge=20, le=600, description="Height"),
+    
+    # REMOVED: position parameter
 ) -> FileResponse:
-   
+    """Add watermark to PDF - COORDINATE BASED"""
     if not text and not watermark_image:
         raise HTTPException(
             status_code=400,
@@ -103,10 +110,13 @@ async def add_watermark_endpoint(
     request = AddWatermarkRequest(
         text=text,
         opacity=opacity,
-        position=position,
         font_size=font_size,
         rotation=rotation,
-        color=color
+        color=color,
+        x=x,
+        y=y,
+        width=width,
+        height=height,
     )
     return await add_watermark_handler(file, request, watermark_image)
 
