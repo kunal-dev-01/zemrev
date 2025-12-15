@@ -1,8 +1,3 @@
-// ============================================================================
-// FILE: src/components/PDFTools/PdfOCR/PdfOCR.tsx
-// PURPOSE: Convert scanned PDFs to searchable PDFs using OCR
-// ============================================================================
-
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { PdfDragDropZone } from "@/components/Shared/PdfDragDropZone";
@@ -10,8 +5,6 @@ import { PdfSessionFilesDisplay } from "@/components/Shared/PdfSessionFilesDispl
 import GlassButton from "@/components/Layouts/GlassButton";
 
 import {
-  CancelSvg,
-  TrashSvg,
   ChevronDownSvg,
 } from "@/components/Svg/CommonSvg";
 import { PDFToImageSVg } from "@/components/Svg/PdfSvg";
@@ -25,6 +18,7 @@ import type {
   PdfFileSettings,
   PdfToolConfig,
 } from "@/services/pdfService/types";
+import { FileError, RemoveButton } from "@/components/Shared/FileUI";
 
 // ============================================================================
 // TYPES
@@ -99,13 +93,6 @@ const PdfFileItem = ({
     return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
   };
 
-  const truncateFileName = (name: string, max = 30) => {
-    if (name.length <= max) return name;
-    const ext = name.split(".").pop() || "";
-    const base = name.substring(0, name.lastIndexOf("."));
-    return `${base.substring(0, max - ext.length - 4)}...${ext}`;
-  };
-
   const currentDpiLabel =
     DPI_PRESETS.find((p) => p.value === file.settings.dpi)?.label ??
     `${file.settings.dpi} DPI`;
@@ -136,7 +123,7 @@ const PdfFileItem = ({
             className="truncate text-sm font-medium text-zinc-800 dark:text-zinc-200"
             title={file.name}
           >
-            {truncateFileName(file.name)}
+            {file.name}
           </h3>
 
           <div className="mt-1 flex items-center gap-2">
@@ -161,7 +148,7 @@ const PdfFileItem = ({
           </button>
 
           {isSettingsOpen && (
-            <div className="absolute right-0 z-20 mt-1 w-[280px] rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-900">
+            <div className="absolute right-0 z-20 mt-1 md:w-[15vw] rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-900">
               <label className="mb-1.5 block text-xs font-semibold text-zinc-600 dark:text-zinc-400">
                 OCR Quality (DPI)
               </label>
@@ -212,22 +199,12 @@ const PdfFileItem = ({
         </div>
 
         {/* Remove */}
-        <button
-          onClick={() => removeFile(file.id)}
-          className="rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-zinc-700 transition-all hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800/50 dark:text-zinc-300 dark:hover:bg-zinc-700"
-          aria-label="Remove file"
-        >
-          <CancelSvg className="h-5 w-5" />
-        </button>
+        <RemoveButton onClick={() => removeFile(file.id)} />
       </div>
 
       {/* Error */}
       {file.status === "error" && file.error && (
-        <div className="mt-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 dark:border-red-800 dark:bg-red-900/20">
-          <p className="text-xs text-red-600 dark:text-red-400">
-            {file.error}
-          </p>
-        </div>
+        <FileError error={file.error} />
       )}
     </div>
   );
@@ -251,7 +228,6 @@ const PdfOCR = () => {
     addFromDropbox,
     updateFileSettings,
     processAllFiles,
-    clearAll,
   } = useOcrSearchable();
 
   const handleFilesSelected = useCallback(
@@ -277,7 +253,7 @@ const PdfOCR = () => {
 
       {files.length > 0 && (
         <div className="mt-[1vh] rounded-xl border border-zinc-200 bg-white/50 p-3 dark:border-zinc-800 dark:bg-zinc-900/40 md:mt-[1vw] md:p-6">
-          <div className="mb-6 flex items-center justify-between">
+          <div className="mb-6 flex items-center ">
             <div className="rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-1.5 dark:border-zinc-800 dark:bg-zinc-900">
               <p className="text-xs text-zinc-600 dark:text-zinc-400 md:text-sm">
                 {stats.pending > 0 && `${stats.pending} pending`}
@@ -285,14 +261,6 @@ const PdfOCR = () => {
                 {stats.error > 0 && ` • ${stats.error} failed`}
               </p>
             </div>
-
-            <button
-              onClick={clearAll}
-              className="flex items-center gap-2 rounded-xl bg-red-50 px-3 py-1.5 font-medium text-red-600 transition-all hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30"
-            >
-              <TrashSvg className="w-5 h-5" />
-              <span className="hidden md:block">Clear All</span>
-            </button>
           </div>
 
           <div className="space-y-2">

@@ -1,13 +1,8 @@
-// ============================================================================
-// FILE: src/components/PDFTools/PdfSecure/PdfSecure.tsx
-// PURPOSE: PDF Secure Component - Add password protection to PDFs
-// ============================================================================
-
 import { useCallback, useState } from "react";
 import { PdfDragDropZone } from "@/components/Shared/PdfDragDropZone";
 import { PdfSessionFilesDisplay } from "@/components/Shared/PdfSessionFilesDisplay";
 import { PDF_TOOL_CONFIGS } from "@/config/pdfToolConfigs";
-import { CancelSvg, ErrorSvg, TrashSvg } from "@/components/Svg/CommonSvg";
+import { ErrorSvg } from "@/components/Svg/CommonSvg";
 import { usePdfEncrypt } from "@/hooks/pdfHooks/usePdfEncrypt.hook";
 import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 import GlassButton from "@/components/Layouts/GlassButton";
@@ -17,7 +12,8 @@ import type {
   PdfFileSettings,
   PdfToolConfig,
 } from "@/services/pdfService/types";
-import { EyeCloseSvg, EyeSvg } from "@/components/Svg/ToolsSvg";
+import { FileError, RemoveButton } from "@/components/Shared/FileUI";
+import { PasswordField } from "@/components/Layouts/PasswordField";
 
 // ============================================================================
 // TYPES
@@ -69,14 +65,6 @@ const PdfFileItem = ({
     return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
   };
 
-  const truncateFileName = (name: string, maxLength: number = 30): string => {
-    if (name.length <= maxLength) return name;
-    const ext = name.split(".").pop() || "";
-    const nameWithoutExt = name.substring(0, name.lastIndexOf("."));
-    const truncated = nameWithoutExt.substring(0, maxLength - ext.length - 4);
-    return `${truncated}...${ext}`;
-  };
-
   const hasPassword = Boolean(file.settings.user_password);
 
   // ============================================================================
@@ -106,7 +94,7 @@ const PdfFileItem = ({
             className="text-sm font-medium text-zinc-800 dark:text-zinc-200 truncate"
             title={file.name}
           >
-            {truncateFileName(file.name)}
+            {file.name}
           </h3>
           <div className="flex items-center gap-2 mt-1">
             <p className="text-xs px-1 rounded-md bg-zinc-200 dark:bg-zinc-800 inline-block text-zinc-500 dark:text-zinc-400">
@@ -114,94 +102,45 @@ const PdfFileItem = ({
             </p>
             {hasPassword && (
               <div className="text-xs px-2 py-0.5 rounded-md bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 font-medium flex items-center gap-1">
-                <span className="w-3 h-3 flex items-center justify-center"><SecurePdfSvg /></span> Protected
+                <span className="w-3 h-3 flex items-center justify-center">
+                  <SecurePdfSvg />
+                </span>{" "}
+                Protected
               </div>
             )}
           </div>
         </div>
 
         {/* Remove Button */}
-        <button
-          onClick={() => removeFile(file.id)}
-          className="px-3 py-1.5 rounded-xl border dark:border-zinc-700 border-zinc-200 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all duration-200 cursor-pointer"
-          aria-label="Remove file"
-        >
-          <CancelSvg className="w-5 h-5" />
-        </button>
+        <RemoveButton onClick={() => removeFile(file.id)} />
       </div>
 
       {/* Password Inputs - Below with Border */}
       <div className="border-t border-zinc-200 dark:border-zinc-800 pt-3 space-y-3">
         {/* User Password */}
-        <div>
-          <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-2 block">
-            User Password (Required)
-          </label>
-          <div className="relative">
-            <input
-              type={showUserPassword ? "text" : "password"}
-              value={file.settings.user_password || ""}
-              onChange={(e) =>
-                handlePasswordChange("user_password", e.target.value)
-              }
-              placeholder="Enter password to open PDF"
-              className="w-full px-3 py-2 pr-10 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-transparent hover:border-zinc-300 dark:hover:border-zinc-700 text-zinc-800 dark:text-zinc-200 text-sm outline-none"
-            />
-            <button
-              type="button"
-              onClick={() => setShowUserPassword(!showUserPassword)}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300 transition cursor-pointer"
-            >
-              {showUserPassword ? (
-                <EyeSvg />
-              ) : (
-                <EyeCloseSvg />
-              )}
-            </button>
-          </div>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-            Users must enter this password to open the PDF
-          </p>
-        </div>
+        <PasswordField
+          label="User Password"
+          required
+          value={file.settings.user_password || ""}
+          placeholder="Enter password to open PDF"
+          helperText="Users must enter this password to open the PDF"
+          onChange={(val) => handlePasswordChange("user_password", val)}
+        />
 
         {/* Owner Password (Optional) */}
-        <div>
-          <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-2 block">
-            Owner Password (Optional)
-          </label>
-          <div className="relative">
-            <input
-              type={showOwnerPassword ? "text" : "password"}
-              value={file.settings.owner_password || ""}
-              onChange={(e) =>
-                handlePasswordChange("owner_password", e.target.value)
-              }
-              placeholder="Master password for permissions"
-              className="w-full px-3 py-2 pr-10 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-transparent hover:border-zinc-300 dark:hover:border-zinc-700 text-zinc-800 dark:text-zinc-200 text-sm outline-none"
-            />
-            <button
-              type="button"
-              onClick={() => setShowOwnerPassword(!showOwnerPassword)}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300 transition cursor-pointer"
-            >
-              {showOwnerPassword ? (
-                <EyeSvg />
-              ) : (
-                <EyeCloseSvg />
-              )}
-            </button>
-          </div>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-            Controls permissions like printing and editing
-          </p>
-        </div>
+
+        <PasswordField
+          label="Owner Password"
+          value={file.settings.owner_password || ""}
+          placeholder="Master password for permissions"
+          helperText="Controls permissions like printing and editing"
+          onChange={(val) => handlePasswordChange("owner_password", val)}
+        />
       </div>
 
       {/* Error Message */}
       {file.status === "error" && file.error && (
-        <div className="mt-2 px-3 py-2 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-          <p className="text-xs text-red-600 dark:text-red-400">{file.error}</p>
-        </div>
+        <FileError error={file.error} />
       )}
     </div>
   );
@@ -225,7 +164,6 @@ const PdfSecure = () => {
     addFromDropbox,
     updateFileSettings,
     encryptAllFiles,
-    clearAll,
   } = usePdfEncrypt();
 
   // ============================================================================
@@ -271,7 +209,6 @@ const PdfSecure = () => {
         disabled={!canAddMore}
       />
 
-
       {/* Pending Files Panel */}
       {files.length > 0 && (
         <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 md:mt-[1vw] mt-[1vh]">
@@ -284,16 +221,6 @@ const PdfSecure = () => {
                 {stats.error > 0 && ` • ${stats.error} failed`}
               </p>
             </div>
-
-            <button
-              onClick={clearAll}
-              className="px-3 py-1.5 rounded-xl font-medium text-red-600 bg-red-50 dark:bg-red-900/20 flex items-center gap-2 hover:bg-red-100 dark:hover:bg-red-900/30 transition-all duration-200 cursor-pointer"
-            >
-              <span className="w-5 h-5">
-                <TrashSvg />
-              </span>
-              <span className="md:block hidden">Clear All</span>
-            </button>
           </div>
 
           {/* File List */}
@@ -314,7 +241,8 @@ const PdfSecure = () => {
           {!hasAllPasswords && (
             <div className="mt-4 p-3 rounded-xl bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800">
               <p className="text-sm text-yellow-700 dark:text-yellow-300 flex items-center gap-2">
-                <ErrorSvg className="w-5 h-5" /> Please set a password for all files before encrypting
+                <ErrorSvg className="w-5 h-5" /> Please set a password for all
+                files before encrypting
               </p>
             </div>
           )}
@@ -326,9 +254,7 @@ const PdfSecure = () => {
               primaryColor={config.primaryColor}
               onClick={encryptAllFiles}
             >
-              {encrypting
-                ? "Encrypting..."
-                : `Secure ${stats.pending} File${stats.pending !== 1 ? "s" : ""}`}
+              {encrypting ? "Encrypting..." : `Secure PDF`}
             </GlassButton>
           )}
         </div>

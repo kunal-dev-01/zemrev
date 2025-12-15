@@ -8,7 +8,6 @@ import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 import GlassButton from "@/components/Layouts/GlassButton";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
-import { ClearAllButton } from "@/components/Shared/FileUI";
 
 const PdfCrop = () => {
   const config = PDF_TOOL_CONFIGS["pdf-crop"];
@@ -24,7 +23,6 @@ const PdfCrop = () => {
     addFromDropbox,
     updateFileSettings,
     cropAllFiles,
-    clearAll,
   } = useCropPdf();
 
   // ============================================================================
@@ -83,8 +81,6 @@ const PdfCrop = () => {
                 {stats.error > 0 && ` • ${stats.error} failed`}
               </p>
             </div>
-
-            <ClearAllButton onClick={clearAll} />
           </div>
 
           {/* File List */}

@@ -11,7 +11,6 @@ import type {
   PdfToolConfig,
 } from "@/services/pdfService/types";
 import {
-  ClearAllButton,
   FileInfo,
   RemoveButton,
 } from "@/components/Shared/FileUI";
@@ -109,7 +108,6 @@ const PdfFlatten = () => {
     addFromGoogleDrive,
     addFromDropbox,
     flattenAllFiles,
-    clearAll,
   } = useFlattenPdf();
 
   // ============================================================================
@@ -166,8 +164,6 @@ const PdfFlatten = () => {
                 {stats.error > 0 && ` • ${stats.error} failed`}
               </p>
             </div>
-
-            <ClearAllButton onClick={clearAll} />
           </div>
 
           {/* File List */}
