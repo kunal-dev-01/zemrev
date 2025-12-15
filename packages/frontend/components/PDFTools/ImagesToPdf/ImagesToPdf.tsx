@@ -8,13 +8,17 @@ import { PdfDragDropZone } from "@/components/Shared/PdfDragDropZone";
 import { PdfSessionFilesDisplay } from "@/components/Shared/PdfSessionFilesDisplay";
 import { PDF_TOOL_CONFIGS } from "@/config/pdfToolConfigs";
 import { CancelSvg, TrashSvg } from "@/components/Svg/CommonSvg";
+
 import { useImagesToPdf } from "@/hooks/pdfHooks/useImagesToPdf.hook";
 import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
+import { useFileUtils } from "@/hooks/appHooks/useFileUtils";
+
 import GlassButton from "@/components/Layouts/GlassButton";
 import { PDFToImageSVg } from "@/components/Svg/PdfSvg";
-import type { 
-  PdfProcessedFile, 
-  PdfToolConfig 
+
+import type {
+  PdfProcessedFile,
+  PdfToolConfig,
 } from "@/services/pdfService/types";
 
 // ============================================================================
@@ -41,32 +45,7 @@ const ImageFileItem = ({
   isDark,
   index,
 }: ImageFileItemProps) => {
-  // ============================================================================
-  // HELPERS
-  // ============================================================================
-
-  const formatBytes = (bytes: number): string => {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
-  };
-
-  const truncateFileName = (name: string, maxLength: number = 30): string => {
-    if (name.length <= maxLength) return name;
-    const ext = name.split(".").pop() || "";
-    const nameWithoutExt = name.substring(0, name.lastIndexOf("."));
-    const truncated = nameWithoutExt.substring(0, maxLength - ext.length - 4);
-    return `${truncated}...${ext}`;
-  };
-
-  const getImageTypeIcon = (type: string): string => {
-    if (type.includes("jpeg") || type.includes("jpg")) return "";
-    if (type.includes("png")) return "";
-    if (type.includes("webp")) return "";
-    return "";
-  };
+  const { formatBytes, truncateFileName } = useFileUtils();
 
   // ============================================================================
   // RENDER
@@ -141,6 +120,7 @@ const ImageFileItem = ({
 const ImagesToPdf = () => {
   const config = PDF_TOOL_CONFIGS["images-to-pdf"];
   const isDark = useDarkMode();
+  const { formatBytes } = useFileUtils();
 
   const {
     files,
@@ -180,14 +160,6 @@ const ImagesToPdf = () => {
   const canAddMore = files.length < config.maxFiles;
   const totalSize = files.reduce((acc, file) => acc + file.size, 0);
 
-  const formatTotalSize = (bytes: number): string => {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
-  };
-
   // ============================================================================
   // RENDER
   // ============================================================================
@@ -212,13 +184,14 @@ const ImagesToPdf = () => {
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2 dark:bg-zinc-900 bg-zinc-50 border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-1.5">
                 <p className="md:text-sm text-xs text-zinc-600 dark:text-zinc-400">
-                  {files.length} image{files.length !== 1 ? "s" : ""} • {formatTotalSize(totalSize)}
+                  {files.length} image{files.length !== 1 ? "s" : ""} •{" "}
+                  {formatBytes(totalSize)}
                 </p>
               </div>
 
               {/* Info Badge */}
               <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900">
-                <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                <span className="text-sm text-zinc-500 dark:text-zinc-400">
                   Images will be merged in order shown
                 </span>
               </div>
@@ -258,7 +231,9 @@ const ImagesToPdf = () => {
             >
               {converting
                 ? "Converting..."
-                : `Convert to PDF (${files.length} image${files.length !== 1 ? "s" : ""})`}
+                : `Convert to PDF (${files.length} image${
+                    files.length !== 1 ? "s" : ""
+                  })`}
             </GlassButton>
           )}
         </div>
