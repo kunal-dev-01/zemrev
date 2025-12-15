@@ -131,9 +131,9 @@ export const PdfSignFileItem = ({
             <div className="grid grid-cols-2 gap-4">
               <RangeSlider 
                 label="X Position" 
-                value={file.settings.x || 50} 
+                value={file.settings.x ?? 50} 
                 min={0} 
-                max={600} 
+                max={400} 
                 step={10} 
                 color={config.primaryColor} 
                 onChange={(v) => updateSettings(file.id, { x: v })} 
@@ -141,9 +141,9 @@ export const PdfSignFileItem = ({
               />
               <RangeSlider 
                 label="Y Position" 
-                value={file.settings.y || 700} 
+                value={file.settings.y ?? 700} 
                 min={0} 
-                max={800} 
+                max={760} 
                 step={10} 
                 color={config.primaryColor} 
                 onChange={(v) => updateSettings(file.id, { y: v })} 
