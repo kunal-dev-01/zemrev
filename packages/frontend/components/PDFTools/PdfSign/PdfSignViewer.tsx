@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import { ChevronDownSvg } from "@/components/Svg/CommonSvg";
 import type { PdfFileSettings } from "@/services/pdfService/types";
+import Image from "next/image";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -59,8 +60,16 @@ export const PdfSignViewer = ({
 
   // Position Styles (convert PDF points to pixels)
   const getSignatureStyle = (): React.CSSProperties => {
-    const x = (settings.x || 50) * scale;
-    const y = (settings.y || 700) * scale;
+// PDF points (pt) to Pixels (px) conversion
+    const x_pt = settings.x ?? 50;
+    const y_pt = settings.y ?? 700;
+    
+    // Add a minimal pixel offset to compensate for potential CSS/renderer misalignment (e.g., 2px)
+    const PREVIEW_OFFSET = 2; 
+
+    const x = (x_pt * scale) + PREVIEW_OFFSET; // Added offset
+    const y = (y_pt * scale) + PREVIEW_OFFSET; // Added offset
+    
     const width = (settings.width || 200) * scale;
     const height = (settings.height || 80) * scale;
 
@@ -70,14 +79,7 @@ export const PdfSignViewer = ({
       top: `${y}px`,
       width: `${width}px`,
       height: `${height}px`,
-      zIndex: 20,
-      pointerEvents: "none",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      border: "2px dashed rgba(180, 83, 9, 0.5)",
-      backgroundColor: "rgba(180, 83, 9, 0.1)",
-      borderRadius: "4px",
+      zIndex: 20
     };
   };
 
@@ -136,9 +138,10 @@ export const PdfSignViewer = ({
               {currentPage === (settings.page || 0) + 1 && (
                 <div style={getSignatureStyle()}>
                   {settings.signatureFile && imagePreview ? (
-                    <img
+                    <Image
                       src={imagePreview}
                       alt="signature"
+                      unoptimized
                       style={{
                         width: "100%",
                         height: "100%",
