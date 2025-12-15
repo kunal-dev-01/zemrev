@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { PdfDragDropZone } from "@/components/Shared/PdfDragDropZone";
 import { PdfSessionFilesDisplay } from "@/components/Shared/PdfSessionFilesDisplay";
 import { PDF_TOOL_CONFIGS } from "@/config/pdfToolConfigs";
@@ -39,8 +39,6 @@ const PdfFileItem = ({
   removeFile,
   isDark,
 }: PdfFileItemProps) => {
-  const [showUserPassword, setShowUserPassword] = useState(false);
-  const [showOwnerPassword, setShowOwnerPassword] = useState(false);
 
   // ============================================================================
   // HANDLERS

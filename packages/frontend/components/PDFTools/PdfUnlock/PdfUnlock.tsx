@@ -1,13 +1,8 @@
-// ============================================================================
-// FILE: src/components/PDFTools/PdfUnlock/PdfUnlock.tsx
-// PURPOSE: PDF Unlock Component - Remove password protection from PDFs
-// ============================================================================
-
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { PdfDragDropZone } from "@/components/Shared/PdfDragDropZone";
 import { PdfSessionFilesDisplay } from "@/components/Shared/PdfSessionFilesDisplay";
 import { PDF_TOOL_CONFIGS } from "@/config/pdfToolConfigs";
-import { CancelSvg, CheckSvg, ErrorSvg, TrashSvg } from "@/components/Svg/CommonSvg";
+import { CheckSvg, ErrorSvg } from "@/components/Svg/CommonSvg";
 import { usePdfDecrypt } from "@/hooks/pdfHooks/usePdfDecrypt.hook";
 import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 import GlassButton from "@/components/Layouts/GlassButton";
@@ -17,7 +12,8 @@ import type {
   PdfFileSettings,
   PdfToolConfig,
 } from "@/services/pdfService/types";
-import { EyeCloseSvg, EyeSvg } from "@/components/Svg/ToolsSvg";
+import { FileError, RemoveButton } from "@/components/Shared/FileUI";
+import { PasswordField } from "@/components/Layouts/PasswordField";
 
 // ============================================================================
 // TYPES
@@ -43,7 +39,6 @@ const PdfFileItem = ({
   removeFile,
   isDark,
 }: PdfFileItemProps) => {
-  const [showPassword, setShowPassword] = useState(false);
 
   // ============================================================================
   // HANDLERS
@@ -63,14 +58,6 @@ const PdfFileItem = ({
     const sizes = ["Bytes", "KB", "MB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
-  };
-
-  const truncateFileName = (name: string, maxLength: number = 30): string => {
-    if (name.length <= maxLength) return name;
-    const ext = name.split(".").pop() || "";
-    const nameWithoutExt = name.substring(0, name.lastIndexOf("."));
-    const truncated = nameWithoutExt.substring(0, maxLength - ext.length - 4);
-    return `${truncated}...${ext}`;
   };
 
   const hasPassword = Boolean(file.settings.password);
@@ -102,7 +89,7 @@ const PdfFileItem = ({
             className="text-sm font-medium text-zinc-800 dark:text-zinc-200 truncate"
             title={file.name}
           >
-            {truncateFileName(file.name)}
+            {file.name}
           </h3>
           <div className="flex items-center gap-2 mt-1">
             <p className="text-xs px-1 rounded-md bg-zinc-200 dark:bg-zinc-800 inline-block text-zinc-500 dark:text-zinc-400">
@@ -121,49 +108,22 @@ const PdfFileItem = ({
         </div>
 
         {/* Remove Button */}
-        <button
-          onClick={() => removeFile(file.id)}
-          className="px-3 py-1.5 rounded-xl border dark:border-zinc-700 border-zinc-200 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all duration-200 cursor-pointer"
-          aria-label="Remove file"
-        >
-          <CancelSvg className="w-5 h-5" />
-        </button>
+        <RemoveButton onClick={() => removeFile(file.id)} />
       </div>
 
       {/* Password Input */}
       <div className="border-t border-zinc-200 dark:border-zinc-800 pt-3">
-        <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-2 block">
-          Enter Password to Unlock
-        </label>
-        <div className="relative">
-          <input
-            type={showPassword ? "text" : "password"}
-            value={file.settings.password || ""}
-            onChange={(e) => handlePasswordChange(e.target.value)}
-            placeholder="Enter the PDF password"
-            className="w-full px-3 py-2 pr-10 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 bg-transparent text-zinc-800 dark:text-zinc-200 text-sm outline-none"
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300 transition cursor-pointer"
-          >
-            {showPassword ? (
-                <EyeSvg />
-              ) : (
-                <EyeCloseSvg />
-              )}
-          </button>
-        </div>
+        <PasswordField
+          label="Enter Password to Unlock"
+          value={file.settings.password || ""}
+          placeholder="Enter the PDF password"
+          onChange={handlePasswordChange}
+        />
       </div>
 
       {/* Error Message */}
       {file.status === "error" && file.error && (
-        <div className="mt-2 px-3 py-2 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-          <p className="text-xs text-red-600 dark:text-red-400">
-             {file.error}
-          </p>
-        </div>
+        <FileError error={file.error} />
       )}
     </div>
   );
@@ -187,7 +147,6 @@ const PdfUnlock = () => {
     addFromDropbox,
     updateFileSettings,
     decryptAllFiles,
-    clearAll,
   } = usePdfDecrypt();
 
   // ============================================================================
@@ -233,7 +192,6 @@ const PdfUnlock = () => {
         disabled={!canAddMore}
       />
 
-
       {/* Pending Files Panel */}
       {files.length > 0 && (
         <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 md:mt-[1vw] mt-[1vh]">
@@ -246,16 +204,6 @@ const PdfUnlock = () => {
                 {stats.error > 0 && ` • ${stats.error} failed`}
               </p>
             </div>
-
-            <button
-              onClick={clearAll}
-              className="px-3 py-1.5 rounded-xl font-medium text-red-600 bg-red-50 dark:bg-red-900/20 flex items-center gap-2 hover:bg-red-100 dark:hover:bg-red-900/30 transition-all duration-200 cursor-pointer"
-            >
-              <span className="w-5 h-5">
-                <TrashSvg />
-              </span>
-              <span className="md:block hidden">Clear All</span>
-            </button>
           </div>
 
           {/* File List */}
@@ -276,7 +224,8 @@ const PdfUnlock = () => {
           {!hasAllPasswords && (
             <div className="mt-4 p-3 rounded-xl bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800">
               <p className="text-sm text-yellow-700 dark:text-yellow-300 flex items-center gap-2">
-                <ErrorSvg className="w-5 h-5" /> Please enter passwords for all files before unlocking
+                <ErrorSvg className="w-5 h-5" /> Please enter passwords for all
+                files before unlocking
               </p>
             </div>
           )}
@@ -288,9 +237,7 @@ const PdfUnlock = () => {
               primaryColor={config.primaryColor}
               onClick={decryptAllFiles}
             >
-              {decrypting
-                ? "Unlocking..."
-                : `Unlock File`}
+              {decrypting ? "Unlocking..." : `Unlock PDF`}
             </GlassButton>
           )}
         </div>
