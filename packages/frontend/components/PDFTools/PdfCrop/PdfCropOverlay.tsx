@@ -1,8 +1,3 @@
-// ============================================================================
-// FILE: src/components/PDFTools/PdfCrop/PdfCropOverlay.tsx
-// Interactive draggable & resizable crop overlay with TOUCH SUPPORT
-// ============================================================================
-
 import { useState, useRef, useEffect, useCallback } from "react";
 
 interface PdfCropOverlayProps {

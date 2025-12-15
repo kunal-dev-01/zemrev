@@ -1,8 +1,3 @@
-// ============================================================================
-// FILE: src/components/PDFTools/PdfFlatten/PdfFlatten.tsx
-// PURPOSE: PDF Flatten Component - Remove layers and transparency
-// ============================================================================
-
 import { useCallback } from "react";
 import { PdfDragDropZone } from "@/components/Shared/PdfDragDropZone";
 import { PdfSessionFilesDisplay } from "@/components/Shared/PdfSessionFilesDisplay";
@@ -10,6 +5,7 @@ import { PDF_TOOL_CONFIGS } from "@/config/pdfToolConfigs";
 import { CancelSvg, TrashSvg } from "@/components/Svg/CommonSvg";
 import { useFlattenPdf } from "@/hooks/pdfHooks/useFlattenPdf.hook";
 import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
+import { useFileUtils } from "@/hooks/appHooks/useFileUtils";
 import GlassButton from "@/components/Layouts/GlassButton";
 import { PDFToImageSVg } from "@/components/Svg/PdfSvg";
 import type {
@@ -39,25 +35,7 @@ const PdfFileItem = ({
   removeFile,
   isDark,
 }: PdfFileItemProps) => {
-  // ============================================================================
-  // HELPERS
-  // ============================================================================
-
-  const formatBytes = (bytes: number): string => {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
-  };
-
-  const truncateFileName = (name: string, maxLength: number = 30): string => {
-    if (name.length <= maxLength) return name;
-    const ext = name.split(".").pop() || "";
-    const nameWithoutExt = name.substring(0, name.lastIndexOf("."));
-    const truncated = nameWithoutExt.substring(0, maxLength - ext.length - 4);
-    return `${truncated}...${ext}`;
-  };
+  const { formatBytes } = useFileUtils();
 
   // ============================================================================
   // RENDER
@@ -89,7 +67,7 @@ const PdfFileItem = ({
             className="text-sm leading-none font-medium text-zinc-800 dark:text-zinc-200 truncate"
             title={file.name}
           >
-            {truncateFileName(file.name)}
+            {file.name}
           </h3>
           <p className="text-xs px-1 rounded-md bg-zinc-200 dark:bg-zinc-800 inline-block text-zinc-500 dark:text-zinc-400 mt-1">
             {formatBytes(file.size)}
@@ -233,9 +211,7 @@ const PdfFlatten = () => {
               primaryColor={config.primaryColor}
               onClick={flattenAllFiles}
             >
-              {flattening
-                ? "Flattening..."
-                : `Flatten File`}
+              {flattening ? "Flattening..." : `Flatten File`}
             </GlassButton>
           )}
         </div>

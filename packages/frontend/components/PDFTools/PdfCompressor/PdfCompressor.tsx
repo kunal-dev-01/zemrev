@@ -1,8 +1,3 @@
-// ============================================================================
-// FILE: src/components/PDFTools/PdfCompressor/PdfCompressor.tsx
-// PURPOSE: PDF Compressor Component
-// ============================================================================
-
 import { useCallback, useState, useRef, useEffect } from "react";
 import { PdfDragDropZone } from "@/components/Shared/PdfDragDropZone";
 import { PdfSessionFilesDisplay } from "@/components/Shared/PdfSessionFilesDisplay";

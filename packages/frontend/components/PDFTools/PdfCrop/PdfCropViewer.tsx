@@ -1,8 +1,3 @@
-// ============================================================================
-// FILE: src/components/PDFTools/PdfCrop/PdfCropViewer.tsx
-// PURPOSE: Responsive PDF Crop Viewer with Page Navigation & Overlay
-// ============================================================================
-
 import { useEffect, useRef, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 

@@ -1,8 +1,3 @@
-// ============================================================================
-// FILE 4: src/components/PDFTools/PdfCrop/PdfCrop.tsx
-// PURPOSE: Main container
-// ============================================================================
-
 import { useCallback } from "react";
 import { PdfCropFileItem } from "./PdfCropFileItem";
 import { PdfDragDropZone } from "@/components/Shared/PdfDragDropZone";

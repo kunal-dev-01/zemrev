@@ -1,8 +1,3 @@
-// ============================================================================
-// FILE: src/components/PDFTools/ImagesToPdf/ImagesToPdf.tsx
-// PURPOSE: Images to PDF Component - Convert multiple images to single PDF
-// ============================================================================
-
 import { useCallback } from "react";
 import { PdfDragDropZone } from "@/components/Shared/PdfDragDropZone";
 import { PdfSessionFilesDisplay } from "@/components/Shared/PdfSessionFilesDisplay";
