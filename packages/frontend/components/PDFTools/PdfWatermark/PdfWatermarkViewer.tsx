@@ -1,10 +1,6 @@
-// ============================================================================
-// FILE: src/components/PDFTools/PdfWatermark/PdfWatermarkViewer.tsx
-// PDF preview with watermark overlay visualization
-// ============================================================================
-
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
+import { ChevronDownSvg } from "@/components/Svg/CommonSvg";
 import type { PdfFileSettings } from "@/services/pdfService/types";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
@@ -15,6 +11,9 @@ interface PdfWatermarkViewerProps {
   primaryColor: string;
 }
 
+// Backend Margin Constant (50pt)
+const MARGIN_PT = 50;
+
 export const PdfWatermarkViewer = ({
   file,
   settings,
@@ -22,18 +21,13 @@ export const PdfWatermarkViewer = ({
 }: PdfWatermarkViewerProps) => {
   const [numPages, setNumPages] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageWidth, setPageWidth] = useState(612);
-  const [pageHeight, setPageHeight] = useState(792);
-  const [containerWidth, setContainerWidth] = useState(700);
-  const [loading, setLoading] = useState(true);
+  const [pageWidth, setPageWidth] = useState(0); // PDF Point Width
+  const [renderedWidth, setRenderedWidth] = useState(0); // Pixel Width
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
 
-  const scale = containerWidth / pageWidth;
-
-  // ============================================================================
-  // LOAD IMAGE PREVIEW
-  // ============================================================================
+  // Load Image Preview
   useEffect(() => {
     if (settings.watermarkFile) {
       const reader = new FileReader();
@@ -44,227 +38,134 @@ export const PdfWatermarkViewer = ({
     }
   }, [settings.watermarkFile]);
 
-  // ============================================================================
-  // PDF LOAD HANDLERS
-  // ============================================================================
-  const onDocumentLoadSuccess = useCallback(
-    ({ numPages: num }: { numPages: number }) => {
-      setNumPages(num);
-      setLoading(false);
-    },
-    []
-  );
-
-  const onPageLoadSuccess = useCallback(
-    (page: { width: number; height: number }) => {
-      setPageWidth(page.width);
-      setPageHeight(page.height);
-    },
-    []
-  );
-
-  // ============================================================================
-  // SCROLL HANDLER
-  // ============================================================================
-  useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container || !numPages || numPages <= 1) return;
-
-    let ticking = false;
-
-    const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          const scrollTop = container.scrollTop;
-          const scrollHeight = container.scrollHeight - container.clientHeight;
-          const scrollPercentage = scrollTop / scrollHeight;
-
-          const newPage = Math.min(
-            numPages,
-            Math.max(1, Math.ceil(scrollPercentage * numPages))
-          );
-
-          if (newPage !== currentPage) {
-            setCurrentPage(newPage);
-          }
-
-          ticking = false;
-        });
-
-        ticking = true;
-      }
-    };
-
-    container.addEventListener("scroll", handleScroll, { passive: true });
-    return () => container.removeEventListener("scroll", handleScroll);
-  }, [numPages, currentPage]);
-
-  // ============================================================================
-  // RESPONSIVE WIDTH
-  // ============================================================================
+  // Handle Resize
   useEffect(() => {
     const updateWidth = () => {
-      const parent = document.getElementById("pdf-watermark-container");
-      if (parent) {
-        const availableWidth = parent.clientWidth - 80;
-        setContainerWidth(Math.min(availableWidth, 850));
+      if (containerRef.current) {
+        setContainerWidth(containerRef.current.clientWidth);
       }
     };
-
-    updateWidth();
     window.addEventListener("resize", updateWidth);
+    updateWidth();
     return () => window.removeEventListener("resize", updateWidth);
   }, []);
 
-  // ============================================================================
-  // WATERMARK POSITION
-  // ============================================================================
-  const getWatermarkPosition = () => {
-    const positions = {
-      center: { top: "50%", left: "50%", transform: "translate(-50%, -50%)" },
-      top_left: { top: "10%", left: "10%" },
-      top_right: { top: "10%", right: "10%" },
-      bottom_left: { bottom: "10%", left: "10%" },
-      bottom_right: { bottom: "10%", right: "10%" },
+  // Calculate Scale (Pixels per Point)
+  const scale = pageWidth > 0 && renderedWidth > 0 ? renderedWidth / pageWidth : 1;
+  const marginPx = MARGIN_PT * scale;
+
+  // Position Styles
+  const getPositionStyle = (): React.CSSProperties => {
+    const base: React.CSSProperties = {
+      position: "absolute",
+      zIndex: 20,
+      transform: `rotate(${settings.rotation || 0}deg)`,
+      transformOrigin: "center center",
+      pointerEvents: "none",
+      whiteSpace: "nowrap",
+      maxWidth: "80%", // Prevent huge overflow
     };
 
-    return positions[settings.position as keyof typeof positions] || positions.center;
+    const pos = settings.position || "center";
+
+    switch (pos) {
+      case "top_left":
+        return { ...base, top: marginPx, left: marginPx, transformOrigin: "top left" };
+      case "top_right":
+        return { ...base, top: marginPx, right: marginPx, transformOrigin: "top right" };
+      case "bottom_left":
+        return { ...base, bottom: marginPx, left: marginPx, transformOrigin: "bottom left" };
+      case "bottom_right":
+        return { ...base, bottom: marginPx, right: marginPx, transformOrigin: "bottom right" };
+      case "center":
+      default:
+        return {
+          ...base,
+          top: "50%",
+          left: "50%",
+          transform: `translate(-50%, -50%) rotate(${settings.rotation || 0}deg)`,
+        };
+    }
   };
 
-  // ============================================================================
-  // RENDER
-  // ============================================================================
   return (
-    <div id="pdf-watermark-container" className="w-full">
-      {/* Page indicator */}
-      {numPages && numPages > 1 && (
-        <div className="flex items-center justify-center mb-4 px-4 py-2.5 bg-linear-to-r from-zinc-50 to-zinc-100 dark:from-zinc-900 dark:to-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
-          <span className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-            📄 Page {currentPage} of {numPages}
-            <span className="text-zinc-500 dark:text-zinc-400 ml-2 text-xs font-normal">
-              • Scroll to change pages
-            </span>
-          </span>
-        </div>
-      )}
-
-      {/* PDF viewer with watermark overlay */}
-      <div
-        ref={scrollContainerRef}
-        className="relative bg-zinc-50 dark:bg-zinc-900 rounded-xl border-2 border-zinc-300 dark:border-zinc-700 overflow-y-auto overflow-x-hidden shadow-lg"
-        style={{
-          maxHeight: "70vh",
-          scrollBehavior: "smooth",
-        }}
-      >
-        {/* Loading */}
-        {loading && (
-          <div className="flex flex-col items-center justify-center h-96 gap-3">
-            <div
-              className="animate-spin rounded-full h-12 w-12 border-4 border-t-transparent"
-              style={{
-                borderColor: `${primaryColor}40`,
-                borderTopColor: "transparent",
-              }}
-            />
-            <p className="text-sm text-zinc-600 dark:text-zinc-400">
-              Loading PDF...
-            </p>
-          </div>
-        )}
-
-        {/* PDF + Watermark */}
-        <div className="flex items-start justify-center min-h-full p-4">
-          <div className="relative">
-            <Document
-              file={file}
-              onLoadSuccess={onDocumentLoadSuccess}
-              loading=""
-              error={
-                <div className="flex items-center justify-center h-96">
-                  <div className="text-center">
-                    <p className="text-red-500 font-medium mb-2">
-                      Failed to load PDF
-                    </p>
-                    <p className="text-sm text-zinc-500">
-                      Please try another file
-                    </p>
-                  </div>
-                </div>
-              }
-            >
-              <Page
-                pageNumber={currentPage}
-                width={containerWidth}
-                onLoadSuccess={onPageLoadSuccess}
-                loading=""
-                renderTextLayer={false}
-                renderAnnotationLayer={false}
-                className="shadow-xl rounded-lg overflow-hidden"
-              />
-            </Document>
-
-            {/* Watermark Overlay */}
-            {!loading && (
-              <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-                <div
-                  className="absolute"
-                  style={{
-                    ...getWatermarkPosition(),
-                    opacity: settings.opacity || 0.3,
-                    transform: `${getWatermarkPosition() || ""} rotate(${
-                      settings.rotation || 45
-                    }deg)`,
-                  }}
-                >
-                  {/* Text Watermark */}
-                  {!settings.watermarkFile && (
-                    <div
-                      className="font-bold whitespace-nowrap select-none"
-                      style={{
-                        fontSize: `${(settings.font_size || 50) * scale}px`,
-                        color: settings.color || "gray",
-                        textShadow: "2px 2px 4px rgba(0,0,0,0.1)",
-                      }}
-                    >
-                      {settings.text || "WATERMARK"}
-                    </div>
-                  )}
-
-                  {/* Image Watermark */}
-                  {settings.watermarkFile && imagePreview && (
-                    <img
-                      src={imagePreview}
-                      alt="Watermark"
-                      className="max-w-none select-none"
-                      style={{
-                        width: `${containerWidth * 0.25}px`,
-                        filter: "drop-shadow(2px 2px 4px rgba(0,0,0,0.2))",
-                      }}
-                    />
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Scroll spacer */}
+    <div className="w-full flex flex-col gap-3">
+      {/* Header */}
+      <div className="flex items-center justify-between px-1">
+        <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Preview</span>
         {numPages && numPages > 1 && (
-          <div style={{ height: `${(numPages - 1) * 300}px` }} />
+          <div className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 rounded-lg p-1">
+            <button
+              type="button"
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage <= 1}
+              className="p-1 hover:bg-white dark:hover:bg-zinc-700 rounded-md disabled:opacity-30"
+            >
+              <ChevronDownSvg  className="w-4 h-4 rotate-90" />
+            </button>
+            <span className="text-xs font-mono w-10 text-center">{currentPage}/{numPages}</span>
+            <button
+              type="button"
+              onClick={() => setCurrentPage((p) => Math.min(numPages, p + 1))}
+              disabled={currentPage >= numPages}
+              className="p-1 hover:bg-white dark:hover:bg-zinc-700 rounded-md disabled:opacity-30"
+            >
+              <ChevronDownSvg  className="w-4 h-4 -rotate-90" />
+            </button>
+          </div>
         )}
       </div>
 
-      {/* Instructions */}
-      <div className="mt-4 flex items-center justify-center gap-2 text-xs text-zinc-600 dark:text-zinc-400">
-        <span className="px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700">
-          👁️ Preview with watermark
-        </span>
-        {numPages && numPages > 1 && (
-          <span className="px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-lg border border-zinc-200 dark:border-zinc-700">
-            📜 Scroll for pages
-          </span>
-        )}
+      {/* PDF Container */}
+      <div
+        ref={containerRef}
+        className="relative bg-zinc-100 dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden flex justify-center py-4 min-h-[300px]"
+      >
+        <Document
+          file={file}
+          onLoadSuccess={({ numPages }) => setNumPages(numPages)}
+          loading={<div className="text-xs text-zinc-500 mt-10">Loading PDF...</div>}
+        >
+          <div className="shadow-lg relative inline-block">
+            <Page
+              pageNumber={currentPage}
+              width={containerWidth > 600 ? 500 : containerWidth - 32} // Fixed width for stability
+              onLoadSuccess={(page) => {
+                setPageWidth(page.originalWidth);
+                const canvas = document.querySelector(`.react-pdf__Page[data-page-number="${currentPage}"] canvas`);
+                if (canvas) setRenderedWidth(canvas.getBoundingClientRect().width);
+              }}
+              renderTextLayer={false}
+              renderAnnotationLayer={false}
+              className="bg-white"
+            >
+              {/* WATERMARK IS NOW A CHILD OF PAGE - GUARANTEED ALIGNMENT */}
+              <div style={getPositionStyle()}>
+                {settings.watermarkFile && imagePreview ? (
+                  <img
+                    src={imagePreview}
+                    alt="wm"
+                    style={{
+                      width: `${(pageWidth * 0.4) * scale}px`, // ~40% of page width
+                      opacity: settings.opacity || 0.3,
+                    }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      fontSize: `${(settings.font_size || 50) * scale}px`,
+                      color: settings.color || "gray",
+                      opacity: settings.opacity || 0.3,
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {settings.text || "WATERMARK"}
+                  </div>
+                )}
+              </div>
+            </Page>
+          </div>
+        </Document>
       </div>
     </div>
   );
