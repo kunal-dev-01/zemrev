@@ -3,16 +3,14 @@ import { PdfDragDropZone } from "@/components/Shared/PdfDragDropZone";
 import { PdfSessionFilesDisplay } from "@/components/Shared/PdfSessionFilesDisplay";
 import { PDF_TOOL_CONFIGS } from "@/config/pdfToolConfigs";
 import {
-  CancelSvg,
-  TrashSvg,
   SettingsSvg,
   ChevronDownSvg,
 } from "@/components/Svg/CommonSvg";
 import { usePdfCompressor } from "@/hooks/pdfHooks/usePdfCompressor.hook";
 import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
-import { useFileUtils } from "@/hooks/appHooks/useFileUtils";
 import GlassButton from "@/components/Layouts/GlassButton";
 import { PDFToImageSVg } from "@/components/Svg/PdfSvg";
+import { ClearAllButton, FileInfo, RemoveButton } from "@/components/Shared/FileUI";
 
 // ============================================================================
 // SUB-COMPONENT: PdfFileItem
@@ -27,7 +25,6 @@ const PdfFileItem = ({
 }: any) => {
   const [isQualityOpen, setIsQualityOpen] = useState(false);
   const qualityRef = useRef<HTMLDivElement>(null);
-  const { formatBytes } = useFileUtils();
 
   const compressionOptions = [
     { value: "screen", label: "Screen", desc: "72 DPI - Smallest size" },
@@ -78,15 +75,7 @@ const PdfFileItem = ({
 
         {/* File Info */}
         <div className="flex-1 min-w-0">
-          <h3
-            className="text-sm leading-none font-medium text-zinc-800 dark:text-zinc-200 truncate"
-            title={file.name}
-          >
-            {file.name}
-          </h3>
-          <p className="text-xs px-1 rounded-md bg-zinc-200 dark:bg-zinc-800 inline-block text-zinc-500 dark:text-zinc-400 mt-1">
-            {formatBytes(file.size)}
-          </p>
+          <FileInfo name={file.name} size={file.size} />
         </div>
 
         {/* Compression Settings Dropdown */}
@@ -146,13 +135,7 @@ const PdfFileItem = ({
         </div>
 
         {/* Remove Button */}
-        <button
-          onClick={() => removeFile(file.id)}
-          className="px-3 py-1.5 rounded-xl border dark:border-zinc-700 border-zinc-200 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all duration-200 cursor-pointer"
-          aria-label="Remove file"
-        >
-          <CancelSvg className="w-5 h-5" />
-        </button>
+       <RemoveButton onClick={() => removeFile(file.id)} />
       </div>
     </div>
   );
@@ -226,15 +209,7 @@ const PdfCompressor = () => {
               </p>
             </div>
 
-            <button
-              onClick={clearAll}
-              className="px-3 py-1.5 rounded-xl font-medium text-red-600 bg-red-50 dark:bg-red-900/20 flex items-center gap-2 hover:bg-red-100 dark:hover:bg-red-900/30 transition-all duration-200 cursor-pointer"
-            >
-              <span className="w-5 h-5">
-                <TrashSvg />
-              </span>
-              <span className="md:block hidden">Clear All</span>
-            </button>
+            <ClearAllButton onClick={clearAll} />
           </div>
 
           {/* File List */}

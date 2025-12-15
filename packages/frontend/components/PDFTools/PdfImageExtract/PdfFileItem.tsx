@@ -1,10 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import {
-  CancelSvg,
   ChevronDownSvg,
   SettingsSvg,
 } from "@/components/Svg/CommonSvg";
-import { useFileUtils } from "@/hooks/appHooks/useFileUtils";
 import { InputField } from "@/components/Layouts/InputField";
 import { PDFToImageSVg } from "@/components/Svg/PdfSvg";
 import type {
@@ -12,6 +10,7 @@ import type {
   PdfFileSettings,
   PdfToolConfig,
 } from "@/services/pdfService/types";
+import { FileError, FileInfo, RemoveButton } from "@/components/Shared/FileUI";
 
 // ============================================================================
 // TYPES
@@ -78,7 +77,6 @@ export const PdfFileItem = ({
     file.settings.min_height?.toString() || "100"
   );
   const settingsRef = useRef<HTMLDivElement>(null);
-  const { formatBytes } = useFileUtils();
 
   // ============================================================================
   // EFFECTS
@@ -150,15 +148,7 @@ export const PdfFileItem = ({
 
         {/* File Info */}
         <div className="flex-1 min-w-0">
-          <h3
-            className="text-sm leading-none font-medium text-zinc-800 dark:text-zinc-200 truncate"
-            title={file.name}
-          >
-            {file.name}
-          </h3>
-          <p className="text-xs px-1 rounded-md bg-zinc-200 dark:bg-zinc-800 inline-block text-zinc-500 dark:text-zinc-400 mt-1">
-            {formatBytes(file.size)}
-          </p>
+          <FileInfo name={file.name} size={file.size} />
         </div>
 
         {/* Size Settings Dropdown */}
@@ -239,20 +229,12 @@ export const PdfFileItem = ({
         </div>
 
         {/* Remove Button */}
-        <button
-          onClick={() => removeFile(file.id)}
-          className="px-3 py-1.5 rounded-xl border dark:border-zinc-700 border-zinc-200 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all duration-200 cursor-pointer"
-          aria-label="Remove file"
-        >
-          <CancelSvg className="w-5 h-5" />
-        </button>
+        <RemoveButton onClick={() => removeFile(file.id)} />
       </div>
 
       {/* Error Message */}
       {file.status === "error" && file.error && (
-        <div className="mt-2 px-3 py-2 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-          <p className="text-xs text-red-600 dark:text-red-400">{file.error}</p>
-        </div>
+        <FileError error={file.error} />
       )}
     </div>
   );

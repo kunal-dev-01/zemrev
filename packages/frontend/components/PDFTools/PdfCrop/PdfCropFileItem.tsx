@@ -3,13 +3,14 @@ import { useEffect, useState } from "react";
 import { PdfCropViewer } from "./PdfCropViewer";
 import { CancelSvg } from "@/components/Svg/CommonSvg";
 import { PDFToImageSVg } from "@/components/Svg/PdfSvg";
-import { useFileUtils } from "@/hooks/appHooks/useFileUtils";
 
 import type {
   PdfProcessedFile,
   PdfFileSettings,
   PdfToolConfig,
 } from "@/services/pdfService/types";
+import { FileInfo, RemoveButton } from "@/components/Shared/FileUI";
+import { InputField } from "@/components/Layouts/InputField";
 
 // ============================================================================
 // RADIO BUTTON COMPONENT
@@ -22,12 +23,7 @@ interface RadioButtonProps {
   color: string;
 }
 
-const RadioButton = ({
-  checked,
-  label,
-  onChange,
-  color,
-}: RadioButtonProps) => {
+const RadioButton = ({ checked, label, onChange, color }: RadioButtonProps) => {
   return (
     <button
       type="button"
@@ -80,8 +76,6 @@ export const PdfCropFileItem = ({
   removeFile,
   isDark,
 }: PdfCropFileItemProps) => {
-  const { formatBytes } = useFileUtils();
-
   // --------------------------------------------------------------------------
   // LOCAL STATE
   // --------------------------------------------------------------------------
@@ -151,22 +145,10 @@ export const PdfCropFileItem = ({
         </div>
 
         <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-semibold truncate text-zinc-800 dark:text-zinc-200">
-            {file.name}
-          </h3>
-
-          <p className="mt-1 inline-block px-1 text-xs text-zinc-500 bg-zinc-200 dark:bg-zinc-800 rounded-md">
-            {formatBytes(file.size)}
-          </p>
+          <FileInfo name={file.name} size={file.size} />
         </div>
 
-        <button
-          type="button"
-          onClick={() => removeFile(file.id)}
-          className="px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all"
-        >
-          <CancelSvg className="w-5 h-5" />
-        </button>
+        <RemoveButton onClick={() => removeFile(file.id)} />
       </div>
 
       {/* ===================================================================== */}
@@ -205,23 +187,18 @@ export const PdfCropFileItem = ({
             >
               <div className="overflow-hidden min-h-0">
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-zinc-500">
-                    Page Range
-                  </label>
-
-                  <input
+                  <InputField
+                    label="Page Range"
                     type="text"
                     value={file.settings.crop_page_range || ""}
-                    onChange={(e) =>
-                      handlePageRangeChange(e.target.value)
-                    }
                     placeholder="e.g. 1-3, 5, 8-10"
                     disabled={cropAllPagesSelected}
-                    className={`w-full px-3 py-2 rounded-lg border text-sm outline-none transition-all bg-transparent ${
+                    onChange={handlePageRangeChange}
+                    className={
                       cropAllPagesSelected
                         ? "cursor-not-allowed text-zinc-500 border-zinc-300 dark:border-zinc-700/50"
-                        : "text-zinc-800 dark:text-zinc-200 border-zinc-200 dark:border-zinc-700"
-                    }`}
+                        : ""
+                    }
                   />
 
                   <p className="text-xs text-zinc-400">

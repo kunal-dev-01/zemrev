@@ -9,6 +9,7 @@ import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 import GlassButton from "@/components/Layouts/GlassButton";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
+import { ClearAllButton } from "@/components/Shared/FileUI";
 
 const PdfCrop = () => {
   const config = PDF_TOOL_CONFIGS["pdf-crop"];
@@ -84,15 +85,7 @@ const PdfCrop = () => {
               </p>
             </div>
 
-            <button
-              onClick={clearAll}
-              className="px-3 py-1.5 rounded-xl font-medium text-red-600 bg-red-50 dark:bg-red-900/20 flex items-center gap-2 hover:bg-red-100 dark:hover:bg-red-900/30 transition-all duration-200 cursor-pointer"
-            >
-              <span className="w-5 h-5">
-                <TrashSvg />
-              </span>
-              <span className="md:block hidden">Clear All</span>
-            </button>
+            <ClearAllButton onClick={clearAll} />
           </div>
 
           {/* File List */}
