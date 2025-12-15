@@ -7,20 +7,22 @@ import { useCallback, useState, useEffect } from "react";
 import { PdfDragDropZone } from "@/components/Shared/PdfDragDropZone";
 import { PDF_TOOL_CONFIGS } from "@/config/pdfToolConfigs";
 import {
-  CancelSvg,
   TrashSvg,
   DownloadSvg,
+  CheckSvg,
+  CopySvg,
 } from "@/components/Svg/CommonSvg";
 import { useExtractText } from "@/hooks/pdfHooks/useExtractText.hook";
 import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 import GlassButton from "@/components/Layouts/GlassButton";
 import { PDFToImageSVg } from "@/components/Svg/PdfSvg";
 import { pdfSessionStorage } from "@/utils/pdfSessionStorage.utils";
+import { ToggleSwitch } from "@/components/Shared/ToggleSwitch";
 import type {
   PdfProcessedFile,
   PdfToolConfig,
-  PdfStoredFile,
 } from "@/services/pdfService/types";
+import { FileInfo, RemoveButton } from "@/components/Shared/FileUI";
 
 // ============================================================================
 // TYPES
@@ -33,14 +35,6 @@ interface ExtractedTextData {
   charCount: number;
   wordCount: number;
   timestamp: number;
-}
-
-interface ToggleSwitchProps {
-  checked: boolean;
-  onChange: (value: boolean) => void;
-  label: string;
-  description: string;
-  color: string;
 }
 
 interface PdfFileItemProps {
@@ -58,56 +52,6 @@ interface ExtractedTextDisplayProps {
 }
 
 // ============================================================================
-// SUB-COMPONENT: ToggleSwitch
-// ============================================================================
-
-const ToggleSwitch = ({
-  checked,
-  onChange,
-  label,
-  description,
-  color,
-}: ToggleSwitchProps) => {
-  const handleToggle = () => onChange(!checked);
-
-  return (
-    <label className="flex items-center gap-3 cursor-pointer p-2 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-all">
-      <div
-        role="switch"
-        aria-checked={checked}
-        tabIndex={0}
-        onClick={handleToggle}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            handleToggle();
-          }
-        }}
-        className={`relative w-11 h-6 flex items-center rounded-full transition-all duration-300 focus:outline-none ${
-          checked ? "bg-opacity-90" : "bg-zinc-300 dark:bg-zinc-700"
-        }`}
-        style={checked ? { backgroundColor: color } : undefined}
-      >
-        <span
-          className={`absolute left-1 w-4 h-4 rounded-full bg-white shadow-md transition-transform duration-300 ${
-            checked ? "translate-x-5" : ""
-          }`}
-        />
-      </div>
-
-      <div className="flex-1 leading-tight">
-        <span className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-          {label}
-        </span>
-        <span className="text-xs text-zinc-500 dark:text-zinc-400">
-          {description}
-        </span>
-      </div>
-    </label>
-  );
-};
-
-// ============================================================================
 // SUB-COMPONENT: PdfFileItem
 // ============================================================================
 
@@ -118,21 +62,6 @@ const PdfFileItem = ({
   removeFile,
   isDark,
 }: PdfFileItemProps) => {
-  const formatBytes = (bytes: number): string => {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
-  };
-
-  const truncateFileName = (name: string, maxLength: number = 30): string => {
-    if (name.length <= maxLength) return name;
-    const ext = name.split(".").pop() || "";
-    const nameWithoutExt = name.substring(0, name.lastIndexOf("."));
-    const truncated = nameWithoutExt.substring(0, maxLength - ext.length - 4);
-    return `${truncated}...${ext}`;
-  };
 
   return (
     <div className="bg-transparent border border-zinc-200 dark:border-zinc-800 rounded-2xl p-3 transition-all duration-200 hover:border-zinc-300 dark:hover:border-zinc-700">
@@ -154,24 +83,10 @@ const PdfFileItem = ({
         </div>
 
         <div className="flex-1 min-w-0">
-          <h3
-            className="text-sm font-medium text-zinc-800 dark:text-zinc-200 truncate"
-            title={file.name}
-          >
-            {truncateFileName(file.name)}
-          </h3>
-          <p className="text-xs px-1 rounded-md bg-zinc-200 dark:bg-zinc-800 inline-block text-zinc-500 dark:text-zinc-400 mt-1">
-            {formatBytes(file.size)}
-          </p>
+          <FileInfo name={file.name} size={file.size} />
         </div>
 
-        <button
-          onClick={() => removeFile(file.id)}
-          className="px-3 py-1.5 rounded-xl border dark:border-zinc-700 border-zinc-200 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all duration-200 cursor-pointer"
-          aria-label="Remove file"
-        >
-          <CancelSvg className="w-5 h-5" />
-        </button>
+        <RemoveButton onClick={() => removeFile(file.id)} />
       </div>
 
       {/* Toggle Setting */}
@@ -272,7 +187,7 @@ const ExtractedTextDisplay = ({
               color: "white",
             }}
           >
-            {copied ? "✓ Copied" : "📋 Copy"}
+            {copied ? (<CheckSvg/>) : (<CopySvg/>)}
           </button>
 
           <button
@@ -327,7 +242,6 @@ const PdfTextExtract = () => {
     addFromDropbox,
     updateSettings,
     extractAll,
-    clearAll,
   } = useExtractText();
 
   const [extractedTexts, setExtractedTexts] = useState<ExtractedTextData[]>([]);
@@ -437,16 +351,6 @@ const PdfTextExtract = () => {
                 {files.length} file{files.length !== 1 ? "s" : ""} ready
               </p>
             </div>
-
-            <button
-              onClick={clearAll}
-              className="px-3 py-1.5 rounded-xl font-medium text-red-600 bg-red-50 dark:bg-red-900/20 flex items-center gap-2 hover:bg-red-100 dark:hover:bg-red-900/30 transition-all duration-200 cursor-pointer"
-            >
-              <span className="w-5 h-5">
-                <TrashSvg />
-              </span>
-              <span className="md:block hidden">Clear All</span>
-            </button>
           </div>
 
           <div className="space-y-2 mb-4">
