@@ -4,11 +4,6 @@ import { PdfDragDropZone } from "@/components/Shared/PdfDragDropZone";
 import { PdfSessionFilesDisplay } from "@/components/Shared/PdfSessionFilesDisplay";
 import GlassButton from "@/components/Layouts/GlassButton";
 
-import {
-  ChevronDownSvg,
-} from "@/components/Svg/CommonSvg";
-import { PDFToImageSVg } from "@/components/Svg/PdfSvg";
-
 import { PDF_TOOL_CONFIGS } from "@/config/pdfToolConfigs";
 import { useOcrSearchable } from "@/hooks/pdfHooks/useOcrSearchable.hook";
 import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
@@ -18,7 +13,13 @@ import type {
   PdfFileSettings,
   PdfToolConfig,
 } from "@/services/pdfService/types";
-import { FileError, RemoveButton } from "@/components/Shared/FileUI";
+import {
+  FileError,
+  FilesStatusSummary,
+  RemoveButton,
+  SettingsToggleButton,
+  ToolIconBadge,
+} from "@/components/Shared/FileUI";
 
 // ============================================================================
 // TYPES
@@ -75,8 +76,7 @@ const PdfFileItem = ({
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () =>
-      document.removeEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Helpers
@@ -98,24 +98,15 @@ const PdfFileItem = ({
     `${file.settings.dpi} DPI`;
 
   return (
-    <div className="relative rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-transparent p-2 md:p-3 transition-all hover:border-zinc-300 dark:hover:border-zinc-700">
+    <div className="relative rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-transparent p-2 md:p-3 transition-all duration-200 hover:border-zinc-300 dark:hover:border-zinc-700">
       <div className="flex items-center gap-3">
         {/* Icon */}
-        <div
-          className="shrink-0 rounded-lg p-2.5 sm:p-3"
-          style={{
-            backgroundColor: isDark
-              ? config.dropzoneColorDark
-              : config.dropzoneColor,
-          }}
-        >
-          <div
-            className="h-5 w-5 sm:h-6 sm:w-6"
-            style={{ color: config.primaryColor }}
-          >
-            <PDFToImageSVg />
-          </div>
-        </div>
+        <ToolIconBadge
+          primaryColor={config.primaryColor}
+          bgColor={config.dropzoneColor}
+          bgColorDark={config.dropzoneColorDark}
+          isDark={isDark}
+        />
 
         {/* Info */}
         <div className="min-w-0 flex-1">
@@ -139,62 +130,94 @@ const PdfFileItem = ({
 
         {/* DPI Dropdown */}
         <div ref={settingsRef}>
-          <button
+          <SettingsToggleButton
+            isOpen={isSettingsOpen}
+            label={currentDpiLabel}
             onClick={() => setIsSettingsOpen((v) => !v)}
-            className="flex min-w-[110px] items-center justify-between rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-sm font-medium text-zinc-800 transition-all hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800/50 dark:text-zinc-200 dark:hover:bg-zinc-700"
-          >
-            {currentDpiLabel}
-            <ChevronDownSvg />
-          </button>
+          />
 
           {isSettingsOpen && (
-            <div className="absolute right-0 z-20 mt-1 md:w-[15vw] rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-900">
-              <label className="mb-1.5 block text-xs font-semibold text-zinc-600 dark:text-zinc-400">
-                OCR Quality (DPI)
-              </label>
+            <>
+              <div
+                className="absolute right-0 top-full mt-1 z-20 md:min-w-[15vw] min-w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 origin-top-right ring-1 ring-black/5 dark:ring-white/5"
+                style={{
+                  animation:
+                    "dropdownEnter 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+                }}
+              >
+                <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-3 block">
+                  OCR Quality (DPI)
+                </label>
 
-              <div className="space-y-1">
-                {DPI_PRESETS.map((preset) => {
-                  const active = file.settings.dpi === preset.value;
+                <div className="space-y-2">
+                  {DPI_PRESETS.map((preset) => {
+                    const active = file.settings.dpi === preset.value;
 
-                  return (
-                    <button
-                      key={preset.value}
-                      onClick={() => handleDpiChange(preset.value)}
-                      className={`flex w-full items-center justify-between rounded-xl border border-zinc-200 dark:border-zinc-700 px-3 py-2 text-left text-sm font-medium transition-all ${
-                        active
-                          ? "text-white"
-                          : "bg-zinc-50 text-zinc-700 hover:bg-zinc-100 dark:bg-zinc-800/50 dark:text-zinc-300 dark:hover:bg-zinc-700"
-                      }`}
-                      style={
-                        active
-                          ? {
-                              backgroundColor: config.primaryColor,
-                              borderColor: config.primaryColor,
-                            }
-                          : undefined
-                      }
-                    >
-                      <div>
-                        <div className="font-bold">{preset.label}</div>
-                        <div className="mt-0.5 text-xs opacity-80">
-                          {preset.desc}
+                    return (
+                      <button
+                        key={preset.value}
+                        onClick={() => handleDpiChange(preset.value)}
+                        className={`
+                          relative w-full flex items-center justify-between px-3 py-2 rounded-lg border text-left transition-all duration-200 cursor-pointer outline-none
+                          ${
+                            active
+                              ? "border-transparent"
+                              : "bg-transparent border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                          }
+                        `}
+                        style={
+                          {
+                            backgroundColor: active
+                              ? config.primaryColor
+                              : undefined,
+                            borderColor: active
+                              ? config.primaryColor
+                              : undefined,
+                            "--tw-ring-color": config.primaryColor,
+                          } as React.CSSProperties
+                        }
+                      >
+                        <div>
+                          <div
+                            className={`font-bold text-sm ${
+                              active
+                                ? "text-white"
+                                : "text-zinc-700 dark:text-zinc-300"
+                            }`}
+                          >
+                            {preset.label}
+                          </div>
+                          <div
+                            className={`text-xs mt-0.5 ${
+                              active
+                                ? "text-white/80"
+                                : "text-zinc-500 dark:text-zinc-400"
+                            }`}
+                          >
+                            {preset.desc}
+                          </div>
                         </div>
-                      </div>
-                      <span className="text-xs opacity-70">
-                        {preset.value}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
+                        <span
+                          className={`text-xs font-medium ${
+                            active
+                              ? "text-white/70"
+                              : "text-zinc-500 dark:text-zinc-400"
+                          }`}
+                        >
+                          {preset.value}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
 
-              <div className="mt-3 rounded-lg border border-zinc-200 bg-zinc-50 p-2 dark:border-zinc-700 dark:bg-zinc-800/50">
-                <p className="text-xs text-zinc-600 dark:text-zinc-400">
-                  💡 Higher DPI = Better accuracy but slower processing
-                </p>
+                <div className="mt-2 rounded-lg border border-zinc-200 bg-zinc-50 p-2 dark:border-zinc-700 dark:bg-zinc-800/50">
+                  <p className="text-xs text-zinc-600 dark:text-zinc-400">
+                    💡 Higher DPI = Better accuracy but slower processing
+                  </p>
+                </div>
               </div>
-            </div>
+            </>
           )}
         </div>
 
@@ -253,14 +276,12 @@ const PdfOCR = () => {
 
       {files.length > 0 && (
         <div className="mt-[1vh] rounded-xl border border-zinc-200 bg-white/50 p-3 dark:border-zinc-800 dark:bg-zinc-900/40 md:mt-[1vw] md:p-6">
-          <div className="mb-6 flex items-center ">
-            <div className="rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-1.5 dark:border-zinc-800 dark:bg-zinc-900">
-              <p className="text-xs text-zinc-600 dark:text-zinc-400 md:text-sm">
-                {stats.pending > 0 && `${stats.pending} pending`}
-                {stats.processing > 0 && ` • ${stats.processing} processing`}
-                {stats.error > 0 && ` • ${stats.error} failed`}
-              </p>
-            </div>
+          <div className="mb-4 flex items-center">
+            <FilesStatusSummary
+              pending={stats.pending}
+              processing={stats.processing}
+              failed={stats.error}
+            />
           </div>
 
           <div className="space-y-2">
@@ -288,10 +309,7 @@ const PdfOCR = () => {
         </div>
       )}
 
-      <PdfSessionFilesDisplay
-        toolType="ocr-searchable"
-        config={config}
-      />
+      <PdfSessionFilesDisplay toolType="ocr-searchable" config={config} />
     </div>
   );
 };
