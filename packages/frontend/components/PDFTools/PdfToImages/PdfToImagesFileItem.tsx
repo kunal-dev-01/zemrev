@@ -1,8 +1,3 @@
-// ============================================================================
-// FILE 1: src/components/PDFTools/PdfToImages/PdfToImagesFileItem.tsx
-// Individual file card with format & DPI settings dropdown
-// ============================================================================
-
 import { useState, useRef, useEffect } from "react";
 import type {
   PdfProcessedFile,
@@ -118,19 +113,10 @@ export const PdfToImagesFileItem = ({
           />
 
           {/* Settings Panel */}
-          {/* Settings Panel */}
           {isSettingsOpen && (
             <>
-              {/* Animation Keyframes */}
-              <style>{`
-                @keyframes dropdownEnter {
-                  from { opacity: 0; transform: scale(0.95) translateY(-8px); }
-                  to { opacity: 1; transform: scale(1) translateY(0); }
-                }
-              `}</style>
-
               <div
-                className="absolute right-0 top-full mt-1 z-20 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 origin-top-right ring-1 ring-black/5 dark:ring-white/5"
+                className="absolute right-0 top-full mt-1 z-20 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 origin-top-right ring-1 ring-black/5 dark:ring-white/5 min-w-full md:min-w-[15vw]"
                 style={{
                   animation:
                     "dropdownEnter 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards",
@@ -238,8 +224,11 @@ export const PdfToImagesFileItem = ({
 
                 {/* Page Range */}
                 <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800">
+                  <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-2 block">
+                    Page Range
+                  </label>
                   <InputField
-                    label="Page Range"
+                    label=""
                     type="text"
                     value={file.settings.page_range || ""}
                     placeholder="e.g. 1-5, 8 (All pages if empty)"

@@ -102,7 +102,7 @@ const PdfToImages = () => {
             >
               {converting
                 ? "Converting..."
-                : `Convert `}
+                : `Convert To Images`}
             </GlassButton>
           )}
         </div>
