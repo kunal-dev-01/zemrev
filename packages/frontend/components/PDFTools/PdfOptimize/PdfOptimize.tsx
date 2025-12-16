@@ -2,20 +2,22 @@ import { useCallback, useState, useRef, useEffect } from "react";
 import { PdfDragDropZone } from "@/components/Shared/PdfDragDropZone";
 import { PdfSessionFilesDisplay } from "@/components/Shared/PdfSessionFilesDisplay";
 import { PDF_TOOL_CONFIGS } from "@/config/pdfToolConfigs";
-import {
-  ChevronDownSvg,
-  SettingsSvg,
-} from "@/components/Svg/CommonSvg";
 import { useOptimizePdf } from "@/hooks/pdfHooks/useOptimizePdf.hook";
 import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 import GlassButton from "@/components/Layouts/GlassButton";
-import { PDFToImageSVg } from "@/components/Svg/PdfSvg";
 import type {
   PdfProcessedFile,
   PdfFileSettings,
   PdfToolConfig,
 } from "@/services/pdfService/types";
-import { FileError, FileInfo, RemoveButton } from "@/components/Shared/FileUI";
+import {
+  FileError,
+  FileInfo,
+  FilesStatusSummary,
+  RemoveButton,
+  SettingsToggleButton,
+  ToolIconBadge,
+} from "@/components/Shared/FileUI";
 
 // ============================================================================
 // TYPES
@@ -169,9 +171,8 @@ const PdfFileItem = ({
   };
 
   const getActiveCount = (): number => {
-    return OPTIMIZATION_OPTIONS.filter(
-      (opt) => file.settings[opt.key] === true
-    ).length;
+    return OPTIMIZATION_OPTIONS.filter((opt) => file.settings[opt.key] === true)
+      .length;
   };
 
   // ============================================================================
@@ -182,21 +183,12 @@ const PdfFileItem = ({
     <div className="bg-transparent border border-zinc-200 dark:border-zinc-800 rounded-2xl p-2 md:p-3 transition-all duration-200 hover:border-zinc-300 dark:hover:border-zinc-700 relative">
       <div className="flex items-center gap-3">
         {/* PDF Icon Box */}
-        <div
-          className="p-2.5 sm:p-3 rounded-lg shrink-0"
-          style={{
-            backgroundColor: isDark
-              ? config.dropzoneColorDark
-              : config.dropzoneColor,
-          }}
-        >
-          <div
-            style={{ color: config.primaryColor }}
-            className="w-5 h-5 sm:w-6 sm:h-6"
-          >
-            <PDFToImageSVg />
-          </div>
-        </div>
+        <ToolIconBadge
+          primaryColor={config.primaryColor}
+          bgColor={config.dropzoneColor}
+          bgColorDark={config.dropzoneColorDark}
+          isDark={isDark}
+        />
 
         {/* File Info */}
         <div className="flex-1 min-w-0">
@@ -206,42 +198,41 @@ const PdfFileItem = ({
         {/* Settings Button */}
         {file.status === "pending" && (
           <div ref={settingsRef}>
-            <button
-              onClick={() => setIsSettingsOpen((prev) => !prev)}
-              className="px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 flex items-center justify-between gap-2 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition cursor-pointer"
-            >
-              <div className="flex items-center gap-2">
-                <div className="w-5 h-5">
-                  <SettingsSvg />
-                </div>
-                <span className="hidden sm:inline font-medium text-sm">
-                  {getActiveCount()}/{OPTIMIZATION_OPTIONS.length}
-                </span>
-              </div>
-              <ChevronDownSvg />
-            </button>
+            <SettingsToggleButton
+              isOpen={isSettingsOpen}
+              label={getActiveCount() + " Active"}
+              onClick={() => setIsSettingsOpen((v) => !v)}
+            />
 
             {/* Dropdown */}
             {isSettingsOpen && (
-              <div className="absolute right-0 mt-1 md:w-[15vw] p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl z-20 space-y-1">
-                {OPTIMIZATION_OPTIONS.map((option) => (
-                  <ToggleSwitch
-                    key={option.key}
-                    checked={(file.settings[option.key] as boolean) || false}
-                    onChange={(v) => handleToggleOption(option.key, v)}
-                    label={option.label}
-                    description={option.desc}
-                    color={config.primaryColor}
-                  />
-                ))}
-              </div>
+              <>
+                <div
+                  className="absolute right-0 top-full mt-1 z-20 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 md:w-[20vw] w-[calc(100vw-3.3rem)] origin-top-right ring-1 ring-black/5 dark:ring-white/5"
+                  style={{
+                    animation: "dropdownEnter 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+                  }}
+                >
+                  <div className="space-y-1">
+                    {OPTIMIZATION_OPTIONS.map((option) => (
+                      <ToggleSwitch
+                        key={option.key}
+                        checked={(file.settings[option.key] as boolean) || false}
+                        onChange={(v) => handleToggleOption(option.key, v)}
+                        label={option.label}
+                        description={option.desc}
+                        color={config.primaryColor}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </>
             )}
           </div>
         )}
 
         {/* Remove Button */}
         <RemoveButton onClick={() => removeFile(file.id)} />
-
       </div>
 
       {/* Error Message */}
@@ -270,7 +261,6 @@ const PdfOptimize = () => {
     addFromDropbox,
     updateFileSettings,
     optimizeAllFiles,
-    clearAll,
   } = useOptimizePdf();
 
   // ============================================================================
@@ -319,14 +309,12 @@ const PdfOptimize = () => {
       {files.length > 0 && (
         <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 md:mt-[1vw] mt-[1vh]">
           {/* Header */}
-          <div className="flex items-center mb-6">
-            <div className="flex items-center gap-2 dark:bg-zinc-900 bg-zinc-50 border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-1.5">
-              <p className="md:text-sm text-xs text-zinc-600 dark:text-zinc-400">
-                {stats.pending > 0 && `${stats.pending} pending`}
-                {stats.processing > 0 && ` • ${stats.processing} processing`}
-                {stats.error > 0 && ` • ${stats.error} failed`}
-              </p>
-            </div>
+          <div className="flex items-center mb-4">
+            <FilesStatusSummary
+              pending={stats.pending}
+              processing={stats.processing}
+              failed={stats.error}
+            />
           </div>
 
           {/* File List */}
@@ -350,9 +338,7 @@ const PdfOptimize = () => {
               primaryColor={config.primaryColor}
               onClick={optimizeAllFiles}
             >
-              {optimizing
-                ? "Optimizing..."
-                : `Optimize`}
+              {optimizing ? "Optimizing..." : `Optimize PDF`}
             </GlassButton>
           )}
         </div>
