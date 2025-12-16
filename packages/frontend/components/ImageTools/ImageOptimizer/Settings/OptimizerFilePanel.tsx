@@ -3,12 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Spinner } from "@/components/Layouts/Spinner";
 import { FileImage } from "@/components/Svg/HomeSvg";
-import {
-  CancelSvg,
-  ErrorSvg,
-  SettingsSvg,
-  ChevronDownSvg,
-} from "@/components/Svg/CommonSvg";
+import { ErrorSvg } from "@/components/Svg/CommonSvg";
 import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 import { ToggleSwitch } from "@/components/Shared/ToggleSwitch";
 
@@ -17,6 +12,7 @@ import type {
   ProcessedFile,
   ToolConfig,
 } from "@/services/imageService/types";
+import { FileError, FileInfo, RemoveButton, SettingsToggleButton } from "@/components/Shared/FileUI";
 
 interface OptimizerFilePanelProps {
   file: ProcessedFile;
@@ -48,27 +44,6 @@ export const OptimizerFilePanel = ({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  // ============================================================================
-  // HELPERS
-  // ============================================================================
-  const formatBytes = (bytes: number) => {
-    if (!bytes) return "0 Bytes";
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
-  };
-
-  const truncateFileName = (name: string, maxLength = 30) => {
-    if (name.length <= maxLength) return name;
-
-    const ext = name.split(".").pop();
-    const base = name.substring(0, name.lastIndexOf("."));
-    const trimLength = maxLength - (ext?.length ?? 0) - 4;
-
-    return `${base.substring(0, trimLength)}...${ext}`;
-  };
 
   const statusConfig = {
     pending: {
@@ -113,7 +88,7 @@ export const OptimizerFilePanel = ({
   // RENDER
   // ============================================================================
   return (
-    <div className="bg-transparent border border-zinc-200 dark:border-zinc-800 rounded-2xl p-2 md:p-3 transition-all hover:border-zinc-300 dark:hover:border-zinc-700 relative">
+    <div className="bg-transparent border border-zinc-200 dark:border-zinc-800 rounded-2xl p-2 md:p-3 transition-all duration-200 hover:border-zinc-300 dark:hover:border-zinc-700 relative">
       <div className="flex items-center gap-3">
         {/* Thumbnail Icon */}
         <div
@@ -131,59 +106,52 @@ export const OptimizerFilePanel = ({
 
         {/* Filename + Size */}
         <div className="flex-1 min-w-0">
-          <h3
-            className="text-sm font-medium text-zinc-800 dark:text-zinc-200 truncate"
-            title={file.name}
-          >
-            {truncateFileName(file.name)}
-          </h3>
-
-          <p className="text-xs px-1 rounded-md bg-zinc-200 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 inline-block">
-            {formatBytes(file.size)}
-          </p>
+          <FileInfo name={file.name} size={file.size} />
         </div>
 
         {/* Settings (Only in Pending State) */}
         {file.status === "pending" && (
           <div ref={settingsRef}>
-            <button
+            <SettingsToggleButton
+              isOpen={isSettingsOpen}
+              label="Settings"
               onClick={() => setIsSettingsOpen((prev) => !prev)}
-              className="px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 flex items-center justify-between gap-2 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition cursor-pointer"
-            >
-              <div className="flex items-center gap-2">
-                <SettingsSvg />
-                <span className="hidden sm:inline font-medium">Settings</span>
-              </div>
-              <ChevronDownSvg />
-            </button>
+            />
 
             {/* Dropdown */}
             {isSettingsOpen && (
-              <div className="absolute right-0 mt-1 w-[350px] max-w-[calc(100vw-3.3rem)] p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl z-10 space-y-3">
-                <ToggleSwitch
-                  checked={file.settings.stripExif || false}
-                  onChange={(v) => onUpdateSettings({ stripExif: v })}
-                  label="Remove EXIF Data"
-                  description="Camera info, date, settings"
-                  color={config.primaryColor}
-                />
+              <>
+                <div
+                  className="absolute right-0 top-full mt-1 z-20 w-[350px] max-w-[calc(100vw-3.3rem)] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 origin-top-right ring-1 ring-black/5 dark:ring-white/5 space-y-3"
+                  style={{
+                    animation: "dropdownEnter 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+                  }}
+                >
+                  <ToggleSwitch
+                    checked={file.settings.stripExif || false}
+                    onChange={(v) => onUpdateSettings({ stripExif: v })}
+                    label="Remove EXIF Data"
+                    description="Camera info, date, settings"
+                    color={config.primaryColor}
+                  />
 
-                <ToggleSwitch
-                  checked={file.settings.stripGps || false}
-                  onChange={(v) => onUpdateSettings({ stripGps: v })}
-                  label="Remove GPS Location"
-                  description="Coordinates, place info"
-                  color={config.primaryColor}
-                />
+                  <ToggleSwitch
+                    checked={file.settings.stripGps || false}
+                    onChange={(v) => onUpdateSettings({ stripGps: v })}
+                    label="Remove GPS Location"
+                    description="Coordinates, place info"
+                    color={config.primaryColor}
+                  />
 
-                <ToggleSwitch
-                  checked={file.settings.fixOrientation || false}
-                  onChange={(v) => onUpdateSettings({ fixOrientation: v })}
-                  label="Fix Image Orientation"
-                  description="Auto-correct rotated photos"
-                  color={config.primaryColor}
-                />
-              </div>
+                  <ToggleSwitch
+                    checked={file.settings.fixOrientation || false}
+                    onChange={(v) => onUpdateSettings({ fixOrientation: v })}
+                    label="Fix Image Orientation"
+                    description="Auto-correct rotated photos"
+                    color={config.primaryColor}
+                  />
+                </div>
+              </>
             )}
           </div>
         )}
@@ -199,23 +167,12 @@ export const OptimizerFilePanel = ({
           </div>
 
           {/* Delete button */}
-          {!isProcessing && (
-            <button
-              onClick={onRemove}
-              className="px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition cursor-pointer"
-            >
-              <CancelSvg className="w-5 h-5" />
-            </button>
-          )}
+          {!isProcessing && <RemoveButton onClick={onRemove} />}
         </div>
       </div>
 
       {/* Error Message */}
-      {isError && file.error && (
-        <div className="mt-3 p-2.5 rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20">
-          <p className="text-xs text-red-600 dark:text-red-400">{file.error}</p>
-        </div>
-      )}
+      {isError && file.error && <FileError error={file.error} />}
     </div>
   );
 };

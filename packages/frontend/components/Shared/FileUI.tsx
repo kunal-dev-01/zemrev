@@ -184,7 +184,7 @@ export const FilesStatusSummary = ({
   if (pending === 0 && processing === 0 && failed === 0) return null;
 
   return (
-    <div className={`flex items-center justify-between mb-4 ${className}`}>
+    <div className={`flex items-center justify-between ${className}`}>
       <div className="flex items-center gap-2 dark:bg-zinc-900 bg-zinc-50 border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-1.5">
         <p className="md:text-sm text-xs text-zinc-600 dark:text-zinc-400">
           {pending > 0 && `${pending} pending`}

@@ -46,11 +46,11 @@ const getDisplayLabel = (
   slug: string,
   dims: { width: number; height: number }
 ) => {
-  if (slug.includes("instagram")) return "Instagram (1080×1080)";
-  if (slug.includes("facebook")) return "Facebook (1200×630)";
-  if (slug.includes("twitter")) return "Twitter (1200×675)";
+  if (slug.includes("instagram")) return "Instagram (1080x1080)";
+  if (slug.includes("facebook")) return "Facebook (1200x630)";
+  if (slug.includes("twitter")) return "Twitter (1200x675)";
   if (slug.includes("percentage")) return "Percentage Resize";
-  return `${dims.width}×${dims.height}`;
+  return `${dims.width}x${dims.height}`;
 };
 
 // ============================================================================
