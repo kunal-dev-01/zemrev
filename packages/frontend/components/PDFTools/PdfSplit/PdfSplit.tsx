@@ -1,27 +1,19 @@
-// ============================================================================
-// FILE: src/components/PDFTools/PdfSplit/PdfSplit.tsx
-// PURPOSE: PDF Split Component - Extract specific pages from PDF files
-// ============================================================================
-
 import { useCallback, useState, useRef, useEffect } from "react";
 import { PdfDragDropZone } from "@/components/Shared/PdfDragDropZone";
 import { PdfSessionFilesDisplay } from "@/components/Shared/PdfSessionFilesDisplay";
 import { PDF_TOOL_CONFIGS } from "@/config/pdfToolConfigs";
-import {
-  CancelSvg,
-  TrashSvg,
-  ChevronDownSvg,
-  SettingsSvg,
-} from "@/components/Svg/CommonSvg";
+import { ChevronDownSvg, SettingsSvg } from "@/components/Svg/CommonSvg";
 import { usePdfSplit } from "@/hooks/pdfHooks/usePdfSplit.hook";
 import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 import GlassButton from "@/components/Layouts/GlassButton";
 import { PDFToImageSVg } from "@/components/Svg/PdfSvg";
-import type { 
-  PdfProcessedFile, 
+import type {
+  PdfProcessedFile,
   PdfFileSettings,
-  PdfToolConfig 
+  PdfToolConfig,
 } from "@/services/pdfService/types";
+import { FileInfo, RemoveButton } from "@/components/Shared/FileUI";
+import { InputField } from "@/components/Layouts/InputField";
 
 // ============================================================================
 // TYPES
@@ -90,8 +82,7 @@ const PdfFileItem = ({
   // HANDLERS
   // ============================================================================
 
-  const handlePageInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+  const handlePageInputChange = (value: string) => {
     setPageInput(value);
     updateFileSettings(file.id, { pages: value });
   };
@@ -100,26 +91,6 @@ const PdfFileItem = ({
     setPageInput(value);
     updateFileSettings(file.id, { pages: value });
     setIsSettingsOpen(false);
-  };
-
-  // ============================================================================
-  // HELPERS
-  // ============================================================================
-
-  const formatBytes = (bytes: number): string => {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
-  };
-
-  const truncateFileName = (name: string, maxLength: number = 30): string => {
-    if (name.length <= maxLength) return name;
-    const ext = name.split(".").pop() || "";
-    const nameWithoutExt = name.substring(0, name.lastIndexOf("."));
-    const truncated = nameWithoutExt.substring(0, maxLength - ext.length - 4);
-    return `${truncated}...${ext}`;
   };
 
   const getCurrentLabel = (val: string): string => {
@@ -152,15 +123,7 @@ const PdfFileItem = ({
 
         {/* File Info */}
         <div className="flex-1 min-w-0">
-          <h3
-            className="text-sm leading-none font-medium text-zinc-800 dark:text-zinc-200 truncate"
-            title={file.name}
-          >
-            {truncateFileName(file.name)}
-          </h3>
-          <p className="text-xs px-1 rounded-md bg-zinc-200 dark:bg-zinc-800 inline-block text-zinc-500 dark:text-zinc-400 mt-1">
-            {formatBytes(file.size)}
-          </p>
+          <FileInfo name={file.name} size={file.size} />
         </div>
 
         {/* Page Settings Dropdown */}
@@ -182,15 +145,12 @@ const PdfFileItem = ({
             <div className="absolute z-20 right-0 mt-1 p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl w-[320px] shadow-xl">
               {/* Custom Page Input */}
               <div className="mb-3">
-                <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1.5 block">
-                  Custom Page Range
-                </label>
-                <input
+                <InputField
+                  label="Custom Page Range"
                   type="text"
                   value={pageInput}
                   onChange={handlePageInputChange}
                   placeholder="e.g., 1-5, 7, 10-15"
-                  className="w-full px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-800 dark:text-zinc-200 text-sm outline-none"
                 />
                 <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
                   Use ranges (1-5), single pages (7), or both (1-3,5,8-10)
@@ -236,13 +196,7 @@ const PdfFileItem = ({
         </div>
 
         {/* Remove Button */}
-        <button
-          onClick={() => removeFile(file.id)}
-          className="px-3 py-1.5 rounded-xl border dark:border-zinc-700 border-zinc-200 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all duration-200 cursor-pointer"
-          aria-label="Remove file"
-        >
-          <CancelSvg className="w-5 h-5" />
-        </button>
+        <RemoveButton onClick={() => removeFile(file.id)} />
       </div>
     </div>
   );
@@ -266,7 +220,6 @@ const PdfSplit = () => {
     addFromDropbox,
     updateFileSettings,
     splitAllFiles,
-    clearAll,
   } = usePdfSplit();
 
   // ============================================================================
@@ -275,10 +228,7 @@ const PdfSplit = () => {
 
   const handleFilesSelected = useCallback(
     async (newFiles: File[]) => {
-      await addFiles(
-        newFiles,
-        config.defaultSettings.pages as string
-      );
+      await addFiles(newFiles, config.defaultSettings.pages as string);
     },
     [addFiles, config.defaultSettings.pages]
   );
@@ -318,7 +268,7 @@ const PdfSplit = () => {
       {files.length > 0 && (
         <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 md:mt-[1vw] mt-[1vh]">
           {/* Header */}
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2 dark:bg-zinc-900 bg-zinc-50 border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-1.5">
               <p className="md:text-sm text-xs text-zinc-600 dark:text-zinc-400">
                 {stats.pending > 0 && `${stats.pending} pending`}
@@ -326,16 +276,6 @@ const PdfSplit = () => {
                 {stats.error > 0 && ` • ${stats.error} failed`}
               </p>
             </div>
-
-            <button
-              onClick={clearAll}
-              className="px-3 py-1.5 rounded-xl font-medium text-red-600 bg-red-50 dark:bg-red-900/20 flex items-center gap-2 hover:bg-red-100 dark:hover:bg-red-900/30 transition-all duration-200 cursor-pointer"
-            >
-              <span className="w-5 h-5">
-                <TrashSvg />
-              </span>
-              <span className="md:block hidden">Clear All</span>
-            </button>
           </div>
 
           {/* File List */}
@@ -359,9 +299,7 @@ const PdfSplit = () => {
               primaryColor={config.primaryColor}
               onClick={splitAllFiles}
             >
-              {splitting
-                ? "Splitting..."
-                : `Split ${stats.pending} File${stats.pending !== 1 ? "s" : ""}`}
+              {splitting ? "Splitting..." : `Split PDF`}
             </GlassButton>
           )}
         </div>
