@@ -10,11 +10,11 @@ import { SessionFilesDisplay } from "@/components/Shared/SessionFilesDisplay";
 
 import { TOOL_CONFIGS, detectFormatFromFilename } from "@/config/tool.config";
 
-import { TrashSvg } from "@/components/Svg/CommonSvg";
 import GlassButton from "@/components/Layouts/GlassButton";
 
 import { useImageConverter } from "@/hooks/imageHooks/useImageConverter.hook";
 import type { OutputFormat } from "@/services/imageService/types";
+import { ClearAllButton, FilesStatusSummary } from "@/components/Shared/FileUI";
 
 interface ConverterDynamicToolProps {
   inputFormat: string;
@@ -75,9 +75,7 @@ const ConverterDynamicTool = ({
 
       // Check consistency of output format with existing files
       const existingOutputs = files.map((f) => f.settings.format);
-      const uniqueOutputs = [
-        ...new Set([...existingOutputs, outputFormat]),
-      ];
+      const uniqueOutputs = [...new Set([...existingOutputs, outputFormat])];
 
       if (uniqueOutputs.length > 1) {
         router.push("/image/image-converter");
@@ -117,8 +115,18 @@ const ConverterDynamicTool = ({
         config={config}
         onFilesSelected={handleFilesSelected}
         onUrlUpload={() => setUrlModalOpen(true)}
-        onGooglePick={() => addFromGoogleDrive(config.defaultSettings.format as OutputFormat , config.defaultSettings.quality as number)}
-        onDropboxPick={() => addFromDropbox(config.defaultSettings.format as OutputFormat, config.defaultSettings.quality as number)}
+        onGooglePick={() =>
+          addFromGoogleDrive(
+            config.defaultSettings.format as OutputFormat,
+            config.defaultSettings.quality as number
+          )
+        }
+        onDropboxPick={() =>
+          addFromDropbox(
+            config.defaultSettings.format as OutputFormat,
+            config.defaultSettings.quality as number
+          )
+        }
         currentFileCount={files.length}
         disabled={!canAddMore}
       />
@@ -127,30 +135,18 @@ const ConverterDynamicTool = ({
       {files.length > 0 && (
         <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 mt-[1vh] md:mt-[1vw]">
           {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2 dark:bg-zinc-900 bg-zinc-50 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-1.5">
-              <p className="md:text-sm text-xs text-zinc-600 dark:text-zinc-400 select-none">
-                Converting {inputFormat.toUpperCase()} →{" "}
-                {outputFormat.toUpperCase()}
-                {stats.pending > 0 && ` • ${stats.pending} pending`}
-                {stats.processing > 0 && ` • ${stats.processing} processing`}
-                {stats.error > 0 && ` • ${stats.error} failed`}
-              </p>
-            </div>
+          <div className="flex items-center justify-between mb-4">
+            <FilesStatusSummary
+              pending={stats.pending}
+              processing={stats.processing}
+              failed={stats.error}
+            />
 
-            <button
-              onClick={clearAll}
-              className="px-4 py-1.5 rounded-xl font-medium text-red-600 bg-red-50 dark:bg-red-900/20 flex items-center gap-2 hover:bg-red-100 dark:hover:bg-red-900/30 transition-all duration-200 cursor-pointer"
-            >
-              <span className="w-5 h-5">
-                <TrashSvg />
-              </span>
-              <span className="md:block hidden">Clear All</span>
-            </button>
+            <ClearAllButton onClick={clearAll} />
           </div>
 
           {/* File List */}
-          <div className="space-y-4">
+          <div className="space-y-2">
             {files.map((file) => (
               <ConverterFilePanel
                 key={file.id}

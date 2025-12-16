@@ -2,7 +2,7 @@
 
 import { Spinner } from "@/components/Layouts/Spinner";
 import { FileImage } from "@/components/Svg/HomeSvg";
-import { CancelSvg, ErrorSvg, SettingsSvg } from "@/components/Svg/CommonSvg";
+import { ErrorSvg } from "@/components/Svg/CommonSvg";
 import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 import type {
   FileSettings,
@@ -11,6 +11,12 @@ import type {
 } from "@/services/imageService/types";
 import { useState, useEffect } from "react";
 import { SettingsPanel } from "./SettingsPanel";
+import {
+  FileError,
+  FileInfo,
+  RemoveButton,
+  SettingsToggleButton,
+} from "@/components/Shared/FileUI";
 
 interface ConverterFilePanelProps {
   file: ProcessedFile;
@@ -52,22 +58,6 @@ const STATUS_CONFIG = {
     bg: "bg-red-100 dark:bg-red-900/30",
     text: "Failed",
   },
-};
-
-const formatBytes = (bytes: number): string => {
-  if (bytes === 0) return "0 Bytes";
-  const k = 1024;
-  const sizes = ["Bytes", "KB", "MB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
-};
-
-const truncateFileName = (name: string, maxLength: number = 30): string => {
-  if (name.length <= maxLength) return name;
-  const ext = name.split(".").pop();
-  const nameWithoutExt = name.substring(0, name.lastIndexOf("."));
-  const truncated = nameWithoutExt.substring(0, maxLength - ext!.length - 4);
-  return `${truncated}...${ext}`;
 };
 
 export const ConverterFilePanel = ({
@@ -119,26 +109,16 @@ export const ConverterFilePanel = ({
 
           {/* File Info */}
           <div className="flex-1 min-w-0">
-            <h3
-              className="text-sm leading-none font-semibold text-zinc-800 dark:text-zinc-200 truncate"
-              title={file.name}
-            >
-              {truncateFileName(file.name)}
-            </h3>
-            <p className="text-xs px-1 rounded-md bg-zinc-200 dark:bg-zinc-800 inline-block text-zinc-500 dark:text-zinc-400">
-              {formatBytes(file.size)}
-            </p>
+            <FileInfo name={file.name} size={file.size} />
           </div>
 
           {/* Format Display & Settings Button */}
           {file.status === "pending" && (
-            <button
+            <SettingsToggleButton
+              isOpen={isSettingsOpen}
+              label={file.settings.format?.toUpperCase() as string}
               onClick={() => setIsSettingsOpen(true)}
-              className="px-3 py-1 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all duration-200 flex items-center gap-2 cursor-pointer"
-            >
-              <span>{file.settings.format?.toUpperCase()}</span>
-              <SettingsSvg />
-            </button>
+            />
           )}
 
           {/* Status Badge */}
@@ -151,26 +131,12 @@ export const ConverterFilePanel = ({
             </div>
 
             {/* Remove Button */}
-            {!isProcessing && (
-              <button
-                onClick={onRemove}
-                className="px-3 py-1.5 rounded-xl border dark:border-zinc-700 border-zinc-200 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all duration-200  cursor-pointer"
-                aria-label="Remove file"
-              >
-                <CancelSvg className="w-5 h-5" />
-              </button>
-            )}
+            {!isProcessing && <RemoveButton onClick={onRemove} />}
           </div>
         </div>
 
         {/* Error Message */}
-        {isError && file.error && (
-          <div className="mt-3 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-            <p className="text-xs text-red-600 dark:text-red-400 font-medium">
-              {file.error}
-            </p>
-          </div>
-        )}
+        {isError && file.error && <FileError error={file.error} />}
       </div>
 
       {/* Settings Panel */}
