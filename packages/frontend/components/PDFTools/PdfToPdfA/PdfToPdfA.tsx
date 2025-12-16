@@ -1,8 +1,3 @@
-// ============================================================================
-// FILE: src/components/PDFTools/PdfToPdfA/PdfToPdfA.tsx
-// PURPOSE: PDF to PDF/A Component - Convert to archival format
-// ============================================================================
-
 import { useCallback, useState, useRef, useEffect } from "react";
 import { PdfDragDropZone } from "@/components/Shared/PdfDragDropZone";
 import { PdfSessionFilesDisplay } from "@/components/Shared/PdfSessionFilesDisplay";
@@ -151,46 +146,74 @@ const PdfFileItem = ({
           />
 
           {isSettingsOpen && (
-            <div className="absolute z-20 right-0 mt-1 p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl md:w-[15vw]">
-              {/* Version Options */}
-              <div className="space-y-1">
-                <label className="text-xs font-bold uppercase text-zinc-600 dark:text-zinc-400 mb-1.5 block">
-                  PDF/A Version
-                </label>
-                {VERSION_OPTIONS.map((option) => (
-                  <button
-                    key={option.value}
-                    onClick={() => handleVersionChange(option.value)}
-                    className={`w-full px-3 py-2 rounded-xl text-sm font-medium text-left transition-all flex items-center justify-between border cursor-pointer ${
-                      file.settings.version === option.value
-                        ? "text-white border-none"
-                        : "text-zinc-700 dark:text-zinc-300 bg-transparent border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                    }`}
-                    style={{
-                      backgroundColor:
+            <>
+              <div
+                className="absolute right-0 top-full mt-1 z-20 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 md:min-w-[15vw] min-w-full origin-top-right ring-1 ring-black/5 dark:ring-white/5"
+                style={{
+                  animation:
+                    "dropdownEnter 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+                }}
+              >
+                {/* Version Options */}
+                <div className="space-y-2 mb-4">
+                  <label className="text-xs font-bold uppercase text-zinc-500 dark:text-zinc-400 tracking-wider block">
+                    PDF/A Version
+                  </label>
+                  {VERSION_OPTIONS.map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => handleVersionChange(option.value)}
+                      className={`w-full px-3 py-2 rounded-lg text-sm font-medium text-left transition-all flex items-center justify-between border cursor-pointer ${
                         file.settings.version === option.value
-                          ? config.primaryColor
-                          : undefined,
-                    }}
-                  >
-                    <div>
-                      <div className="font-bold">{option.label}</div>
-                      <div className="text-xs opacity-80 mt-0.5">
-                        {option.desc}
+                          ? "text-white border-transparent"
+                          : "text-zinc-700 dark:text-zinc-300 bg-transparent border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                      }`}
+                      style={{
+                        backgroundColor:
+                          file.settings.version === option.value
+                            ? config.primaryColor
+                            : undefined,
+                        borderColor:
+                          file.settings.version === option.value
+                            ? config.primaryColor
+                            : undefined,
+                      }}
+                    >
+                      <div>
+                        <div className="font-bold">{option.label}</div>
+                        <div
+                          className={`text-xs mt-0.5 ${
+                            file.settings.version === option.value
+                              ? "text-white/80"
+                              : "text-zinc-500 dark:text-zinc-400"
+                          }`}
+                        >
+                          {option.desc}
+                        </div>
                       </div>
-                    </div>
-                    <div className="text-xs opacity-70">{option.year}</div>
-                  </button>
-                ))}
-              </div>
+                      <div
+                        className={`text-xs ${
+                          file.settings.version === option.value
+                            ? "text-white/70"
+                            : "text-zinc-400"
+                        }`}
+                      >
+                        {option.year}
+                      </div>
+                    </button>
+                  ))}
+                </div>
 
-              {/* Info Note */}
-              <div className="mt-3 p-2 rounded-lg bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700">
-                <p className="text-xs text-zinc-600 dark:text-zinc-400">
-                  💡 PDF/A-2b is recommended for most archival purposes
-                </p>
+                {/* Info Note */}
+                <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800">
+                  <div className="p-2 rounded-lg bg-zinc-50 dark:bg-zinc-800/50">
+                    <p className="text-xs text-zinc-600 dark:text-zinc-400">
+                      💡 PDF/A-2b is recommended for most archival purposes
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
+            </>
           )}
         </div>
 
@@ -272,11 +295,13 @@ const PdfToPdfA = () => {
       {files.length > 0 && (
         <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 md:mt-[1vw] mt-[1vh]">
           {/* Header */}
-          <FilesStatusSummary
-            pending={stats.pending}
-            processing={stats.processing}
-            failed={stats.error}
-          />
+          <div className="mb-4">
+            <FilesStatusSummary
+              pending={stats.pending}
+              processing={stats.processing}
+              failed={stats.error}
+            />
+          </div>
 
           {/* File List */}
           <div className="space-y-2">
