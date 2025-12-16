@@ -201,7 +201,7 @@ export const FilesStatusSummary = ({
 // Settings Toggle Button (Format / Options dropdown trigger)
 // -----------------------------------------------------------------------------
 import { SettingsSvg, ChevronDownSvg } from "@/components/Svg/CommonSvg";
-import { ReactNode } from "react";
+import { PDFToImageSVg } from "../Svg/PdfSvg";
 
 interface SettingsToggleButtonProps {
   isOpen: boolean;
@@ -253,7 +253,6 @@ export const SettingsToggleButton = ({
 // Tool Icon Badge
 // -----------------------------------------------------------------------------
 interface ToolIconBadgeProps {
-  icon: ReactNode;
   primaryColor: string;
   bgColor: string;
   bgColorDark: string;
@@ -262,7 +261,6 @@ interface ToolIconBadgeProps {
 }
 
 export const ToolIconBadge = ({
-  icon,
   primaryColor,
   bgColor,
   bgColorDark,
@@ -280,7 +278,7 @@ export const ToolIconBadge = ({
         className="w-5 h-5 sm:w-6 sm:h-6"
         style={{ color: primaryColor }}
       >
-        {icon}
+        <PDFToImageSVg/>
       </div>
     </div>
   );

@@ -4,7 +4,6 @@
 // ============================================================================
 
 import { useState, useRef, useEffect } from "react";
-import { PDFToImageSVg } from "@/components/Svg/PdfSvg";
 import type {
   PdfProcessedFile,
   PdfFileSettings,
@@ -14,6 +13,7 @@ import {
   FileInfo,
   RemoveButton,
   SettingsToggleButton,
+  ToolIconBadge,
 } from "@/components/Shared/FileUI";
 import { InputField } from "@/components/Layouts/InputField";
 
@@ -96,21 +96,13 @@ export const PdfToImagesFileItem = ({
     <div className="bg-transparent border border-zinc-200 dark:border-zinc-800 rounded-2xl p-2 md:p-3 transition-all duration-200 hover:border-zinc-300 dark:hover:border-zinc-700 relative">
       <div className="flex items-center gap-3">
         {/* PDF Icon */}
-        <div
-          className="p-2.5 sm:p-3 rounded-lg shrink-0"
-          style={{
-            backgroundColor: isDark
-              ? config.dropzoneColorDark
-              : config.dropzoneColor,
-          }}
-        >
-          <div
-            style={{ color: config.primaryColor }}
-            className="w-5 h-5 sm:w-6 sm:h-6"
-          >
-            <PDFToImageSVg />
-          </div>
-        </div>
+
+        <ToolIconBadge
+          primaryColor={config.primaryColor}
+          bgColor={config.dropzoneColor}
+          bgColorDark={config.dropzoneColorDark}
+          isDark={isDark}
+        />
 
         {/* File Info */}
         <div className="flex-1 min-w-0">
@@ -126,89 +118,136 @@ export const PdfToImagesFileItem = ({
           />
 
           {/* Settings Panel */}
+          {/* Settings Panel */}
           {isSettingsOpen && (
-            <div className="absolute z-20 right-0 mt-1 p-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl md:w-[20vw]">
-              {/* Format Selection */}
-              <div className="mb-4">
-                <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-2 block">
-                  Output Format
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  {FORMAT_OPTIONS.map((format) => (
-                    <button
-                      key={format.value}
-                      onClick={() => handleFormatChange(format.value)}
-                      className={`px-3 py-2 rounded-xl text-sm font-medium text-center transition-all border cursor-pointer ${
-                        file.settings.format === format.value
-                          ? "text-white shadow-sm"
-                          : "text-zinc-700 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-700"
-                      }`}
-                      style={{
-                        backgroundColor:
-                          file.settings.format === format.value
-                            ? config.primaryColor
-                            : undefined,
-                        borderColor:
-                          file.settings.format === format.value
-                            ? config.primaryColor
-                            : undefined,
-                      }}
-                    >
-                      <div className="font-bold text-xs">{format.label}</div>
-                      <div className="text-[10px] opacity-80 mt-0.5">
-                        {format.desc}
-                      </div>
-                    </button>
-                  ))}
+            <>
+              {/* Animation Keyframes */}
+              <style>{`
+                @keyframes dropdownEnter {
+                  from { opacity: 0; transform: scale(0.95) translateY(-8px); }
+                  to { opacity: 1; transform: scale(1) translateY(0); }
+                }
+              `}</style>
+
+              <div
+                className="absolute right-0 top-full mt-1 z-20 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 origin-top-right ring-1 ring-black/5 dark:ring-white/5"
+                style={{
+                  animation:
+                    "dropdownEnter 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+                }}
+              >
+                {/* Format Selection */}
+                <div className="mb-5">
+                  <div className="flex items-center justify-between mb-3">
+                    <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                      Format
+                    </label>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    {FORMAT_OPTIONS.map((format) => {
+                      const isActive = file.settings.format === format.value;
+                      return (
+                        <button
+                          key={format.value}
+                          onClick={() => handleFormatChange(format.value)}
+                          className={`
+                            relative flex flex-col items-center justify-center p-2 rounded-lg border text-center transition-all duration-200 cursor-pointer outline-none
+                            ${
+                              isActive
+                                ? "border-transparent"
+                                : "bg-transparent border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                            }
+                          `}
+                          style={
+                            {
+                              backgroundColor: isActive
+                                ? config.primaryColor
+                                : undefined,
+                              borderColor: isActive
+                                ? config.primaryColor
+                                : undefined,
+                              "--tw-ring-color": config.primaryColor,
+                            } as React.CSSProperties
+                          }
+                        >
+                          <span
+                            className={`text-xs font-bold ${
+                              isActive
+                                ? "text-white"
+                                : "text-zinc-700 dark:text-zinc-200"
+                            }`}
+                          >
+                            {format.label}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* DPI Selection */}
+                <div className="mb-3">
+                  <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-1.5 block">
+                    Quality (DPI)
+                  </label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {DPI_OPTIONS.map((dpi) => {
+                      const isActive = file.settings.dpi === dpi.value;
+                      return (
+                        <button
+                          key={dpi.value}
+                          onClick={() => handleDpiChange(dpi.value)}
+                          className={`
+                            relative flex flex-col items-center justify-center py-2 px-1.5 rounded-lg border text-center transition-all duration-200 cursor-pointer outline-none
+                            ${
+                              isActive
+                                ? "border-transparent"
+                                : "bg-transparent border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                            }
+                          `}
+                          style={
+                            {
+                              backgroundColor: isActive
+                                ? config.primaryColor
+                                : undefined,
+                              borderColor: isActive
+                                ? config.primaryColor
+                                : undefined,
+                              "--tw-ring-color": config.primaryColor,
+                            } as React.CSSProperties
+                          }
+                        >
+                          <span
+                            className={`text-xs font-bold ${
+                              isActive
+                                ? "text-white"
+                                : "text-zinc-700 dark:text-zinc-200"
+                            }`}
+                          >
+                            {dpi.label}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className="mt-2 text-xs text-zinc-400 dark:text-zinc-500 text-center px-1 font-medium">
+                    {DPI_OPTIONS.find((d) => d.value === file.settings.dpi)
+                      ?.desc || "Standard quality"}
+                  </div>
+                </div>
+
+                {/* Page Range */}
+                <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800">
+                  <InputField
+                    label="Page Range"
+                    type="text"
+                    value={file.settings.page_range || ""}
+                    placeholder="e.g. 1-5, 8 (All pages if empty)"
+                    onChange={handlePageRangeChange}
+                  />
                 </div>
               </div>
-
-              {/* DPI Selection */}
-              <div className="mb-4">
-                <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-2 block">
-                  Image Quality (DPI)
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {DPI_OPTIONS.map((dpi) => (
-                    <button
-                      key={dpi.value}
-                      onClick={() => handleDpiChange(dpi.value)}
-                      className={`px-3 py-2 rounded-xl text-sm font-medium text-left transition-all border cursor-pointer ${
-                        file.settings.dpi === dpi.value
-                          ? "text-white shadow-sm"
-                          : "text-zinc-700 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-700"
-                      }`}
-                      style={{
-                        backgroundColor:
-                          file.settings.dpi === dpi.value
-                            ? config.primaryColor
-                            : undefined,
-                        borderColor:
-                          file.settings.dpi === dpi.value
-                            ? config.primaryColor
-                            : undefined,
-                      }}
-                    >
-                      <div className="font-bold text-xs">{dpi.label}</div>
-                      <div className="text-[10px] opacity-80 mt-0.5">
-                        {dpi.desc}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Page Range (Optional) */}
-              <div>
-                <InputField
-                  label="Page Range (Optional)"
-                  type="text"
-                  value={file.settings.page_range || ""}
-                  placeholder="e.g. 1-3, 5, 8-10 (leave empty for all)"
-                  onChange={handlePageRangeChange}
-                />
-              </div>
-            </div>
+            </>
           )}
         </div>
 

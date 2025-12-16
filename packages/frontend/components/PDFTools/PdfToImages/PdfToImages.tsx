@@ -1,8 +1,3 @@
-// ============================================================================
-// FILE 2: src/components/PDFTools/PdfToImages/PdfToImages.tsx
-// Main container for PDF to Images tool
-// ============================================================================
-
 import { useCallback } from "react";
 import { PdfToImagesFileItem } from "./PdfToImagesFileItem";
 import { PdfDragDropZone } from "@/components/Shared/PdfDragDropZone";
@@ -26,7 +21,6 @@ const PdfToImages = () => {
     removeFile,
     updateSettings,
     convertAll,
-    clearAll,
   } = usePdfToImages();
 
   // ============================================================================
@@ -108,9 +102,7 @@ const PdfToImages = () => {
             >
               {converting
                 ? "Converting..."
-                : `Convert ${pendingFiles.length} File${
-                    pendingFiles.length !== 1 ? "s" : ""
-                  }`}
+                : `Convert `}
             </GlassButton>
           )}
         </div>

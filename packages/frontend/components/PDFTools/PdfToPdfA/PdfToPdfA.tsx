@@ -10,7 +10,6 @@ import { PDF_TOOL_CONFIGS } from "@/config/pdfToolConfigs";
 import { useConvertToPdfA } from "@/hooks/pdfHooks/useConvertToPdfA.hook";
 import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 import GlassButton from "@/components/Layouts/GlassButton";
-import { PDFToImageSVg } from "@/components/Svg/PdfSvg";
 import type {
   PdfProcessedFile,
   PdfFileSettings,
@@ -132,7 +131,6 @@ const PdfFileItem = ({
       <div className="flex items-center gap-3">
         {/* PDF Icon Box */}
         <ToolIconBadge
-          icon={<PDFToImageSVg />}
           primaryColor={config.primaryColor}
           bgColor={config.dropzoneColor}
           bgColorDark={config.dropzoneColorDark}
