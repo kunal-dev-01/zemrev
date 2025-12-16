@@ -163,3 +163,88 @@ export const FilesSummary = ({ count, className = "" }: FilesSummaryProps) => {
     </div>
   );
 };
+
+
+// -----------------------------------------------------------------------------
+// Files Status Summary (Pending / Processing / Failed)
+// -----------------------------------------------------------------------------
+interface FilesStatusSummaryProps {
+  pending?: number;
+  processing?: number;
+  failed?: number;
+  className?: string;
+}
+
+export const FilesStatusSummary = ({
+  pending = 0,
+  processing = 0,
+  failed = 0,
+  className = "",
+}: FilesStatusSummaryProps) => {
+  if (pending === 0 && processing === 0 && failed === 0) return null;
+
+  return (
+    <div className={`flex items-center justify-between mb-4 ${className}`}>
+      <div className="flex items-center gap-2 dark:bg-zinc-900 bg-zinc-50 border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-1.5">
+        <p className="md:text-sm text-xs text-zinc-600 dark:text-zinc-400">
+          {pending > 0 && `${pending} pending`}
+          {processing > 0 && ` • ${processing} processing`}
+          {failed > 0 && ` • ${failed} failed`}
+        </p>
+      </div>
+    </div>
+  );
+};
+
+
+// -----------------------------------------------------------------------------
+// Settings Toggle Button (Format / Options dropdown trigger)
+// -----------------------------------------------------------------------------
+import { SettingsSvg, ChevronDownSvg } from "@/components/Svg/CommonSvg";
+
+interface SettingsToggleButtonProps {
+  isOpen: boolean;
+  label: string;
+  onClick: () => void;
+  className?: string;
+}
+
+export const SettingsToggleButton = ({
+  isOpen,
+  label,
+  onClick,
+  className = "",
+}: SettingsToggleButtonProps) => {
+  return (
+    <button
+      onClick={onClick}
+      className={`
+        min-w-[110px] px-3 py-1.5 rounded-xl
+        border border-zinc-200 dark:border-zinc-700
+        bg-zinc-50 dark:bg-zinc-800/50
+        text-zinc-800 dark:text-zinc-200
+        flex items-center justify-between
+        transition-all cursor-pointer
+        hover:bg-zinc-100 dark:hover:bg-zinc-700
+        ${className}
+      `}
+    >
+      <div className="flex items-center gap-1">
+        <SettingsSvg />
+        <div className="flex flex-col items-start">
+          <p className="font-medium text-sm">{label}</p>
+        </div>
+      </div>
+
+      <div
+        className={`transition-transform duration-200 ${
+          isOpen ? "rotate-180" : ""
+        }`}
+      >
+        <ChevronDownSvg />
+      </div>
+    </button>
+  );
+};
+
+
