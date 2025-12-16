@@ -5,7 +5,6 @@ import { PDF_TOOL_CONFIGS } from "@/config/pdfToolConfigs";
 import { useImagesToPdf } from "@/hooks/pdfHooks/useImagesToPdf.hook";
 import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 import GlassButton from "@/components/Layouts/GlassButton";
-import { PDFToImageSVg } from "@/components/Svg/PdfSvg";
 import type {
   PdfProcessedFile,
   PdfToolConfig,
@@ -13,7 +12,9 @@ import type {
 import {
   ClearAllButton,
   FileInfo,
+  FilesStatusSummary,
   RemoveButton,
+  ToolIconBadge,
 } from "@/components/Shared/FileUI";
 
 // ============================================================================
@@ -25,7 +26,6 @@ interface ImageFileItemProps {
   config: PdfToolConfig;
   removeFile: (id: string) => void;
   isDark: boolean;
-  index: number;
 }
 
 // ============================================================================
@@ -38,7 +38,6 @@ const ImageFileItem = ({
   config,
   removeFile,
   isDark,
-  index,
 }: ImageFileItemProps) => {
   // ============================================================================
   // RENDER
@@ -48,28 +47,12 @@ const ImageFileItem = ({
     <div className="bg-transparent border border-zinc-200 dark:border-zinc-800 rounded-2xl p-2 md:p-3 transition-all duration-200 hover:border-zinc-300 dark:hover:border-zinc-700 relative">
       <div className="flex items-center gap-3">
         {/* Image Icon Box with Order Number */}
-        <div
-          className="p-2.5 sm:p-3 rounded-lg shrink-0 relative"
-          style={{
-            backgroundColor: isDark
-              ? config.dropzoneColorDark
-              : config.dropzoneColor,
-          }}
-        >
-          <div
-            style={{ color: config.primaryColor }}
-            className="w-5 h-5 sm:w-6 sm:h-6"
-          >
-            <PDFToImageSVg />
-          </div>
-          {/* Order Badge */}
-          <div
-            className="absolute -top-1 -right-1 w-5 h-5 rounded-full text-white text-xs font-bold flex items-center justify-center"
-            style={{ backgroundColor: config.primaryColor }}
-          >
-            {index + 1}
-          </div>
-        </div>
+        <ToolIconBadge
+          primaryColor={config.primaryColor}
+          bgColor={config.dropzoneColor}
+          bgColorDark={config.dropzoneColorDark}
+          isDark={isDark}
+        />
 
         {/* File Info */}
         <div className="flex-1 min-w-0">
@@ -154,33 +137,25 @@ const ImagesToPdf = () => {
       {files.length > 0 && (
         <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 md:mt-[1vw] mt-[1vh]">
           {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <p className="text-lg font-semibold text-zinc-700 dark:text-zinc-300">
-                {files.length} image{files.length === 1 ? "" : "s"}
-              </p>
-
-              {/* Info Badge */}
-              <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900">
-                <span className="text-sm text-zinc-500 dark:text-zinc-400">
-                  Images will be merged in order shown
-                </span>
-              </div>
-            </div>
+          <div className="flex items-center justify-between mb-4">
+            <FilesStatusSummary
+              pending={files.length}
+              processing={0}
+              failed={0}
+            />
 
             <ClearAllButton onClick={clearAll} />
           </div>
 
           {/* File List */}
           <div className="space-y-2">
-            {files.map((file, index) => (
+            {files.map((file) => (
               <ImageFileItem
                 key={file.id}
                 file={file}
                 config={config}
                 removeFile={removeFile}
                 isDark={isDark}
-                index={index}
               />
             ))}
           </div>
@@ -192,11 +167,7 @@ const ImagesToPdf = () => {
               primaryColor={config.primaryColor}
               onClick={convertFiles}
             >
-              {converting
-                ? "Converting..."
-                : `Convert to PDF (${files.length} image${
-                    files.length !== 1 ? "s" : ""
-                  })`}
+              {converting ? "Converting..." : `Convert to PDF`}
             </GlassButton>
           )}
         </div>
