@@ -135,10 +135,7 @@ const ImageCropper = () => {
             <button
               onClick={reset}
               disabled={cropping}
-              className="px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700
-                         bg-zinc-50 dark:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300 
-                         hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all duration-200 
-                         flex items-center gap-2 cursor-pointer"
+              className="px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all duration-200 flex items-center gap-2 cursor-pointer"
             >
               <div className="w-5 h-5">
                 <RotateSvg />
@@ -173,7 +170,7 @@ const ImageCropper = () => {
             <div className="lg:w-[40%] space-y-4">
               {/* Aspect Ratio */}
               <div>
-                <label className="text-sm font-semibold text-zinc-800 dark:text-zinc-200 mb-3 block">
+                <label className="text-sm font-semibold text-zinc-800 dark:text-zinc-200 mb-2 block">
                   Aspect Ratio
                 </label>
                 <div className="grid grid-cols-3 gap-2">
