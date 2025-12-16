@@ -9,10 +9,10 @@ import { CompressorFilePanel } from "../Settings/CompressorFilePanel";
 import { SessionFilesDisplay } from "@/components/Shared/SessionFilesDisplay";
 
 import { TOOL_CONFIGS, detectFormatFromFilename } from "@/config/tool.config";
-import { TrashSvg } from "@/components/Svg/CommonSvg";
 import GlassButton from "@/components/Layouts/GlassButton";
 
 import { useImageCompressor } from "@/hooks/imageHooks/useImageCompressor.hook";
+import { ClearAllButton, FilesStatusSummary } from "@/components/Shared/FileUI";
 
 interface DynamicCompressorProps {
   format: string; // jpg, png, webp, gif
@@ -93,8 +93,12 @@ const DynamicCompressor = ({ format }: DynamicCompressorProps) => {
         config={config}
         onFilesSelected={handleFilesSelected}
         onUrlUpload={() => setUrlModalOpen(true)}
-        onGooglePick={ () => addFromGoogleDrive(config.defaultSettings.quality as number)}
-        onDropboxPick={ () => addFromDropbox(config.defaultSettings.quality as number)}
+        onGooglePick={() =>
+          addFromGoogleDrive(config.defaultSettings.quality as number)
+        }
+        onDropboxPick={() =>
+          addFromDropbox(config.defaultSettings.quality as number)
+        }
         currentFileCount={files.length}
         disabled={!canAddMore}
       />
@@ -103,31 +107,19 @@ const DynamicCompressor = ({ format }: DynamicCompressorProps) => {
       {files.length > 0 && (
         <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 mt-[1vh] md:mt-[1vw]">
           {/* Header */}
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-4">
             {/* Status */}
-            <div className="flex items-center gap-2 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-1.5">
-              <p className="md:text-sm text-xs text-zinc-600 dark:text-zinc-400">
-                Compressing {format.toUpperCase()} Images
-                {stats.pending > 0 && ` • ${stats.pending} pending`}
-                {stats.processing > 0 && ` • ${stats.processing} processing`}
-                {stats.error > 0 && ` • ${stats.error} failed`}
-              </p>
-            </div>
+            <FilesStatusSummary
+              pending={stats.pending}
+              processing={stats.processing}
+              failed={stats.error}
+            />
 
-            {/* Clear All */}
-            <button
-              onClick={clearAll}
-              className="px-4 py-1.5 rounded-xl font-medium text-red-600 bg-red-50 dark:bg-red-900/20 flex items-center gap-2 hover:bg-red-100 dark:hover:bg-red-900/30 transition cursor-pointer"
-            >
-              <span className="w-5 h-5">
-                <TrashSvg />
-              </span>
-              <span className="md:block hidden">Clear All</span>
-            </button>
+            <ClearAllButton onClick={clearAll} />
           </div>
 
           {/* Files List */}
-          <div className="space-y-4">
+          <div className="space-y-2">
             {files.map((file) => (
               <CompressorFilePanel
                 key={file.id}
