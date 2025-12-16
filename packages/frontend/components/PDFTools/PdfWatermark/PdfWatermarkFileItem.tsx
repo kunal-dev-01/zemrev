@@ -1,10 +1,18 @@
 import { useState, useEffect } from "react";
 import { PdfWatermarkViewer } from "./PdfWatermarkViewer";
 import { RangeSlider } from "@/components/Shared/RangeSlider";
-import { CancelSvg, CheckSvg } from "@/components/Svg/CommonSvg";
-import { PDFToImageSVg } from "@/components/Svg/PdfSvg";
+import { CheckSvg } from "@/components/Svg/CommonSvg";
 import { UploadSvg } from "@/components/Svg/ToolsSvg";
-import type { PdfProcessedFile, PdfFileSettings, PdfToolConfig } from "@/services/pdfService/types";
+import type {
+  PdfProcessedFile,
+  PdfFileSettings,
+  PdfToolConfig,
+} from "@/services/pdfService/types";
+import {
+  FileInfo,
+  RemoveButton,
+  ToolIconBadge,
+} from "@/components/Shared/FileUI";
 
 interface PdfWatermarkFileItemProps {
   file: PdfProcessedFile;
@@ -47,33 +55,20 @@ export const PdfWatermarkFileItem = ({
     if (type === "text") updateSettings(file.id, { watermarkFile: undefined });
   };
 
-  const formatBytes = (bytes: number) => {
-    if (bytes === 0) return "0 B";
-    const k = 1024;
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return `${(bytes / Math.pow(k, i)).toFixed(1)} ${["B", "KB", "MB"][i]}`;
-  };
-
   return (
     <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-2xl overflow-hidden transition-all">
       {/* HEADER */}
       <div className="flex items-center gap-3 p-4 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/40">
-        <div className="p-2.5 rounded-xl shrink-0" style={{ backgroundColor: isDark ? config.dropzoneColorDark : config.dropzoneColor }}>
-          <div style={{ color: config.primaryColor }} className="w-6 h-6">
-            <PDFToImageSVg />
-          </div>
-        </div>
+        <ToolIconBadge
+          primaryColor={config.primaryColor}
+          bgColor={config.dropzoneColor}
+          bgColorDark={config.dropzoneColorDark}
+          isDark={isDark}
+        />
         <div className="flex-1 min-w-0">
-          <h3 className="text-sm leading-none font-semibold truncate text-zinc-800 dark:text-zinc-200">{file.name}</h3>
-          <p className="text-xs text-zinc-500 px-1 bg-zinc-200 dark:bg-zinc-800 rounded-md inline-block">{formatBytes(file.size)}</p>
+          <FileInfo name={file.name} size={file.size} />
         </div>
-        <button
-          type="button"
-          onClick={() => removeFile(file.id)}
-          className="px-3 py-1.5 rounded-xl border dark:border-zinc-700 border-zinc-200 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all duration-200 cursor-pointer"
-        >
-          <CancelSvg className="w-5 h-5" />
-        </button>
+        <RemoveButton onClick={() => removeFile(file.id)} />
       </div>
 
       <div className="p-4 grid lg:grid-cols-2 gap-6">
@@ -101,57 +96,73 @@ export const PdfWatermarkFileItem = ({
           {activeTab === "text" && (
             <div className="space-y-4 animate-in fade-in duration-300">
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-zinc-500">Watermark Text</label>
+                <label className="text-xs font-semibold text-zinc-500">
+                  Watermark Text
+                </label>
                 <input
                   type="text"
                   value={file.settings.text || "CONFIDENTIAL"}
-                  onChange={(e) => updateSettings(file.id, { text: e.target.value })}
+                  onChange={(e) =>
+                    updateSettings(file.id, { text: e.target.value })
+                  }
                   className="w-full px-3 py-2 bg-transparent border border-zinc-200 dark:border-zinc-700 rounded-lg text-sm outline-none transition-all"
                   placeholder="Watermark Text"
                 />
               </div>
-              
+
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-zinc-500">Text Color</label>
+                <label className="text-xs font-semibold text-zinc-500">
+                  Text Color
+                </label>
                 <div className="flex flex-wrap gap-2">
                   {BACKEND_COLORS.map((c) => (
                     <button
                       key={c.value}
                       type="button"
-                      onClick={() => updateSettings(file.id, { color: c.value })}
+                      onClick={() =>
+                        updateSettings(file.id, { color: c.value })
+                      }
                       className={`w-7 h-7 rounded-full border flex items-center justify-center transition-transform hover:scale-110 cursor-pointer ${
-                        file.settings.color === c.value ? "ring-2 ring-offset-2 ring-purple-500 scale-105 border-transparent" : "border-zinc-200 dark:border-zinc-700"
+                        file.settings.color === c.value
+                          ? "ring-2 ring-offset-2 ring-purple-500 scale-105 border-transparent"
+                          : "border-zinc-200 dark:border-zinc-700"
                       }`}
                       style={{ backgroundColor: c.hex }}
                       title={c.label}
                     >
-                      {c.value === "white" && file.settings.color === "white" && <span className="text-black text-xs">✓</span>}
-                      {c.value !== "white" && file.settings.color === c.value && <span className="text-white text-xs">✓</span>}
+                      {c.value === "white" &&
+                        file.settings.color === "white" && (
+                          <span className="text-black text-xs">✓</span>
+                        )}
+                      {c.value !== "white" &&
+                        file.settings.color === c.value && (
+                          <span className="text-white text-xs">✓</span>
+                        )}
                     </button>
                   ))}
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <RangeSlider 
-                  label="Font Size" 
-                  value={file.settings.font_size || 50} 
-                  min={10} 
-                  max={150} 
-                  step={5} 
-                  color={config.primaryColor} 
-                  onChange={(v) => updateSettings(file.id, { font_size: v })} 
-                  unit="pt" 
+                <RangeSlider
+                  label="Font Size"
+                  value={file.settings.font_size || 50}
+                  min={10}
+                  max={150}
+                  step={5}
+                  color={config.primaryColor}
+                  onChange={(v) => updateSettings(file.id, { font_size: v })}
+                  unit="pt"
                 />
-                <RangeSlider 
-                  label="Rotation" 
-                  value={file.settings.rotation || 45} 
-                  min={0} 
-                  max={360} 
-                  step={15} 
-                  color={config.primaryColor} 
-                  onChange={(v) => updateSettings(file.id, { rotation: v })} 
-                  unit="°" 
+                <RangeSlider
+                  label="Rotation"
+                  value={file.settings.rotation || 45}
+                  min={0}
+                  max={360}
+                  step={15}
+                  color={config.primaryColor}
+                  onChange={(v) => updateSettings(file.id, { rotation: v })}
+                  unit="°"
                 />
               </div>
             </div>
@@ -162,32 +173,41 @@ export const PdfWatermarkFileItem = ({
             <div className="space-y-4 animate-in fade-in duration-300">
               <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-xl cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
                 {file.settings.watermarkFile ? (
-                  <p className="text-sm font-medium text-green-600 flex items-center gap-1"><CheckSvg /> {(file.settings.watermarkFile as File).name}</p>
+                  <p className="text-sm font-medium text-green-600 flex items-center gap-1">
+                    <CheckSvg /> {(file.settings.watermarkFile as File).name}
+                  </p>
                 ) : (
                   <div className="text-center">
                     <div className="w-14 h-14 mx-auto mb-1 text-zinc-600 dark:text-zinc-300">
                       <UploadSvg />
                     </div>
-                    <p className="text-sm text-zinc-500">Upload Watermark Image</p>
+                    <p className="text-sm text-zinc-500">
+                      Upload Watermark Image
+                    </p>
                   </div>
                 )}
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  onChange={(e) => e.target.files?.[0] && updateSettings(file.id, { watermarkFile: e.target.files[0] })} 
-                  className="hidden" 
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) =>
+                    e.target.files?.[0] &&
+                    updateSettings(file.id, {
+                      watermarkFile: e.target.files[0],
+                    })
+                  }
+                  className="hidden"
                 />
               </label>
-              
-              <RangeSlider 
-                label="Rotation" 
-                value={file.settings.rotation || 0} 
-                min={0} 
-                max={360} 
-                step={15} 
-                color={config.primaryColor} 
-                onChange={(v) => updateSettings(file.id, { rotation: v })} 
-                unit="°" 
+
+              <RangeSlider
+                label="Rotation"
+                value={file.settings.rotation || 0}
+                min={0}
+                max={360}
+                step={15}
+                color={config.primaryColor}
+                onChange={(v) => updateSettings(file.id, { rotation: v })}
+                unit="°"
               />
             </div>
           )}
@@ -195,15 +215,15 @@ export const PdfWatermarkFileItem = ({
           <div className="h-px bg-zinc-100 dark:bg-zinc-800" />
 
           {/* COMMON CONTROLS - OPACITY */}
-          <RangeSlider 
-            label="Opacity" 
-            value={file.settings.opacity || 0.3} 
-            min={0.1} 
-            max={1} 
-            step={0.1} 
-            color={config.primaryColor} 
-            onChange={(v) => updateSettings(file.id, { opacity: v })} 
-            unit="" 
+          <RangeSlider
+            label="Opacity"
+            value={file.settings.opacity || 0.3}
+            min={0.1}
+            max={1}
+            step={0.1}
+            color={config.primaryColor}
+            onChange={(v) => updateSettings(file.id, { opacity: v })}
+            unit=""
           />
 
           <div className="h-px bg-zinc-100 dark:bg-zinc-800" />
@@ -215,48 +235,48 @@ export const PdfWatermarkFileItem = ({
             </label>
 
             <div className="grid grid-cols-2 gap-4">
-              <RangeSlider 
-                label="X Position" 
-                value={file.settings.x || 150} 
-                min={0} 
-                max={600} 
-                step={10} 
-                color={config.primaryColor} 
-                onChange={(v) => updateSettings(file.id, { x: v })} 
-                unit="pt" 
+              <RangeSlider
+                label="X Position"
+                value={file.settings.x || 150}
+                min={0}
+                max={600}
+                step={10}
+                color={config.primaryColor}
+                onChange={(v) => updateSettings(file.id, { x: v })}
+                unit="pt"
               />
-              <RangeSlider 
-                label="Y Position" 
-                value={file.settings.y || 350} 
-                min={0} 
-                max={800} 
-                step={10} 
-                color={config.primaryColor} 
-                onChange={(v) => updateSettings(file.id, { y: v })} 
-                unit="pt" 
+              <RangeSlider
+                label="Y Position"
+                value={file.settings.y || 350}
+                min={0}
+                max={800}
+                step={10}
+                color={config.primaryColor}
+                onChange={(v) => updateSettings(file.id, { y: v })}
+                unit="pt"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <RangeSlider 
-                label="Width" 
-                value={file.settings.width || 300} 
-                min={50} 
-                max={500} 
-                step={10} 
-                color={config.primaryColor} 
-                onChange={(v) => updateSettings(file.id, { width: v })} 
-                unit="pt" 
+              <RangeSlider
+                label="Width"
+                value={file.settings.width || 300}
+                min={50}
+                max={500}
+                step={10}
+                color={config.primaryColor}
+                onChange={(v) => updateSettings(file.id, { width: v })}
+                unit="pt"
               />
-              <RangeSlider 
-                label="Height" 
-                value={file.settings.height || 150} 
-                min={20} 
-                max={400} 
-                step={10} 
-                color={config.primaryColor} 
-                onChange={(v) => updateSettings(file.id, { height: v })} 
-                unit="pt" 
+              <RangeSlider
+                label="Height"
+                value={file.settings.height || 150}
+                min={20}
+                max={400}
+                step={10}
+                color={config.primaryColor}
+                onChange={(v) => updateSettings(file.id, { height: v })}
+                unit="pt"
               />
             </div>
           </div>
@@ -265,10 +285,9 @@ export const PdfWatermarkFileItem = ({
         {/* PREVIEW COLUMN */}
         <div className="bg-zinc-50 dark:bg-zinc-900/30 rounded-xl p-1 border border-zinc-100 dark:border-zinc-800/50">
           {file.originalFile && (
-            <PdfWatermarkViewer 
-              file={file.originalFile} 
-              settings={file.settings} 
-              primaryColor={config.primaryColor} 
+            <PdfWatermarkViewer
+              file={file.originalFile}
+              settings={file.settings}
             />
           )}
         </div>

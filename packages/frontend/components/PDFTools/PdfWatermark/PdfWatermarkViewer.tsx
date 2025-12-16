@@ -8,13 +8,11 @@ pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.vers
 interface PdfWatermarkViewerProps {
   file: File;
   settings: PdfFileSettings;
-  primaryColor: string;
 }
 
 export const PdfWatermarkViewer = ({
   file,
-  settings,
-  primaryColor,
+  settings
 }: PdfWatermarkViewerProps) => {
   const [numPages, setNumPages] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
