@@ -6,8 +6,11 @@ import {
   CopySvg,
 } from "@/components/Svg/CommonSvg";
 import { ToggleSwitch } from "@/components/Shared/ToggleSwitch";
-import { PDFToImageSVg } from "@/components/Svg/PdfSvg";
-import { FileInfo, RemoveButton } from "@/components/Shared/FileUI";
+import {
+  FileInfo,
+  RemoveButton,
+  ToolIconBadge,
+} from "@/components/Shared/FileUI";
 import type {
   PdfProcessedFile,
   PdfToolConfig,
@@ -46,21 +49,12 @@ export const PdfFileItem = ({
   return (
     <div className="bg-transparent border border-zinc-200 dark:border-zinc-800 rounded-2xl p-3 transition-all duration-200 hover:border-zinc-300 dark:hover:border-zinc-700">
       <div className="flex items-center gap-3 mb-3">
-        <div
-          className="p-3 rounded-lg shrink-0"
-          style={{
-            backgroundColor: isDark
-              ? config.dropzoneColorDark
-              : config.dropzoneColor,
-          }}
-        >
-          <div
-            style={{ color: config.primaryColor }}
-            className="w-6 h-6"
-          >
-            <PDFToImageSVg />
-          </div>
-        </div>
+        <ToolIconBadge
+          primaryColor={config.primaryColor}
+          bgColor={config.dropzoneColor}
+          bgColorDark={config.dropzoneColorDark}
+          isDark={isDark}
+        />
 
         <div className="flex-1 min-w-0">
           <FileInfo name={file.name} size={file.size} />
