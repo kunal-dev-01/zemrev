@@ -8,6 +8,7 @@ import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 import GlassButton from "@/components/Layouts/GlassButton";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
+import { FilesStatusSummary } from "@/components/Shared/FileUI";
 
 const PdfCrop = () => {
   const config = PDF_TOOL_CONFIGS["pdf-crop"];
@@ -58,33 +59,31 @@ const PdfCrop = () => {
   return (
     <div className="w-full md:mt-[1vw] mt-[1vh]">
       {/* Drag Drop Zone */}
-      {canAddMore &&(
+      {canAddMore && (
         <PdfDragDropZone
-        config={config}
-        onFilesSelected={handleFilesSelected}
-        onGooglePick={handleGoogleDrive}
-        onDropboxPick={handleDropbox}
-        currentFileCount={files.length}
-        disabled={!canAddMore}
-      />
+          config={config}
+          onFilesSelected={handleFilesSelected}
+          onGooglePick={handleGoogleDrive}
+          onDropboxPick={handleDropbox}
+          currentFileCount={files.length}
+          disabled={!canAddMore}
+        />
       )}
 
       {/* Pending Files Panel */}
       {files.length > 0 && (
         <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 md:mt-[1vw] mt-[1vh]">
           {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2 dark:bg-zinc-900 bg-zinc-50 border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-1.5">
-              <p className="md:text-sm text-xs text-zinc-600 dark:text-zinc-400">
-                {stats.pending > 0 && `${stats.pending} pending`}
-                {stats.processing > 0 && ` • ${stats.processing} processing`}
-                {stats.error > 0 && ` • ${stats.error} failed`}
-              </p>
-            </div>
+          <div className="flex items-center justify-between mb-4">
+            <FilesStatusSummary
+              pending={stats.pending}
+              processing={stats.processing}
+              failed={stats.error}
+            />
           </div>
 
           {/* File List */}
-          <div className="space-y-3">
+          <div className="space-y-2">
             {files.map((file) => (
               <PdfCropFileItem
                 key={file.id}
@@ -106,7 +105,7 @@ const PdfCrop = () => {
             >
               {cropping
                 ? "Cropping..."
-                : `Crop ${stats.pending} File${stats.pending !== 1 ? "s" : ""}`}
+                : `Crop PDF`}
             </GlassButton>
           )}
         </div>
