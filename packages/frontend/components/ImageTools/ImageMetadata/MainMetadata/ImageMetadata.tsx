@@ -61,10 +61,6 @@ const ImageMetadata = () => {
   // -----------------------------------------------
   return (
     <div className="w-full md:mt-[1vw] mt-[1vh]">
-      
-      {/* Saved Metadata & Pending UI */}
-      {!file && <MetadataViewer />}
-
       {/* Upload UI */}
       {!file && (
         <DragDropZone
@@ -80,7 +76,6 @@ const ImageMetadata = () => {
       {/* Main metadata extraction UI */}
       {file && imageUrl && (
         <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 p-3 md:p-6">
-
           {/* Header */}
           <div className="flex items-center justify-between mb-3">
             <div className="flex-1 min-w-0">
@@ -106,7 +101,13 @@ const ImageMetadata = () => {
 
           {/* Preview */}
           <div className="relative w-full h-[40vh] bg-zinc-100 dark:bg-zinc-900 rounded-lg overflow-hidden mb-6">
-            <Image src={imageUrl} alt="Preview" fill className="object-contain" unoptimized />
+            <Image
+              src={imageUrl}
+              alt="Preview"
+              fill
+              className="object-contain"
+              unoptimized
+            />
           </div>
 
           {/* Error */}
@@ -131,9 +132,11 @@ const ImageMetadata = () => {
           {metadataData && (
             <MetadataViewer extractedMetadata={metadataData} reset={reset} />
           )}
-
         </div>
       )}
+
+      {/* Saved Metadata & Pending UI */}
+      {!file && <MetadataViewer />}
 
       {/* URL Modal */}
       <UrlUploadModal

@@ -107,7 +107,7 @@ const MetadataViewer = ({ extractedMetadata, reset }: Props) => {
 
                   <button
                     onClick={() => handleCopy(val)}
-                    className="p-1 rounded hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all"
+                    className="rounded hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-all"
                   >
                     {copiedText === val ? <CheckSvg /> : <CopySvg />}
                   </button>
@@ -125,7 +125,7 @@ const MetadataViewer = ({ extractedMetadata, reset }: Props) => {
   // -------------------------------------------------------
   if (!extractedMetadata) {
     return savedMetadata.length > 0 ? (
-      <div className="border border-zinc-200 dark:border-zinc-800 rounded-2xl bg-white/50 dark:bg-zinc-900/40 p-3 md:p-6 mb-[1vh] md:mb-[1vw]">
+      <div className="border border-zinc-200 dark:border-zinc-800 rounded-2xl bg-white/50 dark:bg-zinc-900/40 p-3 md:p-6 mt-[1vh] md:mt-[1vw]">
 
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-md md:text-lg font-semibold">
