@@ -4,13 +4,18 @@
 // ============================================================================
 
 import { useState, useRef, useEffect } from "react";
-import { CancelSvg, ChevronDownSvg, SettingsSvg } from "@/components/Svg/CommonSvg";
 import { PDFToImageSVg } from "@/components/Svg/PdfSvg";
 import type {
   PdfProcessedFile,
   PdfFileSettings,
   PdfToolConfig,
 } from "@/services/pdfService/types";
+import {
+  FileInfo,
+  RemoveButton,
+  SettingsToggleButton,
+} from "@/components/Shared/FileUI";
+import { InputField } from "@/components/Layouts/InputField";
 
 interface PdfToImagesFileItemProps {
   file: PdfProcessedFile;
@@ -78,29 +83,10 @@ export const PdfToImagesFileItem = ({
   // ============================================================================
   // HELPERS
   // ============================================================================
-  const formatBytes = (bytes: number): string => {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
-  };
-
-  const truncateFileName = (name: string, maxLength = 30): string => {
-    if (name.length <= maxLength) return name;
-    const ext = name.split(".").pop() || "";
-    const nameWithoutExt = name.substring(0, name.lastIndexOf("."));
-    const truncated = nameWithoutExt.substring(0, maxLength - ext.length - 4);
-    return `${truncated}...${ext}`;
-  };
 
   const getCurrentFormatLabel = (): string => {
     const format = FORMAT_OPTIONS.find((f) => f.value === file.settings.format);
     return format?.label || "PNG";
-  };
-
-  const getCurrentDpiLabel = (): string => {
-    return `${file.settings.dpi || 150} DPI`;
   };
 
   // ============================================================================
@@ -128,41 +114,20 @@ export const PdfToImagesFileItem = ({
 
         {/* File Info */}
         <div className="flex-1 min-w-0">
-          <h3
-            className="text-sm leading-none font-medium text-zinc-800 dark:text-zinc-200 truncate"
-            title={file.name}
-          >
-            {truncateFileName(file.name)}
-          </h3>
-          <p className="text-xs px-1 rounded-md bg-zinc-200 dark:bg-zinc-800 inline-block text-zinc-500 dark:text-zinc-400 mt-1">
-            {formatBytes(file.size)}
-          </p>
+          <FileInfo name={file.name} size={file.size} />
         </div>
 
         {/* Settings Dropdown */}
         <div ref={settingsRef}>
-          <button
+          <SettingsToggleButton
+            isOpen={isSettingsOpen}
+            label={getCurrentFormatLabel()}
             onClick={() => setIsSettingsOpen(!isSettingsOpen)}
-            className="min-w-[110px] px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-800 dark:text-zinc-200 flex items-center justify-between transition-all cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-700"
-          >
-            <div className="flex items-center gap-1">
-              <SettingsSvg />
-              <div className="flex flex-col items-start">
-                <p className="font-medium text-sm">{getCurrentFormatLabel()}</p>
-              </div>
-            </div>
-            <div
-              className={`transition-transform duration-200 ${
-                isSettingsOpen ? "rotate-180" : ""
-              }`}
-            >
-              <ChevronDownSvg />
-            </div>
-          </button>
+          />
 
           {/* Settings Panel */}
           {isSettingsOpen && (
-            <div className="absolute z-20 right-0 mt-1 p-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl w-[340px]">
+            <div className="absolute z-20 right-0 mt-1 p-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl md:w-[20vw]">
               {/* Format Selection */}
               <div className="mb-4">
                 <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-2 block">
@@ -235,32 +200,20 @@ export const PdfToImagesFileItem = ({
 
               {/* Page Range (Optional) */}
               <div>
-                <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-2 block">
-                  Page Range (Optional)
-                </label>
-                <input
+                <InputField
+                  label="Page Range (Optional)"
                   type="text"
                   value={file.settings.page_range || ""}
-                  onChange={(e) => handlePageRangeChange(e.target.value)}
                   placeholder="e.g. 1-3, 5, 8-10 (leave empty for all)"
-                  className="w-full px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 text-sm placeholder:text-zinc-400 dark:placeholder:text-zinc-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none outline-none"
+                  onChange={handlePageRangeChange}
                 />
-                <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mt-1.5">
-                  Leave empty to convert all pages
-                </p>
               </div>
             </div>
           )}
         </div>
 
         {/* Remove Button */}
-        <button
-          onClick={() => removeFile(file.id)}
-          className="px-3 py-1.5 rounded-xl border dark:border-zinc-700 border-zinc-200 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all duration-200 cursor-pointer"
-          aria-label="Remove file"
-        >
-          <CancelSvg className="w-5 h-5" />
-        </button>
+        <RemoveButton onClick={() => removeFile(file.id)} />
       </div>
     </div>
   );
