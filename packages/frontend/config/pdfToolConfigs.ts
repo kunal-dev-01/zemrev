@@ -143,7 +143,7 @@ export const PDF_TOOL_CONFIGS: Record<string, PdfToolConfig> = {
     dropzoneColor: "#FDF2F8",
     dropzoneColorDark: "#DB27771A",
     defaultSettings: {
-      rotations: "1:90",
+      rotations: "1:0",
     },
   },
 

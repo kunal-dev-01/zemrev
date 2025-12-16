@@ -12,9 +12,6 @@ const PdfRotate = () => {
   const config = PDF_TOOL_CONFIGS["pdf-rotate"];
   const isDark = useDarkMode();
 
-  const defaultRotation = config.defaultSettings.rotations as string;
-
-
   const {
     files,
     rotating,
@@ -23,37 +20,27 @@ const PdfRotate = () => {
     addFromDropbox,
     removeFile,
     updateFileSettings,
-    rotateAllFiles
+    rotateAllFiles,
   } = usePdfRotate();
 
   // Derived state
   const pendingFiles = files.filter((f) => f.status === "pending");
   const canRotate = pendingFiles.length > 0 && !rotating;
-
-  // Handlers with default rotation
-  const handleAddFiles = async (newFiles: File[]) => {
-    await addFiles(newFiles, defaultRotation);
-  };
-
-  const handleGoogleDrive = async () => {
-    await addFromGoogleDrive(defaultRotation);
-  };
-
-  const handleDropbox = async () => {
-    await addFromDropbox(defaultRotation);
-  };
+  const canAddMore = files.length < config.maxFiles;
 
   return (
     <div className="w-full md:mt-[1vw] mt-[1vh]">
       {/* ROTATION PRESET SELECTOR */}
-      <PdfDragDropZone
-        config={config}
-        onFilesSelected={handleAddFiles}
-        onGooglePick={handleGoogleDrive}
-        onDropboxPick={handleDropbox}
-        currentFileCount={files.length}
-        disabled={files.length >= config.maxFiles}
-      />
+      {canAddMore && (
+        <PdfDragDropZone
+          config={config}
+          onFilesSelected={addFiles}
+          onGooglePick={addFromGoogleDrive}
+          onDropboxPick={addFromDropbox}
+          currentFileCount={files.length}
+          disabled={!canAddMore}
+        />
+      )}
 
       {files.length > 0 && (
         <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 md:mt-[1vw] mt-[1vh] animate-in fade-in slide-in-from-bottom-4">
@@ -63,7 +50,7 @@ const PdfRotate = () => {
             </div>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-2">
             {files.map((file) => (
               <PdfRotateFileItem
                 key={file.id}
@@ -77,15 +64,13 @@ const PdfRotate = () => {
           </div>
 
           {canRotate && (
-            <div className="mt-6">
-              <GlassButton
-                loading={rotating}
-                primaryColor={config.primaryColor}
-                onClick={rotateAllFiles}
-              >
-                {rotating ? "Rotating PDF..." : "Rotate PDF"}
-              </GlassButton>
-            </div>
+            <GlassButton
+              loading={rotating}
+              primaryColor={config.primaryColor}
+              onClick={rotateAllFiles}
+            >
+              {rotating ? "Rotating PDF..." : "Rotate PDF"}
+            </GlassButton>
           )}
         </div>
       )}

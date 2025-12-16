@@ -34,7 +34,7 @@ export const usePdfRotate = () => {
             name: file.name,
             size: file.size,
             type: file.type,
-            settings: { rotations: "1:90" },
+            settings: { rotations: "1:0" },
             status: "pending" as const,
           }))
         );
@@ -47,7 +47,7 @@ export const usePdfRotate = () => {
   // ADD FILES (LOCAL)
   // ============================================================================
   const addFiles = useCallback(
-    async (newFiles: File[], defaultRotations: string) => {
+    async (newFiles: File[]) => {
       const processed: PdfProcessedFile[] = [];
 
       for (const file of newFiles) {
@@ -58,7 +58,7 @@ export const usePdfRotate = () => {
           name: file.name,
           size: file.size,
           type: file.type,
-          settings: { rotations: defaultRotations },
+          settings: { rotations: "1:0" },
           status: "pending",
         });
       }
@@ -72,7 +72,7 @@ export const usePdfRotate = () => {
   // ADD FROM GOOGLE DRIVE
   // ============================================================================
   const addFromGoogleDrive = useCallback(
-    async (defaultRotations: string) => {
+    async () => {
       const file = await pickFromGoogleDrive();
       const id = await pdfPendingStorage.save("pdf-rotate", file);
 
@@ -84,7 +84,7 @@ export const usePdfRotate = () => {
           name: file.name,
           size: file.size,
           type: file.type,
-          settings: { rotations: defaultRotations },
+          settings: { rotations: "1:0" },
           status: "pending",
         },
       ]);
@@ -96,7 +96,7 @@ export const usePdfRotate = () => {
   // ADD FROM DROPBOX
   // ============================================================================
   const addFromDropbox = useCallback(
-    async (defaultRotations: string) => {
+    async () => {
       const file = await pickFromDropbox();
       const id = await pdfPendingStorage.save("pdf-rotate", file);
 
@@ -108,7 +108,7 @@ export const usePdfRotate = () => {
           name: file.name,
           size: file.size,
           type: file.type,
-          settings: { rotations: defaultRotations },
+          settings: { rotations: "1:0" },
           status: "pending",
         },
       ]);

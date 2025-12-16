@@ -21,7 +21,8 @@ export const PdfRotateViewer = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
 
-  // Handle Resize
+  const [pageDimensions, setPageDimensions] = useState({ width: 0, height: 0 });
+
   useEffect(() => {
     const updateWidth = () => {
       if (containerRef.current) {
@@ -33,9 +34,9 @@ export const PdfRotateViewer = ({
     return () => window.removeEventListener("resize", updateWidth);
   }, []);
 
-  // Parse rotation settings to get angle for current page
+  // Parse rotation settings
   const getRotationForPage = (pageNum: number): number => {
-    const rotations = settings.rotations || "all:90";
+    const rotations = settings.rotations || "all:0"; 
     const parts = rotations.split(":");
     
     if (parts.length !== 2) return 0;
@@ -43,10 +44,8 @@ export const PdfRotateViewer = ({
     const [pages, angle] = parts;
     const rotationAngle = parseInt(angle) || 0;
 
-    // Check if this page should be rotated
     if (pages === "all") return rotationAngle;
 
-    // Parse page ranges (e.g., "1,3,5" or "1-5" or "1,3-5,8")
     const pageRanges = pages.split(",");
     for (const range of pageRanges) {
       if (range.includes("-")) {
@@ -56,11 +55,19 @@ export const PdfRotateViewer = ({
         if (pageNum === parseInt(range.trim())) return rotationAngle;
       }
     }
-
     return 0;
   };
 
   const currentRotation = getRotationForPage(currentPage);
+  const isRotatedSideways = currentRotation % 180 !== 0;
+  const effectiveWidth = isRotatedSideways ? pageDimensions.height : pageDimensions.width;
+  const effectiveHeight = isRotatedSideways ? pageDimensions.width : pageDimensions.height;
+  const isLandscape = effectiveWidth > effectiveHeight;
+  const pageSizingProps = isLandscape
+    ? { height: 350 }
+    : { width: containerWidth > 600 ? 500 : containerWidth - 32 };
+
+  // --- LOGIC END ---
 
   return (
     <div className="w-full flex flex-col gap-3">
@@ -93,33 +100,30 @@ export const PdfRotateViewer = ({
       {/* PDF Container */}
       <div
         ref={containerRef}
-        className="relative bg-zinc-100 dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden flex justify-center py-4 min-h-[300px]"
+        className="relative bg-zinc-100 dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden flex justify-center py-4 min-h-[300px] items-center transition-all"
       >
         <Document
           file={file}
           onLoadSuccess={({ numPages }) => setNumPages(numPages)}
           loading={<div className="text-xs text-zinc-500 mt-10">Loading PDF...</div>}
         >
-          <div className="shadow-lg relative inline-block">
-            <div 
-              style={{
-                transform: `rotate(${currentRotation}deg)`,
-                transition: "transform 0.3s ease-in-out",
+          <div className="shadow-lg relative inline-block transition-all duration-300">
+            <Page
+              pageNumber={currentPage}
+              rotate={currentRotation} 
+              onLoadSuccess={({ originalWidth, originalHeight }) => {
+                setPageDimensions({ width: originalWidth, height: originalHeight });
               }}
-            >
-              <Page
-                pageNumber={currentPage}
-                width={containerWidth > 600 ? 500 : containerWidth - 32}
-                renderTextLayer={false}
-                renderAnnotationLayer={false}
-                className="bg-white"
-              />
-            </div>
+              {...pageSizingProps}
+              renderTextLayer={false}
+              renderAnnotationLayer={false}
+              className="bg-white transition-all duration-300"
+            />
 
             {/* Rotation Indicator */}
             {currentRotation > 0 && (
               <div 
-                className="absolute top-2 right-2 px-3 py-1.5 rounded-lg font-semibold text-xs shadow-lg"
+                className="absolute top-2 right-2 px-3 py-1.5 rounded-lg font-semibold text-xs shadow-lg z-10"
                 style={{ 
                   backgroundColor: primaryColor,
                   color: "white"
@@ -131,8 +135,6 @@ export const PdfRotateViewer = ({
           </div>
         </Document>
       </div>
-
-      
     </div>
   );
 };
