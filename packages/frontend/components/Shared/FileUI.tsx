@@ -201,6 +201,7 @@ export const FilesStatusSummary = ({
 // Settings Toggle Button (Format / Options dropdown trigger)
 // -----------------------------------------------------------------------------
 import { SettingsSvg, ChevronDownSvg } from "@/components/Svg/CommonSvg";
+import { ReactNode } from "react";
 
 interface SettingsToggleButtonProps {
   isOpen: boolean;
@@ -219,11 +220,11 @@ export const SettingsToggleButton = ({
     <button
       onClick={onClick}
       className={`
-        min-w-[110px] px-3 py-1.5 rounded-xl
+        px-3 py-1.5 rounded-xl
         border border-zinc-200 dark:border-zinc-700
         bg-zinc-50 dark:bg-zinc-800/50
         text-zinc-800 dark:text-zinc-200
-        flex items-center justify-between
+        flex items-center gap-1 justify-between
         transition-all cursor-pointer
         hover:bg-zinc-100 dark:hover:bg-zinc-700
         ${className}
@@ -244,6 +245,44 @@ export const SettingsToggleButton = ({
         <ChevronDownSvg />
       </div>
     </button>
+  );
+};
+
+
+// -----------------------------------------------------------------------------
+// Tool Icon Badge
+// -----------------------------------------------------------------------------
+interface ToolIconBadgeProps {
+  icon: ReactNode;
+  primaryColor: string;
+  bgColor: string;
+  bgColorDark: string;
+  isDark: boolean;
+  className?: string;
+}
+
+export const ToolIconBadge = ({
+  icon,
+  primaryColor,
+  bgColor,
+  bgColorDark,
+  isDark,
+  className = "",
+}: ToolIconBadgeProps) => {
+  return (
+    <div
+      className={`p-2.5 sm:p-3 rounded-lg shrink-0 ${className}`}
+      style={{
+        backgroundColor: isDark ? bgColorDark : bgColor,
+      }}
+    >
+      <div
+        className="w-5 h-5 sm:w-6 sm:h-6"
+        style={{ color: primaryColor }}
+      >
+        {icon}
+      </div>
+    </div>
   );
 };
 
