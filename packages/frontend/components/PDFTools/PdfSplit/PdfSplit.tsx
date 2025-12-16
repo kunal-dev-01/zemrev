@@ -2,17 +2,21 @@ import { useCallback, useState, useRef, useEffect } from "react";
 import { PdfDragDropZone } from "@/components/Shared/PdfDragDropZone";
 import { PdfSessionFilesDisplay } from "@/components/Shared/PdfSessionFilesDisplay";
 import { PDF_TOOL_CONFIGS } from "@/config/pdfToolConfigs";
-import { ChevronDownSvg, SettingsSvg } from "@/components/Svg/CommonSvg";
 import { usePdfSplit } from "@/hooks/pdfHooks/usePdfSplit.hook";
 import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 import GlassButton from "@/components/Layouts/GlassButton";
-import { PDFToImageSVg } from "@/components/Svg/PdfSvg";
 import type {
   PdfProcessedFile,
   PdfFileSettings,
   PdfToolConfig,
 } from "@/services/pdfService/types";
-import { FileInfo, RemoveButton } from "@/components/Shared/FileUI";
+import {
+  FileInfo,
+  FilesStatusSummary,
+  RemoveButton,
+  SettingsToggleButton,
+  ToolIconBadge,
+} from "@/components/Shared/FileUI";
 import { InputField } from "@/components/Layouts/InputField";
 
 // ============================================================================
@@ -105,21 +109,12 @@ const PdfFileItem = ({
     <div className="bg-transparent border border-zinc-200 dark:border-zinc-800 rounded-2xl p-2 md:p-3 transition-all duration-200 hover:border-zinc-300 dark:hover:border-zinc-700 relative">
       <div className="flex items-center gap-3">
         {/* PDF Icon Box */}
-        <div
-          className="p-2.5 sm:p-3 rounded-lg shrink-0"
-          style={{
-            backgroundColor: isDark
-              ? config.dropzoneColorDark
-              : config.dropzoneColor,
-          }}
-        >
-          <div
-            style={{ color: config.primaryColor }}
-            className="w-5 h-5 sm:w-6 sm:h-6"
-          >
-            <PDFToImageSVg />
-          </div>
-        </div>
+        <ToolIconBadge
+          primaryColor={config.primaryColor}
+          bgColor={config.dropzoneColor}
+          bgColorDark={config.dropzoneColorDark}
+          isDark={isDark}
+        />
 
         {/* File Info */}
         <div className="flex-1 min-w-0">
@@ -128,70 +123,79 @@ const PdfFileItem = ({
 
         {/* Page Settings Dropdown */}
         <div ref={settingsRef}>
-          <button
-            onClick={() => setIsSettingsOpen(!isSettingsOpen)}
-            className="min-w-[120px] px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-800 dark:text-zinc-200 flex items-center justify-between transition-all cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-700"
-          >
-            <div className="flex items-center gap-2">
-              <SettingsSvg />
-              <span className="font-medium text-sm">
-                {getCurrentLabel(file.settings.pages || "1-3")}
-              </span>
-            </div>
-            <ChevronDownSvg />
-          </button>
+          <SettingsToggleButton
+            isOpen={isSettingsOpen}
+            label={getCurrentLabel(file.settings.pages || "1-3")}
+            onClick={() => setIsSettingsOpen((v) => !v)}
+          />
 
           {isSettingsOpen && (
-            <div className="absolute z-20 right-0 mt-1 p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl w-[320px] shadow-xl">
-              {/* Custom Page Input */}
-              <div className="mb-3">
-                <InputField
-                  label="Custom Page Range"
-                  type="text"
-                  value={pageInput}
-                  onChange={handlePageInputChange}
-                  placeholder="e.g., 1-5, 7, 10-15"
-                />
-                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-                  Use ranges (1-5), single pages (7), or both (1-3,5,8-10)
-                </p>
-              </div>
+            <>
+              <div
+                className="absolute right-0 top-full mt-1 z-20 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 md:min-w-[15vw] min-w-full origin-top-right ring-1 ring-black/5 dark:ring-white/5"
+                style={{
+                  animation:
+                    "dropdownEnter 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+                }}
+              >
+                {/* Custom Page Input */}
+                <div className="mb-4">
+                  <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-3 block">
+                    Custom Page Range
+                  </label>
+                  <InputField
+                    label=""
+                    type="text"
+                    value={pageInput}
+                    onChange={handlePageInputChange}
+                    placeholder="e.g., 1-5, 7, 10-15"
+                  />
+                </div>
 
-              {/* Preset Buttons */}
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-1.5 block">
-                  Quick Presets
-                </label>
-                {PAGE_PRESETS.map((option) => (
-                  <button
-                    key={option.value}
-                    onClick={() => handlePresetClick(option.value)}
-                    className={`w-full px-3 py-2 rounded-xl text-sm font-medium text-left transition-all flex items-center justify-between border cursor-pointer ${
-                      file.settings.pages === option.value
-                        ? "text-white"
-                        : "text-zinc-700 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-700"
-                    }`}
-                    style={{
-                      backgroundColor:
-                        file.settings.pages === option.value
-                          ? config.primaryColor
-                          : undefined,
-                      borderColor:
-                        file.settings.pages === option.value
-                          ? config.primaryColor
-                          : undefined,
-                    }}
-                  >
-                    <div>
-                      <div className="font-bold">{option.label}</div>
-                      <div className="text-xs opacity-80 mt-0.5">
-                        {option.desc}
-                      </div>
-                    </div>
-                  </button>
-                ))}
+                {/* Preset Buttons */}
+                <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800">
+                  <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-3 block">
+                    Quick Presets
+                  </label>
+                  <div className="space-y-2">
+                    {PAGE_PRESETS.map((option) => (
+                      <button
+                        key={option.value}
+                        onClick={() => handlePresetClick(option.value)}
+                        className={`w-full px-3 py-2 rounded-lg text-sm font-medium text-left transition-all flex items-center justify-between border cursor-pointer ${
+                          file.settings.pages === option.value
+                            ? "text-white border-transparent"
+                            : "text-zinc-700 dark:text-zinc-300 bg-transparent border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                        }`}
+                        style={{
+                          backgroundColor:
+                            file.settings.pages === option.value
+                              ? config.primaryColor
+                              : undefined,
+                          borderColor:
+                            file.settings.pages === option.value
+                              ? config.primaryColor
+                              : undefined,
+                        }}
+                      >
+                        <div>
+                          <div className="font-bold">{option.label}</div>
+                          <div
+                            className={`text-xs mt-0.5 ${
+                              file.settings.pages === option.value
+                                ? "text-white/80"
+                                : "text-zinc-500 dark:text-zinc-400"
+                            }`}
+                          >
+                            {option.desc}
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
-            </div>
+            </>
           )}
         </div>
 
@@ -268,14 +272,12 @@ const PdfSplit = () => {
       {files.length > 0 && (
         <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 md:mt-[1vw] mt-[1vh]">
           {/* Header */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2 dark:bg-zinc-900 bg-zinc-50 border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-1.5">
-              <p className="md:text-sm text-xs text-zinc-600 dark:text-zinc-400">
-                {stats.pending > 0 && `${stats.pending} pending`}
-                {stats.processing > 0 && ` • ${stats.processing} processing`}
-                {stats.error > 0 && ` • ${stats.error} failed`}
-              </p>
-            </div>
+          <div className="mb-4">
+            <FilesStatusSummary
+              pending={stats.pending}
+              processing={stats.processing}
+              failed={stats.error}
+            />
           </div>
 
           {/* File List */}
