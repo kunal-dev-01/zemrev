@@ -8,11 +8,11 @@ import { ResizerFilePanel } from "../Settings/ResizerFilePanel";
 import { SessionFilesDisplay } from "@/components/Shared/SessionFilesDisplay";
 
 import { TOOL_CONFIGS } from "@/config/tool.config";
-import { TrashSvg } from "@/components/Svg/CommonSvg";
 import GlassButton from "@/components/Layouts/GlassButton";
 
 import { useImageResizer } from "@/hooks/imageHooks/useImageResizer.hook";
 import type { ResizeMode } from "@/services/imageService/types";
+import { ClearAllButton } from "@/components/Shared/FileUI";
 
 interface DynamicResizerProps {
   slug: string;
@@ -42,7 +42,10 @@ const getDimensions = (slug: string) =>
   DIMENSION_MAP[slug] || { width: 1920, height: 1080 };
 
 // Display label
-const getDisplayLabel = (slug: string, dims: { width: number; height: number }) => {
+const getDisplayLabel = (
+  slug: string,
+  dims: { width: number; height: number }
+) => {
   if (slug.includes("instagram")) return "Instagram (1080×1080)";
   if (slug.includes("facebook")) return "Facebook (1200×630)";
   if (slug.includes("twitter")) return "Twitter (1200×675)";
@@ -110,7 +113,6 @@ const DynamicResizer = ({ slug }: DynamicResizerProps) => {
 
   return (
     <div className="w-full md:mt-[1vw] mt-[1vh]">
-
       {/* DragDropZone */}
       <DragDropZone
         config={config}
@@ -130,17 +132,14 @@ const DynamicResizer = ({ slug }: DynamicResizerProps) => {
       {files.length > 0 && (
         <div
           className="border border-zinc-200 dark:border-zinc-800 rounded-xl 
-                     bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 
-                     mt-[1vh] md:mt-[1vw]"
+         bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 mt-[1vh] md:mt-[1vw]"
         >
           {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-
+          <div className="flex items-center justify-between mb-4">
             {/* Status text */}
             <div
               className="flex items-center gap-2 px-4 py-1.5 rounded-xl 
-                         bg-zinc-50 dark:bg-zinc-900 
-                         border border-zinc-200 dark:border-zinc-800"
+             bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800"
             >
               <p className="text-sm text-zinc-600 dark:text-zinc-400">
                 Resizing to {displayText}
@@ -151,17 +150,7 @@ const DynamicResizer = ({ slug }: DynamicResizerProps) => {
             </div>
 
             {/* Clear All */}
-            <button
-              onClick={clearAll}
-              className="px-4 py-1.5 rounded-xl font-medium text-red-600 
-                         bg-red-50 dark:bg-red-900/20 flex items-center gap-2 
-                         hover:bg-red-100 dark:hover:bg-red-900/30 transition cursor-pointer"
-            >
-              <span className="w-5 h-5">
-                <TrashSvg />
-              </span>
-              <span className="hidden md:block">Clear All</span>
-            </button>
+           <ClearAllButton onClick={clearAll} />
           </div>
 
           {/* Files List */}

@@ -2,7 +2,7 @@
 
 import { Spinner } from "@/components/Layouts/Spinner";
 import { FileImage } from "@/components/Svg/HomeSvg";
-import { ErrorSvg } from "@/components/Svg/CommonSvg";
+import { ErrorSvg, SettingsSvg } from "@/components/Svg/CommonSvg";
 import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 import type {
   FileSettings,
@@ -11,12 +11,7 @@ import type {
 } from "@/services/imageService/types";
 import { useState, useEffect } from "react";
 import { SettingsPanel } from "./SettingsPanel";
-import {
-  FileError,
-  FileInfo,
-  RemoveButton,
-  SettingsToggleButton,
-} from "@/components/Shared/FileUI";
+import { FileError, FileInfo, RemoveButton } from "@/components/Shared/FileUI";
 
 interface ConverterFilePanelProps {
   file: ProcessedFile;
@@ -59,6 +54,7 @@ const STATUS_CONFIG = {
     text: "Failed",
   },
 };
+
 
 export const ConverterFilePanel = ({
   file,
@@ -109,16 +105,18 @@ export const ConverterFilePanel = ({
 
           {/* File Info */}
           <div className="flex-1 min-w-0">
-            <FileInfo name={file.name} size={file.size} />
+           <FileInfo name={file.name} size={file.size} />
           </div>
 
           {/* Format Display & Settings Button */}
           {file.status === "pending" && (
-            <SettingsToggleButton
-              isOpen={isSettingsOpen}
-              label={file.settings.format?.toUpperCase() as string}
+            <button
               onClick={() => setIsSettingsOpen(true)}
-            />
+              className="px-3 py-1 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all duration-200 flex items-center gap-2 cursor-pointer"
+            >
+              <span></span>
+              <SettingsSvg />
+            </button>
           )}
 
           {/* Status Badge */}
@@ -131,12 +129,16 @@ export const ConverterFilePanel = ({
             </div>
 
             {/* Remove Button */}
-            {!isProcessing && <RemoveButton onClick={onRemove} />}
+            {!isProcessing && (
+              <RemoveButton onClick={onRemove} />
+            )}
           </div>
         </div>
 
         {/* Error Message */}
-        {isError && file.error && <FileError error={file.error} />}
+        {isError && file.error && (
+          <FileError error={file.error} />
+        )}
       </div>
 
       {/* Settings Panel */}

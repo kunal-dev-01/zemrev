@@ -2,11 +2,12 @@
 
 import { Spinner } from "@/components/Layouts/Spinner";
 import { FileImage } from "@/components/Svg/HomeSvg";
-import { CancelSvg, ErrorSvg, SettingsSvg } from "@/components/Svg/CommonSvg";
+import { ErrorSvg, SettingsSvg } from "@/components/Svg/CommonSvg";
 import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 import type { FileSettings, ProcessedFile, ToolConfig } from "@/services/imageService/types";
 import { useState, useEffect } from "react";
 import { ResizerSettingsPanel } from "./ResizerSettingsPanel";
+import { FileError, FileInfo, RemoveButton } from "@/components/Shared/FileUI";
 
 interface ResizerFilePanelProps {
   file: ProcessedFile;
@@ -48,22 +49,6 @@ const STATUS_CONFIG = {
     bg: "bg-red-100 dark:bg-red-900/30",
     text: "Failed",
   },
-};
-
-const formatBytes = (bytes: number): string => {
-  if (bytes === 0) return "0 Bytes";
-  const k = 1024;
-  const sizes = ["Bytes", "KB", "MB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
-};
-
-const truncateFileName = (name: string, maxLength: number = 30): string => {
-  if (name.length <= maxLength) return name;
-  const ext = name.split('.').pop();
-  const nameWithoutExt = name.substring(0, name.lastIndexOf('.'));
-  const truncated = nameWithoutExt.substring(0, maxLength - ext!.length - 4);
-  return `${truncated}...${ext}`;
 };
 
 export const ResizerFilePanel = ({
@@ -111,15 +96,7 @@ export const ResizerFilePanel = ({
           </div>
 
           <div className="flex-1 min-w-0">
-            <h3
-              className="text-sm leading-none font-medium text-zinc-800 dark:text-zinc-200 truncate"
-              title={file.name}
-            >
-              {truncateFileName(file.name)}
-            </h3>
-            <p className="text-xs px-1 rounded-md bg-zinc-200 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 inline-block">
-              {formatBytes(file.size)}
-            </p>
+            <FileInfo name={file.name} size={file.size} />
           </div>
 
           {file.status === "pending" && (
@@ -141,21 +118,13 @@ export const ResizerFilePanel = ({
             </div>
 
             {!isProcessing && (
-              <button
-                onClick={onRemove}
-                className="px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition cursor-pointer"
-                aria-label="Remove file"
-              >
-                <CancelSvg className="w-5 h-5" />
-              </button>
+              <RemoveButton onClick={onRemove} />
             )}
           </div>
         </div>
 
         {isError && file.error && (
-          <div className="mt-3 p-2.5 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-            <p className="text-xs text-red-600 dark:text-red-400">{file.error}</p>
-          </div>
+         <FileError error={file.error} />
         )}
       </div>
 

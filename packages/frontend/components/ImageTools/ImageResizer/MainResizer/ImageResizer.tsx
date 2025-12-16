@@ -8,11 +8,11 @@ import { ResizerFilePanel } from "../Settings/ResizerFilePanel";
 import { SessionFilesDisplay } from "@/components/Shared/SessionFilesDisplay";
 
 import { TOOL_CONFIGS } from "@/config/tool.config";
-import { TrashSvg } from "@/components/Svg/CommonSvg";
 import GlassButton from "@/components/Layouts/GlassButton";
 
 import { useImageResizer } from "@/hooks/imageHooks/useImageResizer.hook";
 import type { ResizeMode } from "@/services/imageService/types";
+import { ClearAllButton, FilesStatusSummary } from "@/components/Shared/FileUI";
 
 const ImageResizer = () => {
   const config = TOOL_CONFIGS.resizer;
@@ -64,7 +64,7 @@ const ImageResizer = () => {
   // ============================================================================
   const canResize = stats.pending > 0 && !resizing;
   const canAddMore = files.length < config.maxFiles;
-  
+
   const defaultWidth = Number(config.defaultSettings.width);
   const defaultHeight = Number(config.defaultSettings.height);
   const defaultMode = config.defaultSettings.mode as ResizeMode;
@@ -93,40 +93,22 @@ const ImageResizer = () => {
       {files.length > 0 && (
         <div
           className="border border-zinc-200 dark:border-zinc-800 rounded-xl 
-                     bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 
-                     mt-[1vh] md:mt-[1vw]"
+          bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 mt-[1vh] md:mt-[1vw]"
         >
           {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            {/* Status */}
-            <div
-              className="flex items-center gap-2 px-4 py-1.5 rounded-xl 
-                         bg-zinc-50 dark:bg-zinc-900 
-                         border border-zinc-200 dark:border-zinc-800"
-            >
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                {stats.pending > 0 && `${stats.pending} pending`}
-                {stats.processing > 0 && ` • ${stats.processing} processing`}
-                {stats.error > 0 && ` • ${stats.error} failed`}
-              </p>
-            </div>
+          <div className="flex items-center justify-between mb-4">
+            {/* Status Box */}
+            <FilesStatusSummary
+              pending={stats.pending}
+              processing={stats.processing}
+              failed={stats.error}
+            />
 
-            {/* Clear All */}
-            <button
-              onClick={clearAll}
-              className="px-4 py-1.5 rounded-xl font-medium text-red-600 
-                         bg-red-50 dark:bg-red-900/20 flex items-center gap-2 
-                         hover:bg-red-100 dark:hover:bg-red-900/30 transition cursor-pointer"
-            >
-              <span className="w-5 h-5">
-                <TrashSvg />
-              </span>
-              <span className="hidden md:block">Clear All</span>
-            </button>
+            <ClearAllButton onClick={clearAll} />
           </div>
 
           {/* File List */}
-          <div className="space-y-4">
+          <div className="space-y-2">
             {files.map((file) => (
               <ResizerFilePanel
                 key={file.id}
