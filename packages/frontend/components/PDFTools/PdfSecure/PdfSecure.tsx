@@ -6,13 +6,18 @@ import { ErrorSvg } from "@/components/Svg/CommonSvg";
 import { usePdfEncrypt } from "@/hooks/pdfHooks/usePdfEncrypt.hook";
 import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 import GlassButton from "@/components/Layouts/GlassButton";
-import { PDFToImageSVg, SecurePdfSvg } from "@/components/Svg/PdfSvg";
+import { SecurePdfSvg } from "@/components/Svg/PdfSvg";
 import type {
   PdfProcessedFile,
   PdfFileSettings,
   PdfToolConfig,
 } from "@/services/pdfService/types";
-import { FileError, RemoveButton } from "@/components/Shared/FileUI";
+import {
+  FileError,
+  FilesStatusSummary,
+  RemoveButton,
+  ToolIconBadge,
+} from "@/components/Shared/FileUI";
 import { PasswordField } from "@/components/Layouts/PasswordField";
 
 // ============================================================================
@@ -39,7 +44,6 @@ const PdfFileItem = ({
   removeFile,
   isDark,
 }: PdfFileItemProps) => {
-
   // ============================================================================
   // HANDLERS
   // ============================================================================
@@ -73,18 +77,12 @@ const PdfFileItem = ({
     <div className="bg-transparent border border-zinc-200 dark:border-zinc-800 rounded-2xl p-3 transition-all duration-200 hover:border-zinc-300 dark:hover:border-zinc-700">
       <div className="flex items-center gap-3 mb-3">
         {/* PDF Icon Box */}
-        <div
-          className="p-3 rounded-lg shrink-0"
-          style={{
-            backgroundColor: isDark
-              ? config.dropzoneColorDark
-              : config.dropzoneColor,
-          }}
-        >
-          <div style={{ color: config.primaryColor }} className="w-6 h-6">
-            <PDFToImageSVg />
-          </div>
-        </div>
+        <ToolIconBadge
+          primaryColor={config.primaryColor}
+          bgColor={config.dropzoneColor}
+          bgColorDark={config.dropzoneColorDark}
+          isDark={isDark}
+        />
 
         {/* File Info */}
         <div className="flex-1 min-w-0">
@@ -121,7 +119,6 @@ const PdfFileItem = ({
           required
           value={file.settings.user_password || ""}
           placeholder="Enter password to open PDF"
-          helperText="Users must enter this password to open the PDF"
           onChange={(val) => handlePasswordChange("user_password", val)}
         />
 
@@ -131,7 +128,6 @@ const PdfFileItem = ({
           label="Owner Password"
           value={file.settings.owner_password || ""}
           placeholder="Master password for permissions"
-          helperText="Controls permissions like printing and editing"
           onChange={(val) => handlePasswordChange("owner_password", val)}
         />
       </div>
@@ -211,14 +207,12 @@ const PdfSecure = () => {
       {files.length > 0 && (
         <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 md:mt-[1vw] mt-[1vh]">
           {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2 dark:bg-zinc-900 bg-zinc-50 border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-1.5">
-              <p className="md:text-sm text-xs text-zinc-600 dark:text-zinc-400">
-                {stats.pending > 0 && `${stats.pending} pending`}
-                {stats.processing > 0 && ` • ${stats.processing} processing`}
-                {stats.error > 0 && ` • ${stats.error} failed`}
-              </p>
-            </div>
+          <div className="flex items-center justify-between mb-4">
+            <FilesStatusSummary
+              pending={stats.pending}
+              processing={stats.processing}
+              failed={stats.error}
+            />
           </div>
 
           {/* File List */}
@@ -239,8 +233,7 @@ const PdfSecure = () => {
           {!hasAllPasswords && (
             <div className="mt-4 p-3 rounded-xl bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800">
               <p className="text-sm text-yellow-700 dark:text-yellow-300 flex items-center gap-2">
-                <ErrorSvg className="w-5 h-5" /> Please set a password for all
-                files before encrypting
+                <ErrorSvg className="w-5 h-5" /> Set a password before encryption
               </p>
             </div>
           )}
