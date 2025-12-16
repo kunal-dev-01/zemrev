@@ -205,7 +205,7 @@ import { PDFToImageSVg } from "../Svg/PdfSvg";
 
 interface SettingsToggleButtonProps {
   isOpen: boolean;
-  label: string;
+  label: string | number;
   onClick: () => void;
   className?: string;
 }
