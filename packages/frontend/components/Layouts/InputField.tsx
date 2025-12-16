@@ -34,7 +34,7 @@ export const InputField = ({
 
   return (
     <div className={className}>
-      <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 mb-1.5 block uppercase">
+      <label className="text-xs text-zinc-500 dark:text-zinc-400 mb-1 block">
         {label}
       </label>
 
@@ -53,7 +53,11 @@ export const InputField = ({
           border-zinc-200 dark:border-zinc-700
           bg-transparent
           text-zinc-800 dark:text-zinc-200
-          text-sm outline-none disabled:opacity-70 disabled:cursor-not-allowed
+          text-sm outline-none
+          disabled:opacity-60 disabled:cursor-not-allowed
+          ${isNumber
+            ? "[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            : ""}
         `}
       />
     </div>

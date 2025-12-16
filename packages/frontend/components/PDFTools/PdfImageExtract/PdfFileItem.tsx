@@ -1,16 +1,17 @@
 import { useState, useRef, useEffect } from "react";
-import {
-  ChevronDownSvg,
-  SettingsSvg,
-} from "@/components/Svg/CommonSvg";
 import { InputField } from "@/components/Layouts/InputField";
-import { PDFToImageSVg } from "@/components/Svg/PdfSvg";
 import type {
   PdfProcessedFile,
   PdfFileSettings,
   PdfToolConfig,
 } from "@/services/pdfService/types";
-import { FileError, FileInfo, RemoveButton } from "@/components/Shared/FileUI";
+import {
+  FileError,
+  FileInfo,
+  RemoveButton,
+  SettingsToggleButton,
+  ToolIconBadge,
+} from "@/components/Shared/FileUI";
 
 // ============================================================================
 // TYPES
@@ -130,21 +131,12 @@ export const PdfFileItem = ({
     <div className="bg-transparent border border-zinc-200 dark:border-zinc-800 rounded-2xl p-2 md:p-3 transition-all duration-200 hover:border-zinc-300 dark:hover:border-zinc-700 relative">
       <div className="flex items-center gap-3">
         {/* PDF Icon Box */}
-        <div
-          className="p-2.5 sm:p-3 rounded-lg shrink-0"
-          style={{
-            backgroundColor: isDark
-              ? config.dropzoneColorDark
-              : config.dropzoneColor,
-          }}
-        >
-          <div
-            style={{ color: config.primaryColor }}
-            className="w-5 h-5 sm:w-6 sm:h-6"
-          >
-            <PDFToImageSVg />
-          </div>
-        </div>
+        <ToolIconBadge
+          primaryColor={config.primaryColor}
+          bgColor={config.dropzoneColor}
+          bgColorDark={config.dropzoneColorDark}
+          isDark={isDark}
+        />
 
         {/* File Info */}
         <div className="flex-1 min-w-0">
@@ -153,78 +145,104 @@ export const PdfFileItem = ({
 
         {/* Size Settings Dropdown */}
         <div ref={settingsRef}>
-          <button
+          <SettingsToggleButton
+            isOpen={isSettingsOpen}
+            label={getCurrentLabel()}
             onClick={() => setIsSettingsOpen(!isSettingsOpen)}
-            className="min-w-[120px] px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-800 dark:text-zinc-200 flex items-center justify-between transition-all cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-700"
-          >
-            <div className="flex items-center gap-1">
-              <SettingsSvg />
-              <span className="font-medium text-sm">{getCurrentLabel()}</span>
-            </div>
-            <ChevronDownSvg />
-          </button>
+          />
 
           {isSettingsOpen && (
-            <div className="absolute z-20 right-0 mt-1 p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl md:w-[20vw]">
-              {/* Preset Buttons */}
-              <div className="space-y-1 mb-3">
-                <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 block">
-                  Size Presets
-                </label>
-                {SIZE_PRESETS.map((preset) => {
-                  const isActive =
-                    preset.value.min_width === file.settings.min_width &&
-                    preset.value.min_height === file.settings.min_height;
+            <>
+              <div
+                className="absolute right-0 top-full mt-1 z-20 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 md:min-w-[15vw] min-w-full origin-top-right ring-1 ring-black/5 dark:ring-white/5"
+                style={{
+                  animation: "dropdownEnter 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+                }}
+              >
+                {/* Preset Buttons */}
+                <div className="mb-4">
+                  <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-3 block">
+                    Size Presets
+                  </label>
+                  <div className="space-y-2">
+                    {SIZE_PRESETS.map((preset) => {
+                      const isActive =
+                        preset.value.min_width === file.settings.min_width &&
+                        preset.value.min_height === file.settings.min_height;
 
-                  return (
-                    <button
-                      key={preset.label}
-                      onClick={() => handlePresetClick(preset)}
-                      className={`w-full px-3 py-2 rounded-xl text-sm font-medium text-left transition-all flex items-center justify-between border cursor-pointer ${
-                        isActive
-                          ? "text-white"
-                          : "text-zinc-700 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-700"
-                      }`}
-                      style={{
-                        backgroundColor: isActive
-                          ? config.primaryColor
-                          : undefined,
-                        borderColor: isActive ? config.primaryColor : undefined,
-                      }}
-                    >
-                      <div>
-                        <div className="font-bold">{preset.label}</div>
-                        <div className="text-xs opacity-80 mt-0.5">
-                          {preset.desc}
-                        </div>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
+                      return (
+                        <button
+                          key={preset.label}
+                          onClick={() => handlePresetClick(preset)}
+                          className={`
+                            relative w-full flex items-center justify-between px-3 py-2 rounded-lg border text-left transition-all duration-200 cursor-pointer outline-none
+                            ${
+                              isActive
+                                ? "border-transparent"
+                                : "bg-transparent border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                            }
+                          `}
+                          style={
+                            {
+                              backgroundColor: isActive
+                                ? config.primaryColor
+                                : undefined,
+                              borderColor: isActive
+                                ? config.primaryColor
+                                : undefined,
+                              "--tw-ring-color": config.primaryColor,
+                            } as React.CSSProperties
+                          }
+                        >
+                          <div>
+                            <div
+                              className={`font-bold text-sm ${
+                                isActive
+                                  ? "text-white"
+                                  : "text-zinc-700 dark:text-zinc-300"
+                              }`}
+                            >
+                              {preset.label}
+                            </div>
+                            <div
+                              className={`text-xs mt-0.5 ${
+                                isActive
+                                  ? "text-white/80"
+                                  : "text-zinc-500 dark:text-zinc-400"
+                              }`}
+                            >
+                              {preset.desc}
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
 
-              {/* Custom Inputs */}
-              <div className="border-t border-zinc-200 dark:border-zinc-800 pt-3">
-                <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 mb-2 block">
-                  Custom Minimum Size (pixels)
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <InputField
-                    label="Width"
-                    value={customWidth}
-                    onChange={setCustomWidth}
-                    onBlur={handleCustomInput}
-                  />
+                {/* Custom Inputs */}
+                <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800">
+                  <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-3 block">
+                    Custom Minimum Size (px)
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <InputField
+                      label="Width"
+                      value={customWidth}
+                      onChange={setCustomWidth}
+                      onBlur={handleCustomInput}
+                    />
 
-                  <InputField
-                    label="Height"
-                    value={customHeight}
-                    onChange={setCustomHeight}
-                    onBlur={handleCustomInput}
-                  />
+                    <InputField
+                      label="Height"
+                      value={customHeight}
+                      onChange={setCustomHeight}
+                      onBlur={handleCustomInput}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
+            </>
           )}
         </div>
 
