@@ -1,8 +1,3 @@
-// ============================================================================
-// FILE: src/services/imageService/image.api.ts
-// PURPOSE: RTK Query API endpoints for all image operations (FILE ONLY)
-// ============================================================================
-
 import { baseApi } from "@/lib/baseApi/base.api";
 import type {
   ConvertRequest,
@@ -14,11 +9,11 @@ import type {
   ImageWatermarkRequest,
   PaletteResponse,
   PaletteRequest,
-  MetadataResponse
+  MetadataResponse,
 } from "./types";
 
 // ============================================================================
-// STRICT PARAM TYPE (NO ANY)
+// HELPER TYPES
 // ============================================================================
 
 type FormDataParams = Record<string, string | number | boolean | undefined>;
@@ -48,72 +43,99 @@ const buildFormData = <T extends FormDataParams>(
 };
 
 // ============================================================================
-// IMAGE API ENDPOINTS (FILE ONLY)
+// HELPER: BLOB RESPONSE (NO LOGIC CHANGE)
+// ============================================================================
+
+const blobResponse = {
+  responseHandler: (r: Response) => r.blob(),
+};
+
+// ============================================================================
+// IMAGE API ENDPOINTS
 // ============================================================================
 
 export const imageApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    // CONVERT
-    convertImage: builder.mutation<Blob, { file: File; options: ConvertRequest }>({
+    // ======================================================================
+    // BASIC IMAGE TOOLS
+    // ======================================================================
+
+    convertImage: builder.mutation<
+      Blob,
+      { file: File; options: ConvertRequest }
+    >({
       query: ({ file, options }) => ({
         url: "/image/convert",
         method: "POST",
         body: buildFormData(file, options),
-        responseHandler: (r) => r.blob(),
+        ...blobResponse,
       }),
     }),
 
-    // COMPRESS
-    compressImage: builder.mutation<Blob, { file: File; options: CompressRequest }>({
+    compressImage: builder.mutation<
+      Blob,
+      { file: File; options: CompressRequest }
+    >({
       query: ({ file, options }) => ({
         url: "/image/compress",
         method: "POST",
         body: buildFormData(file, options),
-        responseHandler: (r) => r.blob(),
+        ...blobResponse,
       }),
     }),
 
-    // RESIZE
-    resizeImage: builder.mutation<Blob, { file: File; options: ResizeRequest }>({
+    resizeImage: builder.mutation<
+      Blob,
+      { file: File; options: ResizeRequest }
+    >({
       query: ({ file, options }) => ({
         url: "/image/resize",
         method: "POST",
         body: buildFormData(file, options),
-        responseHandler: (r) => r.blob(),
+        ...blobResponse,
       }),
     }),
 
-    // OPTIMIZE
-    optimizeImage: builder.mutation<Blob, { file: File; options: OptimizeRequest }>({
+    optimizeImage: builder.mutation<
+      Blob,
+      { file: File; options: OptimizeRequest }
+    >({
       query: ({ file, options }) => ({
         url: "/image/optimize",
         method: "POST",
         body: buildFormData(file, options),
-        responseHandler: (r) => r.blob(),
+        ...blobResponse,
       }),
     }),
 
-    // CROP
-    cropImage: builder.mutation<Blob, { file: File; options: CropRequest }>({
+    cropImage: builder.mutation<
+      Blob,
+      { file: File; options: CropRequest }
+    >({
       query: ({ file, options }) => ({
         url: "/image/crop",
         method: "POST",
         body: buildFormData(file, options),
-        responseHandler: (r) => r.blob(),
+        ...blobResponse,
       }),
     }),
 
-    // WATERMARK TEXT
-    addTextWatermark: builder.mutation<Blob, { file: File; options: TextWatermarkRequest }>({
+    // ======================================================================
+    // WATERMARK
+    // ======================================================================
+
+    addTextWatermark: builder.mutation<
+      Blob,
+      { file: File; options: TextWatermarkRequest }
+    >({
       query: ({ file, options }) => ({
         url: "/image/watermark/text",
         method: "POST",
         body: buildFormData(file, options),
-        responseHandler: (r) => r.blob(),
+        ...blobResponse,
       }),
     }),
 
-    // WATERMARK IMAGE
     addImageWatermark: builder.mutation<
       Blob,
       { file: File; watermark: File; options: ImageWatermarkRequest }
@@ -126,13 +148,19 @@ export const imageApi = baseApi.injectEndpoints({
           url: "/image/watermark/image",
           method: "POST",
           body: formData,
-          responseHandler: (r) => r.blob(),
+          ...blobResponse,
         };
       },
     }),
 
-    // PALETTE
-    extractPalette: builder.mutation<PaletteResponse, { file: File; options: PaletteRequest }>({
+    // ======================================================================
+    // ANALYSIS / INFO
+    // ======================================================================
+
+    extractPalette: builder.mutation<
+      PaletteResponse,
+      { file: File; options: PaletteRequest }
+    >({
       query: ({ file, options }) => ({
         url: "/image/palette",
         method: "POST",
@@ -140,19 +168,21 @@ export const imageApi = baseApi.injectEndpoints({
       }),
     }),
 
-    // METADATA
-    extractMetadata: builder.mutation<MetadataResponse, { file: File }>({
+    extractMetadata: builder.mutation<
+      MetadataResponse,
+      { file: File }
+    >({
       query: ({ file }) => ({
         url: "/image/metadata",
         method: "POST",
-        body: buildFormData(file, {}), // No params required
+        body: buildFormData(file, {}),
       }),
     }),
   }),
 });
 
 // ============================================================================
-// EXPORT HOOKS
+// EXPORT HOOKS 
 // ============================================================================
 
 export const {
