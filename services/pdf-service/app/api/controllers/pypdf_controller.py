@@ -85,54 +85,84 @@ async def split_pdf_handler(
     file: UploadFile,
     request: SplitRequest
 ) -> FileResponse:
-    
+
     input_path = None
     output_paths = []
-    zip_path = None
-    
+
     try:
-        # Validate and save uploaded file
+        # 1️⃣ Validate and save uploaded file
         input_path = await validate_upload(file)
-        
-        # Parse page ranges
+
+        # 2️⃣ Parse page ranges
         ranges = parse_page_ranges(request.pages)
         logger.info(f"Split request: {len(ranges)} ranges from {request.pages}")
-        
-        # Create output directory (use settings.UPLOAD_DIR)
-        output_dir = Path(input_path.parent)
-        
-        # Run split in thread pool
+
+        # 3️⃣ Run split in thread pool
         loop = asyncio.get_event_loop()
         output_paths = await loop.run_in_executor(
             executor,
             split_pdf,
             input_path,
             ranges,
-            output_dir
+            Path(input_path.parent)
         )
-        
-        # Create ZIP archive
+
+        logger.info(f"Number of ranges: {len(ranges)}")
+        logger.info(f"Number of output PDFs: {len(output_paths)}")
+        logger.info(f"Output paths: {output_paths}")
+
+        # ============================================================
+        # ✅ CASE 1: Single range → return single PDF
+        # ============================================================
+        if len(ranges) == 1:
+            single_pdf = output_paths[0]
+            output_paths = []
+            
+            return FileResponse(
+                path=str(single_pdf),
+                media_type="application/pdf",
+                filename="split.pdf",
+                background=None
+            )
+
+        # ============================================================
+        # ✅ CASE 2: Multiple ranges → ZIP
+        # ============================================================
         zip_path = create_zip_from_pdfs(output_paths, zip_prefix="split")
         
-        # Return ZIP file - FileResponse handles cleanup properly
-        return FileResponse(
+        # Cleanup the original split PDFs
+        safe_remove_multiple(output_paths)
+        output_paths = []
+
+        # Return ZIP with EXPLICIT headers
+        response = FileResponse(
             path=str(zip_path),
             media_type="application/zip",
             filename="split_pages.zip",
             background=None
         )
-        
+        # Force correct content type
+        response.headers["Content-Type"] = "application/zip"
+        response.headers["Content-Disposition"] = 'attachment; filename="split_pages.zip"'
+
+        return response
+
     except HTTPException:
         raise
+
     except Exception as e:
         logger.error(f"Split operation failed: {e}")
         raise HTTPException(status_code=500, detail=f"Split failed: {str(e)}")
+
     finally:
-        # Cleanup input and intermediate files only
-        # ZIP will be cleaned up by caller after sending
+        # Cleanup input PDF
         if input_path:
             safe_remove(input_path)
-        safe_remove_multiple(output_paths)
+        
+        # Cleanup any remaining intermediate PDFs (if error occurred)
+        if output_paths:
+            safe_remove_multiple(output_paths)
+
 
 
 async def rotate_pdf_handler(
