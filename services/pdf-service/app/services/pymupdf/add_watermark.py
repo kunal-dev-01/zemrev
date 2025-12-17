@@ -1,12 +1,12 @@
 """
 ============================================================================
-FILE: services/pdf-service/app/services/pymupdf/add_watermark.py
-PURPOSE: Add watermark to PDF using PyMuPDF (Coordinate-based positioning)
+FILE: services/pdf-service/app/services/pymupdf/add_watermark.py (UPDATED)
+PURPOSE: Add watermark to PDF with font support and coordinate-based positioning
 ============================================================================
 """
 
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, Optional
 import fitz
 from PIL import Image, ImageDraw, ImageFont
 import io
@@ -31,18 +31,44 @@ _COLOR_MAP = {
     'purple': (0.5, 0, 0.5)
 }
 
+# Font mapping - same as sign_pdf.py
+_FONT_PATHS = {
+    'Arial': '/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf',
+    'Arial Black': '/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf',
+    'Times New Roman': '/usr/share/fonts/truetype/liberation/LiberationSerif-Bold.ttf',
+    'Courier New': '/usr/share/fonts/truetype/liberation/LiberationMono-Bold.ttf',
+    'Impact': '/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf',
+    'Comic Sans MS': '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
+    'Georgia': '/usr/share/fonts/truetype/liberation/LiberationSerif-Bold.ttf',
+    'Verdana': '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
+}
 
-def _load_font(size: int) -> ImageFont.FreeTypeFont:
-    """Load a bold TrueType font or fallback to default."""
-    font_paths = [
+
+def _load_font(font_name: str, size: int) -> ImageFont.FreeTypeFont:
+    """Load a TrueType font with fallback."""
+    # Try requested font
+    font_path = _FONT_PATHS.get(font_name)
+    
+    if font_path and os.path.isfile(font_path):
+        try:
+            return ImageFont.truetype(font_path, size)
+        except:
+            pass
+    
+    # Fallback fonts
+    fallback_paths = [
         "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
         "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
     ]
     
-    for path in font_paths:
+    for path in fallback_paths:
         if os.path.isfile(path):
-            return ImageFont.truetype(path, size)
+            try:
+                return ImageFont.truetype(path, size)
+            except:
+                pass
     
+    # Final fallback
     return ImageFont.load_default()
 
 
@@ -51,9 +77,11 @@ def _text_to_rgba(
     font: ImageFont.FreeTypeFont,
     rgb: Tuple[int, int, int], 
     opacity: float, 
-    rotation: int
+    rotation: int,
+    target_width: int,
+    target_height: int
 ) -> Image.Image:
-    """Create rotated text as RGBA image."""
+    """Create rotated text as RGBA image that fits in target dimensions."""
     # Get text dimensions
     dummy = Image.new("RGBA", (1, 1))
     draw = ImageDraw.Draw(dummy)
@@ -66,20 +94,31 @@ def _text_to_rgba(
     canvas = Image.new("RGBA", (padding, padding), (0, 0, 0, 0))
     draw = ImageDraw.Draw(canvas)
     
-    # Draw text with opacity
+    # Draw text with opacity (centered)
     alpha = int(255 * opacity)
+    text_x = (padding - text_width) // 2
+    text_y = (padding - text_height) // 2
     draw.text(
-        (padding // 2, padding // 2), 
+        (text_x, text_y), 
         text, 
         fill=(*rgb, alpha), 
         font=font
     )
     
     # Rotate and crop to content
-    rotated = canvas.rotate(rotation, expand=True, fillcolor=(0, 0, 0, 0))
-    bbox = rotated.getbbox()
+    if rotation > 0:
+        rotated = canvas.rotate(rotation, expand=True, fillcolor=(0, 0, 0, 0))
+        bbox = rotated.getbbox()
+        cropped = rotated.crop(bbox) if bbox else rotated
+    else:
+        bbox = canvas.getbbox()
+        cropped = canvas.crop(bbox) if bbox else canvas
     
-    return rotated.crop(bbox) if bbox else rotated
+    # Resize to fit target dimensions (if needed)
+    if cropped.width > target_width or cropped.height > target_height:
+        cropped.thumbnail((target_width, target_height), Image.LANCZOS)
+    
+    return cropped
 
 
 def add_text_watermark(
@@ -94,9 +133,10 @@ def add_text_watermark(
     y: int,
     width: int,
     height: int,
+    font: Optional[str] = None,  # NEW parameter
 ) -> None:
     """
-    Add text watermark to PDF using coordinate-based positioning.
+    Add text watermark to PDF with font support.
     
     Args:
         pdf_path: Input PDF path
@@ -110,6 +150,7 @@ def add_text_watermark(
         y: Y coordinate in PDF points
         width: Width in PDF points
         height: Height in PDF points
+        font: Font name (e.g., 'Arial', 'Times New Roman')
     """
     doc = fitz.open(pdf_path)
     
@@ -122,15 +163,26 @@ def add_text_watermark(
     rgb_normalized = _COLOR_MAP.get(color.lower(), _COLOR_MAP["gray"])
     rgb = tuple(int(c * 255) for c in rgb_normalized)
     
-    # Load font
-    font = _load_font(font_size)
+    # Load font with specified name
+    font_name = font or 'Arial'
+    font_obj = _load_font(font_name, font_size)
+    
+    logger.info(f"Adding text watermark with font '{font_name}', size {font_size}")
 
     # Apply watermark to all pages
     for page in doc:
         # Create text image with rotation
-        text_img = _text_to_rgba(text, font, rgb, opacity, rotation)
+        text_img = _text_to_rgba(
+            text, 
+            font_obj, 
+            rgb, 
+            opacity, 
+            rotation,
+            width,
+            height
+        )
         
-        # Calculate target rectangle (page coordinates + user coordinates)
+        # Calculate target rectangle
         page_rect = page.rect
         target_rect = fitz.Rect(
             page_rect.x0 + x,
@@ -185,6 +237,8 @@ def add_image_watermark(
 
     # Load watermark image
     watermark_img = Image.open(watermark_image_path).convert("RGBA")
+    
+    logger.info(f"Adding image watermark from {watermark_image_path}")
     
     # Apply opacity
     if opacity < 1.0:
