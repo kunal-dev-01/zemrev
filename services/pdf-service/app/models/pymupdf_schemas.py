@@ -6,7 +6,7 @@ PURPOSE: Pydantic schemas for PyMuPDF tools
 """
 
 from pydantic import BaseModel, Field, field_validator
-from typing import Optional, Literal
+from typing import Optional, Literal, List
 from enum import Enum
 
 
