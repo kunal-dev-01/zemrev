@@ -131,9 +131,7 @@ export const usePdfSplit = () => {
     (id: string, settings: PdfFileSettings) => {
       setFiles((prev) =>
         prev.map((f) =>
-          f.id === id
-            ? { ...f, settings: { ...f.settings, ...settings } }
-            : f
+          f.id === id ? { ...f, settings: { ...f.settings, ...settings } } : f
         )
       );
     },
@@ -157,7 +155,13 @@ export const usePdfSplit = () => {
           options: { pages: file.settings.pages as string },
         }).unwrap();
 
-        const outputName = `split_${file.name}`;
+        // ✅ Automatically detect file type from blob
+        const isZip = blob.type === "application/zip";
+
+        const outputName = isZip
+          ? `split_${file.name.replace(".pdf", "")}.zip`
+          : `split_${file.name}`;
+
         await pdfSessionStorage.saveFile(blob, outputName, "pdf-split");
 
         await pdfPendingStorage.delete("pdf-split", file.id);
