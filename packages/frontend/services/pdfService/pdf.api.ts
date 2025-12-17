@@ -1,8 +1,3 @@
-// ============================================================================
-// FILE: src/services/pdfService/pdf.api.ts
-// PURPOSE: RTK Query API endpoints for all PDF operations (23 tools)
-// ============================================================================
-
 import { baseApi } from "@/lib/baseApi/base.api";
 import type {
   SplitPdfRequest,
@@ -19,11 +14,10 @@ import type {
   OcrPdfRequest,
   ConvertToPdfARequest,
   CropPdfRequest,
-  SignPdfRequest
 } from "./types";
 
 // ============================================================================
-// HELPER: BUILD FORM DATA
+// HELPER: BUILD FORM DATA (DO NOT CHANGE LOGIC)
 // ============================================================================
 
 type FormDataParams = Record<string, string | number | boolean | undefined>;
@@ -49,16 +43,23 @@ const buildFormData = <T extends FormDataParams>(
 };
 
 // ============================================================================
-// PDF API ENDPOINTS
+// HELPER: BLOB RESPONSE
+// ============================================================================
+
+const blobResponse = {
+  responseHandler: (r: Response) => r.blob(),
+};
+
+// ============================================================================
+// PDF API
 // ============================================================================
 
 export const pdfApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    // ========================================================================
-    // pypdf TOOLS
-    // ========================================================================
+    // ======================================================================
+    // PYPDF
+    // ======================================================================
 
-    // MERGE PDF
     mergePdf: builder.mutation<Blob, { files: File[] }>({
       query: ({ files }) => {
         const formData = new FormData();
@@ -68,66 +69,60 @@ export const pdfApi = baseApi.injectEndpoints({
           url: "/pdf/merge",
           method: "POST",
           body: formData,
-          responseHandler: (r) => r.blob(),
+          ...blobResponse,
         };
       },
     }),
 
-    // SPLIT PDF
     splitPdf: builder.mutation<Blob, { file: File; options: SplitPdfRequest }>({
       query: ({ file, options }) => ({
         url: "/pdf/split",
         method: "POST",
         body: buildFormData(file, options),
-        responseHandler: (r) => r.blob(),
+        ...blobResponse,
       }),
     }),
 
-    // ROTATE PDF
     rotatePdf: builder.mutation<Blob, { file: File; options: RotatePdfRequest }>({
       query: ({ file, options }) => ({
         url: "/pdf/rotate",
         method: "POST",
         body: buildFormData(file, options),
-        responseHandler: (r) => r.blob(),
+        ...blobResponse,
       }),
     }),
 
-    // ENCRYPT PDF
     encryptPdf: builder.mutation<Blob, { file: File; options: EncryptPdfRequest }>({
       query: ({ file, options }) => ({
         url: "/pdf/encrypt",
         method: "POST",
         body: buildFormData(file, options),
-        responseHandler: (r) => r.blob(),
+        ...blobResponse,
       }),
     }),
 
-    // DECRYPT PDF
     decryptPdf: builder.mutation<Blob, { file: File; options: DecryptPdfRequest }>({
       query: ({ file, options }) => ({
         url: "/pdf/decrypt",
         method: "POST",
         body: buildFormData(file, options),
-        responseHandler: (r) => r.blob(),
+        ...blobResponse,
       }),
     }),
 
-    // ========================================================================
-    // PyMuPDF TOOLS
-    // ========================================================================
+    // ======================================================================
+    // PYMuPDF
+    // ======================================================================
 
-    // PDF TO IMAGES
     pdfToImages: builder.mutation<Blob, { file: File; options: PdfToImagesRequest }>({
       query: ({ file, options }) => ({
         url: "/pymupdf/pdf-to-images",
         method: "POST",
         body: buildFormData(file, options),
-        responseHandler: (r) => r.blob(),
+        ...blobResponse,
       }),
     }),
 
-    // IMAGES TO PDF
     imagesToPdf: builder.mutation<Blob, { files: File[] }>({
       query: ({ files }) => {
         const formData = new FormData();
@@ -137,13 +132,15 @@ export const pdfApi = baseApi.injectEndpoints({
           url: "/pymupdf/images-to-pdf",
           method: "POST",
           body: formData,
-          responseHandler: (r) => r.blob(),
+          ...blobResponse,
         };
       },
     }),
 
-    // EXTRACT TEXT
-    extractText: builder.mutation<ExtractTextResponse, { file: File; options: ExtractTextRequest }>({
+    extractText: builder.mutation<
+      ExtractTextResponse,
+      { file: File; options: ExtractTextRequest }
+    >({
       query: ({ file, options }) => ({
         url: "/pymupdf/extract-text",
         method: "POST",
@@ -151,27 +148,30 @@ export const pdfApi = baseApi.injectEndpoints({
       }),
     }),
 
-    // EXTRACT IMAGES
-    extractImages: builder.mutation<Blob, { file: File; options: ExtractImagesRequest }>({
+    extractImages: builder.mutation<
+      Blob,
+      { file: File; options: ExtractImagesRequest }
+    >({
       query: ({ file, options }) => ({
         url: "/pymupdf/extract-images",
         method: "POST",
         body: buildFormData(file, options),
-        responseHandler: (r) => r.blob(),
+        ...blobResponse,
       }),
     }),
 
-    // ADD WATERMARK (TEXT)
-    addTextWatermarkPdf: builder.mutation<Blob, { file: File; options: AddWatermarkRequest }>({
+    addTextWatermarkPdf: builder.mutation<
+      Blob,
+      { file: File; options: AddWatermarkRequest }
+    >({
       query: ({ file, options }) => ({
         url: "/pymupdf/add-watermark",
         method: "POST",
         body: buildFormData(file, options),
-        responseHandler: (r) => r.blob(),
+        ...blobResponse,
       }),
     }),
 
-    // ADD WATERMARK (IMAGE)
     addImageWatermarkPdf: builder.mutation<
       Blob,
       { file: File; watermark: File; options: AddWatermarkRequest }
@@ -184,122 +184,113 @@ export const pdfApi = baseApi.injectEndpoints({
           url: "/pymupdf/add-watermark",
           method: "POST",
           body: formData,
-          responseHandler: (r) => r.blob(),
+          ...blobResponse,
         };
       },
     }),
 
-    // OPTIMIZE PDF
-    optimizePdf: builder.mutation<Blob, { file: File; options: OptimizePdfRequest }>({
+    optimizePdf: builder.mutation<
+      Blob,
+      { file: File; options: OptimizePdfRequest }
+    >({
       query: ({ file, options }) => ({
         url: "/pymupdf/optimize",
         method: "POST",
         body: buildFormData(file, options),
-        responseHandler: (r) => r.blob(),
+        ...blobResponse,
       }),
     }),
 
-    // SIGN PDF (TEXT SIGNATURE)
-    signPdfText: builder.mutation<Blob, { file: File; options: SignPdfRequest }>({
-      query: ({ file, options }) => ({
+    signPdf: builder.mutation<Blob, FormData>({
+      query: (formData) => ({
         url: "/pymupdf/sign",
         method: "POST",
-        body: buildFormData(file, options),
-        responseHandler: (r) => r.blob(),
+        body: formData,
+        responseHandler: async (response) => {
+          if (!response.ok) {
+            const text = await response.text();
+            throw new Error(text || "PDF signing failed");
+          }
+          return response.blob();
+        },
       }),
     }),
 
-    // SIGN PDF (IMAGE SIGNATURE)
-    signPdfImage: builder.mutation<
-      Blob,
-      { file: File; signature: File; options: SignPdfRequest }
-    >({
-      query: ({ file, signature, options }) => {
-        const formData = buildFormData(file, options);
-        formData.append("signature_image", signature);
-
-        return {
-          url: "/pymupdf/sign",
-          method: "POST",
-          body: formData,
-          responseHandler: (r) => r.blob(),
-        };
-      },
-    }),
-
-    //  CROP PDF
     cropPdf: builder.mutation<Blob, { file: File; options: CropPdfRequest }>({
       query: ({ file, options }) => ({
         url: "/pymupdf/crop",
         method: "POST",
         body: buildFormData(file, options),
-        responseHandler: (r) => r.blob(),
+        ...blobResponse,
       }),
     }),
 
-    // ========================================================================
-    // GHOSTSCRIPT TOOLS
-    // ========================================================================
+    // ======================================================================
+    // GHOSTSCRIPT
+    // ======================================================================
 
-    // COMPRESS PDF
-    compressPdf: builder.mutation<Blob, { file: File; options: CompressPdfRequest }>({
+    compressPdf: builder.mutation<
+      Blob,
+      { file: File; options: CompressPdfRequest }
+    >({
       query: ({ file, options }) => ({
         url: "/ghostscript/compress",
         method: "POST",
         body: buildFormData(file, options),
-        responseHandler: (r) => r.blob(),
+        ...blobResponse,
       }),
     }),
 
-    // FLATTEN PDF
     flattenPdf: builder.mutation<Blob, { file: File }>({
       query: ({ file }) => ({
         url: "/ghostscript/flatten",
         method: "POST",
         body: buildFormData(file, {}),
-        responseHandler: (r) => r.blob(),
+        ...blobResponse,
       }),
     }),
 
-    //  CONVERT TO PDF/A
-    convertToPdfA: builder.mutation<Blob, { file: File; options: ConvertToPdfARequest }>({
+    convertToPdfA: builder.mutation<
+      Blob,
+      { file: File; options: ConvertToPdfARequest }
+    >({
       query: ({ file, options }) => ({
         url: "/ghostscript/convert-pdfa",
         method: "POST",
         body: buildFormData(file, options),
-        responseHandler: (r) => r.blob(),
+        ...blobResponse,
       }),
     }),
 
-    // ========================================================================
-    // OCR TOOLS
-    // ========================================================================
+    // ======================================================================
+    // OCR
+    // ======================================================================
 
-    // OCR: PDF TO SEARCHABLE
-    ocrPdfToSearchable: builder.mutation<Blob, { file: File; options: OcrPdfRequest }>({
+    ocrPdfToSearchable: builder.mutation<
+      Blob,
+      { file: File; options: OcrPdfRequest }
+    >({
       query: ({ file, options }) => ({
         url: "/ocr/pdf-to-searchable",
         method: "POST",
         body: buildFormData(file, options),
-        responseHandler: (r) => r.blob(),
+        ...blobResponse,
       }),
-    })
+    }),
   }),
 });
 
 // ============================================================================
-// EXPORT HOOKS
+// EXPORT HOOKS (UNCHANGED)
 // ============================================================================
 
 export const {
-  // pypdf
   useMergePdfMutation,
   useSplitPdfMutation,
   useRotatePdfMutation,
   useEncryptPdfMutation,
   useDecryptPdfMutation,
 
-  // PyMuPDF
   usePdfToImagesMutation,
   useImagesToPdfMutation,
   useExtractTextMutation,
@@ -307,15 +298,12 @@ export const {
   useAddTextWatermarkPdfMutation,
   useAddImageWatermarkPdfMutation,
   useOptimizePdfMutation,
-  useSignPdfTextMutation,
-  useSignPdfImageMutation,
+  useSignPdfMutation,
   useCropPdfMutation,
 
-  // Ghostscript
   useCompressPdfMutation,
   useFlattenPdfMutation,
   useConvertToPdfAMutation,
 
-  // OCR
   useOcrPdfToSearchableMutation,
 } = pdfApi;
