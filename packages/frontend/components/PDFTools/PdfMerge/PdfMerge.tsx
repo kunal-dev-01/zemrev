@@ -22,7 +22,6 @@ const PdfMerge = () => {
     clearAll,
   } = usePdfMerge();
 
-  const canMerge = files.length >= 2 && !merging;
   const canAddMore = files.length < config.maxFiles;
 
   // ============================================================================
@@ -95,17 +94,15 @@ const PdfMerge = () => {
           </div>
 
           {/* Merge Button */}
-          {canMerge && (
-            <GlassButton
-              loading={merging}
-              primaryColor={config.primaryColor}
-              onClick={mergeFiles}
-            >
-              {merging
-                ? "Merging PDFs..."
-                : `Merge ${stats.pending} PDF${stats.pending !== 1 ? "s" : ""}`}
-            </GlassButton>
-          )}
+          <GlassButton
+            loading={merging}
+            primaryColor={config.primaryColor}
+            onClick={mergeFiles}
+          >
+            {merging
+              ? "Merging PDFs..."
+              : `Merge ${stats.pending} PDF${stats.pending !== 1 ? "s" : ""}`}
+          </GlassButton>
 
           {/* Minimum Files Warning */}
           {files.length === 1 && (

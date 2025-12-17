@@ -61,7 +61,6 @@ const ImageOptimizer = () => {
   // ============================================================================
   // COMPUTED
   // ============================================================================
-  const canOptimize = stats.pending > 0 && !optimizing;
   const canAddMore = files.length < config.maxFiles;
 
   // ============================================================================
@@ -94,9 +93,7 @@ const ImageOptimizer = () => {
 
       {/* Pending Files */}
       {files.length > 0 && (
-        <div
-          className="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 md:mt-[1vw] mt-[1vh]"
-        >
+        <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 md:mt-[1vw] mt-[1vh]">
           {/* Header */}
           <div className="flex items-center justify-between mb-4">
             {/* Status Box */}
@@ -125,19 +122,17 @@ const ImageOptimizer = () => {
           </div>
 
           {/* Optimize Button */}
-          {canOptimize && (
-            <GlassButton
-              loading={optimizing}
-              primaryColor={config.primaryColor}
-              onClick={optimizeAllFiles}
-            >
-              {optimizing
-                ? "Optimizing..."
-                : `Optimize ${stats.pending} File${
-                    stats.pending !== 1 ? "s" : ""
-                  }`}
-            </GlassButton>
-          )}
+          <GlassButton
+            loading={optimizing}
+            primaryColor={config.primaryColor}
+            onClick={optimizeAllFiles}
+          >
+            {optimizing
+              ? "Optimizing..."
+              : `Optimize ${stats.pending} File${
+                  stats.pending !== 1 ? "s" : ""
+                }`}
+          </GlassButton>
         </div>
       )}
 

@@ -26,8 +26,7 @@ const PdfTextExtract = () => {
     extractAll,
   } = useExtractText();
 
-  const [extractedTexts, setExtractedTexts] =
-    useState<ExtractedTextData[]>([]);
+  const [extractedTexts, setExtractedTexts] = useState<ExtractedTextData[]>([]);
 
   const loadExtractedTexts = useCallback(async () => {
     const sessionFiles = pdfSessionStorage.getFiles("extract-text");
@@ -64,7 +63,6 @@ const PdfTextExtract = () => {
       window.removeEventListener("pdfSessionStorageUpdated", handleUpdate);
   }, [loadExtractedTexts]);
 
-  const canExtract = files.length > 0 && !extracting;
   const canAddMore = files.length < config.maxFiles;
 
   return (
@@ -93,15 +91,13 @@ const PdfTextExtract = () => {
             ))}
           </div>
 
-          {canExtract && (
-            <GlassButton
-              loading={extracting}
-              primaryColor={config.primaryColor}
-              onClick={extractAll}
-            >
-              {extracting ? "Extracting Text..." : "Extract Text"}
-            </GlassButton>
-          )}
+          <GlassButton
+            loading={extracting}
+            primaryColor={config.primaryColor}
+            onClick={extractAll}
+          >
+            {extracting ? "Extracting Text..." : "Extract Text"}
+          </GlassButton>
         </div>
       )}
 

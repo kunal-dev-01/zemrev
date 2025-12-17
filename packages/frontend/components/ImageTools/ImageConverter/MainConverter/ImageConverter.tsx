@@ -8,7 +8,10 @@ import { UrlUploadModal } from "@/components/Shared/UrlUploadModal";
 import { ConverterFilePanel } from "../Settings/ConverterFilePanel";
 import { SessionFilesDisplay } from "@/components/Shared/SessionFilesDisplay";
 
-import { TOOL_CONFIGS, detectFormatFromFilename } from "@/config/image.tool.config";
+import {
+  TOOL_CONFIGS,
+  detectFormatFromFilename,
+} from "@/config/image.tool.config";
 import GlassButton from "@/components/Layouts/GlassButton";
 
 import { useImageConverter } from "@/hooks/imageHooks/useImageConverter.hook";
@@ -83,7 +86,6 @@ const ImageConverter = () => {
   // ============================================================================
   // COMPUTED
   // ============================================================================
-  const canConvert = stats.pending > 0 && !converting;
   const canAddMore = files.length < config.maxFiles;
 
   // ============================================================================
@@ -143,19 +145,17 @@ const ImageConverter = () => {
           </div>
 
           {/* Convert Button */}
-          {canConvert && (
-            <GlassButton
-              loading={converting}
-              primaryColor={config.primaryColor}
-              onClick={convertAllFiles}
-            >
-              {converting
-                ? "Converting..."
-                : `Convert ${stats.pending} File${
-                    stats.pending !== 1 ? "s" : ""
-                  }`}
-            </GlassButton>
-          )}
+          <GlassButton
+            loading={converting}
+            primaryColor={config.primaryColor}
+            onClick={convertAllFiles}
+          >
+            {converting
+              ? "Converting..."
+              : `Convert ${stats.pending} File${
+                  stats.pending !== 1 ? "s" : ""
+                }`}
+          </GlassButton>
         </div>
       )}
 

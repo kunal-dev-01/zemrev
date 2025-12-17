@@ -62,7 +62,6 @@ const ImageResizer = () => {
   // ============================================================================
   // COMPUTED
   // ============================================================================
-  const canResize = stats.pending > 0 && !resizing;
   const canAddMore = files.length < config.maxFiles;
 
   const defaultWidth = Number(config.defaultSettings.width);
@@ -123,19 +122,15 @@ const ImageResizer = () => {
           </div>
 
           {/* Resize All Button */}
-          {canResize && (
-            <GlassButton
-              loading={resizing}
-              primaryColor={config.primaryColor}
-              onClick={resizeAllFiles}
-            >
-              {resizing
-                ? "Resizing..."
-                : `Resize ${stats.pending} File${
-                    stats.pending !== 1 ? "s" : ""
-                  }`}
-            </GlassButton>
-          )}
+          <GlassButton
+            loading={resizing}
+            primaryColor={config.primaryColor}
+            onClick={resizeAllFiles}
+          >
+            {resizing
+              ? "Resizing..."
+              : `Resize ${stats.pending} File${stats.pending !== 1 ? "s" : ""}`}
+          </GlassButton>
         </div>
       )}
 

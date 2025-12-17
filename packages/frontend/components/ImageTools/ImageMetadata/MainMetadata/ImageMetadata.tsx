@@ -118,15 +118,13 @@ const ImageMetadata = () => {
           )}
 
           {/* Extract Button */}
-          {!metadataData && (
-            <GlassButton
-              loading={extracting}
-              primaryColor={config.primaryColor}
-              onClick={handleExtract}
-            >
-              {extracting ? "Extracting..." : "Extract Metadata"}
-            </GlassButton>
-          )}
+          <GlassButton
+            loading={extracting}
+            primaryColor={config.primaryColor}
+            onClick={handleExtract}
+          >
+            {extracting ? "Extracting..." : "Extract Metadata"}
+          </GlassButton>
 
           {/* Viewer of extracted metadata */}
           {metadataData && (

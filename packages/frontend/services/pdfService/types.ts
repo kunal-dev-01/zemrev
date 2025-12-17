@@ -69,8 +69,8 @@ export interface SignatureItem {
   width: number;
   height: number;
   page: number;
-  color?: string; // Hex code
-  opacity?: number; // 0 to 1
+  color?: string; 
+  opacity?: number;
 }
 
 // ============================================================================

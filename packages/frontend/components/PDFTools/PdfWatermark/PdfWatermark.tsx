@@ -7,7 +7,7 @@ import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 import GlassButton from "@/components/Layouts/GlassButton";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
-import { ClearAllButton, FilesStatusSummary } from "@/components/Shared/FileUI";
+import { FilesStatusSummary } from "@/components/Shared/FileUI";
 
 const PdfWatermark = () => {
   const config = PDF_TOOL_CONFIGS["pdf-watermark"];
@@ -21,12 +21,7 @@ const PdfWatermark = () => {
     removeFile,
     updateSettings,
     processAll,
-    clearAll,
   } = useAddWatermark();
-
-  // Derived state
-  const pendingFiles = files.filter((f) => f.status === "pending");
-  const canProcess = pendingFiles.length > 0 && !processing;
 
   return (
     <div className="w-full md:mt-[1vw] mt-[1vh]">
@@ -64,17 +59,13 @@ const PdfWatermark = () => {
             ))}
           </div>
 
-          {canProcess && (
-            <div className="mt-6">
-              <GlassButton
-                loading={processing}
-                primaryColor={config.primaryColor}
-                onClick={processAll}
-              >
-                {processing ? "Adding Watermark..." : "Add Watermark"}
-              </GlassButton>
-            </div>
-          )}
+          <GlassButton
+            loading={processing}
+            primaryColor={config.primaryColor}
+            onClick={processAll}
+          >
+            {processing ? "Adding Watermark..." : "Add Watermark"}
+          </GlassButton>
         </div>
       )}
 

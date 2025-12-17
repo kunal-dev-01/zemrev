@@ -286,7 +286,6 @@ const PdfOptimize = () => {
   // COMPUTED VALUES
   // ============================================================================
 
-  const canOptimize = stats.pending > 0 && !optimizing;
   const canAddMore = files.length < config.maxFiles;
 
   // ============================================================================
@@ -332,7 +331,6 @@ const PdfOptimize = () => {
           </div>
 
           {/* Optimize Button */}
-          {canOptimize && (
             <GlassButton
               loading={optimizing}
               primaryColor={config.primaryColor}
@@ -340,7 +338,6 @@ const PdfOptimize = () => {
             >
               {optimizing ? "Optimizing..." : `Optimize PDF`}
             </GlassButton>
-          )}
         </div>
       )}
 

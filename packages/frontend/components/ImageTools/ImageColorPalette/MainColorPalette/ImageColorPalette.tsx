@@ -85,7 +85,6 @@ const ImageColorPalette = () => {
   // ============================================================================
   return (
     <div className="w-full md:mt-[1vw] mt-[1vh]">
-
       {/* Drag & Drop */}
       {!file && (
         <DragDropZone
@@ -157,19 +156,17 @@ const ImageColorPalette = () => {
           {error && <FileError error={error} />}
 
           {/* Extract Button */}
-          {!paletteData && (
-            <GlassButton
-              loading={extracting}
-              primaryColor={config.primaryColor}
-              onClick={handleExtract}
-            >
-              {extracting ? "Extracting..." : "Extract Color Palette"}
-            </GlassButton>
-          )}
+          <GlassButton
+            loading={extracting}
+            primaryColor={config.primaryColor}
+            onClick={handleExtract}
+          >
+            {extracting ? "Extracting..." : "Extract Color Palette"}
+          </GlassButton>
 
           {/* Palette Results */}
           {paletteData && (
-            <PaletteResults 
+            <PaletteResults
               paletteData={paletteData}
               config={config}
               onCopyColor={handleCopyColor}

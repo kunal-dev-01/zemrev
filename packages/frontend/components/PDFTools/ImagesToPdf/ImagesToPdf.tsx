@@ -115,7 +115,6 @@ const ImagesToPdf = () => {
   // COMPUTED VALUES
   // ============================================================================
 
-  const canConvert = files.length > 0 && !converting;
   const canAddMore = files.length < config.maxFiles;
   // ============================================================================
   // RENDER
@@ -161,7 +160,6 @@ const ImagesToPdf = () => {
           </div>
 
           {/* Convert Button */}
-          {canConvert && (
             <GlassButton
               loading={converting}
               primaryColor={config.primaryColor}
@@ -169,7 +167,6 @@ const ImagesToPdf = () => {
             >
               {converting ? "Converting..." : `Convert to PDF`}
             </GlassButton>
-          )}
         </div>
       )}
 

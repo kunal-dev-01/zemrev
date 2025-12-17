@@ -67,7 +67,6 @@ const ImageCompressor = () => {
   // ============================================================================
   // COMPUTED FLAGS
   // ============================================================================
-  const canCompress = stats.pending > 0 && !compressing;
   const canAddMore = files.length < config.maxFiles;
 
   // ============================================================================
@@ -120,7 +119,6 @@ const ImageCompressor = () => {
           </div>
 
           {/* Compress All Button */}
-          {canCompress && (
             <GlassButton
               loading={compressing}
               primaryColor={config.primaryColor}
@@ -132,7 +130,6 @@ const ImageCompressor = () => {
                     stats.pending !== 1 ? "s" : ""
                   }`}
             </GlassButton>
-          )}
         </div>
       )}
 

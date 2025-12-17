@@ -244,7 +244,7 @@ export const PdfSessionFilesDisplay = ({
 
               <button
                 onClick={() => handleDelete(file.id)}
-                className="py-1.5 px-3 rounded-xl transition-all hover:bg-red-100 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 cursor-pointer"
+                className="py-1.5 px-3 rounded-xl transition-all hover:bg-red-100 dark:hover:bg-red-900/40 text-red-600 cursor-pointer"
                 title="Delete"
               >
                 <TrashSvg className="w-5 h-5" />

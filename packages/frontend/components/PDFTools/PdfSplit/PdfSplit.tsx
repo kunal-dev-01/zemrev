@@ -249,7 +249,6 @@ const PdfSplit = () => {
   // COMPUTED VALUES
   // ============================================================================
 
-  const canSplit = stats.pending > 0 && !splitting;
   const canAddMore = files.length < config.maxFiles;
 
   // ============================================================================
@@ -295,15 +294,13 @@ const PdfSplit = () => {
           </div>
 
           {/* Split All Button */}
-          {canSplit && (
-            <GlassButton
-              loading={splitting}
-              primaryColor={config.primaryColor}
-              onClick={splitAllFiles}
-            >
-              {splitting ? "Splitting..." : `Split PDF`}
-            </GlassButton>
-          )}
+          <GlassButton
+            loading={splitting}
+            primaryColor={config.primaryColor}
+            onClick={splitAllFiles}
+          >
+            {splitting ? "Splitting..." : `Split PDF`}
+          </GlassButton>
         </div>
       )}
 

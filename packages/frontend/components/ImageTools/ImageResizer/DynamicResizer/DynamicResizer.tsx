@@ -99,7 +99,6 @@ const DynamicResizer = ({ slug }: DynamicResizerProps) => {
   // COMPUTED
   // ============================================================================
 
-  const canResize = stats.pending > 0 && !resizing;
   const canAddMore = files.length < config.maxFiles;
   const displayText = getDisplayLabel(slug, dimensions);
 
@@ -169,7 +168,6 @@ const DynamicResizer = ({ slug }: DynamicResizerProps) => {
           </div>
 
           {/* Resize All Button */}
-          {canResize && (
             <GlassButton
               loading={resizing}
               primaryColor={config.primaryColor}
@@ -181,7 +179,6 @@ const DynamicResizer = ({ slug }: DynamicResizerProps) => {
                     stats.pending !== 1 ? "s" : ""
                   }`}
             </GlassButton>
-          )}
         </div>
       )}
 

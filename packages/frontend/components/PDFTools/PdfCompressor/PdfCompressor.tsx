@@ -84,7 +84,8 @@ const PdfFileItem = ({
               <div
                 className="absolute right-0 top-full mt-1 z-20 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 min-w-full md:min-w-[15vw]  origin-top-right ring-1 ring-black/5 dark:ring-white/5"
                 style={{
-                  animation: "dropdownEnter 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+                  animation:
+                    "dropdownEnter 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards",
                 }}
               >
                 <div className="mb-2">
@@ -191,7 +192,6 @@ const PdfCompressor = () => {
   // ============================================================================
   // COMPUTED
   // ============================================================================
-  const canCompress = stats.pending > 0 && !compressing;
   const canAddMore = files.length < config.maxFiles;
 
   // ============================================================================
@@ -242,19 +242,17 @@ const PdfCompressor = () => {
           </div>
 
           {/* Compress All Button */}
-          {canCompress && (
-            <GlassButton
-              loading={compressing}
-              primaryColor={config.primaryColor}
-              onClick={compressAllFiles}
-            >
-              {compressing
-                ? "Compressing..."
-                : `Compress ${stats.pending} File${
-                    stats.pending !== 1 ? "s" : ""
-                  }`}
-            </GlassButton>
-          )}
+          <GlassButton
+            loading={compressing}
+            primaryColor={config.primaryColor}
+            onClick={compressAllFiles}
+          >
+            {compressing
+              ? "Compressing..."
+              : `Compress ${stats.pending} File${
+                  stats.pending !== 1 ? "s" : ""
+                }`}
+          </GlassButton>
         </div>
       )}
 

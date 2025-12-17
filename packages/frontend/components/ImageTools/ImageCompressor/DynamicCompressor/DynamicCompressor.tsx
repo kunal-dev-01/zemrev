@@ -8,7 +8,10 @@ import { UrlUploadModal } from "@/components/Shared/UrlUploadModal";
 import { CompressorFilePanel } from "../Settings/CompressorFilePanel";
 import { SessionFilesDisplay } from "@/components/Shared/SessionFilesDisplay";
 
-import { TOOL_CONFIGS, detectFormatFromFilename } from "@/config/image.tool.config";
+import {
+  TOOL_CONFIGS,
+  detectFormatFromFilename,
+} from "@/config/image.tool.config";
 import GlassButton from "@/components/Layouts/GlassButton";
 
 import { useImageCompressor } from "@/hooks/imageHooks/useImageCompressor.hook";
@@ -80,7 +83,6 @@ const DynamicCompressor = ({ format }: DynamicCompressorProps) => {
   // ============================================================================
   // COMPUTED
   // ============================================================================
-  const canCompress = stats.pending > 0 && !compressing;
   const canAddMore = files.length < config.maxFiles;
 
   // ============================================================================
@@ -134,19 +136,17 @@ const DynamicCompressor = ({ format }: DynamicCompressorProps) => {
           </div>
 
           {/* Compress All Button */}
-          {canCompress && (
-            <GlassButton
-              loading={compressing}
-              primaryColor={config.primaryColor}
-              onClick={compressAllFiles}
-            >
-              {compressing
-                ? "Compressing..."
-                : `Compress ${stats.pending} File${
-                    stats.pending !== 1 ? "s" : ""
-                  }`}
-            </GlassButton>
-          )}
+          <GlassButton
+            loading={compressing}
+            primaryColor={config.primaryColor}
+            onClick={compressAllFiles}
+          >
+            {compressing
+              ? "Compressing..."
+              : `Compress ${stats.pending} File${
+                  stats.pending !== 1 ? "s" : ""
+                }`}
+          </GlassButton>
         </div>
       )}
 

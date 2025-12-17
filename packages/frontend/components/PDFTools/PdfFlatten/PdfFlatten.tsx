@@ -124,7 +124,6 @@ const PdfFlatten = () => {
   // COMPUTED VALUES
   // ============================================================================
 
-  const canFlatten = stats.pending > 0 && !flattening;
   const canAddMore = files.length < config.maxFiles;
 
   // ============================================================================
@@ -169,15 +168,13 @@ const PdfFlatten = () => {
           </div>
 
           {/* Flatten Button */}
-          {canFlatten && (
-            <GlassButton
-              loading={flattening}
-              primaryColor={config.primaryColor}
-              onClick={flattenAllFiles}
-            >
-              {flattening ? "Flattening..." : `Flatten PDF`}
-            </GlassButton>
-          )}
+          <GlassButton
+            loading={flattening}
+            primaryColor={config.primaryColor}
+            onClick={flattenAllFiles}
+          >
+            {flattening ? "Flattening..." : `Flatten PDF`}
+          </GlassButton>
         </div>
       )}
 

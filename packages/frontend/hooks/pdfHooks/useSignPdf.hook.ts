@@ -234,13 +234,13 @@ export const useSignPdf = () => {
           type: sig.type,
           text: sig.text,
           font: sig.font,
-          x: sig.x,
-          y: sig.y,
-          width: sig.width,
-          height: sig.height,
+          x: Math.round(sig.x),
+          y: Math.round(sig.y),
+          width: Math.round(sig.width),
+          height: Math.round(sig.height),
           page: sig.page,
-          color: sig.color,
-          opacity: sig.opacity,
+          color: sig.color || "#000000",
+          opacity: sig.opacity ?? 1.0,
         }));
 
         formData.append(

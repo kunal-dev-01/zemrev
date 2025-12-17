@@ -25,7 +25,6 @@ const PdfRotate = () => {
 
   // Derived state
   const pendingFiles = files.filter((f) => f.status === "pending");
-  const canRotate = pendingFiles.length > 0 && !rotating;
   const canAddMore = files.length < config.maxFiles;
 
   return (
@@ -63,15 +62,13 @@ const PdfRotate = () => {
             ))}
           </div>
 
-          {canRotate && (
-            <GlassButton
-              loading={rotating}
-              primaryColor={config.primaryColor}
-              onClick={rotateAllFiles}
-            >
-              {rotating ? "Rotating PDF..." : "Rotate PDF"}
-            </GlassButton>
-          )}
+          <GlassButton
+            loading={rotating}
+            primaryColor={config.primaryColor}
+            onClick={rotateAllFiles}
+          >
+            {rotating ? "Rotating PDF..." : "Rotate PDF"}
+          </GlassButton>
         </div>
       )}
 

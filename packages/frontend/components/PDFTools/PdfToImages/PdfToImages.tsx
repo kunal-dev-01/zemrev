@@ -50,7 +50,6 @@ const PdfToImages = () => {
   const processingFiles = files.filter((f) => f.status === "processing");
   const errorFiles = files.filter((f) => f.status === "error");
 
-  const canConvert = pendingFiles.length > 0 && !converting;
   const canAddMore = files.length < config.maxFiles;
 
   // ============================================================================
@@ -94,17 +93,13 @@ const PdfToImages = () => {
           </div>
 
           {/* Convert Button */}
-          {canConvert && (
-            <GlassButton
-              loading={converting}
-              primaryColor={config.primaryColor}
-              onClick={convertAll}
-            >
-              {converting
-                ? "Converting..."
-                : `Convert To Images`}
-            </GlassButton>
-          )}
+          <GlassButton
+            loading={converting}
+            primaryColor={config.primaryColor}
+            onClick={convertAll}
+          >
+            {converting ? "Converting..." : `Convert To Images`}
+          </GlassButton>
         </div>
       )}
 

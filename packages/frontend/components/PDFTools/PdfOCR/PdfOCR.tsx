@@ -260,7 +260,6 @@ const PdfOCR = () => {
     [addFiles]
   );
 
-  const canProcess = stats.pending > 0 && !processing;
   const canAddMore = files.length < config.maxFiles;
 
   return (
@@ -297,15 +296,13 @@ const PdfOCR = () => {
             ))}
           </div>
 
-          {canProcess && (
-            <GlassButton
-              loading={processing}
-              primaryColor={config.primaryColor}
-              onClick={processAllFiles}
-            >
-              {processing ? "Processing OCR..." : "Make Searchable"}
-            </GlassButton>
-          )}
+          <GlassButton
+            loading={processing}
+            primaryColor={config.primaryColor}
+            onClick={processAllFiles}
+          >
+            {processing ? "Processing OCR..." : "Make Searchable"}
+          </GlassButton>
         </div>
       )}
 

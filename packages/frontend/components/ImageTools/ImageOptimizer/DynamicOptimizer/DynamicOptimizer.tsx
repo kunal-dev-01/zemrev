@@ -97,7 +97,6 @@ const DynamicOptimizer = ({ slug }: DynamicOptimizerProps) => {
   // ============================================================================
   // COMPUTED
   // ============================================================================
-  const canOptimize = stats.pending > 0 && !optimizing;
   const canAddMore = files.length < config.maxFiles;
 
   // ============================================================================
@@ -162,7 +161,6 @@ const DynamicOptimizer = ({ slug }: DynamicOptimizerProps) => {
           </div>
 
           {/* Optimize Button */}
-          {canOptimize && (
             <GlassButton
               loading={optimizing}
               primaryColor={config.primaryColor}
@@ -174,7 +172,6 @@ const DynamicOptimizer = ({ slug }: DynamicOptimizerProps) => {
                     stats.pending !== 1 ? "s" : ""
                   }`}
             </GlassButton>
-          )}
         </div>
       )}
 

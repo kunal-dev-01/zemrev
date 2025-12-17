@@ -31,12 +31,11 @@ const PdfSign = () => {
   } = useSignPdf();
 
   // Derived state
-  const pendingFiles = files.filter((f) => f.status === "pending");
   const totalSignatures = files.reduce(
     (acc, f) => acc + (f.settings.signatures?.length || 0),
     0
   );
-  const canSign = pendingFiles.length > 0 && totalSignatures > 0 && !signing;
+  const canSign = totalSignatures > 0;
 
   return (
     <div className="w-full md:mt-[1vw] mt-[1vh]">
@@ -81,21 +80,24 @@ const PdfSign = () => {
           </div>
 
           {canSign && (
-              <GlassButton
-                loading={signing}
-                primaryColor={config.primaryColor}
-                onClick={signAllFiles}
-              >
-                {signing
-                  ? "Adding Signatures..."
-                  : `Add ${totalSignatures} Signature${totalSignatures !== 1 ? "s" : ""} to PDF`}
-              </GlassButton>
+            <GlassButton
+              loading={signing}
+              primaryColor={config.primaryColor}
+              onClick={signAllFiles}
+            >
+              {signing
+                ? "Adding Signatures..."
+                : `Add ${totalSignatures} Signature${
+                    totalSignatures !== 1 ? "s" : ""
+                  } to PDF`}
+            </GlassButton>
           )}
 
           {!canSign && totalSignatures === 0 && (
             <div className="mt-6 p-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
               <p className="text-sm text-amber-800 dark:text-amber-200">
-                <ErrorSvg className="w-5 h-5 inline-block mr-1" /> Please add at least one signature before processing
+                <ErrorSvg className="w-5 h-5 inline-block mr-1" /> Please add at
+                least one signature before processing
               </p>
             </div>
           )}

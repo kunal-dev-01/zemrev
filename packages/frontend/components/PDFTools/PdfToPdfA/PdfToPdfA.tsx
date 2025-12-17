@@ -272,7 +272,6 @@ const PdfToPdfA = () => {
   // COMPUTED VALUES
   // ============================================================================
 
-  const canConvert = stats.pending > 0 && !converting;
   const canAddMore = files.length < config.maxFiles;
 
   // ============================================================================
@@ -318,15 +317,13 @@ const PdfToPdfA = () => {
           </div>
 
           {/* Convert Button */}
-          {canConvert && (
-            <GlassButton
-              loading={converting}
-              primaryColor={config.primaryColor}
-              onClick={convertAllFiles}
-            >
-              {converting ? "Converting..." : `Convert to PDF/A`}
-            </GlassButton>
-          )}
+          <GlassButton
+            loading={converting}
+            primaryColor={config.primaryColor}
+            onClick={convertAllFiles}
+          >
+            {converting ? "Converting..." : `Convert to PDF/A`}
+          </GlassButton>
         </div>
       )}
 

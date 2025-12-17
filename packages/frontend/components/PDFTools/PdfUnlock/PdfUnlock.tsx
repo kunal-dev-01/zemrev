@@ -169,7 +169,6 @@ const PdfUnlock = () => {
   // COMPUTED VALUES
   // ============================================================================
 
-  const canDecrypt = stats.pending > 0 && !decrypting;
   const canAddMore = files.length < config.maxFiles;
   const hasAllPasswords = files.every((f) => f.settings.password);
 
@@ -216,16 +215,13 @@ const PdfUnlock = () => {
           </div>
 
           {/* Warning if no passwords */}
-          {!hasAllPasswords && (
+          {!hasAllPasswords ? (
             <div className="mt-4 p-3 rounded-xl bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800">
               <p className="text-sm text-yellow-700 dark:text-yellow-300 flex items-center gap-2">
                 <ErrorSvg className="w-5 h-5" /> Enter your password to unlock
               </p>
             </div>
-          )}
-
-          {/* Unlock Button */}
-          {canDecrypt && hasAllPasswords && (
+          ) : (
             <GlassButton
               loading={decrypting}
               primaryColor={config.primaryColor}

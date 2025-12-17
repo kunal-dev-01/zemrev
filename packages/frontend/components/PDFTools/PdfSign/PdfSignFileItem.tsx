@@ -418,17 +418,34 @@ export const PdfSignFileItem = ({
           {file.originalFile && (
             <PdfSignViewer
               file={file.originalFile}
-              activePage={selectedPage + 1}
+              
+              // --- PAGE SYNC ---
+              activePage={selectedPage + 1} // Input (0-based) se Preview (1-based)
               onPageChange={(pageNum) => {
-                  setSelectedPage(pageNum - 1);
+                  setSelectedPage(pageNum - 1); // Preview (1-based) se Input (0-based)
               }}
+              // -----------------
+
               settings={file.settings}
               primaryColor={config.primaryColor}
               onUpdateSignature={(sigId, updates) =>
                 updateSignature(file.id, sigId, updates)
               }
               onDeleteSignature={(sigId) => deleteSignature(file.id, sigId)}
-              onSelectSignature={setSelectedSignatureId}
+              onSelectSignature={(id) => {
+                  setSelectedSignatureId(id);
+                  const sig = file.settings.signatures?.find(s => s.id === id);
+                  if (sig) {
+                      setActiveTab(sig.type);
+                      if (sig.text) setNewSignatureText(sig.text);
+                      if (sig.font) setSelectedFont(sig.font);
+                      if (sig.color) setSelectedColor(sig.color);
+                      if (sig.opacity !== undefined) setOpacity(sig.opacity * 100);
+                      
+                      // Jab signature select karein, uss page pe jump karo
+                      setSelectedPage(sig.page); 
+                  }
+              }}
               selectedSignatureId={selectedSignatureId}
             />
           )}

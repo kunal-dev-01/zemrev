@@ -49,7 +49,6 @@ const PdfCrop = () => {
   // COMPUTED VALUES
   // ============================================================================
 
-  const canCrop = stats.pending > 0 && !cropping;
   const canAddMore = files.length < config.maxFiles;
 
   // ============================================================================
@@ -97,7 +96,6 @@ const PdfCrop = () => {
           </div>
 
           {/* Crop Button */}
-          {canCrop && (
             <GlassButton
               loading={cropping}
               primaryColor={config.primaryColor}
@@ -107,7 +105,6 @@ const PdfCrop = () => {
                 ? "Cropping..."
                 : `Crop PDF`}
             </GlassButton>
-          )}
         </div>
       )}
 
