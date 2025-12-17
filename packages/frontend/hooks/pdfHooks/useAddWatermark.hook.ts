@@ -38,6 +38,7 @@ export const useAddWatermark = () => {
             type: file.type,
             settings: {
               text: "CONFIDENTIAL",
+              font: "Arial", 
               opacity: 0.3,
               font_size: 50,
               rotation: 45,
@@ -70,6 +71,7 @@ export const useAddWatermark = () => {
           type: file.type,
           settings: {
             text: "CONFIDENTIAL",
+            font: "Arial",
             opacity: 0.3,
             font_size: 50,
             rotation: 45,
@@ -102,6 +104,7 @@ export const useAddWatermark = () => {
         type: file.type,
         settings: {
           text: "CONFIDENTIAL",
+          font: "Arial",
           opacity: 0.3,
           font_size: 50,
           rotation: 45,
@@ -133,6 +136,7 @@ export const useAddWatermark = () => {
         type: file.type,
         settings: {
           text: "CONFIDENTIAL",
+          font: "Arial",
           opacity: 0.3,
           font_size: 50,
           rotation: 45,
@@ -200,6 +204,7 @@ export const useAddWatermark = () => {
             file: file.originalFile as File,
             options: {
               text: file.settings.text as string,
+              font: file.settings.font as string,
               opacity: file.settings.opacity as number,
               font_size: file.settings.font_size as number,
               rotation: file.settings.rotation as number,

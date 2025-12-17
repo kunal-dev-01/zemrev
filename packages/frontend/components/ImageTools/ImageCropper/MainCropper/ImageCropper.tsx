@@ -8,7 +8,7 @@ import { UrlUploadModal } from "@/components/Shared/UrlUploadModal";
 import { SessionFilesDisplay } from "@/components/Shared/SessionFilesDisplay";
 import { RangeSlider } from "@/components/Shared/RangeSlider";
 
-import { TOOL_CONFIGS } from "@/config/tool.config";
+import { TOOL_CONFIGS } from "@/config/image.tool.config";
 
 import {
   FreeformSvg,

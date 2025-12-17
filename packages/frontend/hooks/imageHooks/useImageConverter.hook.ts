@@ -5,7 +5,7 @@ import { useConvertImageMutation } from "@/services/imageService/image.api";
 import { sessionStorageUtils } from "@/utils/sessionStorage.utils";
 import { pendingStorage } from "@/utils/pendingStorage.utils";
 import { extractApiErrorMessage } from "@/utils/errorExtract.utils";
-import { getOutputFilename } from "@/config/tool.config";
+import { getOutputFilename } from "@/config/image.tool.config";
 import type {
   ProcessedFile,
   OutputFormat,

@@ -1,8 +1,3 @@
-// ============================================================================
-// FILE: src/config/pdfToolConfigs.ts
-// PURPOSE: Configuration for each PDF tool (colors, settings, defaults)
-// ============================================================================
-
 import type { PdfToolConfig } from "@/services/pdfService/types";
 
 export const PDF_TOOL_CONFIGS: Record<string, PdfToolConfig> = {
@@ -223,12 +218,7 @@ export const PDF_TOOL_CONFIGS: Record<string, PdfToolConfig> = {
     dropzoneColor: "#FFFBEB",
     dropzoneColorDark: "#B453091A",
     defaultSettings: {
-      signature_text: "John Doe",
-      x: 50,
-      y: 700,
-      width: 200,
-      height: 80,
-      page: 0,
+      signatures: [],
     },
   },
 

@@ -8,7 +8,7 @@ import { UrlUploadModal } from "@/components/Shared/UrlUploadModal";
 import { ConverterFilePanel } from "../Settings/ConverterFilePanel";
 import { SessionFilesDisplay } from "@/components/Shared/SessionFilesDisplay";
 
-import { TOOL_CONFIGS, detectFormatFromFilename } from "@/config/tool.config";
+import { TOOL_CONFIGS, detectFormatFromFilename } from "@/config/image.tool.config";
 
 import GlassButton from "@/components/Layouts/GlassButton";
 

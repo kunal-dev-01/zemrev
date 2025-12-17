@@ -5,7 +5,7 @@
 import { useState, useCallback } from "react";
 import { DragDropZone } from "@/components/Shared/DragDropZone";
 import { UrlUploadModal } from "@/components/Shared/UrlUploadModal";
-import { TOOL_CONFIGS } from "@/config/tool.config";
+import { TOOL_CONFIGS } from "@/config/image.tool.config";
 import { RotateSvg } from "@/components/Svg/ToolsSvg";
 import Image from "next/image";
 import GlassButton from "@/components/Layouts/GlassButton";

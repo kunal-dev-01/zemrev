@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { PdfDragDropZone } from "@/components/Shared/PdfDragDropZone";
 import { PdfSessionFilesDisplay } from "@/components/Shared/PdfSessionFilesDisplay";
-import { PDF_TOOL_CONFIGS } from "@/config/pdfToolConfigs";
+import { PDF_TOOL_CONFIGS } from "@/config/pdf.tool.config";
 import { CheckSvg, ErrorSvg } from "@/components/Svg/CommonSvg";
 import { usePdfDecrypt } from "@/hooks/pdfHooks/usePdfDecrypt.hook";
 import { useDarkMode } from "@/hooks/appHooks/useDarkMode";

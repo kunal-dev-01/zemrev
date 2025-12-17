@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import { PdfCropFileItem } from "./PdfCropFileItem";
 import { PdfDragDropZone } from "@/components/Shared/PdfDragDropZone";
 import { PdfSessionFilesDisplay } from "@/components/Shared/PdfSessionFilesDisplay";
-import { PDF_TOOL_CONFIGS } from "@/config/pdfToolConfigs";
+import { PDF_TOOL_CONFIGS } from "@/config/pdf.tool.config";
 import { useCropPdf } from "@/hooks/pdfHooks/useCropPdf.hook";
 import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 import GlassButton from "@/components/Layouts/GlassButton";

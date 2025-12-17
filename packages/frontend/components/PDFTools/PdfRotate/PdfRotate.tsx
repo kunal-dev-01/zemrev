@@ -1,7 +1,7 @@
 import { PdfRotateFileItem } from "./PdfRotateFileItem";
 import { PdfDragDropZone } from "@/components/Shared/PdfDragDropZone";
 import { PdfSessionFilesDisplay } from "@/components/Shared/PdfSessionFilesDisplay";
-import { PDF_TOOL_CONFIGS } from "@/config/pdfToolConfigs";
+import { PDF_TOOL_CONFIGS } from "@/config/pdf.tool.config";
 import { usePdfRotate } from "@/hooks/pdfHooks/usePdfRotate.hook";
 import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 import GlassButton from "@/components/Layouts/GlassButton";

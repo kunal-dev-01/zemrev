@@ -4,7 +4,7 @@ import { PdfDragDropZone } from "@/components/Shared/PdfDragDropZone";
 import { PdfSessionFilesDisplay } from "@/components/Shared/PdfSessionFilesDisplay";
 import GlassButton from "@/components/Layouts/GlassButton";
 
-import { PDF_TOOL_CONFIGS } from "@/config/pdfToolConfigs";
+import { PDF_TOOL_CONFIGS } from "@/config/pdf.tool.config";
 import { useOcrSearchable } from "@/hooks/pdfHooks/useOcrSearchable.hook";
 import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 

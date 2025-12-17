@@ -1,6 +1,6 @@
 import { useCallback, useState, useEffect } from "react";
 import { PdfDragDropZone } from "@/components/Shared/PdfDragDropZone";
-import { PDF_TOOL_CONFIGS } from "@/config/pdfToolConfigs";
+import { PDF_TOOL_CONFIGS } from "@/config/pdf.tool.config";
 import { useExtractText } from "@/hooks/pdfHooks/useExtractText.hook";
 import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 import GlassButton from "@/components/Layouts/GlassButton";

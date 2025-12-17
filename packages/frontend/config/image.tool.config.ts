@@ -1,8 +1,3 @@
-// ============================================================================
-// FILE: src/config/toolConfigs.ts
-// PURPOSE: Configuration for each tool (colors, settings, defaults)
-// ============================================================================
-
 import type { ToolConfig } from "@/services/imageService/types";
 
 export const TOOL_CONFIGS: Record<string, ToolConfig> = {
@@ -154,8 +149,6 @@ export const FORMAT_EXTENSIONS: Record<string, string[]> = {
   png: [".png"],
   webp: [".webp"],
   avif: [".avif"],
-  gif: [".gif"],
-  bmp: [".bmp"],
   tiff: [".tiff", ".tif"],
   heic: [".heic"],
   heif: [".heif"],
@@ -165,8 +158,6 @@ export const MIME_TO_EXTENSION: Record<string, string> = {
   "image/jpeg": "jpg",
   "image/png": "png",
   "image/webp": "webp",
-  "image/gif": "gif",
-  "image/bmp": "bmp",
   "image/tiff": "tiff",
   "image/avif": "avif",
   "image/heic": "heic",

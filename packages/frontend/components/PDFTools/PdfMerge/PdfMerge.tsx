@@ -1,6 +1,6 @@
 import { PdfDragDropZone } from "@/components/Shared/PdfDragDropZone";
 import { PdfSessionFilesDisplay } from "@/components/Shared/PdfSessionFilesDisplay";
-import { PDF_TOOL_CONFIGS } from "@/config/pdfToolConfigs";
+import { PDF_TOOL_CONFIGS } from "@/config/pdf.tool.config";
 import { CancelSvg, ErrorSvg } from "@/components/Svg/CommonSvg";
 import GlassButton from "@/components/Layouts/GlassButton";
 import { usePdfMerge } from "@/hooks/pdfHooks/usePdfMerge.hook";

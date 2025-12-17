@@ -7,7 +7,7 @@ import { UrlUploadModal } from "@/components/Shared/UrlUploadModal";
 import { OptimizerFilePanel } from "../Settings/OptimizerFilePanel";
 import { SessionFilesDisplay } from "@/components/Shared/SessionFilesDisplay";
 
-import { TOOL_CONFIGS } from "@/config/tool.config";
+import { TOOL_CONFIGS } from "@/config/image.tool.config";
 import GlassButton from "@/components/Layouts/GlassButton";
 
 import { useImageOptimizer } from "@/hooks/imageHooks/useImageOptimizer.hook";
