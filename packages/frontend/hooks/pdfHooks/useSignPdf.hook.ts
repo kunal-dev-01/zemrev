@@ -3,13 +3,14 @@
 // ============================================================================
 
 import { useState, useCallback, useEffect } from "react";
-import {
-  useSignPdfMutation,
-} from "@/services/pdfService/pdf.api";
+import { useSignPdfMutation } from "@/services/pdfService/pdf.api";
 import { pdfSessionStorage } from "@/utils/pdfSessionStorage.utils";
 import { pdfPendingStorage } from "@/utils/pdfPendingStorage.utils";
 import { extractApiErrorMessage } from "@/utils/errorExtract.utils";
-import type { PdfProcessedFile, SignatureItem } from "@/services/pdfService/types";
+import type {
+  PdfProcessedFile,
+  SignatureItem,
+} from "@/services/pdfService/types";
 import { useCloudPicker } from "../appHooks/usePdfCloudPicker.hook";
 
 export const useSignPdf = () => {
@@ -131,21 +132,24 @@ export const useSignPdf = () => {
   // ============================================================================
   // ADD SIGNATURE
   // ============================================================================
-  const addSignature = useCallback((fileId: string, signature: SignatureItem) => {
-    setFiles((prev) =>
-      prev.map((f) =>
-        f.id === fileId
-          ? {
-              ...f,
-              settings: {
-                ...f.settings,
-                signatures: [...(f.settings.signatures || []), signature],
-              },
-            }
-          : f
-      )
-    );
-  }, []);
+  const addSignature = useCallback(
+    (fileId: string, signature: SignatureItem) => {
+      setFiles((prev) =>
+        prev.map((f) =>
+          f.id === fileId
+            ? {
+                ...f,
+                settings: {
+                  ...f.settings,
+                  signatures: [...(f.settings.signatures || []), signature],
+                },
+              }
+            : f
+        )
+      );
+    },
+    []
+  );
 
   // ============================================================================
   // UPDATE SIGNATURE
@@ -215,7 +219,9 @@ export const useSignPdf = () => {
         const signatures = file.settings.signatures || [];
 
         if (signatures.length === 0) {
-          throw new Error("No signatures added. Please add at least one signature.");
+          throw new Error(
+            "No signatures added. Please add at least one signature."
+          );
         }
 
         // Prepare FormData
@@ -233,9 +239,14 @@ export const useSignPdf = () => {
           width: sig.width,
           height: sig.height,
           page: sig.page,
+          color: sig.color,
+          opacity: sig.opacity,
         }));
 
-        formData.append("signatures_json", JSON.stringify(signaturesForBackend));
+        formData.append(
+          "signatures_json",
+          JSON.stringify(signaturesForBackend)
+        );
 
         // Append image files separately
         signatures.forEach((sig) => {

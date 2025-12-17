@@ -204,9 +204,6 @@ export const PDF_TOOL_CONFIGS: Record<string, PdfToolConfig> = {
     defaultSettings: {},
   },
 
-  // ========================================================================
-  // NEW: SIGN PDF
-  // ========================================================================
   "pdf-sign": {
     type: "sign-pdf",
     title: "Sign PDF",

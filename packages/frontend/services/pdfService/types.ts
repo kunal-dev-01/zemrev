@@ -46,14 +46,11 @@ export const WATERMARK_FONTS = [
 ] as const;
 
 export const SIGNATURE_FONTS = [
-  { value: "Arial", label: "Arial" },
-  { value: "Times New Roman", label: "Times New Roman" },
-  { value: "Courier New", label: "Courier New" },
-  { value: "Georgia", label: "Georgia" },
-  { value: "Verdana", label: "Verdana" },
-  { value: "Helvetica", label: "Helvetica" },
-  { value: "Brush Script MT", label: "Brush Script (Cursive)" },
-  { value: "Lucida Handwriting", label: "Lucida Handwriting" },
+  { value: "Dancing Script", label: "Dancing Script" },
+  { value: "Great Vibes", label: "Great Vibes" },
+  { value: "Sacramento", label: "Sacramento" },
+  { value: "Allura", label: "Allura" },
+  { value: "Homemade Apple", label: "Homemade Apple" },
 ] as const;
 
 // ============================================================================
@@ -72,7 +69,8 @@ export interface SignatureItem {
   width: number;
   height: number;
   page: number;
-  selected?: boolean;
+  color?: string; // Hex code
+  opacity?: number; // 0 to 1
 }
 
 // ============================================================================
