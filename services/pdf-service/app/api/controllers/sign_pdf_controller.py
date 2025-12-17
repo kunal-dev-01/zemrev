@@ -176,11 +176,13 @@ async def sign_pdf_handler(
                 'width': sig.width,
                 'height': sig.height,
                 'page': sig.page,
+                'color': sig.color,
+                'opacity': sig.opacity,
             }
             
             if sig.type == 'text':
                 sig_dict['text'] = sig.text or 'Signature'
-                sig_dict['font'] = sig.font or 'Arial'
+                sig_dict['font'] = sig.font or 'Dancing Script'
             elif sig.type == 'image':
                 if sig.id not in signature_images:
                     raise HTTPException(

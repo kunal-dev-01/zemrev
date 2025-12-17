@@ -163,27 +163,7 @@ async def add_watermark_endpoint(
     width: int = Form(default=300, ge=50, le=800, description="Width"),
     height: int = Form(default=150, ge=20, le=600, description="Height"),
 ) -> FileResponse:
-    """
-    Add text or image watermark to PDF with font support.
     
-    **Text Watermark Features:**
-    - Custom text content
-    - Font selection: Arial, Arial Black, Times New Roman, Courier New, Impact, Comic Sans MS, Georgia, Verdana
-    - Color selection: gray, black, white, red, blue, green, yellow, orange, purple
-    - Font size: 10-200pt
-    - Rotation: 0-360°
-    - Opacity: 0.1-1.0
-    
-    **Image Watermark Features:**
-    - PNG, JPG, GIF support
-    - Rotation: 0-360°
-    - Opacity: 0.1-1.0
-    
-    **Positioning:**
-    - X/Y coordinates in PDF points (drag & drop in frontend)
-    - Width: 50-800pt
-    - Height: 20-600pt
-    """
     if not text and not watermark_image:
         raise HTTPException(
             status_code=400,
@@ -260,46 +240,7 @@ async def sign_pdf_endpoint(
         description="Image files for image signatures (in order)"
     )
 ) -> FileResponse:
-    """
-    Add multiple signatures to a PDF document.
-    
-    **Accepts:**
-    - `file`: PDF to sign
-    - `signatures_json`: JSON string with signature data (without image files)
-    - `signature_image_files`: Image files for image signatures (in order)
-    
-    **Example signatures_json:**
-    ```json
-    [
-      {
-        "id": "sig_123",
-        "type": "text",
-        "text": "John Doe",
-        "font": "Arial",
-        "x": 50,
-        "y": 100,
-        "width": 200,
-        "height": 80,
-        "page": 0
-      },
-      {
-        "id": "sig_456",
-        "type": "image",
-        "x": 300,
-        "y": 200,
-        "width": 150,
-        "height": 60,
-        "page": 1
-      }
-    ]
-    ```
-    
-    **Limits:**
-    - Maximum 100 signatures per PDF
-    - Page numbers: 0-99 (0-indexed)
-    - Signature width: 10-500pt
-    - Signature height: 10-300pt
-    """
+
     return await sign_pdf_handler(file, signatures_json, signature_image_files)
 
 

@@ -131,6 +131,8 @@ class SignatureItem(BaseModel):
     type: str = Field(..., description="'text' or 'image'")
     text: Optional[str] = Field(None, description="Text for text signatures")
     font: Optional[str] = Field(None, description="Font name for text signatures")
+    color: str = Field("#000000", description="Hex color code (e.g., #FF0000)")
+    opacity: float = Field(1.0, ge=0.0, le=1.0, description="Opacity (0.0 to 1.0)")
     x: int = Field(..., ge=0, description="X position")
     y: int = Field(..., ge=0, description="Y position")
     width: int = Field(..., ge=10, le=500, description="Signature width (10-500)")
