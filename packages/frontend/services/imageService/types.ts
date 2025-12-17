@@ -1,9 +1,4 @@
 // ============================================================================
-// FILE: services/imageService/types.ts
-// PURPOSE: Strongly typed definitions for all image tools (NO ANY)
-// ============================================================================
-
-// ============================================================================
 // BASE TYPES
 // ============================================================================
 
@@ -202,16 +197,15 @@ export interface PaletteResponse {
   total_colors: number;
   preview_image: {
     filename: string;
-    data: string; // Base64 string
+    data: string; 
     size: number;
   };
 }
 
 // ============================================================================
-// METADATA RESPONSE TYPES (NO ANY)
+// METADATA RESPONSE TYPES
 // ============================================================================
 
-// Types for structured EXIF data (strict, NOT any)
 export interface ExifCameraInfo {
   make?: string;
   model?: string;
