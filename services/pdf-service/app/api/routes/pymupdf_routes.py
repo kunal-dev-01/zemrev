@@ -1,6 +1,6 @@
 """
 ============================================================================
-FILE: app/api/routes/pymupdf_routes.py
+FILE: services/pdf-service/app/api/routes/pymupdf_routes.py (UPDATED)
 PURPOSE: API routes for PyMuPDF operations
 ============================================================================
 """
@@ -14,28 +14,43 @@ from app.api.controllers.pymupdf_controller import (
     images_to_pdf_handler,
     extract_text_handler,
     extract_images_handler,
-    add_watermark_handler,
     optimize_pdf_handler,
-    sign_pdf_handler,
     crop_pdf_handler
 )
+from app.api.controllers.watermark_controller import add_watermark_handler
+from app.api.controllers.sign_pdf_controller import sign_pdf_handler
 from app.models.pymupdf_schemas import (
-    PdfToImagesRequest, ImagesToPdfRequest, ExtractTextRequest,
+    PdfToImagesRequest, ExtractTextRequest,
     ExtractImagesRequest, AddWatermarkRequest, OptimizePdfRequest,
-    ExtractTextResponse, ImageFormat, WatermarkPosition,SignPdfRequest, CropPdfRequest,
+    ExtractTextResponse, ImageFormat, CropPdfRequest,
 )
 
 router = APIRouter(prefix="/api/v1/pymupdf", tags=["PyMuPDF Tools"])
 
 
+# ============================================================================
+# PDF TO IMAGES
+# ============================================================================
+
 @router.post("/pdf-to-images", response_class=FileResponse)
 async def pdf_to_images_endpoint(
     file: UploadFile = File(..., description="PDF file to convert"),
-    format: ImageFormat = Form(default=ImageFormat.PNG, description="Output image format"),
-    dpi: int = Form(default=150, ge=72, le=300, description="DPI (72-300)"),
-    page_range: Optional[str] = Form(None, description="Page range like '1-3,5'")
+    format: ImageFormat = Form(
+        default=ImageFormat.PNG, 
+        description="Output image format"
+    ),
+    dpi: int = Form(
+        default=150, 
+        ge=72, 
+        le=300, 
+        description="DPI (72-300)"
+    ),
+    page_range: Optional[str] = Form(
+        None, 
+        description="Page range like '1-3,5'"
+    )
 ) -> FileResponse:
-    
+    """Convert PDF pages to images."""
     request = PdfToImagesRequest(
         format=format,
         dpi=dpi,
@@ -44,21 +59,35 @@ async def pdf_to_images_endpoint(
     return await pdf_to_images_handler(file, request)
 
 
+# ============================================================================
+# IMAGES TO PDF
+# ============================================================================
+
 @router.post("/images-to-pdf", response_class=FileResponse)
 async def images_to_pdf_endpoint(
     files: List[UploadFile] = File(..., description="Image files to convert")
 ) -> FileResponse:
-    
+    """Convert multiple images into a single PDF."""
     return await images_to_pdf_handler(files)
 
+
+# ============================================================================
+# EXTRACT TEXT
+# ============================================================================
 
 @router.post("/extract-text", response_model=ExtractTextResponse)
 async def extract_text_endpoint(
     file: UploadFile = File(..., description="PDF file"),
-    page_range: Optional[str] = Form(None, description="Page range like '1-3,5'"),
-    preserve_layout: bool = Form(default=False, description="Preserve layout")
+    page_range: Optional[str] = Form(
+        None, 
+        description="Page range like '1-3,5'"
+    ),
+    preserve_layout: bool = Form(
+        default=False, 
+        description="Preserve layout"
+    )
 ) -> ExtractTextResponse:
-    
+    """Extract text from PDF."""
     request = ExtractTextRequest(
         page_range=page_range,
         preserve_layout=preserve_layout
@@ -66,14 +95,29 @@ async def extract_text_endpoint(
     return await extract_text_handler(file, request)
 
 
+# ============================================================================
+# EXTRACT IMAGES
+# ============================================================================
+
 @router.post("/extract-images", response_class=FileResponse)
 async def extract_images_endpoint(
     file: UploadFile = File(..., description="PDF file"),
-    page_range: Optional[str] = Form(None, description="Page range like '1-3,5'"),
-    min_width: int = Form(default=100, ge=10, description="Min image width"),
-    min_height: int = Form(default=100, ge=10, description="Min image height")
+    page_range: Optional[str] = Form(
+        None, 
+        description="Page range like '1-3,5'"
+    ),
+    min_width: int = Form(
+        default=100, 
+        ge=10, 
+        description="Min image width"
+    ),
+    min_height: int = Form(
+        default=100, 
+        ge=10, 
+        description="Min image height"
+    )
 ) -> FileResponse:
-    
+    """Extract images from PDF."""
     request = ExtractImagesRequest(
         page_range=page_range,
         min_width=min_width,
@@ -82,25 +126,64 @@ async def extract_images_endpoint(
     return await extract_images_handler(file, request)
 
 
+# ============================================================================
+# ADD WATERMARK
+# ============================================================================
+
 @router.post("/add-watermark", response_class=FileResponse)
 async def add_watermark_endpoint(
     file: UploadFile = File(..., description="PDF file"),
     text: Optional[str] = Form(None, description="Watermark text"),
-    watermark_image: Optional[UploadFile] = File(None, description="Watermark image"),
-    opacity: float = Form(default=0.3, ge=0.1, le=1.0, description="Opacity (0.1-1.0)"),
-    font_size: int = Form(default=50, ge=10, le=200, description="Font size (10-200)"),
-    rotation: int = Form(default=45, ge=0, le=360, description="Rotation (0-360)"),
+    font: Optional[str] = Form(None, description="Font name (e.g., 'Arial', 'Times New Roman')"),
+    watermark_image: Optional[UploadFile] = File(
+        None, 
+        description="Watermark image"
+    ),
+    opacity: float = Form(
+        default=0.3, 
+        ge=0.1, 
+        le=1.0, 
+        description="Opacity (0.1-1.0)"
+    ),
+    font_size: int = Form(
+        default=50, 
+        ge=10, 
+        le=200, 
+        description="Font size (10-200)"
+    ),
+    rotation: int = Form(
+        default=45, 
+        ge=0, 
+        le=360, 
+        description="Rotation (0-360)"
+    ),
     color: str = Form(default="gray", description="Text color"),
-    
-    # NEW: Coordinate parameters
     x: int = Form(default=150, ge=0, le=1000, description="X position"),
     y: int = Form(default=350, ge=0, le=1500, description="Y position"),
     width: int = Form(default=300, ge=50, le=800, description="Width"),
     height: int = Form(default=150, ge=20, le=600, description="Height"),
-    
-    # REMOVED: position parameter
 ) -> FileResponse:
-    """Add watermark to PDF - COORDINATE BASED"""
+    """
+    Add text or image watermark to PDF with font support.
+    
+    **Text Watermark Features:**
+    - Custom text content
+    - Font selection: Arial, Arial Black, Times New Roman, Courier New, Impact, Comic Sans MS, Georgia, Verdana
+    - Color selection: gray, black, white, red, blue, green, yellow, orange, purple
+    - Font size: 10-200pt
+    - Rotation: 0-360°
+    - Opacity: 0.1-1.0
+    
+    **Image Watermark Features:**
+    - PNG, JPG, GIF support
+    - Rotation: 0-360°
+    - Opacity: 0.1-1.0
+    
+    **Positioning:**
+    - X/Y coordinates in PDF points (drag & drop in frontend)
+    - Width: 50-800pt
+    - Height: 20-600pt
+    """
     if not text and not watermark_image:
         raise HTTPException(
             status_code=400,
@@ -109,6 +192,7 @@ async def add_watermark_endpoint(
     
     request = AddWatermarkRequest(
         text=text,
+        font=font,  # NEW
         opacity=opacity,
         font_size=font_size,
         rotation=rotation,
@@ -121,16 +205,35 @@ async def add_watermark_endpoint(
     return await add_watermark_handler(file, request, watermark_image)
 
 
+# ============================================================================
+# OPTIMIZE PDF
+# ============================================================================
+
 @router.post("/optimize", response_class=FileResponse)
 async def optimize_pdf_endpoint(
     file: UploadFile = File(..., description="PDF file to optimize"),
-    remove_metadata: bool = Form(default=True, description="Remove metadata"),
-    remove_annotations: bool = Form(default=True, description="Remove annotations"),
-    remove_javascript: bool = Form(default=True, description="Remove JavaScript"),
-    remove_links: bool = Form(default=True, description="Remove links"),
-    compress_images: bool = Form(default=False, description="Compress images")
+    remove_metadata: bool = Form(
+        default=True, 
+        description="Remove metadata"
+    ),
+    remove_annotations: bool = Form(
+        default=True, 
+        description="Remove annotations"
+    ),
+    remove_javascript: bool = Form(
+        default=True, 
+        description="Remove JavaScript"
+    ),
+    remove_links: bool = Form(
+        default=True, 
+        description="Remove links"
+    ),
+    compress_images: bool = Form(
+        default=False, 
+        description="Compress images"
+    )
 ) -> FileResponse:
-
+    """Optimize PDF by removing unnecessary elements."""
     request = OptimizePdfRequest(
         remove_metadata=remove_metadata,
         remove_annotations=remove_annotations,
@@ -140,37 +243,69 @@ async def optimize_pdf_endpoint(
     )
     return await optimize_pdf_handler(file, request)
 
+
+# ============================================================================
+# SIGN PDF (UPDATED - MULTIPLE SIGNATURES)
+# ============================================================================
+
 @router.post("/sign", response_class=FileResponse)
 async def sign_pdf_endpoint(
     file: UploadFile = File(..., description="PDF file to sign"),
-    signature_text: Optional[str] = Form(None, description="Text signature (e.g., 'John Doe')"),
-    signature_image: Optional[UploadFile] = File(None, description="Signature image file"),
-    x: int = Form(50, ge=0, description="X position on page"),
-    y: int = Form(50, ge=0, description="Y position on page"),
-    width: int = Form(200, ge=10, le=500, description="Signature width (10-500)"),
-    height: int = Form(100, ge=10, le=300, description="Signature height (10-300)"),
-    page: int = Form(0, ge=0, description="Page number (0-indexed)")
+    signatures_json: str = Form(
+        ..., 
+        description="JSON array of signature objects"
+    ),
+    signature_image_files: Optional[List[UploadFile]] = File(
+        None,
+        description="Image files for image signatures (in order)"
+    )
 ) -> FileResponse:
     """
-    Add a signature to a PDF document.
-    Either provide signature_text OR signature_image.
-    """
-    if not signature_text and not signature_image:
-        raise HTTPException(
-            status_code=400,
-            detail="Either 'signature_text' or 'signature_image' must be provided"
-        )
+    Add multiple signatures to a PDF document.
     
-    request = SignPdfRequest(
-        signature_text=signature_text,
-        x=x,
-        y=y,
-        width=width,
-        height=height,
-        page=page
-    )
-    return await sign_pdf_handler(file, request, signature_image)
+    **Accepts:**
+    - `file`: PDF to sign
+    - `signatures_json`: JSON string with signature data (without image files)
+    - `signature_image_files`: Image files for image signatures (in order)
+    
+    **Example signatures_json:**
+    ```json
+    [
+      {
+        "id": "sig_123",
+        "type": "text",
+        "text": "John Doe",
+        "font": "Arial",
+        "x": 50,
+        "y": 100,
+        "width": 200,
+        "height": 80,
+        "page": 0
+      },
+      {
+        "id": "sig_456",
+        "type": "image",
+        "x": 300,
+        "y": 200,
+        "width": 150,
+        "height": 60,
+        "page": 1
+      }
+    ]
+    ```
+    
+    **Limits:**
+    - Maximum 100 signatures per PDF
+    - Page numbers: 0-99 (0-indexed)
+    - Signature width: 10-500pt
+    - Signature height: 10-300pt
+    """
+    return await sign_pdf_handler(file, signatures_json, signature_image_files)
 
+
+# ============================================================================
+# CROP PDF
+# ============================================================================
 
 @router.post("/crop", response_class=FileResponse)
 async def crop_pdf_endpoint(
@@ -180,8 +315,8 @@ async def crop_pdf_endpoint(
     width: int = Form(..., ge=10, description="Crop width"),
     height: int = Form(..., ge=10, description="Crop height"),
     page_range: Optional[str] = Form(
-       None,
-       description="Page range like '1-3,5'"
+        None,
+        description="Page range like '1-3,5'"
     )
 ) -> FileResponse:
     """
