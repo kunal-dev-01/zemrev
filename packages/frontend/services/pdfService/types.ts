@@ -1,10 +1,5 @@
 // ============================================================================
-// FILE: src/services/pdfService/types.ts
-// PURPOSE: Strongly typed definitions for all PDF tools (23 tools)
-// ============================================================================
-
-// ============================================================================
-// BASE TYPES
+// CORE ENUM / UNION TYPES
 // ============================================================================
 
 export type PdfToolType =
@@ -24,87 +19,132 @@ export type PdfToolType =
   | "ocr-searchable"
   | "sign-pdf"
   | "crop-pdf"
-  | "convert-pdfa"
+  | "convert-pdfa";
 
 export type ImageFormat = "png" | "jpeg" | "jpg";
 export type CompressionLevel = "screen" | "ebook" | "printer" | "prepress";
 export type PdfAVersion = "1b" | "2b" | "3b";
 
-export type FormDataParams = Record<string, string | number | boolean | undefined>;
+export type FormDataParams = Record<
+  string,
+  string | number | boolean | undefined
+>;
 
 // ============================================================================
-// FILE SETTINGS
+// FONT CONSTANTS
+// ============================================================================
+
+export const WATERMARK_FONTS = [
+  { value: "Arial", label: "Arial" },
+  { value: "Arial Black", label: "Arial Black (Bold)" },
+  { value: "Times New Roman", label: "Times New Roman" },
+  { value: "Courier New", label: "Courier New" },
+  { value: "Impact", label: "Impact" },
+  { value: "Comic Sans MS", label: "Comic Sans MS" },
+  { value: "Georgia", label: "Georgia" },
+  { value: "Verdana", label: "Verdana" },
+] as const;
+
+export const SIGNATURE_FONTS = [
+  { value: "Arial", label: "Arial" },
+  { value: "Times New Roman", label: "Times New Roman" },
+  { value: "Courier New", label: "Courier New" },
+  { value: "Georgia", label: "Georgia" },
+  { value: "Verdana", label: "Verdana" },
+  { value: "Helvetica", label: "Helvetica" },
+  { value: "Brush Script MT", label: "Brush Script (Cursive)" },
+  { value: "Lucida Handwriting", label: "Lucida Handwriting" },
+] as const;
+
+// ============================================================================
+// SIGNATURE TYPES
+// ============================================================================
+
+export interface SignatureItem {
+  id: string;
+  type: "text" | "image";
+  text?: string;
+  font?: string;
+  imageFile?: File;
+  imagePreview?: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  page: number;
+  selected?: boolean;
+}
+
+// ============================================================================
+// FILE-LEVEL SETTINGS (USED PER PDF)
 // ============================================================================
 
 export interface PdfFileSettings {
   // Split
   pages?: string;
-  
+
   // Rotate
   rotations?: string;
-  
-  // Encrypt
+
+  // Encrypt / Decrypt
   user_password?: string;
   owner_password?: string;
-  
-  // Decrypt
   password?: string;
-  
-  // PDF to Images
+
+  // PDF → Images
   format?: ImageFormat;
   dpi?: number;
   page_range?: string;
-  
+
   // Extract Text
   preserve_layout?: boolean;
-  
+
   // Extract Images
   min_width?: number;
   min_height?: number;
-  
+
   // Watermark
   text?: string;
+  font?: string;
   opacity?: number;
   font_size?: number;
   rotation?: number;
   color?: string;
-  watermarkFile?: File;   
-  
+  watermarkFile?: File;
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+
   // Optimize
   remove_metadata?: boolean;
   remove_annotations?: boolean;
   remove_javascript?: boolean;
   remove_links?: boolean;
   compress_images?: boolean;
-  
-  // Compress (Ghostscript)
+
+  // Compress
   level?: CompressionLevel;
 
-  // Sign PDF
-  signature_text?: string;
-  signatureFile?: File;
-  x?: number;
-  y?: number;
-  width?: number;
-  height?: number;
-  page?: number;
-  
-  // Crop PDF
+  // Sign
+  signatures?: SignatureItem[];
+
+  // Crop
   crop_x?: number;
   crop_y?: number;
   crop_width?: number;
   crop_height?: number;
   crop_page_range?: string;
-  
+
   // PDF/A
   version?: PdfAVersion;
-  
+
   // OCR
   language?: string;
 }
 
 // ============================================================================
-// PROCESSED FILE
+// PROCESSED FILE STATE
 // ============================================================================
 
 export interface PdfProcessedFile {
@@ -157,22 +197,20 @@ export interface PdfToolConfig {
 }
 
 // ============================================================================
-// API REQUEST TYPES
+// API REQUEST PAYLOADS
 // ============================================================================
 
-// pypdf
-export interface MergePdfRequest extends FormDataParams {
-  // files array handled separately
-}
-
+// Split
 export interface SplitPdfRequest extends FormDataParams {
   pages: string;
 }
 
+// Rotate
 export interface RotatePdfRequest extends FormDataParams {
   rotations: string;
 }
 
+// Encrypt / Decrypt
 export interface EncryptPdfRequest extends FormDataParams {
   user_password?: string;
   owner_password?: string;
@@ -182,17 +220,14 @@ export interface DecryptPdfRequest extends FormDataParams {
   password: string;
 }
 
-// PyMuPDF
+// PDF → Images
 export interface PdfToImagesRequest extends FormDataParams {
   format: ImageFormat;
   dpi: number;
   page_range?: string;
 }
 
-export interface ImagesToPdfRequest extends FormDataParams {
-  // files array handled separately
-}
-
+// Extract
 export interface ExtractTextRequest extends FormDataParams {
   page_range?: string;
   preserve_layout: boolean;
@@ -204,8 +239,10 @@ export interface ExtractImagesRequest extends FormDataParams {
   min_height: number;
 }
 
+// Watermark
 export interface AddWatermarkRequest extends FormDataParams {
   text?: string;
+  font?: string;
   opacity: number;
   font_size?: number;
   rotation?: number;
@@ -216,6 +253,7 @@ export interface AddWatermarkRequest extends FormDataParams {
   height: number;
 }
 
+// Optimize
 export interface OptimizePdfRequest extends FormDataParams {
   remove_metadata: boolean;
   remove_annotations: boolean;
@@ -224,26 +262,17 @@ export interface OptimizePdfRequest extends FormDataParams {
   compress_images: boolean;
 }
 
-// Ghostscript
+// Compress
 export interface CompressPdfRequest extends FormDataParams {
   level: CompressionLevel;
 }
 
-export interface FlattenPdfRequest extends FormDataParams {
-  // no params
-}
-
-// NEW: Sign PDF
+// Sign
 export interface SignPdfRequest extends FormDataParams {
-  signature_text?: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  page: number;
+  signatures_json: string;
 }
 
-// NEW: Crop PDF
+// Crop
 export interface CropPdfRequest extends FormDataParams {
   x: number;
   y: number;
@@ -252,11 +281,10 @@ export interface CropPdfRequest extends FormDataParams {
   page_range?: string;
 }
 
-// NEW: Convert to PDF/A
+// PDF/A
 export interface ConvertToPdfARequest extends FormDataParams {
   version: PdfAVersion;
 }
-
 
 // OCR
 export interface OcrPdfRequest extends FormDataParams {
@@ -265,7 +293,7 @@ export interface OcrPdfRequest extends FormDataParams {
 }
 
 // ============================================================================
-// API RESPONSE TYPES
+// API RESPONSES
 // ============================================================================
 
 export interface ExtractTextResponse {
