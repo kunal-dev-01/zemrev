@@ -43,6 +43,11 @@ export const DraggableSignature = ({
   const width = signature.width * scale;
   const height = signature.height * scale;
 
+  // Defaults
+  const opacity = signature.opacity ?? 1;
+  const color = signature.color ?? "#000000";
+  const font = signature.font || 'Dancing Script'; // Default to cursive
+
   // ============================================================================
   // DRAG HANDLERS
   // ============================================================================
@@ -119,6 +124,7 @@ export const DraggableSignature = ({
         const deltaX = clientX - resizeStart.x;
         const deltaY = clientY - resizeStart.y;
         
+        // Limits: Min width 50px, Max width 500px
         const newWidth = Math.max(50, Math.min(resizeStart.width + deltaX / scale, 500));
         const newHeight = Math.max(30, Math.min(resizeStart.height + deltaY / scale, 300));
         
@@ -147,7 +153,7 @@ export const DraggableSignature = ({
     if (isDragging || isResizing) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleEnd);
-      document.addEventListener('touchmove', handleTouchMove);
+      document.addEventListener('touchmove', handleTouchMove, { passive: false });
       document.addEventListener('touchend', handleEnd);
 
       return () => {
@@ -168,14 +174,14 @@ export const DraggableSignature = ({
       onMouseDown={handleMouseDown}
       onTouchStart={handleTouchStart}
       className={`absolute cursor-move select-none transition-shadow ${
-        isSelected ? 'ring-2 ring-blue-500 shadow-lg' : 'hover:ring-2 hover:ring-blue-300'
+        isSelected ? 'ring-2 ring-blue-500 shadow-lg z-30' : 'hover:ring-2 hover:ring-blue-300 z-20'
       } ${isDragging || isResizing ? 'cursor-grabbing' : 'cursor-grab'}`}
       style={{
         left: `${x}px`,
         top: `${y}px`,
         width: `${width}px`,
         height: `${height}px`,
-        zIndex: isSelected ? 30 : 20,
+        touchAction: 'none', // Critical for smooth touch dragging
       }}
     >
       {/* DELETE BUTTON */}
@@ -185,30 +191,38 @@ export const DraggableSignature = ({
             e.stopPropagation();
             onDelete();
           }}
-          className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 rounded-lg text-white flex items-center justify-center z-30 transition-colors bg-blue-500"
+          className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 rounded-lg text-white flex items-center justify-center z-30 transition-colors bg-red-500 shadow-sm"
           style={{ cursor: 'pointer' }}
         >
-          <CancelSvg className="w-5 h-5" />
+          <CancelSvg className="w-4 h-4" />
         </button>
       )}
 
       {/* SIGNATURE CONTENT */}
-      <div className="w-full h-full rounded-lg flex items-center justify-center">
+      <div 
+        className="w-full h-full rounded-lg flex items-center justify-center overflow-hidden"
+        style={{ opacity: opacity }} // Apply Opacity
+      >
         {signature.type === 'image' && signature.imagePreview ? (
           <Image
             src={signature.imagePreview}
             alt="signature"
+            width={width}
+            height={height}
             unoptimized
             className="w-full h-full object-contain pointer-events-none"
           />
         ) : (
           <div
-            className="w-full h-full flex items-center justify-center text-center wrap-break-words overflow-hidden text-zinc-700 dark:text-zinc-700"
+            className="w-full h-full flex items-center justify-center text-center pointer-events-none select-none"
             style={{
-              fontFamily: signature.font || 'Arial',
-              fontSize: `${Math.min(24, height / 3)}px`,
-              fontWeight: 600,
-              fontStyle: 'italic',
+              fontFamily: font,
+              color: color,
+              // Calculate responsive font size based on container height
+              fontSize: `${Math.min(height * 0.7, 80)}px`, 
+              fontWeight: 400,
+              lineHeight: 1,
+              whiteSpace: 'nowrap',
             }}
           >
             {signature.text || 'Signature'}
@@ -216,33 +230,33 @@ export const DraggableSignature = ({
         )}
       </div>
 
-      {/* RESIZE HANDLES */}
+      {/* RESIZE HANDLES (Visible only when selected) */}
       {isSelected && (
         <>
           {/* Bottom-Right Handle */}
           <div
-            className="resize-handle absolute -bottom-1 -right-1 w-4 h-4 bg-blue-500 rounded-full cursor-se-resize z-40 hover:scale-125 transition-transform"
+            className="resize-handle absolute -bottom-1 -right-1 w-4 h-4 bg-blue-500 border border-white rounded-full cursor-se-resize z-40 hover:scale-125 transition-transform"
             onMouseDown={(e) => handleResizeMouseDown(e, 'se')}
             onTouchStart={(e) => handleResizeTouchStart(e, 'se')}
           />
           
           {/* Bottom-Left Handle */}
           <div
-            className="resize-handle absolute -bottom-1 -left-1 w-4 h-4 bg-blue-500 rounded-full cursor-sw-resize z-40 hover:scale-125 transition-transform"
+            className="resize-handle absolute -bottom-1 -left-1 w-4 h-4 bg-blue-500 border border-white rounded-full cursor-sw-resize z-40 hover:scale-125 transition-transform"
             onMouseDown={(e) => handleResizeMouseDown(e, 'sw')}
             onTouchStart={(e) => handleResizeTouchStart(e, 'sw')}
           />
           
           {/* Top-Right Handle */}
           <div
-            className="resize-handle absolute -top-1 -right-1 w-4 h-4 bg-blue-500 rounded-full cursor-ne-resize z-40 hover:scale-125 transition-transform"
+            className="resize-handle absolute -top-1 -right-1 w-4 h-4 bg-blue-500 border border-white rounded-full cursor-ne-resize z-40 hover:scale-125 transition-transform"
             onMouseDown={(e) => handleResizeMouseDown(e, 'ne')}
             onTouchStart={(e) => handleResizeTouchStart(e, 'ne')}
           />
           
           {/* Top-Left Handle */}
           <div
-            className="resize-handle absolute -top-1 -left-1 w-4 h-4 bg-blue-500 rounded-full cursor-nw-resize z-40 hover:scale-125 transition-transform"
+            className="resize-handle absolute -top-1 -left-1 w-4 h-4 bg-blue-500 border border-white rounded-full cursor-nw-resize z-40 hover:scale-125 transition-transform"
             onMouseDown={(e) => handleResizeMouseDown(e, 'nw')}
             onTouchStart={(e) => handleResizeTouchStart(e, 'nw')}
           />

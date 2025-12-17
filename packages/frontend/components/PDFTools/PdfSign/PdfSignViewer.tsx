@@ -18,6 +18,9 @@ interface PdfSignViewerProps {
   onDeleteSignature: (signatureId: string) => void;
   onSelectSignature: (signatureId: string) => void;
   selectedSignatureId: string | null;
+  // --- NEW PROPS FOR SYNC ---
+  activePage: number; // 1-based page number from parent
+  onPageChange: (page: number) => void; // Notify parent when page changes
 }
 
 export const PdfSignViewer = ({
@@ -28,9 +31,19 @@ export const PdfSignViewer = ({
   onDeleteSignature,
   onSelectSignature,
   selectedSignatureId,
+  activePage,      // Receive current page
+  onPageChange,    // Send update back
 }: PdfSignViewerProps) => {
   const [numPages, setNumPages] = useState<number | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
+  
+  // Local state ko parent ke prop se sync rakho
+  const [currentPage, setCurrentPage] = useState(activePage);
+
+  // Jab Parent (Input) change ho, toh Viewer update karo
+  useEffect(() => {
+    setCurrentPage(activePage);
+  }, [activePage]);
+
   const [pageWidth, setPageWidth] = useState(0);
   const [renderedWidth, setRenderedWidth] = useState(0);
   const [renderedHeight, setRenderedHeight] = useState(0);
@@ -49,7 +62,7 @@ export const PdfSignViewer = ({
     return () => window.removeEventListener("resize", updateWidth);
   }, []);
 
-  // Calculate Scale (Pixels per Point)
+  // Calculate Scale
   const scale = pageWidth > 0 && renderedWidth > 0 ? renderedWidth / pageWidth : 1;
 
   // Get signatures for current page
@@ -57,11 +70,24 @@ export const PdfSignViewer = ({
     (sig) => sig.page === currentPage - 1
   );
 
-  // Deselect when clicking on PDF background
   const handleBackgroundClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
       onSelectSignature('');
     }
+  };
+
+  // --- NEW HANDLERS FOR NAVIGATION ---
+  const handlePrevPage = () => {
+    const newPage = Math.max(1, currentPage - 1);
+    setCurrentPage(newPage);
+    onPageChange(newPage); // Parent ko batao
+  };
+
+  const handleNextPage = () => {
+    if (!numPages) return;
+    const newPage = Math.min(numPages, currentPage + 1);
+    setCurrentPage(newPage);
+    onPageChange(newPage); // Parent ko batao
   };
 
   return (
@@ -75,9 +101,9 @@ export const PdfSignViewer = ({
           <div className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 rounded-lg p-1">
             <button
               type="button"
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              onClick={handlePrevPage}
               disabled={currentPage <= 1}
-              className="p-1 hover:bg-white dark:hover:bg-zinc-700 rounded-md disabled:opacity-30 transition-colors"
+              className="p-1 hover:bg-white dark:hover:bg-zinc-700 rounded-md disabled:opacity-30 transition-colors cursor-pointer"
             >
               <ChevronDownSvg className="w-4 h-4 rotate-90" />
             </button>
@@ -86,9 +112,9 @@ export const PdfSignViewer = ({
             </span>
             <button
               type="button"
-              onClick={() => setCurrentPage((p) => Math.min(numPages, p + 1))}
+              onClick={handleNextPage}
               disabled={currentPage >= numPages}
-              className="p-1 hover:bg-white dark:hover:bg-zinc-700 rounded-md disabled:opacity-30 transition-colors"
+              className="p-1 hover:bg-white dark:hover:bg-zinc-700 rounded-md disabled:opacity-30 transition-colors cursor-pointer"
             >
               <ChevronDownSvg className="w-4 h-4 -rotate-90" />
             </button>
@@ -115,20 +141,22 @@ export const PdfSignViewer = ({
               width={containerWidth > 600 ? 500 : containerWidth - 32}
               onLoadSuccess={(page) => {
                 setPageWidth(page.originalWidth);
-                const canvas = document.querySelector(
-                  `.react-pdf__Page[data-page-number="${currentPage}"] canvas`
-                );
-                if (canvas) {
-                  const rect = canvas.getBoundingClientRect();
-                  setRenderedWidth(rect.width);
-                  setRenderedHeight(rect.height);
-                }
+                // Force re-measure canvas for accuracy
+                setTimeout(() => {
+                    const canvas = document.querySelector(
+                    `.react-pdf__Page[data-page-number="${currentPage}"] canvas`
+                    );
+                    if (canvas) {
+                        const rect = canvas.getBoundingClientRect();
+                        setRenderedWidth(rect.width);
+                        setRenderedHeight(rect.height);
+                    }
+                }, 100);
               }}
               renderTextLayer={false}
               renderAnnotationLayer={false}
               className="bg-white"
             >
-              {/* DRAGGABLE SIGNATURES */}
               {currentPageSignatures.map((signature) => (
                 <DraggableSignature
                   key={signature.id}
@@ -146,17 +174,6 @@ export const PdfSignViewer = ({
             </Page>
           </div>
         </Document>
-      </div>
-
-      {/* Helper Text */}
-      <div className="text-xs text-zinc-400 text-center">
-        {currentPageSignatures.length > 0 ? (
-          <span>
-            {currentPageSignatures.length} signature{currentPageSignatures.length !== 1 ? 's' : ''} on this page
-          </span>
-        ) : (
-          <span>No signatures on this page - Add one using controls</span>
-        )}
       </div>
     </div>
   );
