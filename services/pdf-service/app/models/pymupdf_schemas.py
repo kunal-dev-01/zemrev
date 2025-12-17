@@ -21,15 +21,6 @@ class ImageFormat(str, Enum):
     JPG = "jpg"
 
 
-class WatermarkPosition(str, Enum):
-    """Watermark position presets"""
-    CENTER = "center"
-    TOP_LEFT = "top_left"
-    TOP_RIGHT = "top_right"
-    BOTTOM_LEFT = "bottom_left"
-    BOTTOM_RIGHT = "bottom_right"
-
-
 # ============================================================================
 # REQUEST SCHEMAS
 # ============================================================================
@@ -89,26 +80,36 @@ class ExtractImagesRequest(BaseModel):
 
 
 class AddWatermarkRequest(BaseModel):
-    """Add watermark to PDF request - COORDINATE BASED"""
+    """Add watermark to PDF request - with font support"""
     text: Optional[str] = Field(None, description="Watermark text")
-    opacity: float = Field(default=0.3, ge=0.1, le=1.0, description="Watermark opacity (0.1-1.0)")
-    font_size: int = Field(default=50, ge=10, le=200, description="Text font size (10-200)")
-    rotation: int = Field(default=45, ge=0, le=360, description="Watermark rotation (0-360)")
-    color: str = Field(default="gray", description="Text color (e.g., 'red', 'blue', 'gray')")
+    font: Optional[str] = Field(None, description="Font name (e.g., 'Arial', 'Times New Roman')")
+    opacity: float = Field(default=0.3, ge=0.1, le=1.0, description="Opacity (0.1-1.0)")
+    font_size: int = Field(default=50, ge=10, le=200, description="Font size (10-200)")
+    rotation: int = Field(default=45, ge=0, le=360, description="Rotation (0-360)")
+    color: str = Field(default="gray", description="Text color")
     
-    # NEW: Coordinate-based positioning
-    x: int = Field(default=150, ge=0, le=1000, description="X position in PDF points")
-    y: int = Field(default=350, ge=0, le=1500, description="Y position in PDF points")
-    width: int = Field(default=300, ge=50, le=800, description="Width in PDF points")
-    height: int = Field(default=150, ge=20, le=600, description="Height in PDF points")
-    
-    # REMOVED: position field (no longer needed)
+    # Coordinate-based positioning
+    x: int = Field(default=150, ge=0, le=1000, description="X position")
+    y: int = Field(default=350, ge=0, le=1500, description="Y position")
+    width: int = Field(default=300, ge=50, le=800, description="Width")
+    height: int = Field(default=150, ge=20, le=600, description="Height")
     
     @field_validator('text')
     @classmethod
     def validate_text(cls, v: Optional[str]) -> Optional[str]:
         if v is not None and len(v.strip()) == 0:
             raise ValueError("Watermark text cannot be empty")
+        return v
+    
+    @field_validator('font')
+    @classmethod
+    def validate_font(cls, v: Optional[str]) -> Optional[str]:
+        allowed_fonts = [
+            'Arial', 'Arial Black', 'Times New Roman', 'Courier New',
+            'Impact', 'Comic Sans MS', 'Georgia', 'Verdana'
+        ]
+        if v is not None and v not in allowed_fonts:
+            logger.warning(f"Font '{v}' not in allowed list, will use Arial as fallback")
         return v
 
 
@@ -121,18 +122,30 @@ class OptimizePdfRequest(BaseModel):
     compress_images: bool = Field(default=False, description="Compress embedded images")
 
 # ============================================================================
-# SIGN PDF
+# SIGN PDF - UPDATED FOR MULTIPLE SIGNATURES
 # ============================================================================
 
-class SignPdfRequest(BaseModel):
-    """Sign PDF request"""
-    signature_text: Optional[str] = Field(None, description="Text signature")
-    x: int = Field(50, ge=0, description="X position")
-    y: int = Field(50, ge=0, description="Y position")
-    width: int = Field(200, ge=10, le=500, description="Signature width")
-    height: int = Field(100, ge=10, le=300, description="Signature height")
-    page: int = Field(0, ge=0, description="Page number (0-indexed)")
+class SignatureItem(BaseModel):
+    """Single signature item"""
+    id: str = Field(..., description="Unique signature ID")
+    type: str = Field(..., description="'text' or 'image'")
+    text: Optional[str] = Field(None, description="Text for text signatures")
+    font: Optional[str] = Field(None, description="Font name for text signatures")
+    x: int = Field(..., ge=0, description="X position")
+    y: int = Field(..., ge=0, description="Y position")
+    width: int = Field(..., ge=10, le=500, description="Signature width (10-500)")
+    height: int = Field(..., ge=10, le=300, description="Signature height (10-300)")
+    page: int = Field(..., ge=0, lt=100, description="Page number (0-99)")
 
+
+class SignPdfRequest(BaseModel):
+    """Sign PDF request - supports multiple signatures"""
+    signatures: List[SignatureItem] = Field(
+        ..., 
+        min_items=1, 
+        max_items=100,
+        description="List of signatures to add (1-100)"
+    )
 
 # ============================================================================
 # CROP PDF
