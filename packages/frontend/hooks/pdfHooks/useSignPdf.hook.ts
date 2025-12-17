@@ -1,24 +1,22 @@
 // ============================================================================
-// FILE: src/hooks/pdfHooks/useSignPdf.hook.ts
+// FILE: src/hooks/pdfHooks/useSignPdf.hook.ts (UPDATED)
 // ============================================================================
 
 import { useState, useCallback, useEffect } from "react";
 import {
-  useSignPdfTextMutation,
-  useSignPdfImageMutation,
+  useSignPdfMutation,
 } from "@/services/pdfService/pdf.api";
 import { pdfSessionStorage } from "@/utils/pdfSessionStorage.utils";
 import { pdfPendingStorage } from "@/utils/pdfPendingStorage.utils";
 import { extractApiErrorMessage } from "@/utils/errorExtract.utils";
-import type { PdfProcessedFile } from "@/services/pdfService/types";
+import type { PdfProcessedFile, SignatureItem } from "@/services/pdfService/types";
 import { useCloudPicker } from "../appHooks/usePdfCloudPicker.hook";
 
 export const useSignPdf = () => {
   const [files, setFiles] = useState<PdfProcessedFile[]>([]);
   const [signing, setSigning] = useState(false);
 
-  const [signPdfText] = useSignPdfTextMutation();
-  const [signPdfImage] = useSignPdfImageMutation();
+  const [signPdf] = useSignPdfMutation();
   const { pickFromGoogleDrive, pickFromDropbox } = useCloudPicker();
 
   // ============================================================================
@@ -36,12 +34,7 @@ export const useSignPdf = () => {
             size: file.size,
             type: file.type,
             settings: {
-              signature_text: "John Doe",
-              x: 50,
-              y: 700,
-              width: 200,
-              height: 80,
-              page: 0,
+              signatures: [], // Empty array initially
             },
             status: "pending" as const,
           }))
@@ -66,12 +59,7 @@ export const useSignPdf = () => {
         size: file.size,
         type: file.type,
         settings: {
-          signature_text: "John Doe",
-          x: 50,
-          y: 700,
-          width: 200,
-          height: 80,
-          page: 0,
+          signatures: [],
         },
         status: "pending",
       });
@@ -96,12 +84,7 @@ export const useSignPdf = () => {
         size: file.size,
         type: file.type,
         settings: {
-          signature_text: "John Doe",
-          x: 50,
-          y: 700,
-          width: 200,
-          height: 80,
-          page: 0,
+          signatures: [],
         },
         status: "pending",
       },
@@ -124,12 +107,7 @@ export const useSignPdf = () => {
         size: file.size,
         type: file.type,
         settings: {
-          signature_text: "John Doe",
-          x: 50,
-          y: 700,
-          width: 200,
-          height: 80,
-          page: 0,
+          signatures: [],
         },
         status: "pending",
       },
@@ -137,7 +115,7 @@ export const useSignPdf = () => {
   }, [pickFromDropbox]);
 
   // ============================================================================
-  // UPDATE SETTINGS
+  // UPDATE SETTINGS (Signatures Array)
   // ============================================================================
   const updateFileSettings = useCallback(
     (id: string, settings: Partial<PdfProcessedFile["settings"]>) => {
@@ -149,6 +127,70 @@ export const useSignPdf = () => {
     },
     []
   );
+
+  // ============================================================================
+  // ADD SIGNATURE
+  // ============================================================================
+  const addSignature = useCallback((fileId: string, signature: SignatureItem) => {
+    setFiles((prev) =>
+      prev.map((f) =>
+        f.id === fileId
+          ? {
+              ...f,
+              settings: {
+                ...f.settings,
+                signatures: [...(f.settings.signatures || []), signature],
+              },
+            }
+          : f
+      )
+    );
+  }, []);
+
+  // ============================================================================
+  // UPDATE SIGNATURE
+  // ============================================================================
+  const updateSignature = useCallback(
+    (fileId: string, signatureId: string, updates: Partial<SignatureItem>) => {
+      setFiles((prev) =>
+        prev.map((f) =>
+          f.id === fileId
+            ? {
+                ...f,
+                settings: {
+                  ...f.settings,
+                  signatures: (f.settings.signatures || []).map((sig) =>
+                    sig.id === signatureId ? { ...sig, ...updates } : sig
+                  ),
+                },
+              }
+            : f
+        )
+      );
+    },
+    []
+  );
+
+  // ============================================================================
+  // DELETE SIGNATURE
+  // ============================================================================
+  const deleteSignature = useCallback((fileId: string, signatureId: string) => {
+    setFiles((prev) =>
+      prev.map((f) =>
+        f.id === fileId
+          ? {
+              ...f,
+              settings: {
+                ...f.settings,
+                signatures: (f.settings.signatures || []).filter(
+                  (sig) => sig.id !== signatureId
+                ),
+              },
+            }
+          : f
+      )
+    );
+  }, []);
 
   // ============================================================================
   // REMOVE FILE
@@ -170,45 +212,39 @@ export const useSignPdf = () => {
           )
         );
 
-        const {
-          signature_text,
-          signatureFile,
-          x,
-          y,
-          width,
-          height,
-          page,
-        } = file.settings;
+        const signatures = file.settings.signatures || [];
 
-        let blob: Blob;
-
-        if (signatureFile) {
-          // Image signature
-          blob = await signPdfImage({
-            file: file.originalFile as File,
-            signature: signatureFile,
-            options: {
-              x: x || 50,
-              y: y || 700,
-              width: width || 200,
-              height: height || 80,
-              page: page || 0,
-            },
-          }).unwrap();
-        } else {
-          // Text signature
-          blob = await signPdfText({
-            file: file.originalFile as File,
-            options: {
-              signature_text: signature_text || "Signature",
-              x: x || 50,
-              y: y || 700,
-              width: width || 200,
-              height: height || 80,
-              page: page || 0,
-            },
-          }).unwrap();
+        if (signatures.length === 0) {
+          throw new Error("No signatures added. Please add at least one signature.");
         }
+
+        // Prepare FormData
+        const formData = new FormData();
+        formData.append("file", file.originalFile as File);
+
+        // Prepare signatures for backend (without File objects)
+        const signaturesForBackend = signatures.map((sig) => ({
+          id: sig.id,
+          type: sig.type,
+          text: sig.text,
+          font: sig.font,
+          x: sig.x,
+          y: sig.y,
+          width: sig.width,
+          height: sig.height,
+          page: sig.page,
+        }));
+
+        formData.append("signatures_json", JSON.stringify(signaturesForBackend));
+
+        // Append image files separately
+        signatures.forEach((sig) => {
+          if (sig.type === "image" && sig.imageFile) {
+            formData.append(`signature_image_${sig.id}`, sig.imageFile);
+          }
+        });
+
+        const blob = await signPdf(formData).unwrap();
 
         const outputName = `signed_${file.name}`;
         await pdfSessionStorage.saveFile(blob, outputName, "sign-pdf");
@@ -227,7 +263,7 @@ export const useSignPdf = () => {
         return { success: false, error: errorMsg };
       }
     },
-    [signPdfText, signPdfImage]
+    [signPdf]
   );
 
   // ============================================================================
@@ -267,6 +303,9 @@ export const useSignPdf = () => {
     addFromGoogleDrive,
     addFromDropbox,
     updateFileSettings,
+    addSignature,
+    updateSignature,
+    deleteSignature,
     removeFile,
     signSingleFile,
     signAllFiles,
