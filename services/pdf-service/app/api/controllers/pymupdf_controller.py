@@ -1,14 +1,14 @@
 """
 ============================================================================
-FILE: services/pdf-service/app/api/controllers/pymupdf_controller.py
-PURPOSE: Controller logic for PyMuPDF operations
+FILE: services/pdf-service/app/api/controllers/pymupdf_controller.py (CLEAN)
+PURPOSE: Controller logic for PyMuPDF operations (without sign_pdf)
 ============================================================================
 """
 
 from pathlib import Path
 from typing import List, Optional
 from fastapi import UploadFile, HTTPException
-from fastapi.responses import FileResponse, Response
+from fastapi.responses import FileResponse
 from concurrent.futures import ThreadPoolExecutor
 import asyncio
 import tempfile
@@ -18,16 +18,16 @@ from app.services.pymupdf.pdf_to_images import pdf_to_images
 from app.services.pymupdf.images_to_pdf import images_to_pdf
 from app.services.pymupdf.extract_text import extract_text_from_pdf
 from app.services.pymupdf.extract_images import extract_images_from_pdf
-from app.services.pymupdf.add_watermark import add_text_watermark, add_image_watermark
 from app.services.pymupdf.optimize_pdf import optimize_pdf
-from app.services.pymupdf.sign_pdf import sign_pdf
 from app.services.pymupdf.crop_pdf import crop_pdf
 from app.models.pymupdf_schemas import (
-    PdfToImagesRequest, ImagesToPdfRequest, ExtractTextRequest,
-    ExtractImagesRequest, AddWatermarkRequest, SignPdfRequest, CropPdfRequest, OptimizePdfRequest,ExtractTextResponse, OptimizePdfResponse
+    PdfToImagesRequest, ExtractTextRequest,
+    ExtractImagesRequest, 
+    CropPdfRequest, OptimizePdfRequest,
+    ExtractTextResponse
 )
 from app.utils.file_io import (
-    create_temp_pdf_path, safe_remove, safe_remove_multiple, create_zip_from_pdfs,
+    create_temp_pdf_path, safe_remove, safe_remove_multiple,
     create_zip_from_files
 )
 from app.core.config import settings
@@ -39,6 +39,10 @@ logger = get_logger(__name__)
 executor = ThreadPoolExecutor(max_workers=2)
 
 
+# ============================================================================
+# PDF TO IMAGES
+# ============================================================================
+
 async def pdf_to_images_handler(
     file: UploadFile,
     request: PdfToImagesRequest
@@ -46,10 +50,11 @@ async def pdf_to_images_handler(
     """Handle PDF to Images conversion."""
     input_path = None
     output_paths = []
-    zip_path = None
     output_dir = None
     
     try:
+        logger.info("Starting PDF to images conversion...")
+        
         # Validate upload
         input_path = await validate_upload(file)
         
@@ -71,17 +76,19 @@ async def pdf_to_images_handler(
         # Create ZIP
         zip_path = create_zip_from_files(output_paths, zip_prefix="pdf_images")
         
+        logger.info(f"Successfully converted PDF to {len(output_paths)} images")
+        
         return FileResponse(
             path=str(zip_path),
             media_type="application/zip",
-            filename=f"pdf_images.zip",
+            filename="pdf_images.zip",
             background=None
         )
         
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"PDF to images failed: {e}")
+        logger.error(f"PDF to images failed: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         if input_path:
@@ -94,12 +101,18 @@ async def pdf_to_images_handler(
                 pass
 
 
+# ============================================================================
+# IMAGES TO PDF
+# ============================================================================
+
 async def images_to_pdf_handler(files: List[UploadFile]) -> FileResponse:
     """Handle Images to PDF conversion."""
     temp_paths = []
     output_path = None
     
     try:
+        logger.info(f"Converting {len(files)} images to PDF...")
+        
         if len(files) < 1:
             raise HTTPException(status_code=400, detail="At least 1 image required")
         
@@ -136,6 +149,8 @@ async def images_to_pdf_handler(files: List[UploadFile]) -> FileResponse:
             output_path
         )
         
+        logger.info("Successfully converted images to PDF")
+        
         return FileResponse(
             path=str(output_path),
             media_type="application/pdf",
@@ -146,11 +161,15 @@ async def images_to_pdf_handler(files: List[UploadFile]) -> FileResponse:
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Images to PDF failed: {e}")
+        logger.error(f"Images to PDF failed: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         safe_remove_multiple(temp_paths)
 
+
+# ============================================================================
+# EXTRACT TEXT
+# ============================================================================
 
 async def extract_text_handler(
     file: UploadFile,
@@ -160,6 +179,8 @@ async def extract_text_handler(
     input_path = None
     
     try:
+        logger.info("Extracting text from PDF...")
+        
         # Validate upload
         input_path = await validate_upload(file)
         
@@ -173,6 +194,8 @@ async def extract_text_handler(
             request.preserve_layout
         )
         
+        logger.info(f"Extracted {len(text)} characters from {page_count} pages")
+        
         return ExtractTextResponse(
             text=text,
             page_count=page_count,
@@ -182,12 +205,16 @@ async def extract_text_handler(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Text extraction failed: {e}")
+        logger.error(f"Text extraction failed: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         if input_path:
             safe_remove(input_path)
 
+
+# ============================================================================
+# EXTRACT IMAGES
+# ============================================================================
 
 async def extract_images_handler(
     file: UploadFile,
@@ -196,10 +223,11 @@ async def extract_images_handler(
     """Handle image extraction from PDF."""
     input_path = None
     output_paths = []
-    zip_path = None
     output_dir = None
     
     try:
+        logger.info("Extracting images from PDF...")
+        
         # Validate upload
         input_path = await validate_upload(file)
         
@@ -227,6 +255,8 @@ async def extract_images_handler(
         # Create ZIP
         zip_path = create_zip_from_files(output_paths, zip_prefix="extracted_images")
         
+        logger.info(f"Extracted {len(output_paths)} images from PDF")
+        
         return FileResponse(
             path=str(zip_path),
             media_type="application/zip",
@@ -237,7 +267,7 @@ async def extract_images_handler(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Image extraction failed: {e}")
+        logger.error(f"Image extraction failed: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         if input_path:
@@ -249,90 +279,9 @@ async def extract_images_handler(
             except:
                 pass
 
-
-async def add_watermark_handler(
-    file: UploadFile,
-    request: AddWatermarkRequest,
-    watermark_image: UploadFile = None
-) -> FileResponse:
-    """Handle watermark addition to PDF - COORDINATE BASED."""
-    input_path = None
-    output_path = None
-    watermark_image_path = None
-    
-    try:
-        input_path = await validate_upload(file)
-        output_path = create_temp_pdf_path(prefix="watermarked")
-        
-        if watermark_image:
-            # Image watermark
-            content = await watermark_image.read()
-            temp_file = tempfile.NamedTemporaryFile(
-                mode='wb',
-                delete=False,
-                suffix=Path(watermark_image.filename).suffix,
-                dir=settings.UPLOAD_DIR
-            )
-            temp_file.write(content)
-            temp_file.close()
-            watermark_image_path = Path(temp_file.name)
-            
-            loop = asyncio.get_event_loop()
-            await loop.run_in_executor(
-                executor,
-                add_image_watermark,
-                input_path,
-                output_path,
-                watermark_image_path,
-                request.opacity,
-                request.x,        # NEW
-                request.y,        # NEW
-                request.width,    # NEW
-                request.height,   # NEW
-                request.rotation, # NEW
-            )
-        elif request.text:
-            # Text watermark
-            loop = asyncio.get_event_loop()
-            await loop.run_in_executor(
-                executor,
-                add_text_watermark,
-                input_path,
-                output_path,
-                request.text,
-                request.opacity,
-                request.font_size,
-                request.rotation,
-                request.color,
-                request.x,      # NEW
-                request.y,      # NEW
-                request.width,  # NEW
-                request.height, # NEW
-            )
-        else:
-            raise HTTPException(
-                status_code=400,
-                detail="Either text or watermark_image must be provided"
-            )
-        
-        return FileResponse(
-            path=str(output_path),
-            media_type="application/pdf",
-            filename="watermarked.pdf",
-            background=None
-        )
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Watermark addition failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        if input_path:
-            safe_remove(input_path)
-        if watermark_image_path:
-            safe_remove(watermark_image_path)
-
+# ============================================================================
+# OPTIMIZE PDF
+# ============================================================================
 
 async def optimize_pdf_handler(
     file: UploadFile,
@@ -343,6 +292,8 @@ async def optimize_pdf_handler(
     output_path = None
     
     try:
+        logger.info("Optimizing PDF...")
+        
         # Validate upload
         input_path = await validate_upload(file)
         
@@ -363,6 +314,12 @@ async def optimize_pdf_handler(
             request.compress_images
         )
         
+        reduction = ((original_size - optimized_size) / original_size) * 100
+        logger.info(
+            f"PDF optimized: {original_size/1024:.2f}KB → "
+            f"{optimized_size/1024:.2f}KB ({reduction:.1f}% reduction)"
+        )
+        
         return FileResponse(
             path=str(output_path),
             media_type="application/pdf",
@@ -373,71 +330,16 @@ async def optimize_pdf_handler(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"PDF optimization failed: {e}")
+        logger.error(f"PDF optimization failed: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         if input_path:
             safe_remove(input_path)
 
-async def sign_pdf_handler(
-    file: UploadFile,
-    request: SignPdfRequest,
-    signature_image: Optional[UploadFile] = None
-) -> FileResponse:
-    """Handle PDF signing."""
-    input_path = None
-    output_path = None
-    signature_image_path = None
-    
-    try:
-        input_path = await validate_upload(file)
-        output_path = create_temp_pdf_path(prefix="signed")
-        
-        if signature_image:
-            content = await signature_image.read()
-            temp_file = tempfile.NamedTemporaryFile(
-                mode='wb',
-                delete=False,
-                suffix=Path(signature_image.filename).suffix,
-                dir=settings.UPLOAD_DIR
-            )
-            temp_file.write(content)
-            temp_file.close()
-            signature_image_path = Path(temp_file.name)
-        
-        loop = asyncio.get_event_loop()
-        await loop.run_in_executor(
-            executor,
-            sign_pdf,
-            input_path,
-            output_path,
-            request.signature_text,
-            signature_image_path,
-            request.x,
-            request.y,
-            request.width,
-            request.height,
-            request.page
-        )
-        
-        return FileResponse(
-            path=str(output_path),
-            media_type="application/pdf",
-            filename="signed.pdf",
-            background=None
-        )
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"PDF signing failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-    finally:
-        if input_path:
-            safe_remove(input_path)
-        if signature_image_path:
-            safe_remove(signature_image_path)
 
+# ============================================================================
+# CROP PDF
+# ============================================================================
 
 async def crop_pdf_handler(
     file: UploadFile,
@@ -448,6 +350,8 @@ async def crop_pdf_handler(
     output_path = None
     
     try:
+        logger.info("Cropping PDF...")
+        
         input_path = await validate_upload(file)
         output_path = create_temp_pdf_path(prefix="cropped")
         
@@ -464,6 +368,8 @@ async def crop_pdf_handler(
             request.page_range
         )
         
+        logger.info("Successfully cropped PDF")
+        
         return FileResponse(
             path=str(output_path),
             media_type="application/pdf",
@@ -474,7 +380,7 @@ async def crop_pdf_handler(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"PDF cropping failed: {e}")
+        logger.error(f"PDF cropping failed: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         if input_path:
