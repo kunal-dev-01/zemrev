@@ -38,7 +38,7 @@ interface PdfFileItemProps {
 const SIZE_PRESETS: SizePreset[] = [
   {
     value: { min_width: 50, min_height: 50 },
-    label: "All Images",
+    label: "All Img",
     desc: "Extract everything (50x50+)",
   },
   {
@@ -53,7 +53,7 @@ const SIZE_PRESETS: SizePreset[] = [
   },
   {
     value: { min_width: 500, min_height: 500 },
-    label: "Large Only",
+    label: "Large+",
     desc: "High resolution only (500x500+)",
   },
 ];
