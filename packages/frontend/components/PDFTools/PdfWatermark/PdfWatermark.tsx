@@ -1,7 +1,7 @@
 import { PdfWatermarkFileItem } from "./PdfWatermarkFileItem";
 import { PdfDragDropZone } from "@/components/Shared/PdfDragDropZone";
 import { PdfSessionFilesDisplay } from "@/components/Shared/PdfSessionFilesDisplay";
-import { PDF_TOOL_CONFIGS } from "@/config/pdfToolConfigs";
+import { PDF_TOOL_CONFIGS } from "@/config/pdf.tool.config";
 import { useAddWatermark } from "@/hooks/pdfHooks/useAddWatermark.hook";
 import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 import GlassButton from "@/components/Layouts/GlassButton";
@@ -49,7 +49,6 @@ const PdfWatermark = () => {
               processing={0}
               failed={0}
             />
-            <ClearAllButton onClick={clearAll} />
           </div>
 
           <div className="space-y-4">
