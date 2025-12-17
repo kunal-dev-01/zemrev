@@ -114,8 +114,8 @@ export const ConverterFilePanel = ({
               onClick={() => setIsSettingsOpen(true)}
               className="px-3 py-1 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all duration-200 flex items-center gap-2 cursor-pointer"
             >
-              <span></span>
               <SettingsSvg />
+              <span>{file.settings.format?.toUpperCase()}</span>
             </button>
           )}
 
