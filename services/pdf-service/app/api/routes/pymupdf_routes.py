@@ -15,13 +15,14 @@ from app.api.controllers.pymupdf_controller import (
     extract_text_handler,
     extract_images_handler,
     optimize_pdf_handler,
-    crop_pdf_handler
+    crop_pdf_handler,
+    remove_pages_handler
 )
 from app.api.controllers.sign_pdf_controller import sign_pdf_handler
 from app.models.pymupdf_schemas import (
     PdfToImagesRequest, ExtractTextRequest,
     ExtractImagesRequest, OptimizePdfRequest,
-    ExtractTextResponse, ImageFormat, CropPdfRequest,
+    ExtractTextResponse, ImageFormat, CropPdfRequest,RemovePagesRequest
 )
 
 router = APIRouter(prefix="/api/v1/pymupdf", tags=["PyMuPDF Tools"])
@@ -209,3 +210,35 @@ async def crop_pdf_endpoint(
         page_range=page_range
     )
     return await crop_pdf_handler(file, request)
+
+# ============================================================================
+# REMOVE PAGES
+# ============================================================================
+
+@router.post("/remove-pages", response_class=FileResponse)
+async def remove_pages_endpoint(
+    file: UploadFile = File(..., description="PDF file"),
+    pages_to_remove: str = Form(
+        ..., 
+        description="Pages to remove (e.g., '1,3,5-7,10')"
+    )
+) -> FileResponse:
+    """
+    Remove specific pages from PDF.
+    
+    **Page Format Examples:**
+    - Single pages: `"1,3,5"`
+    - Ranges: `"2-5"`
+    - Combined: `"1,3-5,7,10-12"`
+    
+    **Notes:**
+    - Page numbers start from 1
+    - Cannot remove all pages
+    - Duplicate pages are automatically handled
+    
+    **Example:**
+    - Input: 10-page PDF, remove `"2,4-6,9"`
+    - Output: 5-page PDF (pages 1,3,7,8,10 remain)
+    """
+    request = RemovePagesRequest(pages_to_remove=pages_to_remove)
+    return await remove_pages_handler(file, request)    
