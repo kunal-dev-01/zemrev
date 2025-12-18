@@ -17,11 +17,10 @@ from app.api.controllers.pymupdf_controller import (
     optimize_pdf_handler,
     crop_pdf_handler
 )
-from app.api.controllers.watermark_controller import add_watermark_handler
 from app.api.controllers.sign_pdf_controller import sign_pdf_handler
 from app.models.pymupdf_schemas import (
     PdfToImagesRequest, ExtractTextRequest,
-    ExtractImagesRequest, AddWatermarkRequest, OptimizePdfRequest,
+    ExtractImagesRequest, OptimizePdfRequest,
     ExtractTextResponse, ImageFormat, CropPdfRequest,
 )
 
@@ -124,65 +123,6 @@ async def extract_images_endpoint(
         min_height=min_height
     )
     return await extract_images_handler(file, request)
-
-
-# ============================================================================
-# ADD WATERMARK
-# ============================================================================
-
-@router.post("/add-watermark", response_class=FileResponse)
-async def add_watermark_endpoint(
-    file: UploadFile = File(..., description="PDF file"),
-    text: Optional[str] = Form(None, description="Watermark text"),
-    font: Optional[str] = Form(None, description="Font name (e.g., 'Arial', 'Times New Roman')"),
-    watermark_image: Optional[UploadFile] = File(
-        None, 
-        description="Watermark image"
-    ),
-    opacity: float = Form(
-        default=0.3, 
-        ge=0.1, 
-        le=1.0, 
-        description="Opacity (0.1-1.0)"
-    ),
-    font_size: int = Form(
-        default=50, 
-        ge=10, 
-        le=200, 
-        description="Font size (10-200)"
-    ),
-    rotation: int = Form(
-        default=45, 
-        ge=0, 
-        le=360, 
-        description="Rotation (0-360)"
-    ),
-    color: str = Form(default="gray", description="Text color"),
-    x: int = Form(default=150, ge=0, le=1000, description="X position"),
-    y: int = Form(default=350, ge=0, le=1500, description="Y position"),
-    width: int = Form(default=300, ge=50, le=800, description="Width"),
-    height: int = Form(default=150, ge=20, le=600, description="Height"),
-) -> FileResponse:
-    
-    if not text and not watermark_image:
-        raise HTTPException(
-            status_code=400,
-            detail="Either 'text' or 'watermark_image' must be provided"
-        )
-    
-    request = AddWatermarkRequest(
-        text=text,
-        font=font,  # NEW
-        opacity=opacity,
-        font_size=font_size,
-        rotation=rotation,
-        color=color,
-        x=x,
-        y=y,
-        width=width,
-        height=height,
-    )
-    return await add_watermark_handler(file, request, watermark_image)
 
 
 # ============================================================================

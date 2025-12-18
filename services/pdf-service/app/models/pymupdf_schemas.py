@@ -79,39 +79,6 @@ class ExtractImagesRequest(BaseModel):
         return v.strip()
 
 
-class AddWatermarkRequest(BaseModel):
-    """Add watermark to PDF request - with font support"""
-    text: Optional[str] = Field(None, description="Watermark text")
-    font: Optional[str] = Field(None, description="Font name (e.g., 'Arial', 'Times New Roman')")
-    opacity: float = Field(default=0.3, ge=0.1, le=1.0, description="Opacity (0.1-1.0)")
-    font_size: int = Field(default=50, ge=10, le=200, description="Font size (10-200)")
-    rotation: int = Field(default=45, ge=0, le=360, description="Rotation (0-360)")
-    color: str = Field(default="gray", description="Text color")
-    
-    # Coordinate-based positioning
-    x: int = Field(default=150, ge=0, le=1000, description="X position")
-    y: int = Field(default=350, ge=0, le=1500, description="Y position")
-    width: int = Field(default=300, ge=50, le=800, description="Width")
-    height: int = Field(default=150, ge=20, le=600, description="Height")
-    
-    @field_validator('text')
-    @classmethod
-    def validate_text(cls, v: Optional[str]) -> Optional[str]:
-        if v is not None and len(v.strip()) == 0:
-            raise ValueError("Watermark text cannot be empty")
-        return v
-    
-    @field_validator('font')
-    @classmethod
-    def validate_font(cls, v: Optional[str]) -> Optional[str]:
-        allowed_fonts = [
-            'Arial', 'Arial Black', 'Times New Roman', 'Courier New',
-            'Impact', 'Comic Sans MS', 'Georgia', 'Verdana'
-        ]
-        if v is not None and v not in allowed_fonts:
-            logger.warning(f"Font '{v}' not in allowed list, will use Arial as fallback")
-        return v
-
 
 class OptimizePdfRequest(BaseModel):
     """Optimize PDF request"""
