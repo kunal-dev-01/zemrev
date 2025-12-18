@@ -18,9 +18,9 @@ interface PdfSignViewerProps {
   onDeleteSignature: (signatureId: string) => void;
   onSelectSignature: (signatureId: string) => void;
   selectedSignatureId: string | null;
-  // --- SYNC PROPS ---
-  activePage: number;          // Input se aane wala page number
-  onPageChange: (page: number) => void; // Input ko update karne ke liye function
+  // --- NEW PROPS FOR SYNC ---
+  activePage: number; // 1-based page number from parent
+  onPageChange: (page: number) => void; // Notify parent when page changes
 }
 
 export const PdfSignViewer = ({
@@ -31,14 +31,15 @@ export const PdfSignViewer = ({
   onDeleteSignature,
   onSelectSignature,
   selectedSignatureId,
-  activePage,
-  onPageChange,
+  activePage,      // Receive current page
+  onPageChange,    // Send update back
 }: PdfSignViewerProps) => {
   const [numPages, setNumPages] = useState<number | null>(null);
-  // Local state ko parent activePage se sync rakho
+  
+  // Local state ko parent ke prop se sync rakho
   const [currentPage, setCurrentPage] = useState(activePage);
 
-  // Jab Input change ho -> Preview update karo
+  // Jab Parent (Input) change ho, toh Viewer update karo
   useEffect(() => {
     setCurrentPage(activePage);
   }, [activePage]);
@@ -49,6 +50,7 @@ export const PdfSignViewer = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
 
+  // Handle Resize
   useEffect(() => {
     const updateWidth = () => {
       if (containerRef.current) {
@@ -60,8 +62,10 @@ export const PdfSignViewer = ({
     return () => window.removeEventListener("resize", updateWidth);
   }, []);
 
+  // Calculate Scale
   const scale = pageWidth > 0 && renderedWidth > 0 ? renderedWidth / pageWidth : 1;
 
+  // Get signatures for current page
   const currentPageSignatures = (settings.signatures || []).filter(
     (sig) => sig.page === currentPage - 1
   );
@@ -72,7 +76,7 @@ export const PdfSignViewer = ({
     }
   };
 
-  // --- BUTTON HANDLERS FOR SYNC ---
+  // --- NEW HANDLERS FOR NAVIGATION ---
   const handlePrevPage = () => {
     const newPage = Math.max(1, currentPage - 1);
     setCurrentPage(newPage);
@@ -137,7 +141,7 @@ export const PdfSignViewer = ({
               width={containerWidth > 600 ? 500 : containerWidth - 32}
               onLoadSuccess={(page) => {
                 setPageWidth(page.originalWidth);
-                // Thoda delay taaki canvas render ho jaye aur sahi height mile
+                // Force re-measure canvas for accuracy
                 setTimeout(() => {
                     const canvas = document.querySelector(
                     `.react-pdf__Page[data-page-number="${currentPage}"] canvas`
