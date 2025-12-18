@@ -99,14 +99,14 @@ const ImageColorPalette = () => {
 
       {/* Palette Interface */}
       {file && imageUrl && (
-        <div className="border border-zinc-200 dark:border-zinc-800 rounded-2xl bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 md:mt-[1vw] mt-[1vh]">
+        <div className="border border-zinc-200 dark:border-zinc-800 rounded-2xl bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 md:mt-[1vw] mt-[1vh] animate-in fade-in slide-in-from-bottom-4">
           {/* Header */}
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-6 pb-4 border-b border-zinc-200 dark:border-zinc-800">
             <div className="flex-1 min-w-0">
-              <h3 className="md:text-lg text-md font-semibold text-zinc-800 dark:text-zinc-200 truncate">
+              <h3 className="text-sm leading-none font-semibold truncate text-zinc-800 dark:text-zinc-200">
                 {file.name}
               </h3>
-              <p className="md:text-sm text-xs text-zinc-600 dark:text-zinc-400">
+              <p className="text-xs text-zinc-500 mt-1">
                 Extract dominant colors from image
               </p>
             </div>
@@ -114,66 +114,88 @@ const ImageColorPalette = () => {
             <button
               onClick={reset}
               disabled={extracting}
-              className="px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all duration-200 flex items-center gap-2 cursor-pointer"
+              className="ml-3 px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all duration-200 flex items-center gap-2 cursor-pointer disabled:opacity-50"
             >
               <div className="w-5 h-5">
                 <RotateSvg />
               </div>
-              <span className="md:block hidden">Change Image</span>
+              <span className="md:block hidden text-sm">Change</span>
             </button>
           </div>
 
-          {/* Image Preview */}
-          <div className="relative w-full h-[40vh] dark:bg-zinc-900 bg-zinc-100 rounded-xl overflow-hidden mb-4">
-            <Image
-              src={imageUrl}
-              alt="Preview"
-              fill
-              className="object-contain"
-              unoptimized
-            />
-          </div>
+          <div className="flex flex-col-reverse lg:grid lg:grid-cols-2 gap-6">
+            {/* LEFT COLUMN: Controls */}
+            <div className="space-y-5">
+              {/* Number of Colors Selector */}
+              {!paletteData && (
+                <>
+                  <div>
+                    <label className="text-sm uppercase font-bold text-zinc-500 mb-2 block">
+                      Extract Settings
+                    </label>
+                    <RangeSlider
+                      label="Number of Colors"
+                      value={numColors}
+                      min={3}
+                      max={10}
+                      step={1}
+                      unit=""
+                      color={config.primaryColor}
+                      onChange={setNumColors}
+                      presets={colorPresets}
+                      disabled={extracting}
+                    />
+                  </div>
 
-          {/* Number of Colors Selector */}
-          {!paletteData && (
-            <div className="mb-6">
-              <RangeSlider
-                label="Number of Colors"
-                value={numColors}
-                min={3}
-                max={10}
-                step={1}
-                unit="co"
-                color={config.primaryColor}
-                onChange={setNumColors}
-                presets={colorPresets}
-                disabled={extracting}
-              />
+                  <div className="h-px bg-zinc-100 dark:bg-zinc-800" />
+                </>
+              )}
+
+              {/* Error Display */}
+              {error && <FileError error={error} />}
+
+              {/* Extract Button */}
+              {!paletteData && (
+                <GlassButton
+                  loading={extracting}
+                  primaryColor={config.primaryColor}
+                  onClick={handleExtract}
+                >
+                  {extracting ? "Extracting Colors..." : "Extract Color Palette"}
+                </GlassButton>
+              )}
+
+              {/* Palette Results in Left Column when extracted */}
+              {paletteData && (
+                <PaletteResults
+                  paletteData={paletteData}
+                  config={config}
+                  onCopyColor={handleCopyColor}
+                  copiedColor={copiedColor}
+                  onReset={reset}
+                />
+              )}
             </div>
-          )}
 
-          {/* Error Display */}
-          {error && <FileError error={error} />}
-
-          {/* Extract Button */}
-          <GlassButton
-            loading={extracting}
-            primaryColor={config.primaryColor}
-            onClick={handleExtract}
-          >
-            {extracting ? "Extracting..." : "Extract Color Palette"}
-          </GlassButton>
-
-          {/* Palette Results */}
-          {paletteData && (
-            <PaletteResults
-              paletteData={paletteData}
-              config={config}
-              onCopyColor={handleCopyColor}
-              copiedColor={copiedColor}
-              onReset={reset}
-            />
-          )}
+            {/* RIGHT COLUMN: Image Preview */}
+            <div className="bg-zinc-50 dark:bg-zinc-900/30 rounded-xl p-1 border border-zinc-100 dark:border-zinc-800/50">
+              <div className="mb-3 px-1">
+                <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
+                  Preview
+                </span>
+              </div>
+              
+              <div className="relative w-full aspect-video bg-zinc-950 rounded-lg overflow-hidden">
+                <Image
+                  src={imageUrl}
+                  alt="Preview"
+                  fill
+                  className="object-contain"
+                  unoptimized
+                />
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
