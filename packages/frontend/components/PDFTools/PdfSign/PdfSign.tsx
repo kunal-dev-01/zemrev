@@ -23,7 +23,6 @@ const PdfSign = () => {
     addFromGoogleDrive,
     addFromDropbox,
     removeFile,
-    updateFileSettings,
     addSignature,
     updateSignature,
     deleteSignature,
@@ -69,7 +68,6 @@ const PdfSign = () => {
                 key={file.id}
                 file={file}
                 config={config}
-                updateSettings={updateFileSettings}
                 addSignature={addSignature}
                 updateSignature={updateSignature}
                 deleteSignature={deleteSignature}
