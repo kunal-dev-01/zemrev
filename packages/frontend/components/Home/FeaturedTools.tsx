@@ -8,6 +8,7 @@ import {
   Watermark,
   MetadataSvg,
   ColorPaletteSvg,
+  ScissorSvg
 } from "@/components/Svg/HomeSvg";
 import {
   ExtractImagesFromPdfSvg,
@@ -233,6 +234,14 @@ const pdfTools: ToolItem[] = [
     color: "text-teal-700",
     bg: "bg-teal-50 dark:bg-teal-700/10",
   },
+  {
+    title: "Remove Page from PDF",
+    desc: "Remove any page from a PDF with ease.",
+    icon: ScissorSvg,
+    link: "/pdf/remove-page",
+    color: "text-slate-600",
+    bg: "bg-slate-50 dark:bg-slate-600/10",
+  }
 ];
 
 const FeaturedTools = () => {
