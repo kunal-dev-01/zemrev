@@ -70,13 +70,13 @@ export const RangeSlider = ({
     >
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-center gap-3">
           {icon && (
-            <div className="flex items-center justify-center w-8 h-8 rounded-lg text-lg bg-zinc-800/50 border border-zinc-700/50 shadow-sm">
+            <div className="flex items-center justify-center w-5 h-5 rounded-lg text-lg bg-zinc-800/50 border border-zinc-700/50">
               {icon}
             </div>
           )}
-          <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          <label className="text-xs uppercase font-bold text-zinc-500">
             {label}
           </label>
         </div>
