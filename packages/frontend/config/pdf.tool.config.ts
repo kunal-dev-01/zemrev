@@ -211,9 +211,7 @@ export const PDF_TOOL_CONFIGS: Record<string, PdfToolConfig> = {
     },
   },
 
-  // ========================================================================
-  // NEW: CROP PDF
-  // ========================================================================
+
   "pdf-crop": {
     type: "crop-pdf",
     title: "Crop PDF Pages",
@@ -233,9 +231,7 @@ export const PDF_TOOL_CONFIGS: Record<string, PdfToolConfig> = {
     },
   },
 
-  // ========================================================================
-  // NEW: CONVERT TO PDF/A
-  // ========================================================================
+
   "pdf-to-pdfa": {
     type: "convert-pdfa",
     title: "Convert to PDF/A",
