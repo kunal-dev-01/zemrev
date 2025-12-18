@@ -1,17 +1,14 @@
-// ============================================================================
-// FILE: src/components/PdfTools/Watermark/DraggableWatermark.tsx
-// ============================================================================
-
 import { useState, useRef, useEffect } from "react";
 import type { PdfFileSettings } from "@/services/pdfService/types";
+import { CancelSvg } from "@/components/Svg/CommonSvg";
 
 interface DraggableWatermarkProps {
   settings: PdfFileSettings;
   scale: number;
+  primaryColor: string;
   imagePreview: string | null;
   onUpdate: (updates: Partial<PdfFileSettings>) => void;
-  onSelect: () => void;
-  isSelected: boolean;
+  onDelete: () => void;
   containerWidth: number;
   containerHeight: number;
 }
@@ -19,17 +16,19 @@ interface DraggableWatermarkProps {
 export const DraggableWatermark = ({
   settings,
   scale,
+  primaryColor,
   imagePreview,
   onUpdate,
-  onSelect,
-  isSelected,
+  onDelete,
   containerWidth,
   containerHeight,
 }: DraggableWatermarkProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
+  const [isSelected, setIsSelected] = useState(true);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [resizeStart, setResizeStart] = useState({ x: 0, y: 0, width: 0, height: 0 });
+  const [resizeCorner, setResizeCorner] = useState<string>('');
   
   const elementRef = useRef<HTMLDivElement>(null);
 
@@ -47,7 +46,7 @@ export const DraggableWatermark = ({
     
     e.preventDefault();
     e.stopPropagation();
-    onSelect();
+    setIsSelected(true);
     setIsDragging(true);
     setDragStart({
       x: e.clientX - x,
@@ -59,7 +58,7 @@ export const DraggableWatermark = ({
     if ((e.target as HTMLElement).classList.contains('resize-handle')) return;
     
     e.stopPropagation();
-    onSelect();
+    setIsSelected(true);
     setIsDragging(true);
     const touch = e.touches[0];
     setDragStart({
@@ -69,12 +68,13 @@ export const DraggableWatermark = ({
   };
 
   // ============================================================================
-  // RESIZE HANDLERS
+  // RESIZE HANDLERS (Sign PDF Style - Corner Aware)
   // ============================================================================
-  const handleResizeMouseDown = (e: React.MouseEvent) => {
+  const handleResizeMouseDown = (e: React.MouseEvent, corner: string) => {
     e.preventDefault();
     e.stopPropagation();
     setIsResizing(true);
+    setResizeCorner(corner);
     setResizeStart({
       x: e.clientX,
       y: e.clientY,
@@ -83,9 +83,10 @@ export const DraggableWatermark = ({
     });
   };
 
-  const handleResizeTouchStart = (e: React.TouchEvent) => {
+  const handleResizeTouchStart = (e: React.TouchEvent, corner: string) => {
     e.stopPropagation();
     setIsResizing(true);
+    setResizeCorner(corner);
     const touch = e.touches[0];
     setResizeStart({
       x: touch.clientX,
@@ -106,8 +107,8 @@ export const DraggableWatermark = ({
         
         // Convert pixels back to PDF points
         onUpdate({
-          x: newX / scale,
-          y: newY / scale,
+          x: Math.round(newX / scale),
+          y: Math.round(newY / scale),
         });
       }
 
@@ -115,12 +116,36 @@ export const DraggableWatermark = ({
         const deltaX = clientX - resizeStart.x;
         const deltaY = clientY - resizeStart.y;
         
-        const newWidth = Math.max(50, Math.min(resizeStart.width + deltaX / scale, 800));
-        const newHeight = Math.max(20, Math.min(resizeStart.height + deltaY / scale, 600));
+        // Calculate new dimensions based on corner
+        let newWidth = resizeStart.width;
+        let newHeight = resizeStart.height;
+        
+        switch (resizeCorner) {
+          case 'se': // Bottom-Right
+            newWidth = resizeStart.width + deltaX / scale;
+            newHeight = resizeStart.height + deltaY / scale;
+            break;
+          case 'sw': // Bottom-Left
+            newWidth = resizeStart.width - deltaX / scale;
+            newHeight = resizeStart.height + deltaY / scale;
+            break;
+          case 'ne': // Top-Right
+            newWidth = resizeStart.width + deltaX / scale;
+            newHeight = resizeStart.height - deltaY / scale;
+            break;
+          case 'nw': // Top-Left
+            newWidth = resizeStart.width - deltaX / scale;
+            newHeight = resizeStart.height - deltaY / scale;
+            break;
+        }
+        
+        // Apply limits
+        newWidth = Math.max(50, Math.min(newWidth, 800));
+        newHeight = Math.max(20, Math.min(newHeight, 600));
         
         onUpdate({
-          width: newWidth,
-          height: newHeight,
+          width: Math.round(newWidth),
+          height: Math.round(newHeight),
         });
       }
     };
@@ -138,12 +163,13 @@ export const DraggableWatermark = ({
     const handleEnd = () => {
       setIsDragging(false);
       setIsResizing(false);
+      setResizeCorner('');
     };
 
     if (isDragging || isResizing) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleEnd);
-      document.addEventListener('touchmove', handleTouchMove);
+      document.addEventListener('touchmove', handleTouchMove, { passive: false });
       document.addEventListener('touchend', handleEnd);
 
       return () => {
@@ -153,7 +179,19 @@ export const DraggableWatermark = ({
         document.removeEventListener('touchend', handleEnd);
       };
     }
-  }, [isDragging, isResizing, dragStart, resizeStart, onUpdate, scale, containerWidth, containerHeight, width, height]);
+  }, [
+    isDragging,
+    isResizing,
+    dragStart,
+    resizeStart,
+    resizeCorner,
+    onUpdate,
+    scale,
+    containerWidth,
+    containerHeight,
+    width,
+    height,
+  ]);
 
   // ============================================================================
   // RENDER
@@ -163,83 +201,127 @@ export const DraggableWatermark = ({
       ref={elementRef}
       onMouseDown={handleMouseDown}
       onTouchStart={handleTouchStart}
-      className={`absolute select-none transition-shadow ${
-        isSelected ? 'ring-2 ring-purple-500 shadow-lg' : 'hover:ring-2 hover:ring-purple-300'
+      className={`absolute cursor-move select-none transition-shadow ${
+        isSelected ? 'ring-2 shadow-lg z-30' : 'hover:ring-2 z-20'
       } ${isDragging || isResizing ? 'cursor-grabbing' : 'cursor-grab'}`}
       style={{
         left: `${x}px`,
         top: `${y}px`,
         width: `${width}px`,
         height: `${height}px`,
-        zIndex: isSelected ? 30 : 20,
         pointerEvents: 'all',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        transform: `rotate(${settings.rotation || 0}deg)`,
-        transformOrigin: 'center center',
-        opacity: settings.opacity || 0.3,
-        border: isSelected ? '2px solid rgba(192, 38, 211, 0.5)' : '2px dashed rgba(192, 38, 211, 0.3)',
-        backgroundColor: 'rgba(192, 38, 211, 0.05)',
-        borderRadius: '4px',
+        touchAction: 'none',
+        borderRadius: '8px',
+        border: isSelected 
+          ? `2px solid ${primaryColor}` 
+          : `2px dashed ${primaryColor}40`,
       }}
     >
-      {/* WATERMARK CONTENT */}
-      <div className="w-full h-full flex items-center justify-center p-2">
-        {settings.watermarkFile && imagePreview ? (
-          <img
-            src={imagePreview}
-            alt="watermark"
-            className="w-full h-full object-contain pointer-events-none"
-          />
-        ) : (
-          <div
-            className="w-full h-full flex items-center justify-center text-center wrap-break-words overflow-hidden"
-            style={{
-              fontFamily: settings.font || 'Arial',
-              fontSize: `${Math.min((settings.font_size || 50) * scale, height / 2)}px`,
-              color: settings.color || 'gray',
-              fontWeight: 'bold',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {settings.text || 'WATERMARK'}
-          </div>
-        )}
+      {/* DELETE BUTTON (Sign PDF Style) */}
+      {isSelected && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete();
+          }}
+          className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 rounded-lg text-white flex items-center justify-center z-40 transition-colors bg-red-500 hover:bg-red-600 shadow-sm"
+          style={{ cursor: 'pointer' }}
+        >
+          <CancelSvg className="w-4 h-4" />
+        </button>
+      )}
+
+      {/* WATERMARK CONTENT (Rotation Applied Here) */}
+      <div 
+        className="w-full h-full rounded-lg flex items-center justify-center overflow-hidden"
+        style={{ 
+          opacity: settings.opacity || 0.3,
+          backgroundColor: 'rgba(192, 38, 211, 0.05)',
+        }}
+      >
+        <div
+          className="w-full h-full flex items-center justify-center"
+          style={{
+            transform: `rotate(${settings.rotation || 0}deg)`,
+            transformOrigin: 'center center',
+          }}
+        >
+          {settings.watermarkFile && imagePreview ? (
+            <img
+              src={imagePreview}
+              alt="watermark"
+              className="w-full h-full object-contain pointer-events-none"
+            />
+          ) : (
+            <div
+              className="w-full h-full flex items-center justify-center text-center pointer-events-none select-none"
+              style={{
+                fontFamily: settings.font || 'Arial',
+                fontSize: `${Math.min((settings.font_size || 50) * scale, height / 2)}px`,
+                color: getColorHex(settings.color || 'gray'),
+                fontWeight: 'bold',
+                whiteSpace: 'nowrap',
+                textShadow: '0 2px 4px rgba(0,0,0,0.2)',
+              }}
+            >
+              {settings.text || 'WATERMARK'}
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* RESIZE HANDLES */}
+      {/* RESIZE HANDLES (Sign PDF Style - All 4 Corners) */}
       {isSelected && (
         <>
           {/* Bottom-Right Handle */}
           <div
-            className="resize-handle absolute -bottom-1 -right-1 w-4 h-4 bg-purple-500 rounded-full cursor-se-resize z-40 hover:scale-125 transition-transform"
-            onMouseDown={handleResizeMouseDown}
-            onTouchStart={handleResizeTouchStart}
+            className="resize-handle absolute -bottom-1 -right-1 w-4 h-4 border border-white rounded-full cursor-se-resize z-40 hover:scale-125 transition-transform"
+            onMouseDown={(e) => handleResizeMouseDown(e, 'se')}
+            onTouchStart={(e) => handleResizeTouchStart(e, 'se')}
+            style={{ backgroundColor: primaryColor }}
           />
           
           {/* Bottom-Left Handle */}
           <div
-            className="resize-handle absolute -bottom-1 -left-1 w-4 h-4 bg-purple-500 rounded-full cursor-sw-resize z-40 hover:scale-125 transition-transform"
-            onMouseDown={handleResizeMouseDown}
-            onTouchStart={handleResizeTouchStart}
+            className="resize-handle absolute -bottom-1 -left-1 w-4 h-4 border border-white rounded-full cursor-sw-resize z-40 hover:scale-125 transition-transform"
+            onMouseDown={(e) => handleResizeMouseDown(e, 'sw')}
+            onTouchStart={(e) => handleResizeTouchStart(e, 'sw')}
+            style={{ backgroundColor: primaryColor }}
           />
           
           {/* Top-Right Handle */}
           <div
-            className="resize-handle absolute -top-1 -right-1 w-4 h-4 bg-purple-500 rounded-full cursor-ne-resize z-40 hover:scale-125 transition-transform"
-            onMouseDown={handleResizeMouseDown}
-            onTouchStart={handleResizeTouchStart}
+            className="resize-handle absolute -top-1 -right-1 w-4 h-4 border border-white rounded-full cursor-ne-resize z-40 hover:scale-125 transition-transform"
+            onMouseDown={(e) => handleResizeMouseDown(e, 'ne')}
+            onTouchStart={(e) => handleResizeTouchStart(e, 'ne')}
+            style={{ backgroundColor: primaryColor }}
           />
           
           {/* Top-Left Handle */}
           <div
-            className="resize-handle absolute -top-1 -left-1 w-4 h-4 bg-purple-500 rounded-full cursor-nw-resize z-40 hover:scale-125 transition-transform"
-            onMouseDown={handleResizeMouseDown}
-            onTouchStart={handleResizeTouchStart}
+            className="resize-handle absolute -top-1 -left-1 w-4 h-4 border border-white rounded-full cursor-nw-resize z-40 hover:scale-125 transition-transform"
+            onMouseDown={(e) => handleResizeMouseDown(e, 'nw')}
+            onTouchStart={(e) => handleResizeTouchStart(e, 'nw')}
+            style={{ backgroundColor: primaryColor }}
           />
         </>
       )}
     </div>
   );
 };
+
+// Helper: Get color hex from backend color names
+function getColorHex(color: string): string {
+  const colorMap: Record<string, string> = {
+    gray: '#808080',
+    black: '#000000',
+    white: '#FFFFFF',
+    red: '#EF4444',
+    blue: '#3B82F6',
+    green: '#10B981',
+    yellow: '#EAB308',
+    orange: '#F97316',
+    purple: '#A855F7',
+  };
+  return colorMap[color] || color;
+}
