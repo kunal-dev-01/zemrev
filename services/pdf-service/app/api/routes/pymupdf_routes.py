@@ -231,16 +231,13 @@ async def optimize_pdf_endpoint(
 @router.post("/sign", response_class=FileResponse)
 async def sign_pdf_endpoint(
     file: UploadFile = File(..., description="PDF file to sign"),
-    signatures_json: str = Form(
-        ..., 
-        description="JSON array of signature objects"
-    ),
-    signature_image_files: Optional[List[UploadFile]] = File(
-        None,
-        description="Image files for image signatures (in order)"
-    )
+    signatures_json: str = Form(..., description="JSON array of signature objects"),
+    # --- FIX HERE: Use List[UploadFile] with default=[] ---
+    signature_image_files: List[UploadFile] = File(default=[], description="Image files")
 ) -> FileResponse:
-
+    """
+    Add multiple signatures to a PDF document.
+    """
     return await sign_pdf_handler(file, signatures_json, signature_image_files)
 
 
