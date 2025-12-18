@@ -130,9 +130,6 @@ const ImageColorPalette = () => {
               {!paletteData && (
                 <>
                   <div>
-                    <label className="text-sm uppercase font-bold text-zinc-500 mb-2 block">
-                      Extract Settings
-                    </label>
                     <RangeSlider
                       label="Number of Colors"
                       value={numColors}
