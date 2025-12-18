@@ -35,14 +35,14 @@ export type FormDataParams = Record<
 // ============================================================================
 
 export const WATERMARK_FONTS = [
-  { value: "Arial", label: "Arial" },
-  { value: "Arial Black", label: "Arial Black (Bold)" },
-  { value: "Times New Roman", label: "Times New Roman" },
-  { value: "Courier New", label: "Courier New" },
-  { value: "Impact", label: "Impact" },
-  { value: "Comic Sans MS", label: "Comic Sans MS" },
-  { value: "Georgia", label: "Georgia" },
-  { value: "Verdana", label: "Verdana" },
+  { label: "Arial", value: "Arial" }, // NEW - Classic & Professional
+  { label: "Bebas Neue", value: "Bebas Neue" },
+  { label: "Oswald", value: "Oswald" },
+  { label: "Righteous", value: "Righteous" },
+  { label: "Anton", value: "Anton" },
+  { label: "Permanent Marker", value: "Permanent Marker" },
+  { label: "Roboto Condensed", value: "Roboto Condensed" }, // NEW - Bold & Modern
+  { label: "Russo One", value: "Russo One" },
 ] as const;
 
 export const SIGNATURE_FONTS = [
