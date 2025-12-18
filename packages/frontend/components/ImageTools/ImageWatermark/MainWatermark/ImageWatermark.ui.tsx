@@ -189,7 +189,7 @@ export const ImageWatermarkUI = (p: Props) => (
               <input
                 ref={p.watermarkInputRef}
                 type="file"
-                accept="image/jpeg,image/png,image/webp,image/jpg"
+                accept="image/png,image/webp"
                 onChange={p.handleWatermarkSelect}
                 className="hidden"
               />
