@@ -8,7 +8,6 @@ import type {
   ExtractTextRequest,
   ExtractTextResponse,
   ExtractImagesRequest,
-  AddWatermarkRequest,
   OptimizePdfRequest,
   CompressPdfRequest,
   OcrPdfRequest,
@@ -160,35 +159,6 @@ export const pdfApi = baseApi.injectEndpoints({
       }),
     }),
 
-    addTextWatermarkPdf: builder.mutation<
-      Blob,
-      { file: File; options: AddWatermarkRequest }
-    >({
-      query: ({ file, options }) => ({
-        url: "/pymupdf/add-watermark",
-        method: "POST",
-        body: buildFormData(file, options),
-        ...blobResponse,
-      }),
-    }),
-
-    addImageWatermarkPdf: builder.mutation<
-      Blob,
-      { file: File; watermark: File; options: AddWatermarkRequest }
-    >({
-      query: ({ file, watermark, options }) => {
-        const formData = buildFormData(file, options);
-        formData.append("watermark_image", watermark);
-
-        return {
-          url: "/pymupdf/add-watermark",
-          method: "POST",
-          body: formData,
-          ...blobResponse,
-        };
-      },
-    }),
-
     optimizePdf: builder.mutation<
       Blob,
       { file: File; options: OptimizePdfRequest }
@@ -295,8 +265,6 @@ export const {
   useImagesToPdfMutation,
   useExtractTextMutation,
   useExtractImagesMutation,
-  useAddTextWatermarkPdfMutation,
-  useAddImageWatermarkPdfMutation,
   useOptimizePdfMutation,
   useSignPdfMutation,
   useCropPdfMutation,

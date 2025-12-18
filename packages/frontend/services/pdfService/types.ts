@@ -51,6 +51,8 @@ export const SIGNATURE_FONTS = [
   { value: "Sacramento", label: "Sacramento" },
   { value: "Allura", label: "Allura" },
   { value: "Homemade Apple", label: "Homemade Apple" },
+  { value: "Caveat", label: "Caveat (Natural Marker)" },    
+  { value: "Reenie Beanie", label: "Reenie Beanie (Scribble)" }
 ] as const;
 
 // ============================================================================
@@ -71,6 +73,7 @@ export interface SignatureItem {
   page: number;
   color?: string; 
   opacity?: number;
+  rotation?: number;
 }
 
 // ============================================================================
@@ -100,19 +103,6 @@ export interface PdfFileSettings {
   // Extract Images
   min_width?: number;
   min_height?: number;
-
-  // Watermark
-  text?: string;
-  font?: string;
-  opacity?: number;
-  font_size?: number;
-  rotation?: number;
-  color?: string;
-  watermarkFile?: File;
-  x?: number;
-  y?: number;
-  width?: number;
-  height?: number;
 
   // Optimize
   remove_metadata?: boolean;
@@ -235,20 +225,6 @@ export interface ExtractImagesRequest extends FormDataParams {
   page_range?: string;
   min_width: number;
   min_height: number;
-}
-
-// Watermark
-export interface AddWatermarkRequest extends FormDataParams {
-  text?: string;
-  font?: string;
-  opacity: number;
-  font_size?: number;
-  rotation?: number;
-  color?: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
 }
 
 // Optimize
