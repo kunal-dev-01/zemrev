@@ -169,6 +169,8 @@ def sign_pdf(
                         'Sacramento': 'app/fonts/Sacramento-Regular.ttf',
                         'Allura': 'app/fonts/Allura-Regular.ttf',
                         'Homemade Apple': 'app/fonts/HomemadeApple-Regular.ttf',
+                        'Caveat': 'app/fonts/Caveat-VariableFont_wght.ttf', 
+                        'Reenie Beanie': 'app/fonts/ReenieBeanie-Regular.ttf',
                         'Arial': '/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf',
                         'Times New Roman': '/usr/share/fonts/truetype/liberation/LiberationSerif-Regular.ttf',
                     }
