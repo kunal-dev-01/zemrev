@@ -131,23 +131,22 @@ class SignatureItem(BaseModel):
     type: str = Field(..., description="'text' or 'image'")
     text: Optional[str] = Field(None, description="Text for text signatures")
     font: Optional[str] = Field(None, description="Font name for text signatures")
-    color: str = Field("#000000", description="Hex color code (e.g., #FF0000)")
-    opacity: float = Field(1.0, ge=0.0, le=1.0, description="Opacity (0.0 to 1.0)")
+    
+    # --- UPDATE HERE: MADE OPTIONAL WITH DEFAULTS ---
+    # Agar frontend se null aaye ya field na aaye, toh default use hoga
+    color: Optional[str] = Field(default="#000000", description="Hex color code")
+    opacity: Optional[float] = Field(default=1.0, ge=0.0, le=1.0, description="Opacity")
+    # ------------------------------------------------
+    
     x: int = Field(..., ge=0, description="X position")
     y: int = Field(..., ge=0, description="Y position")
-    width: int = Field(..., ge=10, le=500, description="Signature width (10-500)")
-    height: int = Field(..., ge=10, le=300, description="Signature height (10-300)")
-    page: int = Field(..., ge=0, lt=100, description="Page number (0-99)")
-
+    width: int = Field(..., ge=10, le=500, description="Signature width")
+    height: int = Field(..., ge=10, le=300, description="Signature height")
+    page: int = Field(..., ge=0, lt=100, description="Page number")
 
 class SignPdfRequest(BaseModel):
-    """Sign PDF request - supports multiple signatures"""
-    signatures: List[SignatureItem] = Field(
-        ..., 
-        min_items=1, 
-        max_items=100,
-        description="List of signatures to add (1-100)"
-    )
+    """Sign PDF request"""
+    signatures: List[SignatureItem] = Field(..., min_items=1, max_items=100)
 
 # ============================================================================
 # CROP PDF
