@@ -139,6 +139,30 @@ class CropPdfRequest(BaseModel):
         return v.strip()  
 
 
+class RemovePagesRequest(BaseModel):
+    """Remove pages from PDF request"""
+    pages_to_remove: str = Field(
+        ..., 
+        description="Pages to remove like '1,3,5-7' or '2-4,10'"
+    )
+    
+    @field_validator('pages_to_remove')
+    @classmethod
+    def validate_pages_format(cls, v: str) -> str:
+        """Validate page range format"""
+        if not v or not v.strip():
+            raise ValueError("pages_to_remove cannot be empty")
+        
+        # Check for valid characters only: digits, comma, hyphen, spaces
+        import re
+        if not re.match(r'^[\d,\s-]+$', v.strip()):
+            raise ValueError(
+                "Invalid format. Use format like '1,3,5-7' with only numbers, commas, and hyphens"
+            )
+        
+        return v.strip()    
+
+
 # ============================================================================
 # RESPONSE SCHEMAS
 # ============================================================================
@@ -162,5 +186,15 @@ class OptimizePdfResponse(BaseModel):
     original_size_kb: float
     optimized_size_kb: float
     reduction_percent: float
+
+
+class RemovePagesResponse(BaseModel):
+    """Remove pages response"""
+    message: str
+    original_pages: int
+    removed_pages: int
+    remaining_pages: int
+    original_size_kb: float
+    new_size_kb: float    
 
   
