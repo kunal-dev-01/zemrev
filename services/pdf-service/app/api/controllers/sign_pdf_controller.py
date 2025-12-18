@@ -1,7 +1,7 @@
 """
 ============================================================================
 FILE: services/pdf-service/app/api/controllers/sign_pdf_controller.py
-PURPOSE: Controller logic for PDF signing with multiple signatures (Text & Image)
+PURPOSE: Controller logic for PDF signing with multiple signatures
 ============================================================================
 """
 
@@ -30,7 +30,7 @@ executor = ThreadPoolExecutor(max_workers=2)
 async def sign_pdf_handler(
     file: UploadFile,
     signatures_json: str,
-    signature_image_files: Optional[List[UploadFile]] = None
+    signature_image_files: List[UploadFile] # Updated to match Route
 ) -> FileResponse:
     """
     Handle PDF signing with multiple signatures.
@@ -66,14 +66,14 @@ async def sign_pdf_handler(
             raise HTTPException(status_code=400, detail="At least one signature is required")
 
         # ====================================================================
-        # STEP 3: Validate Signature Items (Pydantic)
+        # STEP 3: Validate Signature Items
         # ====================================================================
         logger.info(f"Validating {len(signatures_data)} signatures...")
         validated_signatures = []
         
         for idx, sig_data in enumerate(signatures_data):
             try:
-                # Pydantic will handle types and defaults (color, opacity)
+                # Pydantic handles types, defaults, and rotation validation
                 sig = SignatureItem(**sig_data)
                 validated_signatures.append(sig)
             except Exception as e:
@@ -87,35 +87,30 @@ async def sign_pdf_handler(
         # ====================================================================
         signature_images = {}
         
-        # Filter only signatures that are of type 'image'
+        # Filter signatures that require an image
         image_signatures = [sig for sig in validated_signatures if sig.type == 'image']
         
         if image_signatures:
-            logger.info(f"Processing images for {len(image_signatures)} signatures...")
-            
-            # Check if files provided match the requirement
-            # Note: signature_image_files might be None if no file was uploaded
             uploaded_files = signature_image_files or []
             
+            logger.info(f"Processing images. Expected: {len(image_signatures)}, Received: {len(uploaded_files)}")
+            
             if len(uploaded_files) != len(image_signatures):
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"Expected {len(image_signatures)} image files, got {len(uploaded_files)}"
-                )
+                error_msg = f"Expected {len(image_signatures)} image files, but received {len(uploaded_files)}. Please try again."
+                logger.error(error_msg)
+                raise HTTPException(status_code=400, detail=error_msg)
             
             # Save uploaded images to temp and map them
             for idx, img_file in enumerate(uploaded_files):
                 if not img_file or not img_file.filename:
                     continue
                 
-                # Basic content type check
                 if not img_file.content_type or not img_file.content_type.startswith('image/'):
                     raise HTTPException(
                         status_code=400,
-                        detail=f"File {img_file.filename} is not a valid image"
+                        detail=f"File {img_file.filename} is not a valid image. Type: {img_file.content_type}"
                     )
                 
-                # Write to temp file
                 content = await img_file.read()
                 temp_file = tempfile.NamedTemporaryFile(
                     mode='wb',
@@ -129,8 +124,6 @@ async def sign_pdf_handler(
                 temp_path = Path(temp_file.name)
                 temp_image_paths.append(temp_path)
                 
-                # Map this temp path to the corresponding signature ID
-                # Assumes files are sent in the same order as image signatures appear in JSON
                 signature_id = image_signatures[idx].id
                 signature_images[signature_id] = temp_path
                 logger.info(f"Mapped image {img_file.filename} to signature {signature_id}")
@@ -150,9 +143,12 @@ async def sign_pdf_handler(
                 'width': sig.width,
                 'height': sig.height,
                 'page': sig.page,
-                # Safe access with defaults (handling Optional fields)
                 'color': sig.color if sig.color else "#000000",
                 'opacity': sig.opacity if sig.opacity is not None else 1.0,
+                
+                # --- UPDATE: Added Rotation Here ---
+                'rotation': sig.rotation if sig.rotation is not None else 0,
+                # -----------------------------------
             }
             
             if sig.type == 'text':
@@ -169,7 +165,7 @@ async def sign_pdf_handler(
             signatures_for_processing.append(sig_dict)
         
         # ====================================================================
-        # STEP 6: Process PDF with Signatures
+        # STEP 6: Process PDF
         # ====================================================================
         logger.info(f"Processing PDF with {len(signatures_for_processing)} signatures...")
         

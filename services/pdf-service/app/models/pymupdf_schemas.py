@@ -98,6 +98,7 @@ class SignatureItem(BaseModel):
     type: str = Field(..., description="'text' or 'image'")
     text: Optional[str] = Field(None, description="Text for text signatures")
     font: Optional[str] = Field(None, description="Font name for text signatures")
+    rotation: int = Field(default=0, ge=-360, le=360, description="Rotation angle in degrees")
     
     # --- UPDATE HERE: MADE OPTIONAL WITH DEFAULTS ---
     # Agar frontend se null aaye ya field na aaye, toh default use hoga
