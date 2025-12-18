@@ -1,14 +1,18 @@
 // ============================================================================
-// UPDATED: PdfWatermarkFileItem.tsx - With Page Range Switch
+// FILE: src/app/tools/pdf-watermark/PdfWatermarkFileItem.tsx
 // ============================================================================
 
 import { useState, useRef, useEffect } from "react";
 import { PdfWatermarkViewer } from "./PdfWatermarkViewer";
-import { WatermarkFonts } from "./WatermarkFonts";
-import { ChevronDownSvg } from "@/components/Svg/CommonSvg";
+import { CancelSvg, ChevronDownSvg } from "@/components/Svg/CommonSvg";
 import { UploadSvg } from "@/components/Svg/ToolsSvg";
-import type { PdfProcessedFile, PdfToolConfig } from "@/services/pdfService/types";
+import { WatermarkFonts } from "./WatermarkFonts";
 import { WATERMARK_FONTS } from "@/services/pdfService/types";
+import type {
+  PdfProcessedFile,
+  PdfToolConfig,
+  SignatureItem,
+} from "@/services/pdfService/types";
 import { InputField } from "@/components/Layouts/InputField";
 import { RangeSlider } from "@/components/Shared/RangeSlider";
 import Image from "next/image";
@@ -17,47 +21,62 @@ import { RemoveButton, ToolIconBadge } from "@/components/Shared/FileUI";
 interface PdfWatermarkFileItemProps {
   file: PdfProcessedFile;
   config: PdfToolConfig;
-  updateSettings: (id: string, settings: any) => void;
+  addWatermark: (fileId: string, watermark: SignatureItem) => void;
+  updateWatermark: (
+    fileId: string,
+    watermarkId: string,
+    updates: Partial<SignatureItem>
+  ) => void;
+  deleteWatermark: (fileId: string, watermarkId: string) => void;
   removeFile: (id: string) => void;
   isDark: boolean;
 }
 
 const COLORS = [
-  { value: "gray", hex: "#808080" },
-  { value: "black", hex: "#000000" },
-  { value: "red", hex: "#EF4444" },
-  { value: "blue", hex: "#3B82F6" },
-  { value: "green", hex: "#10B981" },
-  { value: "yellow", hex: "#EAB308" },
-  { value: "orange", hex: "#F97316" },
-  { value: "purple", hex: "#A855F7" },
+  "#000000",
+  "#1E40AF",
+  "#B91C1C",
+  "#047857",
+  "#B45309",
+  "#4338CA",
+  "#6D28D9",
 ];
 
 export const PdfWatermarkFileItem = ({
   file,
   config,
-  updateSettings,
+  addWatermark,
+  updateWatermark,
+  deleteWatermark,
   removeFile,
   isDark,
 }: PdfWatermarkFileItemProps) => {
   const [activeTab, setActiveTab] = useState<"text" | "image">("text");
-  const [watermarkText, setWatermarkText] = useState(file.settings.text || "CONFIDENTIAL");
-  const [selectedFont, setSelectedFont] = useState(file.settings.font || "Arial");
-  const [selectedColor, setSelectedColor] = useState(file.settings.color || "gray");
-  const [opacity, setOpacity] = useState((file.settings.opacity || 0.3) * 100);
+  const [newWatermarkText, setNewWatermarkText] = useState("CONFIDENTIAL");
+  const [selectedFont, setSelectedFont] = useState("Bebas Neue");
+  const [selectedPage, setSelectedPage] = useState(-1); // -1 = All Pages, 0+ = Specific Page
+  const [selectedWatermarkId, setSelectedWatermarkId] = useState<string | null>(
+    null
+  );
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+
+  const [selectedColor, setSelectedColor] = useState("#000000");
+  const [opacity, setOpacity] = useState(30);
   const [isFontDropdownOpen, setIsFontDropdownOpen] = useState(false);
-  
-  // PAGE RANGE STATE - NEW
-  const [usePageRange, setUsePageRange] = useState(true);
-  const [pageRange, setPageRange] = useState(file.settings.page_range || "");
-  
+  const [pdfDimensions, setPdfDimensions] = useState({
+    width: 595,
+    height: 842,
+  });
+  const [rotation, setRotation] = useState(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown on outside click
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsFontDropdownOpen(false);
       }
     };
@@ -65,11 +84,24 @@ export const PdfWatermarkFileItem = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Sync with file settings
+  // Sync controls when a watermark is selected
   useEffect(() => {
-    setActiveTab(file.settings.watermarkFile ? "image" : "text");
-    setUsePageRange(!!(file.settings.page_range && file.settings.page_range.trim()));
-  }, [file.settings.watermarkFile, file.settings.page_range]);
+    if (selectedWatermarkId) {
+      const wm = file.settings.signatures?.find(
+        (s) => s.id === selectedWatermarkId
+      );
+      if (wm) {
+        if (wm.type) setActiveTab(wm.type);
+        if (wm.text) setNewWatermarkText(wm.text);
+        if (wm.font) setSelectedFont(wm.font);
+        if (wm.color) setSelectedColor(wm.color);
+        if (wm.opacity !== undefined) setOpacity(wm.opacity * 100);
+        if (wm.rotation !== undefined) setRotation(wm.rotation);
+        // Keep page as -1 for all pages mode, don't sync from selected watermark
+        if (wm.page >= 0) setSelectedPage(wm.page);
+      }
+    }
+  }, [selectedWatermarkId, file.settings.signatures]);
 
   const formatBytes = (bytes: number) => {
     if (bytes === 0) return "0 B";
@@ -79,29 +111,65 @@ export const PdfWatermarkFileItem = ({
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const uploadedFile = e.target.files?.[0];
-    if (uploadedFile) {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
       const reader = new FileReader();
       reader.onload = (event) => {
         setImagePreview(event.target?.result as string);
-        updateSettings(file.id, { watermarkFile: uploadedFile });
       };
-      reader.readAsDataURL(uploadedFile);
+      reader.readAsDataURL(file);
     }
   };
 
-  const handleUpdate = (updates: any) => {
-    updateSettings(file.id, updates);
-  };
-
-  // Handle page range toggle - NEW
-  const handlePageRangeToggle = (enabled: boolean) => {
-    setUsePageRange(enabled);
-    if (!enabled) {
-      setPageRange("");
-      handleUpdate({ page_range: "" });
+  const handlePropertyChange = <K extends keyof SignatureItem>(
+    key: K,
+    value: SignatureItem[K]
+  ) => {
+    if (selectedWatermarkId) {
+      updateWatermark(file.id, selectedWatermarkId, { [key]: value });
     }
   };
+
+  const handleAddWatermark = () => {
+    if (activeTab === "text" && !newWatermarkText.trim()) {
+      alert("Please enter watermark text");
+      return;
+    }
+
+    if (activeTab === "image" && !imageFile) {
+      alert("Please upload a watermark image");
+      return;
+    }
+
+    const newWatermark: SignatureItem = {
+      id: `wm_${Date.now()}_${Math.random().toString(36).slice(2)}`,
+      type: activeTab,
+      text: activeTab === "text" ? newWatermarkText : undefined,
+      font: activeTab === "text" ? selectedFont : undefined,
+      color: activeTab === "text" ? selectedColor : undefined,
+      rotation: rotation,
+      opacity: opacity / 100,
+      imageFile: activeTab === "image" ? imageFile! : undefined,
+      imagePreview: activeTab === "image" ? imagePreview! : undefined,
+      x: 50,
+      y: 100,
+      width: 300,
+      height: 100,
+      page: selectedPage,
+    };
+
+    addWatermark(file.id, newWatermark);
+
+    if (activeTab === "image") {
+      setImageFile(null);
+      setImagePreview(null);
+    }
+
+    setRotation(0);
+  };
+
+  const totalWatermarks = file.settings.signatures?.length || 0;
 
   return (
     <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-2xl overflow-hidden transition-all">
@@ -123,13 +191,15 @@ export const PdfWatermarkFileItem = ({
             <p className="text-xs text-zinc-500 px-1.5 bg-zinc-200 dark:bg-zinc-800 rounded-md inline-block">
               {formatBytes(file.size)}
             </p>
+            <p className="text-xs text-purple-600 dark:text-purple-400 font-medium">
+              {totalWatermarks} watermark{totalWatermarks !== 1 ? "s" : ""}
+            </p>
           </div>
         </div>
         <RemoveButton onClick={() => removeFile(file.id)} />
       </div>
 
       <div className="p-4 flex flex-col-reverse lg:grid lg:grid-cols-2 gap-6">
-        {/* CONTROLS COLUMN */}
         <div className="space-y-5">
           {/* TABS */}
           <div className="flex p-1 bg-zinc-100 dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800">
@@ -137,10 +207,7 @@ export const PdfWatermarkFileItem = ({
               <button
                 key={type}
                 type="button"
-                onClick={() => {
-                  setActiveTab(type as "text" | "image");
-                  if (type === "text") handleUpdate({ watermarkFile: undefined });
-                }}
+                onClick={() => setActiveTab(type as "text" | "image")}
                 className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-all cursor-pointer ${
                   activeTab === type
                     ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-sm"
@@ -152,10 +219,8 @@ export const PdfWatermarkFileItem = ({
             ))}
           </div>
 
-          {/* TEXT CONTROLS */}
           {activeTab === "text" && (
             <div className="space-y-6 fade-in duration-300">
-              {/* Text Input */}
               <div>
                 <label className="text-xs uppercase font-bold text-zinc-500">
                   Watermark Text
@@ -163,12 +228,13 @@ export const PdfWatermarkFileItem = ({
                 <InputField
                   type="text"
                   label=""
-                  value={watermarkText}
+                  value={newWatermarkText}
                   onChange={(value) => {
-                    setWatermarkText(value);
-                    handleUpdate({ text: value });
+                    setNewWatermarkText(value);
+                    if (selectedWatermarkId)
+                      handlePropertyChange("text", value);
                   }}
-                  placeholder="Enter watermark text"
+                  placeholder="Enter Watermark Text"
                 />
               </div>
 
@@ -177,14 +243,18 @@ export const PdfWatermarkFileItem = ({
                 <label className="text-xs uppercase font-bold text-zinc-500">
                   Font Style
                 </label>
+
                 <div className="relative border border-zinc-200 mt-1.5 dark:border-zinc-700 rounded-lg overflow-hidden transition-all duration-300 hover:border-zinc-300 dark:hover:border-zinc-600">
                   <button
                     type="button"
                     onClick={() => setIsFontDropdownOpen(!isFontDropdownOpen)}
                     className="w-full px-3 py-2 bg-transparent text-sm flex items-center justify-between cursor-pointer"
                   >
-                    <span style={{ fontFamily: selectedFont, fontSize: "1.1em" }}>
-                      {WATERMARK_FONTS.find((f) => f.value === selectedFont)?.label || selectedFont}
+                    <span
+                      style={{ fontFamily: selectedFont, fontSize: "1.1em" }}
+                    >
+                      {WATERMARK_FONTS.find((f) => f.value === selectedFont)
+                        ?.label || selectedFont}
                     </span>
                     <ChevronDownSvg
                       className={`w-5 h-5 text-zinc-400 transition-transform duration-200 ${
@@ -205,7 +275,8 @@ export const PdfWatermarkFileItem = ({
                           onClick={() => {
                             setSelectedFont(font.value);
                             setIsFontDropdownOpen(false);
-                            handleUpdate({ font: font.value });
+                            if (selectedWatermarkId)
+                              handlePropertyChange("font", font.value);
                           }}
                           className={`w-full text-left px-4 py-2.5 text-lg transition-colors cursor-pointer ${
                             selectedFont === font.value
@@ -230,50 +301,41 @@ export const PdfWatermarkFileItem = ({
                 <div className="flex flex-wrap gap-2 mt-2">
                   {COLORS.map((c) => (
                     <button
-                      key={c.value}
-                      type="button"
+                      key={c}
                       onClick={() => {
-                        setSelectedColor(c.value);
-                        handleUpdate({ color: c.value });
+                        setSelectedColor(c);
+                        if (selectedWatermarkId)
+                          handlePropertyChange("color", c);
                       }}
                       className={`w-7 h-7 rounded-full border border-zinc-200 dark:border-zinc-700 transition-transform hover:scale-110 cursor-pointer ${
-                        selectedColor === c.value
+                        selectedColor === c
                           ? "ring-2 ring-purple-500 ring-offset-2 dark:ring-offset-zinc-900 scale-105"
                           : ""
                       }`}
-                      style={{ backgroundColor: c.hex }}
+                      style={{ backgroundColor: c }}
                     />
                   ))}
+                  <div className="relative md:w-12 w-8 h-7 rounded-md overflow-hidden border border-zinc-200 dark:border-zinc-800 cursor-pointer hover:scale-110 transition-transform">
+                    <input
+                      type="color"
+                      value={selectedColor}
+                      onChange={(e) => {
+                        setSelectedColor(e.target.value);
+                        if (selectedWatermarkId)
+                          handlePropertyChange("color", e.target.value);
+                      }}
+                      className="absolute -top-1 -left-1 w-9 h-9 cursor-pointer p-0 border-0 opacity-0"
+                    />
+                    <div
+                      className="w-full h-full bg-[conic-gradient(at_center,var(--tw-gradient-stops))] from-red-500 via-yellow-500 to-orange-500"
+                      title="Custom Color"
+                    />
+                  </div>
                 </div>
-              </div>
-
-              {/* FONT SIZE & ROTATION */}
-              <div className="grid grid-cols-2 gap-4">
-                <RangeSlider
-                  label="Font Size"
-                  value={file.settings.font_size || 50}
-                  min={10}
-                  max={150}
-                  step={5}
-                  color={config.primaryColor}
-                  onChange={(v) => handleUpdate({ font_size: v })}
-                  unit="pt"
-                />
-                <RangeSlider
-                  label="Rotation"
-                  value={file.settings.rotation || 45}
-                  min={0}
-                  max={360}
-                  step={15}
-                  color={config.primaryColor}
-                  onChange={(v) => handleUpdate({ rotation: v })}
-                  unit="°"
-                />
               </div>
             </div>
           )}
 
-          {/* IMAGE CONTROLS */}
           {activeTab === "image" && (
             <div className="space-y-4 fade-in duration-300">
               <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-xl cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
@@ -291,7 +353,9 @@ export const PdfWatermarkFileItem = ({
                     <div className="w-14 h-14 mx-auto mb-1 text-zinc-600 dark:text-zinc-300">
                       <UploadSvg />
                     </div>
-                    <p className="text-sm text-zinc-500">Upload Watermark Image</p>
+                    <p className="text-sm text-zinc-500">
+                      Upload Watermark Image
+                    </p>
                   </div>
                 )}
                 <input
@@ -301,26 +365,12 @@ export const PdfWatermarkFileItem = ({
                   className="hidden"
                 />
               </label>
-
-              {/* IMAGE ROTATION SLIDER */}
-              {imagePreview && (
-                <RangeSlider
-                  label="Rotation"
-                  value={file.settings.rotation || 0}
-                  min={0}
-                  max={360}
-                  step={15}
-                  color={config.primaryColor}
-                  onChange={(v) => handleUpdate({ rotation: v })}
-                  unit="°"
-                />
-              )}
             </div>
           )}
 
-          <div className="h-px bg-zinc-200 dark:bg-zinc-800" />
+          <div className="h-px bg-zinc-100 dark:bg-zinc-800 mt-2" />
 
-          {/* OPACITY */}
+          {/* OPACITY SLIDER */}
           <RangeSlider
             label="Opacity"
             value={opacity}
@@ -331,63 +381,135 @@ export const PdfWatermarkFileItem = ({
             color={config.primaryColor}
             onChange={(val) => {
               setOpacity(val);
-              handleUpdate({ opacity: val / 100 });
+              if (selectedWatermarkId)
+                handlePropertyChange("opacity", val / 100);
             }}
           />
 
-          {/* PAGE RANGE SECTION - IMPROVED DESIGN */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="text-xs uppercase font-bold text-zinc-500">
-                Apply to Pages
-              </label>
-              <div className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-900 rounded-lg p-1 border border-zinc-200 dark:border-zinc-800">
-                <button
-                  type="button"
-                  onClick={() => handlePageRangeToggle(false)}
-                  className={`px-3 py-1 text-xs font-medium rounded-md transition-all cursor-pointer ${
-                    !usePageRange
-                      ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-sm"
-                      : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
-                  }`}
-                >
-                  All Pages
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handlePageRangeToggle(true)}
-                  className={`px-3 py-1 text-xs font-medium rounded-md transition-all cursor-pointer ${
-                    usePageRange
-                      ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-sm"
-                      : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
-                  }`}
-                >
-                  Page Range
-                </button>
-              </div>
+          {/* ROTATION SLIDER */}
+          <RangeSlider
+            label="Rotation"
+            value={rotation}
+            min={-180}
+            max={180}
+            step={5}
+            unit="°"
+            color={config.primaryColor}
+            onChange={(val) => {
+              setRotation(val);
+              if (selectedWatermarkId) handlePropertyChange("rotation", val);
+            }}
+          />
+
+          {/* POSITION PRESET BUTTONS */}
+          <div>
+            <label className="text-xs uppercase font-bold text-zinc-500 mb-2 block">
+              Quick Position
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { label: "Top Left", xPercent: 3, yPercent: 3 },
+                { label: "Top Center", xPercent: 32, yPercent: 3 },
+                { label: "Top Right", xPercent: 62, yPercent: 3 },
+                { label: "Center Left", xPercent: 3, yPercent: 50 },
+                { label: "Center", xPercent: 32, yPercent: 50 },
+                { label: "Center Right", xPercent: 62, yPercent: 50 },
+                { label: "Bottom Left", xPercent: 3, yPercent: 90 },
+                { label: "Bottom Center", xPercent: 32, yPercent: 90 },
+                { label: "Bottom Right", xPercent: 62, yPercent: 90 },
+              ].map((pos) => {
+                const x = (pdfDimensions.width * pos.xPercent) / 100;
+                const y = (pdfDimensions.height * pos.yPercent) / 100;
+
+                return (
+                  <button
+                    key={pos.label}
+                    type="button"
+                    onClick={() => {
+                      if (selectedWatermarkId) {
+                        updateWatermark(file.id, selectedWatermarkId, { x, y });
+                      }
+                    }}
+                    disabled={!selectedWatermarkId}
+                    className={`py-2 px-3 text-xs font-medium rounded-lg border transition-all cursor-pointer ${
+                      selectedWatermarkId
+                        ? "border-zinc-200 dark:border-zinc-700 hover:border-purple-400 dark:hover:border-purple-600/50 text-zinc-700 dark:text-zinc-300 hover:bg-purple-50 dark:hover:bg-purple-900/20"
+                        : "border-zinc-100 dark:border-zinc-800 text-zinc-400 dark:text-zinc-600 cursor-not-allowed"
+                    }`}
+                  >
+                    {pos.label}
+                  </button>
+                );
+              })}
+            </div>
+            {!selectedWatermarkId && (
+              <p className="text-xs text-amber-600 dark:text-amber-400 mt-2">
+                💡 Select a watermark from preview to change position
+              </p>
+            )}
+          </div>
+
+          {/* PAGE RANGE SELECTOR */}
+          <div>
+            <label className="text-xs uppercase font-bold text-zinc-500 mb-2 block">
+              Apply To
+            </label>
+
+            {/* Toggle Buttons */}
+            <div className="flex p-1 bg-zinc-100 dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800 mb-3">
+              <button
+                type="button"
+                onClick={() => setSelectedPage(-1)}
+                className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-all cursor-pointer ${
+                  selectedPage === -1
+                    ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-sm"
+                    : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+                }`}
+              >
+                All Pages
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedPage(0)}
+                className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-all cursor-pointer ${
+                  selectedPage >= 0
+                    ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-sm"
+                    : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+                }`}
+              >
+                Specific Page
+              </button>
             </div>
 
-            {usePageRange && (
+            {/* Show input only when "Specific Page" is selected */}
+            {selectedPage >= 0 && (
               <div className="fade-in duration-300">
                 <InputField
-                  type="text"
                   label=""
-                  value={pageRange}
-                  onChange={(value) => {
-                    setPageRange(value);
-                    handleUpdate({ page_range: value });
-                  }}
-                  placeholder="e.g., 1-3,5,7-9"
+                  type="number"
+                  value={selectedPage + 1}
+                  min={1}
+                  max={100}
+                  placeholder="Enter page number"
+                  onChange={(value) =>
+                    setSelectedPage(Math.max(0, parseInt(value) - 1 || 0))
+                  }
                 />
-                <p className="text-xs text-zinc-400 mt-1.5 flex items-start gap-1">
-                  <svg className="w-3 h-3 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd"/>
-                  </svg>
-                  Enter page numbers or ranges (e.g., 1-3,5,7-9)
-                </p>
               </div>
             )}
           </div>
+
+          <button
+            type="button"
+            onClick={handleAddWatermark}
+            className="w-full py-2 text-white font-medium rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer"
+            style={{ backgroundColor: config.primaryColor }}
+          >
+            <CancelSvg className="w-5 h-5 rotate-45 text-white" />
+            {selectedPage === -1
+              ? "Add Watermark to All Pages"
+              : `Add Watermark to Page ${selectedPage + 1}`}
+          </button>
         </div>
 
         {/* PREVIEW COLUMN */}
@@ -397,7 +519,30 @@ export const PdfWatermarkFileItem = ({
               file={file.originalFile}
               settings={file.settings}
               primaryColor={config.primaryColor}
-              onUpdate={handleUpdate}
+              onUpdateWatermark={(wmId, updates) =>
+                updateWatermark(file.id, wmId, updates)
+              }
+              onDeleteWatermark={(wmId) => deleteWatermark(file.id, wmId)}
+              onSelectWatermark={(id) => {
+                setSelectedWatermarkId(id);
+                const wm = file.settings.signatures?.find((s) => s.id === id);
+                if (wm) {
+                  setActiveTab(wm.type);
+                  if (wm.text) setNewWatermarkText(wm.text);
+                  if (wm.font) setSelectedFont(wm.font);
+                  if (wm.color) setSelectedColor(wm.color);
+                  if (wm.opacity) setOpacity(wm.opacity * 100);
+                  if (wm.rotation) setRotation(wm.rotation);
+                  // Only set page if it's a specific page (not all pages)
+                  if (wm.page >= 0) setSelectedPage(wm.page);
+                }
+              }}
+              selectedWatermarkId={selectedWatermarkId}
+              activePage={selectedPage === -1 ? 1 : selectedPage + 1}
+              onPageChange={(pageNum) => setSelectedPage(pageNum - 1)}
+              onDimensionsChange={(width, height) =>
+                setPdfDimensions({ width, height })
+              }
             />
           )}
         </div>
