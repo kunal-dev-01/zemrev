@@ -1,5 +1,5 @@
 // ============================================================================
-// FILE: src/components/PdfTools/SignPdf/DraggableSignature.tsx
+// FILE: src/components/PdfTools/SignPdf/DraggableSignature.tsx (ORIGINAL DESIGN + ROTATION)
 // ============================================================================
 
 import { useState, useRef, useEffect } from "react";
@@ -46,62 +46,35 @@ export const DraggableSignature = ({
   // Defaults
   const opacity = signature.opacity ?? 1;
   const color = signature.color ?? "#000000";
-  const font = signature.font || 'Dancing Script'; // Default to cursive
+  const font = signature.font || 'Dancing Script';
+  // --- GET ROTATION VALUE ---
+  const rotation = signature.rotation || 0; 
 
   // ============================================================================
-  // DRAG HANDLERS
+  // DRAG & RESIZE HANDLERS (Standard Logic)
   // ============================================================================
   const handleMouseDown = (e: React.MouseEvent) => {
     if ((e.target as HTMLElement).classList.contains('resize-handle')) return;
-    
-    e.preventDefault();
-    e.stopPropagation();
-    onSelect();
-    setIsDragging(true);
-    setDragStart({
-      x: e.clientX - x,
-      y: e.clientY - y,
-    });
+    e.preventDefault(); e.stopPropagation(); onSelect(); setIsDragging(true);
+    setDragStart({ x: e.clientX - x, y: e.clientY - y });
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
     if ((e.target as HTMLElement).classList.contains('resize-handle')) return;
-    
-    e.stopPropagation();
-    onSelect();
-    setIsDragging(true);
+    e.stopPropagation(); onSelect(); setIsDragging(true);
     const touch = e.touches[0];
-    setDragStart({
-      x: touch.clientX - x,
-      y: touch.clientY - y,
-    });
+    setDragStart({ x: touch.clientX - x, y: touch.clientY - y });
   };
 
-  // ============================================================================
-  // RESIZE HANDLERS
-  // ============================================================================
   const handleResizeMouseDown = (e: React.MouseEvent, corner: string) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsResizing(true);
-    setResizeStart({
-      x: e.clientX,
-      y: e.clientY,
-      width: signature.width,
-      height: signature.height,
-    });
+    e.preventDefault(); e.stopPropagation(); setIsResizing(true);
+    setResizeStart({ x: e.clientX, y: e.clientY, width: signature.width, height: signature.height });
   };
 
   const handleResizeTouchStart = (e: React.TouchEvent, corner: string) => {
-    e.stopPropagation();
-    setIsResizing(true);
+    e.stopPropagation(); setIsResizing(true);
     const touch = e.touches[0];
-    setResizeStart({
-      x: touch.clientX,
-      y: touch.clientY,
-      width: signature.width,
-      height: signature.height,
-    });
+    setResizeStart({ x: touch.clientX, y: touch.clientY, width: signature.width, height: signature.height });
   };
 
   // ============================================================================
@@ -110,63 +83,37 @@ export const DraggableSignature = ({
   useEffect(() => {
     const handleMove = (clientX: number, clientY: number) => {
       if (isDragging) {
+        // Simple bounds check (might need adjustment for extreme rotation)
         const newX = Math.max(0, Math.min(clientX - dragStart.x, containerWidth - width));
         const newY = Math.max(0, Math.min(clientY - dragStart.y, containerHeight - height));
-        
-        // Convert pixels back to PDF points
-        onUpdate({
-          x: newX / scale,
-          y: newY / scale,
-        });
+        onUpdate({ x: newX / scale, y: newY / scale });
       }
 
       if (isResizing) {
         const deltaX = clientX - resizeStart.x;
         const deltaY = clientY - resizeStart.y;
-        
-        // Limits: Min width 50px, Max width 500px
         const newWidth = Math.max(50, Math.min(resizeStart.width + deltaX / scale, 500));
         const newHeight = Math.max(30, Math.min(resizeStart.height + deltaY / scale, 300));
-        
-        onUpdate({
-          width: newWidth,
-          height: newHeight,
-        });
+        onUpdate({ width: newWidth, height: newHeight });
       }
     };
 
-    const handleMouseMove = (e: MouseEvent) => {
-      handleMove(e.clientX, e.clientY);
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      if (e.touches.length > 0) {
-        handleMove(e.touches[0].clientX, e.touches[0].clientY);
-      }
-    };
-
-    const handleEnd = () => {
-      setIsDragging(false);
-      setIsResizing(false);
-    };
+    const handleMouseMove = (e: MouseEvent) => handleMove(e.clientX, e.clientY);
+    const handleTouchMove = (e: TouchEvent) => { if (e.touches.length > 0) handleMove(e.touches[0].clientX, e.touches[0].clientY); };
+    const handleEnd = () => { setIsDragging(false); setIsResizing(false); };
 
     if (isDragging || isResizing) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleEnd);
-      document.addEventListener('touchmove', handleTouchMove, { passive: false });
-      document.addEventListener('touchend', handleEnd);
-
+      document.addEventListener('mousemove', handleMouseMove); document.addEventListener('mouseup', handleEnd);
+      document.addEventListener('touchmove', handleTouchMove, { passive: false }); document.addEventListener('touchend', handleEnd);
       return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleEnd);
-        document.removeEventListener('touchmove', handleTouchMove);
-        document.removeEventListener('touchend', handleEnd);
+        document.removeEventListener('mousemove', handleMouseMove); document.removeEventListener('mouseup', handleEnd);
+        document.removeEventListener('touchmove', handleTouchMove); document.removeEventListener('touchend', handleEnd);
       };
     }
   }, [isDragging, isResizing, dragStart, resizeStart, onUpdate, scale, containerWidth, containerHeight, width, height]);
 
   // ============================================================================
-  // RENDER
+  // RENDER (ORIGINAL DESIGN WITH ROTATION APPLIED)
   // ============================================================================
   return (
     <div
@@ -181,10 +128,13 @@ export const DraggableSignature = ({
         top: `${y}px`,
         width: `${width}px`,
         height: `${height}px`,
-        touchAction: 'none', // Critical for smooth touch dragging
+        // --- THIS IS THE ONLY CHANGE FOR ROTATION ---
+        transform: `rotate(${rotation}deg)`, 
+        // ------------------------------------------
+        touchAction: 'none',
       }}
     >
-      {/* DELETE BUTTON */}
+      {/* DELETE BUTTON (Original Position & Style) */}
       {isSelected && (
         <button
           onClick={(e) => {
@@ -198,10 +148,10 @@ export const DraggableSignature = ({
         </button>
       )}
 
-      {/* SIGNATURE CONTENT */}
+      {/* SIGNATURE CONTENT (Image or Text) */}
       <div 
         className="w-full h-full rounded-lg flex items-center justify-center overflow-hidden"
-        style={{ opacity: opacity }} // Apply Opacity
+        style={{ opacity: opacity }}
       >
         {signature.type === 'image' && signature.imagePreview ? (
           <Image
@@ -218,7 +168,6 @@ export const DraggableSignature = ({
             style={{
               fontFamily: font,
               color: color,
-              // Calculate responsive font size based on container height
               fontSize: `${Math.min(height * 0.7, 80)}px`, 
               fontWeight: 400,
               lineHeight: 1,
@@ -230,7 +179,7 @@ export const DraggableSignature = ({
         )}
       </div>
 
-      {/* RESIZE HANDLES (Visible only when selected) */}
+      {/* RESIZE HANDLES (Original 4 Corners) */}
       {isSelected && (
         <>
           {/* Bottom-Right Handle */}
