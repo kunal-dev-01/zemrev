@@ -1,8 +1,15 @@
+// ============================================================================
+// FILE: src/app/tools/pdf-watermark/PdfWatermarkViewer.tsx
+// ============================================================================
+
 import { useState, useRef, useEffect } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import { ChevronDownSvg } from "@/components/Svg/CommonSvg";
+import type {
+  PdfFileSettings,
+  SignatureItem,
+} from "@/services/pdfService/types";
 import { DraggableWatermark } from "./DraggableWatermark";
-import type { PdfFileSettings } from "@/services/pdfService/types";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -10,37 +17,43 @@ interface PdfWatermarkViewerProps {
   file: File;
   settings: PdfFileSettings;
   primaryColor: string;
-  onUpdate: (updates: Partial<PdfFileSettings>) => void;
+  onUpdateWatermark: (
+    watermarkId: string,
+    updates: Partial<SignatureItem>
+  ) => void;
+  onDeleteWatermark: (watermarkId: string) => void;
+  onSelectWatermark: (watermarkId: string) => void;
+  selectedWatermarkId: string | null;
+  activePage: number;
+  onPageChange: (page: number) => void;
+  onDimensionsChange?: (width: number, height: number) => void;
 }
 
 export const PdfWatermarkViewer = ({
   file,
   settings,
   primaryColor,
-  onUpdate,
+  onUpdateWatermark,
+  onDeleteWatermark,
+  onSelectWatermark,
+  selectedWatermarkId,
+  activePage,
+  onPageChange,
+  onDimensionsChange,
 }: PdfWatermarkViewerProps) => {
   const [numPages, setNumPages] = useState<number | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(activePage);
+
+  useEffect(() => {
+    setCurrentPage(activePage);
+  }, [activePage]);
+
   const [pageWidth, setPageWidth] = useState(0);
   const [renderedWidth, setRenderedWidth] = useState(0);
   const [renderedHeight, setRenderedHeight] = useState(0);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [showWatermark, setShowWatermark] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
 
-  // Load Image Preview
-  useEffect(() => {
-    if (settings.watermarkFile) {
-      const reader = new FileReader();
-      reader.onload = (e) => setImagePreview(e.target?.result as string);
-      reader.readAsDataURL(settings.watermarkFile as File);
-    } else {
-      setImagePreview(null);
-    }
-  }, [settings.watermarkFile]);
-
-  // Handle Resize
   useEffect(() => {
     const updateWidth = () => {
       if (containerRef.current) {
@@ -52,24 +65,30 @@ export const PdfWatermarkViewer = ({
     return () => window.removeEventListener("resize", updateWidth);
   }, []);
 
-  // Reset watermark when deleted
-  useEffect(() => {
-    setShowWatermark(true);
-  }, [settings.text, settings.watermarkFile]);
+  const scale =
+    pageWidth > 0 && renderedWidth > 0 ? renderedWidth / pageWidth : 1;
 
-  // Calculate Scale (Pixels per Point)
-  const scale = pageWidth > 0 && renderedWidth > 0 ? renderedWidth / pageWidth : 1;
+  const currentPageWatermarks = (settings.signatures || []).filter(
+    (wm) => wm.page === -1 || wm.page === currentPage - 1
+  );
 
-  // Handle Delete
-  const handleDelete = () => {
-    setShowWatermark(false);
-    // Reset to default position
-    onUpdate({
-      x: 150,
-      y: 350,
-      width: 300,
-      height: 150,
-    });
+  const handleBackgroundClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onSelectWatermark("");
+    }
+  };
+
+  const handlePrevPage = () => {
+    const newPage = Math.max(1, currentPage - 1);
+    setCurrentPage(newPage);
+    onPageChange(newPage);
+  };
+
+  const handleNextPage = () => {
+    if (!numPages) return;
+    const newPage = Math.min(numPages, currentPage + 1);
+    setCurrentPage(newPage);
+    onPageChange(newPage);
   };
 
   return (
@@ -83,7 +102,7 @@ export const PdfWatermarkViewer = ({
           <div className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 rounded-lg p-1">
             <button
               type="button"
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              onClick={handlePrevPage}
               disabled={currentPage <= 1}
               className="p-1 hover:bg-white dark:hover:bg-zinc-700 rounded-md disabled:opacity-30 transition-colors cursor-pointer"
             >
@@ -94,7 +113,7 @@ export const PdfWatermarkViewer = ({
             </span>
             <button
               type="button"
-              onClick={() => setCurrentPage((p) => Math.min(numPages, p + 1))}
+              onClick={handleNextPage}
               disabled={currentPage >= numPages}
               className="p-1 hover:bg-white dark:hover:bg-zinc-700 rounded-md disabled:opacity-30 transition-colors cursor-pointer"
             >
@@ -108,6 +127,7 @@ export const PdfWatermarkViewer = ({
       <div
         ref={containerRef}
         className="relative bg-zinc-100 dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden flex justify-center py-4 min-h-[400px]"
+        onClick={handleBackgroundClick}
       >
         <Document
           file={file}
@@ -130,6 +150,12 @@ export const PdfWatermarkViewer = ({
                     const rect = canvas.getBoundingClientRect();
                     setRenderedWidth(rect.width);
                     setRenderedHeight(rect.height);
+                    if (onDimensionsChange) {
+                      onDimensionsChange(
+                        page.originalWidth,
+                        page.originalHeight
+                      );
+                    }
                   }
                 }, 100);
               }}
@@ -137,19 +163,22 @@ export const PdfWatermarkViewer = ({
               renderAnnotationLayer={false}
               className="bg-white"
             >
-              {/* DRAGGABLE WATERMARK */}
-              {showWatermark && (
+              {currentPageWatermarks.map((watermark) => (
                 <DraggableWatermark
-                  settings={settings}
+                  key={watermark.id}
+                  watermark={watermark}
                   scale={scale}
                   primaryColor={primaryColor}
-                  imagePreview={imagePreview}
-                  onUpdate={onUpdate}
-                  onDelete={handleDelete}
+                  onUpdate={(updates) =>
+                    onUpdateWatermark(watermark.id, updates)
+                  }
+                  onDelete={() => onDeleteWatermark(watermark.id)}
+                  isSelected={selectedWatermarkId === watermark.id}
+                  onSelect={() => onSelectWatermark(watermark.id)}
                   containerWidth={renderedWidth}
                   containerHeight={renderedHeight}
                 />
-              )}
+              ))}
             </Page>
           </div>
         </Document>
