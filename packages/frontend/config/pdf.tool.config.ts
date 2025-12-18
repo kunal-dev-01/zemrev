@@ -115,15 +115,7 @@ export const PDF_TOOL_CONFIGS: Record<string, PdfToolConfig> = {
     dropzoneColor: "#FDF4FF",
     dropzoneColorDark: "#C026D31A",
     defaultSettings: {
-      text: "CONFIDENTIAL",
-      opacity: 0.3,
-      font_size: 50,
-      rotation: 45,
-      color: "gray",
-      x: 150,      
-      y: 350,     
-      width: 300,   
-      height: 150,
+      signatures: [],
     },
   },
 
