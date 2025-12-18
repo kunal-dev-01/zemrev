@@ -151,6 +151,13 @@ def sign_pdf(
                         'Homemade Apple': 'app/fonts/HomemadeApple-Regular.ttf',
                         'Caveat': 'app/fonts/Caveat-VariableFont_wght.ttf', 
                         'Reenie Beanie': 'app/fonts/ReenieBeanie-Regular.ttf',
+                        'Bebas Neue': 'app/fonts/BebasNeue-Regular.ttf',
+                        'Oswald': 'app/fonts/Oswald-VariableFont_wght.ttf',
+                        'Righteous': 'app/fonts/Righteous-Regular.ttf',
+                        'Anton': 'app/fonts/Anton-Regular.ttf',
+                        'Permanent Marker': 'app/fonts/PermanentMarker-Regular.ttf',
+                        'Roboto Condensed': 'app/fonts/RobotoCondensed-VariableFont_wght.ttf',
+                        'Russo One': 'app/fonts/RussoOne-Regular.ttf',
                         'Arial': '/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf',
                     }
                     
