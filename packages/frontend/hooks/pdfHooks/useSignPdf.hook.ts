@@ -1,5 +1,6 @@
 // ============================================================================
-// FILE: src/hooks/pdfHooks/useSignPdf.hook.ts (UPDATED)
+// FILE: src/hooks/pdfHooks/useSignPdf.hook.ts (FINAL CLEAN VERSION)
+// PURPOSE: Handle PDF signing with multiple text/image signatures
 // ============================================================================
 
 import { useState, useCallback, useEffect } from "react";
@@ -21,7 +22,7 @@ export const useSignPdf = () => {
   const { pickFromGoogleDrive, pickFromDropbox } = useCloudPicker();
 
   // ============================================================================
-  // RESTORE
+  // RESTORE PENDING FILES ON MOUNT
   // ============================================================================
   useEffect(() => {
     const restore = async () => {
@@ -34,9 +35,7 @@ export const useSignPdf = () => {
             name: file.name,
             size: file.size,
             type: file.type,
-            settings: {
-              signatures: [], // Empty array initially
-            },
+            settings: { signatures: [] },
             status: "pending" as const,
           }))
         );
@@ -46,7 +45,7 @@ export const useSignPdf = () => {
   }, []);
 
   // ============================================================================
-  // ADD FILES (LOCAL)
+  // ADD FILES (LOCAL UPLOAD)
   // ============================================================================
   const addFiles = useCallback(async (newFiles: File[]) => {
     const processed: PdfProcessedFile[] = [];
@@ -59,9 +58,7 @@ export const useSignPdf = () => {
         name: file.name,
         size: file.size,
         type: file.type,
-        settings: {
-          signatures: [],
-        },
+        settings: { signatures: [] },
         status: "pending",
       });
     }
@@ -84,9 +81,7 @@ export const useSignPdf = () => {
         name: file.name,
         size: file.size,
         type: file.type,
-        settings: {
-          signatures: [],
-        },
+        settings: { signatures: [] },
         status: "pending",
       },
     ]);
@@ -107,16 +102,14 @@ export const useSignPdf = () => {
         name: file.name,
         size: file.size,
         type: file.type,
-        settings: {
-          signatures: [],
-        },
+        settings: { signatures: [] },
         status: "pending",
       },
     ]);
   }, [pickFromDropbox]);
 
   // ============================================================================
-  // UPDATE SETTINGS (Signatures Array)
+  // UPDATE FILE SETTINGS
   // ============================================================================
   const updateFileSettings = useCallback(
     (id: string, settings: Partial<PdfProcessedFile["settings"]>) => {
@@ -130,7 +123,7 @@ export const useSignPdf = () => {
   );
 
   // ============================================================================
-  // ADD SIGNATURE
+  // ADD SIGNATURE TO FILE
   // ============================================================================
   const addSignature = useCallback(
     (fileId: string, signature: SignatureItem) => {
@@ -152,7 +145,7 @@ export const useSignPdf = () => {
   );
 
   // ============================================================================
-  // UPDATE SIGNATURE
+  // UPDATE SIGNATURE PROPERTIES
   // ============================================================================
   const updateSignature = useCallback(
     (fileId: string, signatureId: string, updates: Partial<SignatureItem>) => {
@@ -205,7 +198,7 @@ export const useSignPdf = () => {
   }, []);
 
   // ============================================================================
-  // SIGN SINGLE
+  // SIGN SINGLE FILE
   // ============================================================================
   const signSingleFile = useCallback(
     async (file: PdfProcessedFile) => {
@@ -228,7 +221,7 @@ export const useSignPdf = () => {
         const formData = new FormData();
         formData.append("file", file.originalFile as File);
 
-        // Prepare signatures for backend (without File objects)
+        // Prepare signatures JSON (without File objects)
         const signaturesForBackend = signatures.map((sig) => ({
           id: sig.id,
           type: sig.type,
@@ -248,10 +241,10 @@ export const useSignPdf = () => {
           JSON.stringify(signaturesForBackend)
         );
 
-        // Append image files separately
+        // Append image files (all under same key for FastAPI List[UploadFile])
         signatures.forEach((sig) => {
           if (sig.type === "image" && sig.imageFile) {
-            formData.append(`signature_image_${sig.id}`, sig.imageFile);
+            formData.append("signature_image_files", sig.imageFile);
           }
         });
 
@@ -278,7 +271,7 @@ export const useSignPdf = () => {
   );
 
   // ============================================================================
-  // SIGN ALL
+  // SIGN ALL FILES
   // ============================================================================
   const signAllFiles = useCallback(async () => {
     setSigning(true);
