@@ -20,9 +20,10 @@ from app.services.pymupdf.extract_text import extract_text_from_pdf
 from app.services.pymupdf.extract_images import extract_images_from_pdf
 from app.services.pymupdf.optimize_pdf import optimize_pdf
 from app.services.pymupdf.crop_pdf import crop_pdf
+from app.services.pymupdf.remove_pages import remove_pages_from_pdf
 from app.models.pymupdf_schemas import (
     PdfToImagesRequest, ExtractTextRequest,
-    ExtractImagesRequest, 
+    ExtractImagesRequest, RemovePagesRequest,
     CropPdfRequest, OptimizePdfRequest,
     ExtractTextResponse
 )
@@ -385,3 +386,60 @@ async def crop_pdf_handler(
     finally:
         if input_path:
             safe_remove(input_path)
+
+
+# ============================================================================
+# REMOVE PAGES
+# ============================================================================
+
+async def remove_pages_handler(
+    file: UploadFile,
+    request: RemovePagesRequest
+) -> FileResponse:
+    """Handle PDF page removal."""
+    input_path = None
+    output_path = None
+    
+    try:
+        logger.info(f"Removing pages from PDF: {request.pages_to_remove}")
+        
+        # Validate upload
+        input_path = await validate_upload(file)
+        
+        # Create output path
+        output_path = create_temp_pdf_path(prefix="pages_removed")
+        
+        # Remove pages in thread pool (blocking operation)
+        loop = asyncio.get_event_loop()
+        original_pages, removed_count, remaining_pages, original_size_kb, new_size_kb = await loop.run_in_executor(
+            executor,
+            remove_pages_from_pdf,
+            input_path,
+            output_path,
+            request.pages_to_remove
+        )
+        
+        reduction_percent = ((original_size_kb - new_size_kb) / original_size_kb) * 100 if original_size_kb > 0 else 0
+        
+        logger.info(
+            f"Successfully removed {removed_count} pages. "
+            f"Original: {original_pages} pages ({original_size_kb:.2f}KB) → "
+            f"New: {remaining_pages} pages ({new_size_kb:.2f}KB) "
+            f"[{reduction_percent:.1f}% size reduction]"
+        )
+        
+        return FileResponse(
+            path=str(output_path),
+            media_type="application/pdf",
+            filename="pages_removed.pdf",
+            background=None
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Page removal failed: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        if input_path:
+            safe_remove(input_path)            
