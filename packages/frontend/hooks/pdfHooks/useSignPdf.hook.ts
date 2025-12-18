@@ -234,6 +234,7 @@ export const useSignPdf = () => {
           page: sig.page,
           color: sig.color || "#000000",
           opacity: sig.opacity ?? 1.0,
+          rotation: sig.rotation || 0,
         }));
 
         formData.append(
