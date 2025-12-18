@@ -20,6 +20,8 @@ export const SignatureFonts = () => {
         .font-sacramento { font-family: 'Sacramento', cursive; }
         .font-allura { font-family: 'Allura', cursive; }
         .font-homemade { font-family: 'Homemade Apple', cursive; }
+        .font-caveat { font-family: 'Caveat', cursive; }
+        .font-reenie { font-family: 'Reenie Beanie', cursive; }
       `}</style>
     </>
   );
