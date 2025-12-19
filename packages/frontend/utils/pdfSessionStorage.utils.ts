@@ -24,8 +24,9 @@ const META_KEYS: Record<PdfToolType, string> = {
   "add-watermark": "zemrev_pdf_meta_watermark",
   "sign-pdf": "zemrev_pdf_pending_sign",
   "crop-pdf": "zemrev_pdf_pending_crop",
+  "pdf-remove-pages": "zemrev_pdf_meta_remove_pages",
+  
   "optimize-pdf": "zemrev_pdf_meta_optimize",
-
   "compress-pdf": "zemrev_pdf_meta_compress",
   "flatten-pdf": "zemrev_pdf_meta_flatten",
   "convert-pdfa": "zemrev_pdf_pending_pdfa",
