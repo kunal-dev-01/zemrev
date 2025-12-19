@@ -27,13 +27,7 @@ const footerLinks = {
 
   pdfTools: [
     { name: "Compress PDF", href: "/pdf/pdf-compressor" },
-    { name: "Convert to CSV", href: "/pdf/pdf-to-csv" },
-    { name: "Convert to EPUB", href: "/pdf/pdf-to-epub" },
-    { name: "Convert to Excel", href: "/pdf/pdf-to-excel" },
-    { name: "Convert to HTML", href: "/pdf/pdf-to-html" },
     { name: "Convert to Images", href: "/pdf/pdf-to-images" },
-    { name: "Convert to Text", href: "/pdf/pdf-to-text" },
-    { name: "Convert to Word", href: "/pdf/pdf-to-word" },
     { name: "Extract Images", href: "/pdf/pdf-image-extract" },
     { name: "Extract Text", href: "/pdf/pdf-text-extract" },
     { name: "Images to PDF", href: "/pdf/images-to-pdf" },
@@ -44,6 +38,7 @@ const footerLinks = {
     { name: "Secure PDF", href: "/pdf/pdf-secure" },
     { name: "Split PDF", href: "/pdf/pdf-split" },
     { name: "Unlock PDF", href: "/pdf/pdf-unlock" },
+
   ],
 };
 
@@ -162,7 +157,7 @@ const Footer = () => {
         </p>
 
         <div className="flex gap-4">
-          {['Twitter', 'GitHub', 'Discord'].map((i) => (
+          {['1', '2', '3'].map((i) => (
             <div
               key={i}
               className="w-4 h-4 rounded-full bg-zinc-200 dark:bg-zinc-800 

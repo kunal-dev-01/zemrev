@@ -1,7 +1,7 @@
 """
 ============================================================================
-FILE: services/pdf-service/app/services/pymupdf/sign_pdf.py (FINAL CLEAN + ROTATION)
-PURPOSE: Add multiple signatures with MAXIMUM QUALITY and ROTATION support
+FILE: services/pdf-service/app/services/pymupdf/sign_pdf.py (UPDATED)
+PURPOSE: Add multiple signatures with ROTATION support + PAGE -1 (ALL PAGES)
 ============================================================================
 """
 
@@ -31,29 +31,48 @@ def sign_pdf(
 ) -> None:
     """
     Add multiple signatures to PDF with maximum quality and rotation.
+    Supports page: -1 for applying to ALL pages.
     """
     try:
         doc = fitz.open(input_path)
         logger.info(f"Processing {len(signatures)} signatures for PDF with {len(doc)} pages")
         
-        # Validate all pages exist
+        # ====================================================================
+        # STEP 1: Expand page: -1 to actual page numbers
+        # ====================================================================
+        expanded_signatures = []
         for sig in signatures:
             page_num = sig.get('page', 0)
-            if page_num >= len(doc):
-                doc.close()
-                raise ValueError(
-                    f"Signature on page {page_num + 1} failed: PDF has only {len(doc)} pages"
-                )
+            
+            # If page is -1, apply to ALL pages
+            if page_num == -1:
+                for page_idx in range(len(doc)):
+                    sig_copy = sig.copy()
+                    sig_copy['page'] = page_idx
+                    expanded_signatures.append(sig_copy)
+                logger.info(f"Expanded page: -1 to {len(doc)} pages")
+            else:
+                # Validate specific page exists
+                if page_num >= len(doc):
+                    doc.close()
+                    raise ValueError(
+                        f"Signature on page {page_num + 1} failed: PDF has only {len(doc)} pages"
+                    )
+                expanded_signatures.append(sig)
         
-        # Group signatures by page
+        # ====================================================================
+        # STEP 2: Group signatures by page
+        # ====================================================================
         signatures_by_page: Dict[int, List[Dict[str, Any]]] = {}
-        for sig in signatures:
+        for sig in expanded_signatures:
             page_num = sig.get('page', 0)
             if page_num not in signatures_by_page:
                 signatures_by_page[page_num] = []
             signatures_by_page[page_num].append(sig)
         
-        # Process each page
+        # ====================================================================
+        # STEP 3: Process each page
+        # ====================================================================
         for page_num, page_signatures in signatures_by_page.items():
             page = doc[page_num]
             page_rect = page.rect
@@ -65,7 +84,7 @@ def sign_pdf(
                 y = sig.get('y', 50)
                 width = sig.get('width', 200)
                 height = sig.get('height', 80)
-                rotation = sig.get('rotation', 0) # GET ROTATION
+                rotation = sig.get('rotation', 0)
                 sig_type = sig.get('type', 'text')
                 color_hex = sig.get('color', '#000000')
                 opacity = float(sig.get('opacity', 1.0))
@@ -186,22 +205,17 @@ def sign_pdf(
                     final_pil_image = sig_img.resize((width, height), Image.Resampling.LANCZOS)
 
                 # =========================================================
-                # 3. APPLY ROTATION (HERE IS THE UPDATE)
+                # 3. APPLY ROTATION
                 # =========================================================
                 if final_pil_image and rotation != 0:
-                    # Calculate original center
                     cx = x + (width / 2)
                     cy = y + (height / 2)
                     
-                    # Rotate (Negative because PIL is CCW, CSS is CW)
-                    # expand=True is critical to not cut corners
                     final_pil_image = final_pil_image.rotate(-rotation, expand=True, resample=Image.BICUBIC)
                     
-                    # Update dimensions to rotated size
                     width = final_pil_image.width
                     height = final_pil_image.height
                     
-                    # Recalculate X, Y to maintain the center point
                     x = cx - (width / 2)
                     y = cy - (height / 2)
 
@@ -221,8 +235,7 @@ def sign_pdf(
                     
                     sig_rect = fitz.Rect(x, y, x + width, y + height)
                     
-                    # Bounds check (Modified to be more lenient for rotation)
-                    # We just clamp to page if it goes wildly out
+                    # Bounds check - clamp to page if needed
                     if sig_rect.x0 < page_rect.x0: x = page_rect.x0
                     if sig_rect.y0 < page_rect.y0: y = page_rect.y0
                     if sig_rect.x1 > page_rect.x1: x = page_rect.x1 - width

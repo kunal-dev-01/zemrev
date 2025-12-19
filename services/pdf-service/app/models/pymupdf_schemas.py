@@ -110,7 +110,7 @@ class SignatureItem(BaseModel):
     y: int = Field(..., ge=0, description="Y position")
     width: int = Field(..., ge=10, le=500, description="Signature width")
     height: int = Field(..., ge=10, le=300, description="Signature height")
-    page: int = Field(..., ge=0, lt=100, description="Page number")
+    page: int = Field(..., ge=-1, lt=100, description="Page number")
 
 class SignPdfRequest(BaseModel):
     """Sign PDF request"""

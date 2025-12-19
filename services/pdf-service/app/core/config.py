@@ -12,7 +12,7 @@ from pathlib import Path
 
 class Settings(BaseSettings):
     # File limits
-    MAX_FILE_SIZE: int = 104857600 # 300MB
+    MAX_FILE_SIZE: int = 104857600 
     MAX_PAGES: int = 500
     
     # Paths
