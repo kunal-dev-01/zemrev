@@ -13,7 +13,6 @@ pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.vers
 interface PdfSignViewerProps {
   file: File;
   settings: PdfFileSettings;
-  primaryColor: string;
   onUpdateSignature: (signatureId: string, updates: Partial<SignatureItem>) => void;
   onDeleteSignature: (signatureId: string) => void;
   onSelectSignature: (signatureId: string) => void;
@@ -26,7 +25,6 @@ interface PdfSignViewerProps {
 export const PdfSignViewer = ({
   file,
   settings,
-  primaryColor,
   onUpdateSignature,
   onDeleteSignature,
   onSelectSignature,
@@ -162,7 +160,6 @@ export const PdfSignViewer = ({
                   key={signature.id}
                   signature={signature}
                   scale={scale}
-                  primaryColor={primaryColor}
                   onUpdate={(updates) => onUpdateSignature(signature.id, updates)}
                   onDelete={() => onDeleteSignature(signature.id)}
                   isSelected={selectedSignatureId === signature.id}

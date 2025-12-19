@@ -10,7 +10,6 @@ import Image from "next/image";
 interface DraggableSignatureProps {
   signature: SignatureItem;
   scale: number;
-  primaryColor: string;
   onUpdate: (updates: Partial<SignatureItem>) => void;
   onDelete: () => void;
   isSelected: boolean;
@@ -22,7 +21,6 @@ interface DraggableSignatureProps {
 export const DraggableSignature = ({
   signature,
   scale,
-  primaryColor,
   onUpdate,
   onDelete,
   isSelected,

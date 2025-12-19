@@ -1,8 +1,4 @@
-// ============================================================================
-// FILE: src/components/PdfTools/SignPdf/PdfSignFileItem.tsx (UPDATED)
-// ============================================================================
-
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { PdfSignViewer } from "./PdfSignViewer";
 import { CancelSvg, ChevronDownSvg } from "@/components/Svg/CommonSvg";
 import { UploadSvg } from "@/components/Svg/ToolsSvg";
@@ -22,25 +18,20 @@ interface PdfSignFileItemProps {
   file: PdfProcessedFile;
   config: PdfToolConfig;
   addSignature: (fileId: string, signature: SignatureItem) => void;
-  updateSignature: (
-    fileId: string,
-    signatureId: string,
-    updates: Partial<SignatureItem>
-  ) => void;
+  updateSignature: (fileId: string, signatureId: string, updates: Partial<SignatureItem>) => void;
   deleteSignature: (fileId: string, signatureId: string) => void;
   removeFile: (id: string) => void;
   isDark: boolean;
 }
 
-const COLORS = [
-  "#000000",
-  "#1E40AF",
-  "#B91C1C",
-  "#047857",
-  "#B45309",
-  "#4338CA",
-  "#6D28D9",
-];
+const COLORS = ["#000000", "#1E40AF", "#B91C1C", "#047857", "#B45309", "#4338CA", "#6D28D9"];
+
+const formatBytes = (bytes: number) => {
+  if (bytes === 0) return "0 B";
+  const k = 1024;
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return `${(bytes / Math.pow(k, i)).toFixed(1)} ${["B", "KB", "MB"][i]}`;
+};
 
 export const PdfSignFileItem = ({
   file,
@@ -55,26 +46,19 @@ export const PdfSignFileItem = ({
   const [newSignatureText, setNewSignatureText] = useState("John Doe");
   const [selectedFont, setSelectedFont] = useState("Dancing Script");
   const [selectedPage, setSelectedPage] = useState(0);
-  const [selectedSignatureId, setSelectedSignatureId] = useState<string | null>(
-    null
-  );
+  const [selectedSignatureId, setSelectedSignatureId] = useState<string | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
-
   const [selectedColor, setSelectedColor] = useState("#000000");
   const [opacity, setOpacity] = useState(100);
-  const [isFontDropdownOpen, setIsFontDropdownOpen] = useState(false);
-  
-  // Rotation State
   const [rotation, setRotation] = useState(0);
+  const [isFontDropdownOpen, setIsFontDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  // Handle click outside dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsFontDropdownOpen(false);
       }
     };
@@ -82,53 +66,47 @@ export const PdfSignFileItem = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Sync controls when a signature is selected
+  // Sync controls when signature is selected
   useEffect(() => {
     if (selectedSignatureId) {
-      const sig = file.settings.signatures?.find(
-        (s) => s.id === selectedSignatureId
-      );
+      const sig = file.settings.signatures?.find((s) => s.id === selectedSignatureId);
       if (sig) {
         if (sig.type) setActiveTab(sig.type);
         if (sig.text) setNewSignatureText(sig.text);
         if (sig.font) setSelectedFont(sig.font);
         if (sig.color) setSelectedColor(sig.color);
         if (sig.opacity !== undefined) setOpacity(sig.opacity * 100);
-        if (sig.rotation !== undefined) setRotation(sig.rotation); // Sync Rotation
+        if (sig.rotation !== undefined) setRotation(sig.rotation);
         setSelectedPage(sig.page);
       }
     }
   }, [selectedSignatureId, file.settings.signatures]);
 
-  const formatBytes = (bytes: number) => {
-    if (bytes === 0) return "0 B";
-    const k = 1024;
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return `${(bytes / Math.pow(k, i)).toFixed(1)} ${["B", "KB", "MB"][i]}`;
-  };
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
+  // Handle image upload
+  const handleImageUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const uploadedFile = e.target.files?.[0];
+    if (uploadedFile) {
+      setImageFile(uploadedFile);
       const reader = new FileReader();
       reader.onload = (event) => {
         setImagePreview(event.target?.result as string);
       };
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(uploadedFile);
     }
-  };
+  }, []);
 
-  const handlePropertyChange = <K extends keyof SignatureItem>(
-    key: K,
-    value: SignatureItem[K]
-  ) => {
-    if (selectedSignatureId) {
-      updateSignature(file.id, selectedSignatureId, { [key]: value });
-    }
-  };
+  // Handle property change
+  const handlePropertyChange = useCallback(
+    <K extends keyof SignatureItem>(key: K, value: SignatureItem[K]) => {
+      if (selectedSignatureId) {
+        updateSignature(file.id, selectedSignatureId, { [key]: value });
+      }
+    },
+    [selectedSignatureId, file.id, updateSignature]
+  );
 
-  const handleAddSignature = () => {
+  // Handle add signature
+  const handleAddSignature = useCallback(() => {
     if (activeTab === "text" && !newSignatureText.trim()) {
       alert("Please enter signature text");
       return;
@@ -145,7 +123,7 @@ export const PdfSignFileItem = ({
       text: activeTab === "text" ? newSignatureText : undefined,
       font: activeTab === "text" ? selectedFont : undefined,
       color: activeTab === "text" ? selectedColor : undefined,
-      rotation: rotation, // Rotation value pass ho raha hnn
+      rotation,
       opacity: opacity / 100,
       imageFile: activeTab === "image" ? imageFile! : undefined,
       imagePreview: activeTab === "image" ? imagePreview! : undefined,
@@ -162,18 +140,36 @@ export const PdfSignFileItem = ({
       setImageFile(null);
       setImagePreview(null);
     }
-    
-    // Reset rotation for next signature
+
     setRotation(0);
-  };
+  }, [activeTab, newSignatureText, imageFile, imagePreview, selectedFont, selectedColor, opacity, rotation, selectedPage, addSignature, file.id]);
+
+  // Handle signature selection sync
+  const handleSelectSignature = useCallback(
+    (id: string) => {
+      setSelectedSignatureId(id);
+      const sig = file.settings.signatures?.find((s) => s.id === id);
+      if (sig) {
+        setActiveTab(sig.type);
+        if (sig.text) setNewSignatureText(sig.text);
+        if (sig.font) setSelectedFont(sig.font);
+        if (sig.color) setSelectedColor(sig.color);
+        if (sig.opacity) setOpacity(sig.opacity * 100);
+        if (sig.rotation) setRotation(sig.rotation);
+        setSelectedPage(sig.page);
+      }
+    },
+    [file.settings.signatures]
+  );
 
   const totalSignatures = file.settings.signatures?.length || 0;
+  const pageDisplay = selectedPage + 1;
 
   return (
-    <div className="bg-white dark:bg-zinc-900/50 border border-zinc-200 dark:border-zinc-800 rounded-2xl overflow-hidden transition-all">
+    <div className="border border-zinc-200 dark:border-zinc-800 rounded-2xl bg-white/50 dark:bg-zinc-900/40 overflow-hidden transition-all">
       <SignatureFonts />
 
-      {/* HEADER */}
+      {/* Header */}
       <div className="flex items-center gap-3 p-4 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/40">
         <ToolIconBadge
           primaryColor={config.primaryColor}
@@ -197,9 +193,11 @@ export const PdfSignFileItem = ({
         <RemoveButton onClick={() => removeFile(file.id)} />
       </div>
 
+      {/* Content */}
       <div className="p-4 flex flex-col-reverse lg:grid lg:grid-cols-2 gap-6">
+        {/* Left: Controls */}
         <div className="space-y-5">
-          {/* TABS */}
+          {/* Tabs */}
           <div className="flex p-1 bg-zinc-100 dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800">
             {["text", "image"].map((type) => (
               <button
@@ -217,6 +215,7 @@ export const PdfSignFileItem = ({
             ))}
           </div>
 
+          {/* Text Signature Controls */}
           {activeTab === "text" && (
             <div className="space-y-6 fade-in duration-300">
               <div>
@@ -229,13 +228,13 @@ export const PdfSignFileItem = ({
                   value={newSignatureText}
                   onChange={(value) => {
                     setNewSignatureText(value);
-                    if (selectedSignatureId) handlePropertyChange("text", value);
+                    handlePropertyChange("text", value);
                   }}
                   placeholder="Enter Your Signature"
                 />
               </div>
 
-              {/* FONT DROPDOWN */}
+              {/* Font Dropdown */}
               <div ref={dropdownRef}>
                 <label className="text-xs uppercase font-bold text-zinc-500">
                   Font Style
@@ -269,7 +268,7 @@ export const PdfSignFileItem = ({
                           onClick={() => {
                             setSelectedFont(font.value);
                             setIsFontDropdownOpen(false);
-                            if (selectedSignatureId) handlePropertyChange("font", font.value);
+                            handlePropertyChange("font", font.value);
                           }}
                           className={`w-full text-left px-4 py-2.5 text-lg transition-colors cursor-pointer ${
                             selectedFont === font.value
@@ -286,7 +285,7 @@ export const PdfSignFileItem = ({
                 </div>
               </div>
 
-              {/* COLOR PICKER */}
+              {/* Color Picker */}
               <div>
                 <label className="text-xs uppercase font-bold text-zinc-500">
                   Ink Color
@@ -297,7 +296,7 @@ export const PdfSignFileItem = ({
                       key={c}
                       onClick={() => {
                         setSelectedColor(c);
-                        if (selectedSignatureId) handlePropertyChange("color", c);
+                        handlePropertyChange("color", c);
                       }}
                       className={`w-7 h-7 rounded-full border border-zinc-200 dark:border-zinc-700 transition-transform hover:scale-110 cursor-pointer ${
                         selectedColor === c
@@ -313,7 +312,7 @@ export const PdfSignFileItem = ({
                       value={selectedColor}
                       onChange={(e) => {
                         setSelectedColor(e.target.value);
-                        if (selectedSignatureId) handlePropertyChange("color", e.target.value);
+                        handlePropertyChange("color", e.target.value);
                       }}
                       className="absolute -top-1 -left-1 w-9 h-9 cursor-pointer p-0 border-0 opacity-0"
                     />
@@ -327,11 +326,19 @@ export const PdfSignFileItem = ({
             </div>
           )}
 
+          {/* Image Upload */}
           {activeTab === "image" && (
             <div className="space-y-4 fade-in duration-300">
               <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-xl cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
                 {imagePreview ? (
-                  <Image src={imagePreview} alt="preview" width={500} height={500} unoptimized className="max-h-28 max-w-full object-contain" />
+                  <Image
+                    src={imagePreview}
+                    alt="preview"
+                    width={500}
+                    height={500}
+                    unoptimized
+                    className="max-h-28 max-w-full object-contain"
+                  />
                 ) : (
                   <div className="text-center">
                     <div className="w-14 h-14 mx-auto mb-1 text-zinc-600 dark:text-zinc-300">
@@ -340,14 +347,19 @@ export const PdfSignFileItem = ({
                     <p className="text-sm text-zinc-500">Upload Signature Image</p>
                   </div>
                 )}
-                <input type="file" accept="image/png,image/svg+xml" onChange={handleImageUpload} className="hidden" />
+                <input
+                  type="file"
+                  accept="image/png,image/svg+xml"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
               </label>
             </div>
           )}
 
           <div className="h-px bg-zinc-100 dark:bg-zinc-800 mt-2" />
 
-          {/* OPACITY SLIDER */}
+          {/* Opacity Slider */}
           <RangeSlider
             label="Opacity"
             value={opacity}
@@ -358,11 +370,11 @@ export const PdfSignFileItem = ({
             color={config.primaryColor}
             onChange={(val) => {
               setOpacity(val);
-              if (selectedSignatureId) handlePropertyChange("opacity", val / 100);
+              handlePropertyChange("opacity", val / 100);
             }}
           />
 
-          {/* ROTATION SLIDER */}
+          {/* Rotation Slider */}
           <RangeSlider
             label="Rotation"
             value={rotation}
@@ -373,11 +385,11 @@ export const PdfSignFileItem = ({
             color={config.primaryColor}
             onChange={(val) => {
               setRotation(val);
-              if (selectedSignatureId) handlePropertyChange("rotation", val);
+              handlePropertyChange("rotation", val);
             }}
           />
 
-          {/* PAGE SELECTOR */}
+          {/* Page Selector */}
           <div>
             <label className="text-xs uppercase font-bold text-zinc-500">
               Target Page
@@ -385,7 +397,7 @@ export const PdfSignFileItem = ({
             <InputField
               label=""
               type="number"
-              value={selectedPage + 1}
+              value={pageDisplay}
               min={1}
               max={100}
               placeholder="Page number"
@@ -393,6 +405,7 @@ export const PdfSignFileItem = ({
             />
           </div>
 
+          {/* Add Signature Button */}
           <button
             type="button"
             onClick={handleAddSignature}
@@ -400,34 +413,21 @@ export const PdfSignFileItem = ({
             style={{ backgroundColor: config.primaryColor }}
           >
             <CancelSvg className="w-5 h-5 rotate-45 text-white" />
-            Add Signature to Page {selectedPage + 1}
+            Add Signature to Page {pageDisplay}
           </button>
         </div>
 
-        {/* PREVIEW COLUMN */}
+        {/* Right: Preview */}
         <div className="bg-zinc-50 dark:bg-zinc-900/30 rounded-xl p-1 border border-zinc-100 dark:border-zinc-800/50">
           {file.originalFile && (
             <PdfSignViewer
               file={file.originalFile}
               settings={file.settings}
-              primaryColor={config.primaryColor}
               onUpdateSignature={(sigId, updates) => updateSignature(file.id, sigId, updates)}
               onDeleteSignature={(sigId) => deleteSignature(file.id, sigId)}
-              onSelectSignature={(id) => {
-                setSelectedSignatureId(id);
-                const sig = file.settings.signatures?.find((s) => s.id === id);
-                if (sig) {
-                  setActiveTab(sig.type);
-                  if (sig.text) setNewSignatureText(sig.text);
-                  if (sig.font) setSelectedFont(sig.font);
-                  if (sig.color) setSelectedColor(sig.color);
-                  if (sig.opacity) setOpacity(sig.opacity * 100);
-                  if (sig.rotation) setRotation(sig.rotation); // Preview selection sync
-                  setSelectedPage(sig.page);
-                }
-              }}
+              onSelectSignature={handleSelectSignature}
               selectedSignatureId={selectedSignatureId}
-              activePage={selectedPage + 1}
+              activePage={pageDisplay}
               onPageChange={(pageNum) => setSelectedPage(pageNum - 1)}
             />
           )}

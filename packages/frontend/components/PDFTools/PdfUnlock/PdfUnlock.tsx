@@ -70,7 +70,7 @@ const PdfFileItem = ({
   // ============================================================================
 
   return (
-    <div className="bg-transparent border border-zinc-200 dark:border-zinc-800 rounded-2xl p-3 transition-all duration-200 hover:border-zinc-300 dark:hover:border-zinc-700">
+    <div className="bg-transparent border border-zinc-200 dark:border-zinc-800 rounded-2xl p-3 transition-all duration-200">
       <div className="flex items-center gap-3 mb-3">
         {/* PDF Icon Box */}
         <ToolIconBadge
