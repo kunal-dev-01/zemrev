@@ -1,21 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
-
 import { PdfCropOverlay } from "./PdfCropOverlay";
 import { ChevronDownSvg } from "@/components/Svg/CommonSvg";
-
 import type { PdfFileSettings } from "@/services/pdfService/types";
 
 // ============================================================================
 // PDF WORKER
 // ============================================================================
-
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 // ============================================================================
 // TYPES
 // ============================================================================
-
 interface PdfCropViewerProps {
   file: File;
   settings: PdfFileSettings;
@@ -30,7 +26,6 @@ interface PdfCropViewerProps {
 // ============================================================================
 // COMPONENT
 // ============================================================================
-
 export const PdfCropViewer = ({
   file,
   settings,
@@ -39,30 +34,24 @@ export const PdfCropViewer = ({
   // --------------------------------------------------------------------------
   // STATE
   // --------------------------------------------------------------------------
-
   const [numPages, setNumPages] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
-
   // PDF dimensions (points)
   const [pageWidth, setPageWidth] = useState(0);
   const [pageHeight, setPageHeight] = useState(0);
-
   // Rendered dimensions (pixels)
   const [renderedWidth, setRenderedWidth] = useState(0);
-
   // Responsive container
   const [containerSize, setContainerSize] = useState({
     width: 500,
     height: 600,
   });
-
   const containerRef = useRef<HTMLDivElement>(null);
 
   // --------------------------------------------------------------------------
   // DOCUMENT LOADERS
   // --------------------------------------------------------------------------
-
   const handleDocumentLoad = ({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
     setLoading(false);
@@ -79,17 +68,15 @@ export const PdfCropViewer = ({
   // --------------------------------------------------------------------------
   // RESPONSIVE RESIZE HANDLING
   // --------------------------------------------------------------------------
-
   useEffect(() => {
     const updateSize = () => {
       if (!containerRef.current) return;
-
       const { clientWidth } = containerRef.current;
+      
+      // Mobile: 50vh max height, Desktop: 600px
       const maxHeight =
-        window.innerWidth < 768
-          ? window.innerHeight * 0.5
-          : 600;
-
+        window.innerWidth < 768 ? window.innerHeight * 0.45 : 600;
+      
       setContainerSize({
         width: clientWidth,
         height: maxHeight,
@@ -111,19 +98,14 @@ export const PdfCropViewer = ({
   // --------------------------------------------------------------------------
   // SCALE CALCULATION (PDF POINTS → PIXELS)
   // --------------------------------------------------------------------------
-
   const scale =
-    renderedWidth > 0 && pageWidth > 0
-      ? renderedWidth / pageWidth
-      : 1;
+    renderedWidth > 0 && pageWidth > 0 ? renderedWidth / pageWidth : 1;
 
   // --------------------------------------------------------------------------
   // PAGE NAVIGATION
   // --------------------------------------------------------------------------
-
   const changePage = (delta: number) => {
     if (!numPages) return;
-
     setCurrentPage((prev) =>
       Math.min(Math.max(1, prev + delta), numPages)
     );
@@ -132,17 +114,15 @@ export const PdfCropViewer = ({
   // --------------------------------------------------------------------------
   // RENDER
   // --------------------------------------------------------------------------
-
   return (
-    <div className="w-full select-none">
+    <div className="w-full select-none flex flex-col h-full">
       {/* ===================================================================== */}
       {/* HEADER */}
       {/* ===================================================================== */}
-      <div className="flex items-center justify-between mb-3 px-1">
-        <h4 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+      <div className="flex items-center justify-between mb-3 px-1 shrink-0">
+        <h4 className="text-sm font-semibold uppercase text-zinc-500">
           Preview & Crop
         </h4>
-
         {numPages && numPages > 1 && (
           <div className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 rounded-lg p-1">
             <button
@@ -152,11 +132,9 @@ export const PdfCropViewer = ({
             >
               <ChevronDownSvg className="w-4 h-4 rotate-90 text-zinc-600 dark:text-zinc-300" />
             </button>
-
             <span className="w-16 text-xs font-mono text-center text-zinc-600 dark:text-zinc-400">
               {currentPage} / {numPages}
             </span>
-
             <button
               onClick={() => changePage(1)}
               disabled={currentPage >= numPages}
@@ -173,8 +151,8 @@ export const PdfCropViewer = ({
       {/* ===================================================================== */}
       <div
         ref={containerRef}
-        className="relative w-full flex items-center justify-center bg-zinc-100 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden"
-        style={{ height: containerSize.height }}
+        className="relative w-full flex items-center justify-center bg-zinc-100 dark:bg-zinc-950/50 border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-auto flex-1 py-4"
+        style={{ height: containerSize.height, maxHeight: "100%" }}
       >
         {loading && (
           <div className="absolute inset-0 flex items-center justify-center gap-2 text-sm text-zinc-500">
@@ -187,9 +165,9 @@ export const PdfCropViewer = ({
           file={file}
           onLoadSuccess={handleDocumentLoad}
           loading={null}
-          className="max-w-full max-h-full"
+          className="flex items-center justify-center"
         >
-          <div className="relative">
+          <div className="relative inline-block">
             <Page
               pageNumber={currentPage}
               height={
@@ -206,13 +184,11 @@ export const PdfCropViewer = ({
                 const canvas = document.querySelector(
                   `.react-pdf__Page[data-page-number="${currentPage}"] canvas`
                 );
-
                 if (canvas) {
                   setRenderedWidth(
                     canvas.getBoundingClientRect().width
                   );
                 }
-
                 handlePageLoad(page);
               }}
               renderTextLayer={false}

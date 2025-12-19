@@ -243,11 +243,6 @@ export const PdfCropOverlay = ({
              onMouseDown={(e) => handleMouseDown(e, "l")} onTouchStart={(e) => handleTouchStart(e, "l")} />
         <div className="absolute right-0 inset-y-4 w-4 -mr-2 cursor-ew-resize"
              onMouseDown={(e) => handleMouseDown(e, "r")} onTouchStart={(e) => handleTouchStart(e, "r")} />
-
-        {/* Size Label */}
-        <div className="absolute -top-8 left-0 bg-[#4D7C0F] text-white text-[10px] px-2 py-0.5 rounded shadow whitespace-nowrap">
-          {Math.round(cropWidth)} x {Math.round(cropHeight)}
-        </div>
       </div>
     </div>
   );

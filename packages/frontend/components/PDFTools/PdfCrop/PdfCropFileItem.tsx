@@ -153,7 +153,7 @@ export const PdfCropFileItem = ({
       {/* ===================================================================== */}
       {/* CONTENT */}
       {/* ===================================================================== */}
-      <div className="p-4 grid lg:grid-cols-2 gap-6">
+      <div className="flex flex-col-reverse lg:grid lg:grid-cols-2 gap-6 p-4">
         {/* ------------------------------------------------------------------- */}
         {/* LEFT COLUMN - SETTINGS */}
         {/* ------------------------------------------------------------------- */}
@@ -241,7 +241,7 @@ export const PdfCropFileItem = ({
         {/* ------------------------------------------------------------------- */}
         {/* RIGHT COLUMN - PREVIEW */}
         {/* ------------------------------------------------------------------- */}
-        <div className="bg-zinc-50 dark:bg-zinc-900/30 rounded-xl p-1 border border-zinc-100 dark:border-zinc-800/50">
+        <div className="bg-zinc-50 dark:bg-zinc-900/30 rounded-xl p-1 border border-zinc-100 dark:border-zinc-800/50 min-h-[300px] lg:min-h-0">
           {file.originalFile && (
             <PdfCropViewer
               file={file.originalFile}
