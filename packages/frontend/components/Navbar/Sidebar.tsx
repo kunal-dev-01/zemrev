@@ -108,7 +108,7 @@ const Backdrop: FC<{ isOpen: boolean; onClick: () => void }> = memo(
 const ToolSection: FC<ToolSectionProps> = memo(
   ({ title, tools, onClose }) => (
     <div className="mb-8">
-      <h3 className="text-[10px] uppercase tracking-[2px] font-bold text-zinc-400 dark:text-zinc-500 mb-4 px-3">
+      <h3 className="text-[10px] uppercase tracking-[2px] font-bold text-zinc-400 dark:text-zinc-500 mb-4 pb-2 border-b border-zinc-200 dark:border-zinc-800">
         {title}
       </h3>
       <div className="space-y-1">
@@ -170,7 +170,7 @@ const SideBar: FC = () => {
 
       <aside
         className={clsx(
-          "fixed top-0 right-0 z-50 h-screen w-[300px] flex flex-col bg-zinc-50/95 dark:bg-[#0b0b0b]/95 backdrop-blur-xl border-l border-zinc-200 dark:border-zinc-800 transition-transform duration-500 cubic-bezier(0.4, 0, 0.2, 1) shadow-2xl",
+          "fixed top-0 right-0 z-50 h-screen w-[300px] pb-5 md:pb-0 flex flex-col bg-zinc-50/95 dark:bg-[#0b0b0b]/95 backdrop-blur-xl border-l border-zinc-200 dark:border-zinc-800 transition-transform duration-500 cubic-bezier(0.4, 0, 0.2, 1) shadow-2xl",
           isOpenSidebar ? "translate-x-0" : "translate-x-full"
         )}
       >
