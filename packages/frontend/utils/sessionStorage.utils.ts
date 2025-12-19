@@ -1,9 +1,3 @@
-// ============================================================================
-// FILE: src/utils/sessionStorage.utils.ts
-// PURPOSE: Shared 200MB persistent browser storage (IndexedDB-based)
-// 2-hour TTL for all tools + tool-wise metadata separation
-// ============================================================================
-
 import { set, get, del } from "idb-keyval";
 import type { StoredFile, SessionStorageData, ToolType } from "@/services/imageService/types";
 
@@ -101,6 +95,30 @@ const clearGlobal = async (): Promise<void> => {
 };
 
 // ============================================================================
+// HELPER: Generate unique file name (handle duplicates)
+// ============================================================================
+
+const generateUniqueFileName = (originalName: string, existingNames: string[]): string => {
+  if (!existingNames.includes(originalName)) {
+    return originalName;
+  }
+
+  const nameParts = originalName.split('.');
+  const ext = nameParts.pop();
+  const baseName = nameParts.join('.');
+
+  let counter = 1;
+  let newName = `${baseName} (${counter}).${ext}`;
+
+  while (existingNames.includes(newName)) {
+    counter++;
+    newName = `${baseName} (${counter}).${ext}`;
+  }
+
+  return newName;
+};
+
+// ============================================================================
 // MAIN API
 // ============================================================================
 
@@ -125,9 +143,13 @@ export const sessionStorageUtils = {
     // Update tool metadata
     const meta = getMeta(tool);
 
+    // Get unique file name
+    const existingNames = meta.files.map(f => f.name);
+    const uniqueName = generateUniqueFileName(name, existingNames);
+
     const fileMeta: StoredFile = {
       id,
-      name,
+      name: uniqueName,
       blob: "",
       timestamp: Date.now(),
       size: newFileSize,

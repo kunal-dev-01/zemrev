@@ -1,8 +1,3 @@
-// ============================================================================
-// FILE: src/utils/pdfSessionStorage.utils.ts
-// PURPOSE: PDF session storage (200MB shared, 2-hour TTL)
-// ============================================================================
-
 import { set, get, del } from "idb-keyval";
 import type { PdfStoredFile, PdfSessionStorageData, PdfToolType } from "@/services/pdfService/types";
 
@@ -112,6 +107,30 @@ const clearGlobal = async (): Promise<void> => {
 };
 
 // ============================================================================
+// HELPER: Generate unique file name (handle duplicates)
+// ============================================================================
+
+const generateUniqueFileName = (originalName: string, existingNames: string[]): string => {
+  if (!existingNames.includes(originalName)) {
+    return originalName;
+  }
+
+  const nameParts = originalName.split('.');
+  const ext = nameParts.pop();
+  const baseName = nameParts.join('.');
+
+  let counter = 1;
+  let newName = `${baseName} (${counter}).${ext}`;
+
+  while (existingNames.includes(newName)) {
+    counter++;
+    newName = `${baseName} (${counter}).${ext}`;
+  }
+
+  return newName;
+};
+
+// ============================================================================
 // MAIN API
 // ============================================================================
 
@@ -132,9 +151,13 @@ export const pdfSessionStorage = {
 
     const meta = getMeta(tool);
 
+    // Get unique file name
+    const existingNames = meta.files.map(f => f.name);
+    const uniqueName = generateUniqueFileName(name, existingNames);
+
     const fileMeta: PdfStoredFile = {
       id,
-      name,
+      name: uniqueName,
       blob: "",
       timestamp: Date.now(),
       size: newFileSize,
