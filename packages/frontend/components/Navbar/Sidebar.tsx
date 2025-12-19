@@ -12,6 +12,7 @@ import {
   Watermark,
   MetadataSvg,
   ColorPaletteSvg,
+  ScissorSvg
 } from "@/components/Svg/HomeSvg";
 import {
   ExtractImagesFromPdfSvg,
@@ -30,7 +31,7 @@ import {
   OCRPDFSvg,
   SignPDFSvg,
   PDFASvg,
-  CropPDFSvg
+  CropPDFSvg,
 } from "@/components/Svg/PdfSvg";
 
 /* ================= Tools List ================= */
@@ -63,6 +64,7 @@ const PDFTools = [
   { name: "Unlock PDF", href: "/pdf/pdf-unlock", icon: UnlockPdfSvg },
   { name: "PDF Optimizer", href: "/pdf/pdf-optimize", icon: PDFOptimizerSvg },
   { name: "PDF/A Converter", href: "/pdf/pdf-a", icon: PDFASvg },
+  { name: "Remove Pages from PDF", href: "/pdf/remove-pdf-pages", icon: ScissorSvg },
 ];
 
 /* ================= Backdrop ================= */

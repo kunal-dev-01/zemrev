@@ -238,7 +238,7 @@ const pdfTools: ToolItem[] = [
     title: "Remove Pages from PDF",
     desc: "Remove any page from a PDF with ease.",
     icon: ScissorSvg,
-    link: "/pdf/remove-pages",
+    link: "/pdf/remove-pdf-pages",
     color: "text-slate-600",
     bg: "bg-slate-50 dark:bg-slate-600/10",
   }
