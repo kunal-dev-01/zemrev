@@ -274,7 +274,7 @@ export const PDF_TOOL_CONFIGS: Record<string, PdfToolConfig> = {
     dropzoneColor: "#F8FAFC",
     dropzoneColorDark: "rgba(71, 85, 105, 0.10)",
     defaultSettings: {
-      pages_to_remove: "1",  // Default: remove first page
+      pages_to_remove: "", 
     },
   },
 };

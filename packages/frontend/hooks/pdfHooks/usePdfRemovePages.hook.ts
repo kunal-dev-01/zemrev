@@ -35,7 +35,7 @@ export const usePdfRemovePages = () => {
             name: file.name,
             size: file.size,
             type: file.type,
-            settings: { pages_to_remove: "1" }, // Default
+            settings: { pages_to_remove: "" }, // Default
             status: "pending" as const,
           }))
         );
