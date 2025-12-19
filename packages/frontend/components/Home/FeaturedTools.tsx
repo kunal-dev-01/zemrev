@@ -235,10 +235,10 @@ const pdfTools: ToolItem[] = [
     bg: "bg-teal-50 dark:bg-teal-700/10",
   },
   {
-    title: "Remove Page from PDF",
+    title: "Remove Pages from PDF",
     desc: "Remove any page from a PDF with ease.",
     icon: ScissorSvg,
-    link: "/pdf/remove-page",
+    link: "/pdf/remove-pages",
     color: "text-slate-600",
     bg: "bg-slate-50 dark:bg-slate-600/10",
   }
