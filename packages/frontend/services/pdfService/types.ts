@@ -51,7 +51,7 @@ export const SIGNATURE_FONTS = [
   { value: "Great Vibes", label: "Great Vibes" },
   { value: "Sacramento", label: "Sacramento" },
   { value: "Allura", label: "Allura" },
-  { value: "Homemade Apple", label: "Homemade Apple" },
+  { value: "Momo Signature", label: "Momo Signature" },
   { value: "Caveat", label: "Caveat (Natural Marker)" },    
   { value: "Reenie Beanie", label: "Reenie Beanie (Scribble)" }
 ] as const;
