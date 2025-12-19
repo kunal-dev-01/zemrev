@@ -40,7 +40,7 @@ const ZOOM_PRESETS = [
   { label: "100%", value: 100 },
   { label: "150%", value: 150 },
   { label: "200%", value: 200 },
-] ;
+];
 
 /* -------------------------------------------------------------------------- */
 /*                              MAIN COMPONENT                                */
@@ -120,14 +120,14 @@ const ImageCropper = () => {
       )}
 
       {file && imageUrl && (
-        <div className="border border-zinc-200 dark:border-zinc-800 rounded-2xl bg-white/50 dark:bg-zinc-900/40 p-3 md:p-6 mt-[1vh] md:mt-[1vw]">
+        <div className="border border-zinc-200 dark:border-zinc-800 rounded-2xl bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 md:mt-[1vw] mt-[1vh] fade-in">
           {/* Header */}
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-6 pb-4 border-b border-zinc-200 dark:border-zinc-800">
             <div className="flex-1 min-w-0">
-              <h3 className="md:text-lg text-md font-semibold text-zinc-800 dark:text-zinc-200 truncate">
+              <h3 className="text-sm leading-none font-semibold truncate text-zinc-800 dark:text-zinc-200">
                 {file.name}
               </h3>
-              <p className="md:text-sm text-xs text-zinc-600 dark:text-zinc-400">
+              <p className="text-xs text-zinc-500 mt-1">
                 Drag to crop • Scroll to zoom
               </p>
             </div>
@@ -135,42 +135,22 @@ const ImageCropper = () => {
             <button
               onClick={reset}
               disabled={cropping}
-              className="px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all duration-200 flex items-center gap-2 cursor-pointer"
+              className="ml-3 px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all duration-200 flex items-center gap-2 cursor-pointer disabled:opacity-50"
             >
               <div className="w-5 h-5">
                 <RotateSvg />
               </div>
-              <span className="hidden md:block">Change Image</span>
+              <span className="md:block hidden text-sm">Change</span>
             </button>
           </div>
 
           {/* Layout */}
-          <div className="flex flex-col lg:flex-row gap-6">
-            {/* Cropper Canvas */}
-            <div className="flex-1 lg:w-[60%]">
-              <div className="relative w-full h-[50vh] lg:h-[60vh] dark:bg-zinc-900 bg-zinc-100 rounded-xl overflow-hidden">
-                <Cropper
-                  image={imageUrl}
-                  crop={crop}
-                  zoom={zoom / 100}
-                  aspect={aspectRatio ?? undefined}
-                  onCropChange={setCrop}
-                  onZoomChange={(z) => setZoom(Math.round(z * 100))}
-                  onCropComplete={onCropComplete}
-                  objectFit="contain"
-                  style={{
-                    containerStyle: { backgroundColor: "#18181b", borderRadius: 12 },
-                    mediaStyle: { transition: "transform 0.3s ease-in-out" },
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Settings Panel */}
-            <div className="lg:w-[40%] space-y-4">
+          <div className="flex flex-col-reverse lg:grid lg:grid-cols-2 gap-6">
+            {/* LEFT COLUMN: Settings Panel */}
+            <div className="space-y-5">
               {/* Aspect Ratio */}
               <div>
-                <label className="text-sm font-semibold text-zinc-800 dark:text-zinc-200 mb-2 block">
+                <label className="text-xs uppercase font-bold text-zinc-500 mb-2 block">
                   Aspect Ratio
                 </label>
                 <div className="grid grid-cols-3 gap-2">
@@ -180,12 +160,12 @@ const ImageCropper = () => {
                       <button
                         key={ratio.label}
                         onClick={() => setAspectRatio(ratio.value)}
-                        className={`px-3 py-2.5 rounded-xl text-sm font-medium 
+                        className={`px-3 py-2.5 rounded-lg text-sm font-medium 
                                     flex flex-col items-center gap-1.5 border transition-all cursor-pointer
                                     ${
                                       isActive
-                                        ? "text-white border-transparent"
-                                        : "border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700"
+                                        ? "text-white border-transparent shadow-sm"
+                                        : "border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700"
                                     }`}
                         style={{
                           backgroundColor: isActive ? config.primaryColor : undefined,
@@ -198,6 +178,8 @@ const ImageCropper = () => {
                   })}
                 </div>
               </div>
+
+              <div className="h-px bg-zinc-100 dark:bg-zinc-800" />
 
               {/* Zoom Slider */}
               <RangeSlider
@@ -227,6 +209,37 @@ const ImageCropper = () => {
               >
                 {cropping ? "Cropping..." : "Crop Image"}
               </GlassButton>
+            </div>
+
+            {/* RIGHT COLUMN: Cropper Canvas */}
+            <div className="bg-zinc-50 dark:bg-zinc-900/30 rounded-xl p-1 border border-zinc-100 dark:border-zinc-800/50">
+              <div className="mb-3 px-1">
+                <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
+                  Crop Area
+                </span>
+              </div>
+              
+              <div className="relative w-full aspect-video bg-zinc-950 rounded-lg overflow-hidden">
+                <Cropper
+                  image={imageUrl}
+                  crop={crop}
+                  zoom={zoom / 100}
+                  aspect={aspectRatio ?? undefined}
+                  onCropChange={setCrop}
+                  onZoomChange={(z) => setZoom(Math.round(z * 100))}
+                  onCropComplete={onCropComplete}
+                  objectFit="contain"
+                  style={{
+                    containerStyle: { 
+                      backgroundColor: "#09090b",
+                      borderRadius: 8
+                    },
+                    mediaStyle: { 
+                      transition: "transform 0.3s ease-in-out" 
+                    },
+                  }}
+                />
+              </div>
             </div>
           </div>
         </div>
