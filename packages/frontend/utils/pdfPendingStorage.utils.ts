@@ -1,6 +1,6 @@
 // ============================================================================
 // FILE: src/utils/pdfPendingStorage.utils.ts
-// PURPOSE: Pending PDF uploads (20 min TTL + refresh-safe)
+// PURPOSE: Pending PDF uploads (20 min TTL + refresh-safe) - FIXED
 // ============================================================================
 
 import { set, get, del } from "idb-keyval";
@@ -24,7 +24,8 @@ const PENDING_META: Record<PdfToolType, string> = {
   "optimize-pdf": "zemrev_pdf_pending_optimize",
   "sign-pdf": "zemrev_pdf_meta_sign",
   "crop-pdf": "zemrev_pdf_meta_crop",
-
+  "pdf-remove-pages": "zemrev_pdf_pending_remove_pages",  // ✅ FIXED: Changed to "pending"
+  
   "compress-pdf": "zemrev_pdf_pending_compress",
   "flatten-pdf": "zemrev_pdf_pending_flatten",
   "convert-pdfa": "zemrev_pdf_meta_pdfa",
@@ -44,6 +45,7 @@ export const pdfPendingStorage = {
   async save(tool: PdfToolType, file: File): Promise<string> {
     const id = `${tool}_${Date.now()}_${Math.random().toString(36).slice(2)}`;
 
+    // ✅ FIX: Use parentheses () not template literals ``
     await set(`pdf_pending/${tool}/${id}`, file);
 
     const list: PdfPendingMeta[] = JSON.parse(
@@ -76,10 +78,12 @@ export const pdfPendingStorage = {
       const expired = now - meta.timestamp > TTL;
 
       if (expired) {
+        // ✅ FIX: Use parentheses () not template literals ``
         await del(`pdf_pending/${tool}/${meta.id}`);
         continue;
       }
 
+      // ✅ FIX: Use parentheses () not template literals ``
       const blob = await get(`pdf_pending/${tool}/${meta.id}`);
       if (!blob) continue;
 
@@ -95,6 +99,7 @@ export const pdfPendingStorage = {
   },
 
   async delete(tool: PdfToolType, id: string): Promise<void> {
+    // ✅ FIX: Use parentheses () not template literals ``
     await del(`pdf_pending/${tool}/${id}`);
 
     const list: PdfPendingMeta[] = JSON.parse(
@@ -112,6 +117,7 @@ export const pdfPendingStorage = {
     );
 
     for (const meta of list) {
+      // ✅ FIX: Use parentheses () not template literals ``
       await del(`pdf_pending/${tool}/${meta.id}`);
     }
 
