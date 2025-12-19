@@ -13,6 +13,7 @@ import type {
   OcrPdfRequest,
   ConvertToPdfARequest,
   CropPdfRequest,
+  RemovePagesRequest,
 } from "./types";
 
 // ============================================================================
@@ -195,6 +196,18 @@ export const pdfApi = baseApi.injectEndpoints({
       }),
     }),
 
+    removePagesFromPdf: builder.mutation<
+      Blob,
+      { file: File; options: RemovePagesRequest }
+    >({
+      query: ({ file, options }) => ({
+        url: "/pymupdf/remove-pages",
+        method: "POST",
+        body: buildFormData(file, options),
+        ...blobResponse,
+      }),
+    }),
+
     // ======================================================================
     // GHOSTSCRIPT
     // ======================================================================
@@ -268,6 +281,7 @@ export const {
   useOptimizePdfMutation,
   useSignPdfMutation,
   useCropPdfMutation,
+  useRemovePagesFromPdfMutation,
 
   useCompressPdfMutation,
   useFlattenPdfMutation,
