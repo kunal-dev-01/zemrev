@@ -102,7 +102,7 @@ export const DraggableWatermark = ({
       onMouseDown={handleMouseDown}
       onTouchStart={handleTouchStart}
       className={`absolute cursor-move select-none transition-shadow ${
-        isSelected ? 'ring-2 ring-purple-500 shadow-lg z-30' : 'hover:ring-2 hover:ring-purple-300 z-20'
+        isSelected ? 'ring-2 ring-[#C026D3] z-30' : 'hover:ring-2 hover:ring-[#C026D3] z-20'
       } ${isDragging || isResizing ? 'cursor-grabbing' : 'cursor-grab'}`}
       style={{
         left: `${x}px`,
@@ -159,25 +159,25 @@ export const DraggableWatermark = ({
       {isSelected && (
         <>
           <div
-            className="resize-handle absolute -bottom-1 -right-1 w-4 h-4 bg-purple-500 border border-white rounded-full cursor-se-resize z-40 hover:scale-125 transition-transform"
+            className="resize-handle absolute -bottom-1 -right-1 w-4 h-4 bg-[#C026D3] border border-white rounded-full cursor-se-resize z-40 hover:scale-125 transition-transform"
             onMouseDown={(e) => handleResizeMouseDown(e, 'se')}
             onTouchStart={(e) => handleResizeTouchStart(e, 'se')}
           />
           
           <div
-            className="resize-handle absolute -bottom-1 -left-1 w-4 h-4 bg-purple-500 border border-white rounded-full cursor-sw-resize z-40 hover:scale-125 transition-transform"
+            className="resize-handle absolute -bottom-1 -left-1 w-4 h-4 bg-[#C026D3] border border-white rounded-full cursor-sw-resize z-40 hover:scale-125 transition-transform"
             onMouseDown={(e) => handleResizeMouseDown(e, 'sw')}
             onTouchStart={(e) => handleResizeTouchStart(e, 'sw')}
           />
           
           <div
-            className="resize-handle absolute -top-1 -right-1 w-4 h-4 bg-purple-500 border border-white rounded-full cursor-ne-resize z-40 hover:scale-125 transition-transform"
+            className="resize-handle absolute -top-1 -right-1 w-4 h-4 bg-[#C026D3] border border-white rounded-full cursor-ne-resize z-40 hover:scale-125 transition-transform"
             onMouseDown={(e) => handleResizeMouseDown(e, 'ne')}
             onTouchStart={(e) => handleResizeTouchStart(e, 'ne')}
           />
           
           <div
-            className="resize-handle absolute -top-1 -left-1 w-4 h-4 bg-purple-500 border border-white rounded-full cursor-nw-resize z-40 hover:scale-125 transition-transform"
+            className="resize-handle absolute -top-1 -left-1 w-4 h-4 bg-[#C026D3] border border-white rounded-full cursor-nw-resize z-40 hover:scale-125 transition-transform"
             onMouseDown={(e) => handleResizeMouseDown(e, 'nw')}
             onTouchStart={(e) => handleResizeTouchStart(e, 'nw')}
           />
