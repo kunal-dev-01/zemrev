@@ -408,7 +408,7 @@ export const PdfWatermarkFileItem = ({
                   disabled={!selectedWatermarkId}
                   className={`py-2 px-3 text-xs font-medium rounded-lg border transition-all cursor-pointer ${
                     selectedWatermarkId
-                      ? "border-zinc-200 dark:border-zinc-700 hover:border-purple-400 dark:hover:border-purple-600/50 text-zinc-700 dark:text-zinc-300 hover:bg-purple-50 dark:hover:bg-purple-900/20"
+                      ? "border-zinc-200 dark:border-zinc-700  text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                       : "border-zinc-100 dark:border-zinc-800 text-zinc-400 dark:text-zinc-600 cursor-not-allowed"
                   }`}
                 >

@@ -70,7 +70,7 @@ const PdfWatermark = () => {
             >
               {processing
                 ? "Adding Watermarks..."
-                : `Add ${totalWatermarks} Watermark${totalWatermarks !== 1 ? "s" : ""} to PDF`}
+                : `Add Watermark${totalWatermarks !== 1 ? "s" : ""} to PDF`}
             </GlassButton>
           )}
 

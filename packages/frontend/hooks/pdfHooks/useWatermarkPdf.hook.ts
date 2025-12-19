@@ -38,7 +38,7 @@ export const useWatermarkPdf = () => {
             name: file.name,
             size: file.size,
             type: file.type,
-            settings: { signatures: [] }, // Backend expects 'signatures' field
+            settings: { signatures: [] }, 
             status: "pending" as const,
           }))
         );
@@ -207,7 +207,7 @@ export const useWatermarkPdf = () => {
           height: Math.round(sig.height),
           page: sig.page,
           color: sig.color || "#000000",
-          opacity: sig.opacity ?? 0.3,
+          opacity: sig.opacity ?? 1.0,
           rotation: sig.rotation || 0,
         }));
 
