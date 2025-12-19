@@ -8,7 +8,7 @@ import { useCommonModal } from "@/hooks/appHooks/common.hooks";
 const Logo: FC = () => (
   <Link href="/" className="group">
     <h1 className="text-zinc-800 dark:text-zinc-200 md:text-2xl text-xl font-bold tracking-tight group-hover:text-black dark:group-hover:text-white transition-colors duration-300">
-      Zemrev.
+      Zemrev<span className="text-blue-600">.</span>
     </h1>
   </Link>
 );
