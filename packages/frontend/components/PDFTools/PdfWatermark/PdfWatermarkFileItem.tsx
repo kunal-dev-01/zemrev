@@ -409,18 +409,13 @@ export const PdfWatermarkFileItem = ({
                   className={`py-2 px-3 text-xs font-medium rounded-lg border transition-all cursor-pointer ${
                     selectedWatermarkId
                       ? "border-zinc-200 dark:border-zinc-700  text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                      : "border-zinc-100 dark:border-zinc-800 text-zinc-400 dark:text-zinc-600 cursor-not-allowed"
+                      : "border-zinc-100 dark:border-zinc-800 text-zinc-400 dark:text-zinc-600"
                   }`}
                 >
                   {pos.label}
                 </button>
               ))}
             </div>
-            {!selectedWatermarkId && (
-              <p className="text-xs text-amber-600 dark:text-amber-400 mt-2">
-                💡 Select a watermark from preview to change position
-              </p>
-            )}
           </div>
 
           {/* Page Range Selector */}
