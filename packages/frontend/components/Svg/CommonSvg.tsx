@@ -148,12 +148,13 @@ export const TrashSvg = memo(({ className }: { className?: string }) => (
 TrashSvg.displayName = "TrashSvg";
 
 // ================= Folder Open SVG ================= //
-export const FolderOpenSvg = memo(() => (
+export const FolderOpenSvg = memo(({ className }: { className?: string }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="100%"
     height="100%"
     viewBox="0 0 20 20"
+    className={className}
   >
     <path
       fill="currentColor"
