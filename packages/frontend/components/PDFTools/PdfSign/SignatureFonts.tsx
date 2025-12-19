@@ -1,13 +1,4 @@
-// ============================================================================
-// FILE: src/components/PdfTools/SignPdf/SignatureFonts.tsx
-// ============================================================================
 
-"use client";
-
-/**
- * Loads signature fonts only when this component is mounted.
- * Prevents global loading in layout.tsx to keep website fast.
- */
 export const SignatureFonts = () => {
   return (
     <>
