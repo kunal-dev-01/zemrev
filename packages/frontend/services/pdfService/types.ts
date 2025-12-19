@@ -6,6 +6,7 @@ export type PdfToolType =
   | "pdf-merge"
   | "pdf-split"
   | "pdf-rotate"
+  | "pdf-remove-pages"
   | "pdf-encrypt"
   | "pdf-decrypt"
   | "pdf-to-images"
@@ -129,6 +130,9 @@ export interface PdfFileSettings {
 
   // OCR
   language?: string;
+
+  // Remove
+  pages_to_remove?: string;
 }
 
 // ============================================================================
@@ -266,6 +270,11 @@ export interface OcrPdfRequest extends FormDataParams {
   dpi: number;
 }
 
+// Remove
+export interface RemovePagesRequest extends FormDataParams {
+  pages_to_remove: string;
+}
+
 // ============================================================================
 // API RESPONSES
 // ============================================================================
@@ -287,4 +296,13 @@ export interface CompressPdfResponse {
   compressed_size_kb: number;
   reduction_percent: number;
   compression_level: string;
+}
+
+export interface RemovePagesResponse {
+  message: string;
+  original_pages: number;
+  removed_pages: number;
+  remaining_pages: number;
+  original_size_kb: number;
+  new_size_kb: number;
 }
