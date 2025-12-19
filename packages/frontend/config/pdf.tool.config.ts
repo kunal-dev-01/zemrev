@@ -263,7 +263,20 @@ export const PDF_TOOL_CONFIGS: Record<string, PdfToolConfig> = {
     },
   },
 
-  
+  "pdf-remove-pages": {
+    type: "pdf-remove-pages",
+    title: "Remove PDF Pages",
+    description: "Remove specific pages from PDF",
+    acceptedFormats: ["application/pdf"],
+    maxFiles: 1,
+    showPreview: false,
+    primaryColor: "#475569",  // Red color for "remove" action
+    dropzoneColor: "#F8FAFC",
+    dropzoneColorDark: "rgba(71, 85, 105, 0.10)",
+    defaultSettings: {
+      pages_to_remove: "1",  // Default: remove first page
+    },
+  },
 };
 
 // ============================================================================
