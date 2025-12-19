@@ -1,15 +1,11 @@
-// ============================================================================
-// FILE: src/components/Shared/SessionFilesDisplay.tsx
-// PURPOSE: Display completed files from session storage (Real-time, No Polling)
-// ============================================================================
-
-
 import { useEffect, useState, useCallback } from "react";
 import { sessionStorageUtils } from "@/utils/sessionStorage.utils";
+import { zipDownloadUtils } from "@/utils/zipDownload.utils";
 import { DownloadSvg, FolderOpenSvg, TrashSvg } from "@/components/Svg/CommonSvg";
 import { FileImage } from "@/components/Svg/HomeSvg";
 import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 import type { ToolConfig, ToolType, StoredFile } from "@/services/imageService/types";
+import { ClearAllButton } from "./FileUI";
 
 interface SessionFilesDisplayProps {
   toolType: ToolType;
@@ -19,6 +15,7 @@ interface SessionFilesDisplayProps {
 export const SessionFilesDisplay = ({ toolType, config }: SessionFilesDisplayProps) => {
   const isDark = useDarkMode();
   const [sessionFiles, setSessionFiles] = useState<StoredFile[]>([]);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   // ============================================================================
   // LOAD FILES FROM SESSION STORAGE
@@ -75,11 +72,32 @@ export const SessionFilesDisplay = ({ toolType, config }: SessionFilesDisplayPro
   };
 
   // ============================================================================
-  // DOWNLOAD ALL FILES
+  // DOWNLOAD ALL FILES AS ZIP
   // ============================================================================
   const handleDownloadAll = async () => {
-    for (const [index, file] of sessionFiles.entries()) {
-      setTimeout(() => handleDownload(file.id), index * 500);
+    if (sessionFiles.length === 0) return;
+
+    setIsDownloading(true);
+    try {
+      const filesToZip = [];
+
+      for (const file of sessionFiles) {
+        const blob = await sessionStorageUtils.getBlob(file.id);
+        if (blob) {
+          filesToZip.push({
+            name: file.name,
+            blob: blob,
+          });
+        }
+      }
+
+      if (filesToZip.length > 0) {
+        await zipDownloadUtils.downloadAsZip(filesToZip, 'completed-files');
+      }
+    } catch (error) {
+      console.error('Error downloading files as ZIP:', error);
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -167,24 +185,19 @@ export const SessionFilesDisplay = ({ toolType, config }: SessionFilesDisplayPro
         <div className="flex items-center gap-2">
           <button
             onClick={handleDownloadAll}
-            className="px-4 py-1.5 rounded-xl font-medium text-white flex items-center gap-2 transition-all hover:opacity-90"
+            disabled={isDownloading}
+            className="px-4 py-1.5 rounded-xl font-medium text-white flex items-center gap-2 transition-all hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
             style={{ backgroundColor: config.primaryColor }}
           >
             <span className="w-5 h-5">
               <DownloadSvg />
             </span>
-            <span className="md:block hidden">Download All</span>
+            <span className="md:block hidden">
+              {isDownloading ? 'Downloading...' : 'Download All'}
+            </span>
           </button>
 
-          <button
-            onClick={handleClearAll}
-            className="px-4 py-1.5 rounded-xl font-medium text-red-600 bg-red-50 dark:bg-red-900/40 flex items-center gap-2 hover:bg-red-100 dark:hover:bg-red-900/60 transition-all"
-          >
-            <span className="w-5 h-5">
-              <TrashSvg />
-            </span>
-            <span className="md:block hidden">Clear All</span>
-          </button>
+          <ClearAllButton onClick={handleClearAll} />
         </div>
       </div>
 

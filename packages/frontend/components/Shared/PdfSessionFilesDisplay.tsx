@@ -1,11 +1,7 @@
-// ============================================================================
-// FILE: src/components/Shared/PdfSessionFilesDisplay.tsx
-// PURPOSE: Display completed PDF files from session storage
-// ============================================================================
-
 import { useCallback, useEffect, useState } from "react";
 
 import { pdfSessionStorage } from "@/utils/pdfSessionStorage.utils";
+import { zipDownloadUtils } from "@/utils/zipDownload.utils";
 import {
   DownloadSvg,
   FolderOpenSvg,
@@ -20,6 +16,7 @@ import type {
   PdfToolType,
   PdfStoredFile,
 } from "@/services/pdfService/types";
+import { ClearAllButton } from "./FileUI";
 
 interface PdfSessionFilesDisplayProps {
   toolType: PdfToolType;
@@ -32,6 +29,7 @@ export const PdfSessionFilesDisplay = ({
 }: PdfSessionFilesDisplayProps) => {
   const isDark = useDarkMode();
   const [sessionFiles, setSessionFiles] = useState<PdfStoredFile[]>([]);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   // ============================================================================
   // LOAD FILES FROM SESSION STORAGE
@@ -60,15 +58,15 @@ export const PdfSessionFilesDisplay = ({
       }
     };
 
-    window.addEventListener('pdfSessionStorageUpdated', handleUpdate);
+    window.addEventListener("pdfSessionStorageUpdated", handleUpdate);
 
     return () => {
-      window.removeEventListener('pdfSessionStorageUpdated', handleUpdate);
+      window.removeEventListener("pdfSessionStorageUpdated", handleUpdate);
     };
   }, [toolType, loadFiles]);
 
   // ============================================================================
-  // ACTIONS
+  // ACTIONS - DOWNLOAD SINGLE FILE
   // ============================================================================
 
   const handleDownload = async (fileId: string) => {
@@ -91,8 +89,29 @@ export const PdfSessionFilesDisplay = ({
   };
 
   const handleDownloadAll = async () => {
-    for (const [index, file] of sessionFiles.entries()) {
-      setTimeout(() => handleDownload(file.id), index * 500);
+    if (sessionFiles.length === 0) return;
+
+    setIsDownloading(true);
+    try {
+      const filesToZip = [];
+
+      for (const file of sessionFiles) {
+        const blob = await pdfSessionStorage.getBlob(file.id);
+        if (blob) {
+          filesToZip.push({
+            name: file.name,
+            blob: blob,
+          });
+        }
+      }
+
+      if (filesToZip.length > 0) {
+        await zipDownloadUtils.downloadAsZip(filesToZip, "completed-files");
+      }
+    } catch (error) {
+      console.error("Error downloading files as ZIP:", error);
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -173,24 +192,19 @@ export const PdfSessionFilesDisplay = ({
         <div className="flex items-center gap-2">
           <button
             onClick={handleDownloadAll}
-            className="px-3 py-1.5 rounded-xl font-medium text-white flex items-center gap-2 transition-all duration-200 hover:opacity-90 cursor-pointer"
+            disabled={isDownloading}
+            className="px-3 py-1.5 rounded-xl font-medium text-white flex items-center gap-2 transition-all duration-200 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             style={{ backgroundColor: config.primaryColor }}
           >
             <span className="w-5 h-5">
               <DownloadSvg />
             </span>
-            <span className="md:block hidden">Download All</span>
+            <span className="md:block hidden">
+              {isDownloading ? "Downloading..." : "Download All"}
+            </span>
           </button>
 
-          <button
-            onClick={handleClearAll}
-            className="px-3 py-1.5 rounded-xl font-medium text-red-600 bg-red-50 dark:bg-red-900/20 flex items-center gap-2 hover:bg-red-100 dark:hover:bg-red-900/30 transition-all duration-200 cursor-pointer"
-          >
-            <span className="w-5 h-5">
-              <TrashSvg />
-            </span>
-            <span className="md:block hidden">Clear All</span>
-          </button>
+          <ClearAllButton onClick={handleClearAll} />
         </div>
       </div>
 
@@ -210,10 +224,7 @@ export const PdfSessionFilesDisplay = ({
                     : config.dropzoneColor,
                 }}
               >
-                <div
-                  style={{ color: config.primaryColor }}
-                  className="w-5 h-5"
-                >
+                <div style={{ color: config.primaryColor }} className="w-5 h-5">
                   <PDFToImageSVg />
                 </div>
               </div>
