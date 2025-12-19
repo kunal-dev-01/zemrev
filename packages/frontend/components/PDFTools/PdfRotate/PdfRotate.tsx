@@ -24,7 +24,6 @@ const PdfRotate = () => {
   } = usePdfRotate();
 
   // Derived state
-  const pendingFiles = files.filter((f) => f.status === "pending");
   const canAddMore = files.length < config.maxFiles;
 
   return (
@@ -42,12 +41,7 @@ const PdfRotate = () => {
       )}
 
       {files.length > 0 && (
-        <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 md:mt-[1vw] mt-[1vh] animate-in fade-in slide-in-from-bottom-4">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2 dark:bg-zinc-900 bg-zinc-50 border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-1.5 md:text-sm text-xs text-zinc-600 dark:text-zinc-400">
-              {files.length} File{files.length !== 1 ? "s" : ""} Loaded
-            </div>
-          </div>
+        <div className="md:mt-[1vw] mt-[1vh] fade-in ">
 
           <div className="space-y-2">
             {files.map((file) => (

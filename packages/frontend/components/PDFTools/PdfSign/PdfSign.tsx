@@ -80,8 +80,8 @@ const PdfSign = () => {
               </GlassButton>
             ) : (
               <div className="p-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
-                <p className="text-sm text-amber-800 dark:text-amber-200">
-                  <ErrorSvg className="w-5 h-5 inline-block mr-1" />
+                <p className="text-sm text-amber-800 dark:text-amber-200 flex items-center">
+                  <ErrorSvg className="w-5 h-5 inline-block mr-2" />
                   Please add at least one signature before processing
                 </p>
               </div>
