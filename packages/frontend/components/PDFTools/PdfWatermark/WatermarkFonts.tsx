@@ -2,8 +2,8 @@ export const WatermarkFonts = () => {
   return (
     <>
       <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;700&family=Righteous&family=Anton&family=Permanent+Marker&family=Russo+One&family=Roboto+Condensed:wght@700&display=swap');
-        /* Pre-define font classes to ensure availability */
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;700&family=Righteous&family=Anton&family=Permanent+Marker&family=Russo+One&family=Roboto+Condensed:wght@400;700&display=swap');
+
         .font-bebas { font-family: 'Bebas Neue', sans-serif; }
         .font-oswald { font-family: 'Oswald', sans-serif; }
         .font-righteous { font-family: 'Righteous', sans-serif; }
