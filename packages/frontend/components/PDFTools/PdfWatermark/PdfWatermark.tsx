@@ -1,7 +1,3 @@
-// ============================================================================
-// FILE: src/app/tools/pdf-watermark/page.tsx
-// ============================================================================
-
 import { PdfWatermarkFileItem } from "./PdfWatermarkFileItem";
 import { PdfDragDropZone } from "@/components/Shared/PdfDragDropZone";
 import { PdfSessionFilesDisplay } from "@/components/Shared/PdfSessionFilesDisplay";
@@ -29,12 +25,12 @@ const PdfWatermark = () => {
     processAllFiles,
   } = useWatermarkPdf();
 
-  // Derived state
   const totalWatermarks = files.reduce(
     (acc, f) => acc + (f.settings.signatures?.length || 0),
     0
   );
   const canProcess = totalWatermarks > 0;
+  const isMaxFilesReached = files.length >= config.maxFiles;
 
   return (
     <div className="w-full md:mt-[1vw] mt-[1vh]">
@@ -45,23 +41,12 @@ const PdfWatermark = () => {
           onGooglePick={addFromGoogleDrive}
           onDropboxPick={addFromDropbox}
           currentFileCount={files.length}
-          disabled={files.length >= config.maxFiles}
+          disabled={isMaxFilesReached}
         />
       )}
 
       {files.length > 0 && (
-        <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 md:mt-[1vw] mt-[1vh] animate-in fade-in slide-in-from-bottom-4">
-          <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 dark:bg-zinc-900 bg-zinc-50 border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-1.5 md:text-sm text-xs text-zinc-600 dark:text-zinc-400">
-                {files.length} File{files.length !== 1 ? "s" : ""}
-              </div>
-              <div className="flex items-center gap-2 dark:bg-purple-900/20 bg-purple-50 border border-purple-200 dark:border-purple-800 rounded-xl px-3 py-1.5 md:text-sm text-xs text-purple-600 dark:text-purple-400 font-medium">
-                {totalWatermarks} Watermark{totalWatermarks !== 1 ? "s" : ""}
-              </div>
-            </div>
-          </div>
-
+        <div className="md:mt-[1vw] mt-[1vh] fade-in">
           <div className="space-y-4">
             {files.map((file) => (
               <PdfWatermarkFileItem
@@ -85,17 +70,15 @@ const PdfWatermark = () => {
             >
               {processing
                 ? "Adding Watermarks..."
-                : `Add ${totalWatermarks} Watermark${
-                    totalWatermarks !== 1 ? "s" : ""
-                  } to PDF`}
+                : `Add ${totalWatermarks} Watermark${totalWatermarks !== 1 ? "s" : ""} to PDF`}
             </GlassButton>
           )}
 
           {!canProcess && totalWatermarks === 0 && (
-            <div className="mt-6 p-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
+            <div className="mt-[1vh] md:mt-[1vw] p-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
               <p className="text-sm text-amber-800 dark:text-amber-200">
-                <ErrorSvg className="w-5 h-5 inline-block mr-1" /> Please add at
-                least one watermark before processing
+                <ErrorSvg className="w-5 h-5 inline-block mr-1" />
+                Please add at least one watermark before processing
               </p>
             </div>
           )}

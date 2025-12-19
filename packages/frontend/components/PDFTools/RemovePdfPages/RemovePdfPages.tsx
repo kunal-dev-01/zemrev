@@ -46,7 +46,7 @@ const RemovePdfPages = () => {
 
       {/* Files List & Processing */}
       {files.length > 0 && (
-        <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 md:mt-[1vw] mt-[1vh] fade-in slide-in-from-bottom-4">
+        <div className="md:mt-[1vw] mt-[1vh] fade-in">
           {/* File Items */}
           <div className="space-y-4">
             {files.map((file) => (
@@ -62,7 +62,7 @@ const RemovePdfPages = () => {
           </div>
 
           {/* Process Button or Validation Error */}
-          <div className="md:p-5 p-3">
+          <div className="md:mt-[1vw] mt-[1vh]">
             {canProcess && hasValidPageRanges ? (
               <GlassButton
                 loading={processing}
