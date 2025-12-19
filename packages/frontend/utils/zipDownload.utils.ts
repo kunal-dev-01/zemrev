@@ -6,7 +6,6 @@ interface FileToZip {
 }
 
 export const zipDownloadUtils = {
-
   downloadAsZip: async (
     files: FileToZip[],
     zipFileName: string = 'files'
@@ -19,9 +18,25 @@ export const zipDownloadUtils = {
     try {
       const zip = new JSZip();
 
+      // Track file names to handle duplicates
+      const fileNameCount: Record<string, number> = {};
+
       // Add each file to the zip
       for (const file of files) {
-        zip.file(file.name, file.blob);
+        let finalName = file.name;
+
+        // If file name already exists, add counter
+        if (fileNameCount[file.name]) {
+          fileNameCount[file.name]++;
+          const nameParts = file.name.split('.');
+          const ext = nameParts.pop();
+          const baseName = nameParts.join('.');
+          finalName = `${baseName} (${fileNameCount[file.name]}).${ext}`;
+        } else {
+          fileNameCount[file.name] = 1;
+        }
+
+        zip.file(finalName, file.blob);
       }
 
       // Generate the ZIP blob
