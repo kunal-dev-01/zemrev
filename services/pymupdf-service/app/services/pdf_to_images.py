@@ -7,7 +7,7 @@ PURPOSE: Convert PDF pages to images using PyMuPDF
 
 from pathlib import Path
 from typing import List, Optional, Tuple
-import fitz  # PyMuPDF
+import fitz  
 from PIL import Image
 import io
 
@@ -19,16 +19,7 @@ logger = get_logger(__name__)
 
 
 def parse_page_range(page_range_str: Optional[str], total_pages: int) -> List[int]:
-    """
-    Parse page range string into list of page indices.
-    
-    Args:
-        page_range_str: String like "1-3,5,8-10" or None for all pages
-        total_pages: Total pages in PDF
-        
-    Returns:
-        List of 0-indexed page numbers
-    """
+
     if not page_range_str:
         return list(range(total_pages))
     
@@ -42,7 +33,7 @@ def parse_page_range(page_range_str: Optional[str], total_pages: int) -> List[in
         
         if '-' in part:
             start, end = part.split('-', 1)
-            start_idx = int(start.strip()) - 1  # Convert to 0-indexed
+            start_idx = int(start.strip()) - 1 
             end_idx = int(end.strip()) - 1
             
             if start_idx < 0 or end_idx >= total_pages:
@@ -50,7 +41,7 @@ def parse_page_range(page_range_str: Optional[str], total_pages: int) -> List[in
             
             pages.update(range(start_idx, end_idx + 1))
         else:
-            page_num = int(part) - 1  # Convert to 0-indexed
+            page_num = int(part) - 1 
             if page_num < 0 or page_num >= total_pages:
                 raise ValueError(f"Page {int(part)} out of bounds (1-{total_pages})")
             pages.add(page_num)
@@ -65,19 +56,7 @@ def pdf_to_images(
     dpi: int = 150,
     page_range: Optional[str] = None
 ) -> List[Path]:
-    """
-    Convert PDF pages to images.
-    
-    Args:
-        pdf_path: Input PDF file path
-        output_dir: Output directory for images
-        image_format: Output format (png, jpeg, jpg)
-        dpi: DPI for rendering (72-300)
-        page_range: Optional page range like "1-3,5"
-        
-    Returns:
-        List of generated image file paths
-    """
+
     output_paths = []
     
     try:
@@ -87,32 +66,24 @@ def pdf_to_images(
         
         logger.info(f"PDF opened: {total_pages} pages")
         
-        # Validate page count
         if total_pages > settings.MAX_PAGES:
             doc.close()
             raise ValueError(f"PDF has too many pages. Max: {settings.MAX_PAGES}, got: {total_pages}")
         
-        # Parse page range
         pages_to_convert = parse_page_range(page_range, total_pages)
         logger.info(f"Converting {len(pages_to_convert)} pages at {dpi} DPI")
         
-        # Calculate zoom factor from DPI
-        # PyMuPDF default is 72 DPI
         zoom = dpi / 72.0
         mat = fitz.Matrix(zoom, zoom)
         
-        # Convert each page
         for idx, page_num in enumerate(pages_to_convert, start=1):
             page = doc[page_num]
             
-            # Render page to pixmap
             pix = page.get_pixmap(matrix=mat, alpha=False)
             
-            # Convert to PIL Image for better format support
             img_data = pix.tobytes("png")
             img = Image.open(io.BytesIO(img_data))
             
-            # Save image
             output_path = output_dir / f"page_{idx:03d}.{image_format}"
             
             if image_format.lower() in ['jpg', 'jpeg']:

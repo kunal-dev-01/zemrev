@@ -1,4 +1,3 @@
-# services/pdf-service/app/services/pymupdf/crop_pdf.py
 
 from pathlib import Path
 import fitz

@@ -1,24 +1,22 @@
-"""
-============================================================================
-FILE: services/pdf-service/app/api/routes/pymupdf_routes.py (UPDATED)
-PURPOSE: API routes for PyMuPDF operations
-============================================================================
-"""
-
-from fastapi import APIRouter, File, UploadFile, Form, HTTPException
+from fastapi import APIRouter, File, UploadFile, Form
 from fastapi.responses import FileResponse
 from typing import List, Optional
 
-from app.api.controllers.pymupdf_controller import (
+from app.api.controllers.convert_controller import (
     pdf_to_images_handler,
-    images_to_pdf_handler,
-    extract_text_handler,
-    extract_images_handler,
-    optimize_pdf_handler,
+    images_to_pdf_handler    
+)
+from app.api.controllers.edit_controller import (
     crop_pdf_handler,
     remove_pages_handler
 )
+from app.api.controllers.extract_controller import (
+    extract_text_handler,
+    extract_images_handler
+)
+from app.api.controllers.optimize_controller import optimize_pdf_handler
 from app.api.controllers.sign_pdf_controller import sign_pdf_handler
+
 from app.models.pymupdf_schemas import (
     PdfToImagesRequest, ExtractTextRequest,
     ExtractImagesRequest, OptimizePdfRequest,
@@ -26,7 +24,6 @@ from app.models.pymupdf_schemas import (
 )
 
 router = APIRouter(prefix="/api/v1/pymupdf", tags=["PyMuPDF Tools"])
-
 
 # ============================================================================
 # PDF TO IMAGES

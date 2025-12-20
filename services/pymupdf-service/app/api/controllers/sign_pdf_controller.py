@@ -1,12 +1,5 @@
-"""
-============================================================================
-FILE: services/pdf-service/app/api/controllers/sign_pdf_controller.py
-PURPOSE: Controller logic for PDF signing with multiple signatures
-============================================================================
-"""
-
 from pathlib import Path
-from typing import List, Optional
+from typing import List
 from fastapi import UploadFile, HTTPException
 from fastapi.responses import FileResponse
 from concurrent.futures import ThreadPoolExecutor
@@ -15,7 +8,7 @@ import tempfile
 import json
 
 from app.services.validator import validate_upload
-from app.services.pymupdf.sign_pdf import sign_pdf
+from app.services.sign_pdf import sign_pdf
 from app.models.pymupdf_schemas import SignPdfRequest, SignatureItem
 from app.utils.file_io import create_temp_pdf_path, safe_remove
 from app.core.config import settings
@@ -23,18 +16,15 @@ from app.core.logging import get_logger
 
 logger = get_logger(__name__)
 
-# Thread pool for blocking operations
 executor = ThreadPoolExecutor(max_workers=2)
 
 
 async def sign_pdf_handler(
     file: UploadFile,
     signatures_json: str,
-    signature_image_files: List[UploadFile] # Updated to match Route
+    signature_image_files: List[UploadFile]
 ) -> FileResponse:
-    """
-    Handle PDF signing with multiple signatures.
-    """
+
     input_path = None
     output_path = None
     temp_image_paths = []
@@ -145,10 +135,7 @@ async def sign_pdf_handler(
                 'page': sig.page,
                 'color': sig.color if sig.color else "#000000",
                 'opacity': sig.opacity if sig.opacity is not None else 1.0,
-                
-                # --- UPDATE: Added Rotation Here ---
                 'rotation': sig.rotation if sig.rotation is not None else 0,
-                # -----------------------------------
             }
             
             if sig.type == 'text':

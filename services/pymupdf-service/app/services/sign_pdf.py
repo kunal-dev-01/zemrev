@@ -29,10 +29,7 @@ def sign_pdf(
     output_path: Path,
     signatures: List[Dict[str, Any]]
 ) -> None:
-    """
-    Add multiple signatures to PDF with maximum quality and rotation.
-    Supports page: -1 for applying to ALL pages.
-    """
+
     try:
         doc = fitz.open(input_path)
         logger.info(f"Processing {len(signatures)} signatures for PDF with {len(doc)} pages")
