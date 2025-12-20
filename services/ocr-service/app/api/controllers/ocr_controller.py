@@ -11,7 +11,7 @@ from concurrent.futures import ThreadPoolExecutor
 import asyncio
 
 from app.services.validator import validate_upload
-from app.services.ocr.ocr_processor import ocr_pdf_to_searchable
+from app.services.ocr_processor import ocr_pdf_to_searchable
 from app.models.ocr_schemas import OcrPdfRequest
 from app.utils.file_io import create_temp_pdf_path, safe_remove
 from app.core.logging import get_logger
@@ -31,13 +31,8 @@ async def ocr_pdf_handler(
     output_path = None
 
     try:
-        # Validate upload
         input_path = await validate_upload(file)
-
-        # Create output path
         output_path = create_temp_pdf_path(prefix="ocr_searchable")
-
-        # Run OCR in executor
         loop = asyncio.get_event_loop()
         await loop.run_in_executor(
             executor,

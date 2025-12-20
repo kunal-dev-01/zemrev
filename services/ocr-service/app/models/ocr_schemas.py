@@ -14,7 +14,6 @@ from typing import Optional
 # ============================================================================
 
 class OcrPdfRequest(BaseModel):
-    """OCR PDF request"""
     language: str = Field(
         default="eng",
         description="OCR language code (eng, fra, deu, spa, etc.)"
@@ -33,7 +32,6 @@ class OcrPdfRequest(BaseModel):
 # ============================================================================
 
 class OcrResponse(BaseModel):
-    """OCR response"""
     message: str
     pages_processed: int
     language: str

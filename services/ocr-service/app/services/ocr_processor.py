@@ -6,7 +6,7 @@ PURPOSE: OCR processing using Tesseract
 """
 
 from pathlib import Path
-import fitz  # PyMuPDF
+import fitz  
 from PIL import Image
 import pytesseract
 import io
@@ -31,10 +31,7 @@ def ocr_pdf_to_searchable(
     language: str = OCR_LANGUAGE,
     dpi: int = OCR_FIXED_DPI
 ) -> int:
-    """
-    Convert image-based PDF to searchable PDF using OCR.
-    (Free tier – strict limits applied)
-    """
+
     try:
         # ---------------- File size check ----------------
         file_size_mb = os.path.getsize(input_path) / (1024 * 1024)
