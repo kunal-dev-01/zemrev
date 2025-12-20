@@ -77,6 +77,34 @@ interface GapiNamespace {
   load(api: string, config: GapiLoadConfig): void;
 }
 
+const loadExternalScript = (
+  src: string,
+  attrs?: Record<string, string>
+): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector(`script[src="${src}"]`)) {
+      resolve();
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = src;
+    script.async = true;
+
+    if (attrs) {
+      Object.entries(attrs).forEach(([key, value]) => {
+        script.setAttribute(key, value);
+      });
+    }
+
+    script.onload = () => resolve();
+    script.onerror = () => reject(`Failed to load ${src}`);
+
+    document.body.appendChild(script);
+  });
+};
+
+
 declare global {
   interface Window {
     google: {
@@ -118,32 +146,31 @@ const loadGooglePicker = (): Promise<void> => {
   });
 };
 
-/* ============================================================================
- * WAIT FOR DROPBOX SDK
- * ========================================================================== */
-const waitForDropbox = (): Promise<void> => {
-  return new Promise((resolve, reject) => {
-    if (window.Dropbox) {
-      resolve();
-      return;
+// Load Dropbox SDK
+
+const loadDropboxSDK = async () => {
+  if (window.Dropbox) return;
+
+  await loadExternalScript(
+    "https://www.dropbox.com/static/api/2/dropins.js",
+    {
+      id: "dropboxjs",
+      "data-app-key": process.env.NEXT_PUBLIC_DROPBOX_APP_KEY!,
     }
-
-    let attempts = 0;
-    const maxAttempts = 100;
-
-    const checkDropbox = setInterval(() => {
-      attempts++;
-
-      if (window.Dropbox) {
-        clearInterval(checkDropbox);
-        resolve();
-      } else if (attempts >= maxAttempts) {
-        clearInterval(checkDropbox);
-        reject("Dropbox SDK failed to load after 10 seconds");
-      }
-    }, 100);
-  });
+  );
 };
+
+// Load Google SDK
+const loadGoogleSDK = async () => {
+  if (window.gapi && window.google?.accounts) return;
+
+  await loadExternalScript("https://apis.google.com/js/api.js");
+  await loadExternalScript(
+    "https://accounts.google.com/gsi/client"
+  );
+};
+
+
 
 export const useCloudPicker = () => {
   /* ============================================================================
@@ -183,9 +210,7 @@ export const useCloudPicker = () => {
    * GOOGLE DRIVE PICKER
    * ========================================================================== */
   const pickFromGoogleDrive = async (): Promise<File> => {
-    if (!window.gapi || !window.google) {
-      throw new Error("Google SDK not loaded");
-    }
+    await loadGoogleSDK();
 
     await loadGooglePicker();
 
@@ -241,7 +266,7 @@ export const useCloudPicker = () => {
    * ========================================================================== */
   const pickFromDropbox = async (): Promise<File> => {
     try {
-      await waitForDropbox();
+      await loadDropboxSDK();
 
       if (!window.Dropbox) {
         throw new Error("Dropbox SDK is still undefined after waiting");
