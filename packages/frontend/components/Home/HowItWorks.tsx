@@ -39,7 +39,7 @@ const steps = [
 const HowItWorks = () => {
   return (
     <section className="w-full py-16 md:py-24">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto">
         <SectionHeader
           badge="Workflow"
           title="Simple 4-Step Process"
