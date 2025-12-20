@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useState, useCallback } from "react";
 import { MyFilesHeader } from "./MyFilesHeader";
 import { MyFilesSection } from "./MyFilesSection";
@@ -201,7 +199,7 @@ const MyFiles = () => {
 
       {/* Confirmation Popup */}
       {confirmClearTool && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 fade-in">
           <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl max-w-sm w-full p-8 animate-in fade-in zoom-in-95">
             <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 mx-auto mb-4">
               <TrashSvg className="w-6 h-6 text-red-600" />
