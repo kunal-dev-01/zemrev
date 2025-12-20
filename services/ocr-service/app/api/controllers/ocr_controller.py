@@ -1,10 +1,3 @@
-"""
-============================================================================
-FILE: app/api/controllers/ocr_controller.py
-PURPOSE: Controller logic for OCR operations
-============================================================================
-"""
-
 from fastapi import UploadFile, HTTPException
 from fastapi.responses import FileResponse
 from concurrent.futures import ThreadPoolExecutor

@@ -1,10 +1,3 @@
-"""
-============================================================================
-FILE: app/services/split_service.py
-PURPOSE: PDF split operations
-============================================================================
-"""
-
 from pathlib import Path
 from typing import List, Tuple
 from pypdf import PdfWriter, PdfReader
@@ -20,39 +13,22 @@ def split_pdf(
     ranges: List[Tuple[int, int]],
     output_dir: Path
 ) -> List[Path]:
-    """
-    Split PDF into multiple files based on page ranges.
-    
-    Args:
-        input_path: Input PDF file path
-        ranges: List of (start, end) page ranges (0-indexed, inclusive)
-        output_dir: Directory for output files
-        
-    Returns:
-        List of output PDF file paths
-        
-    Raises:
-        Exception: If split fails
-    """
+
     output_paths = []
     
     try:
-        # Read input PDF
         with open(input_path, 'rb') as f:
             reader = PdfReader(f, strict=False)
             total_pages = len(reader.pages)
             
             logger.debug(f"Input PDF has {total_pages} pages")
             
-            # Validate page count
             if total_pages > settings.MAX_PAGES:
                 raise ValueError(
                     f"PDF has too many pages. Max: {settings.MAX_PAGES}, got: {total_pages}"
                 )
             
-            # Process each range
             for idx, (start_page, end_page) in enumerate(ranges, start=1):
-                # Validate range
                 if start_page >= total_pages:
                     raise ValueError(
                         f"Range {idx}: start page {start_page + 1} exceeds total pages {total_pages}"
@@ -62,15 +38,12 @@ def split_pdf(
                         f"Range {idx}: end page {end_page + 1} exceeds total pages {total_pages}"
                     )
                 
-                # Create writer for this range
                 writer = PdfWriter()
                 
-                # Add pages in range
                 for page_num in range(start_page, end_page + 1):
                     page = reader.pages[page_num]
                     writer.add_page(page)
                 
-                # Write to output file
                 output_path = create_temp_pdf_path(prefix=f"split_{idx}")
                 with open(output_path, 'wb') as output_file:
                     writer.write(output_file)
@@ -87,7 +60,6 @@ def split_pdf(
         
     except Exception as e:
         logger.error(f"Failed to split PDF: {e}")
-        # Clean up any created files
         for path in output_paths:
             try:
                 path.unlink()

@@ -1,13 +1,6 @@
-"""
-============================================================================
-FILE: services/pdf-service/app/services/pymupdf/sign_pdf.py (UPDATED)
-PURPOSE: Add multiple signatures with ROTATION support + PAGE -1 (ALL PAGES)
-============================================================================
-"""
-
 from pathlib import Path
 from typing import List, Dict, Any
-import fitz  # PyMuPDF
+import fitz 
 from PIL import Image, ImageDraw, ImageFont, ImageColor
 import io
 from app.core.logging import get_logger

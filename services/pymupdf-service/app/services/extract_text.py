@@ -1,10 +1,3 @@
-"""
-============================================================================
-FILE: app/services/pymupdf/extract_text.py
-PURPOSE: Extract text from PDF using PyMuPDF
-============================================================================
-"""
-
 from pathlib import Path
 from typing import Optional, Tuple
 import fitz 

@@ -1,10 +1,3 @@
-"""
-============================================================================
-FILE: services/pdf-service/app/services/pymupdf/remove_pages.py
-PURPOSE: Remove specific pages from PDF using PyMuPDF
-============================================================================
-"""
-
 import fitz 
 from pathlib import Path
 from typing import Set, Tuple

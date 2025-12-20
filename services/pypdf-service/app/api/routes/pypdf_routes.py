@@ -1,10 +1,3 @@
-"""
-============================================================================
-FILE: services/pdf-service/app/api/routes/pypdf_routes.py
-PURPOSE: API routes for PDF operations
-============================================================================
-"""
-
 from fastapi import APIRouter, File, UploadFile, Form, HTTPException
 from fastapi.responses import FileResponse
 from typing import List

@@ -1,10 +1,3 @@
-"""
-============================================================================
-FILE: app/services/pymupdf/optimize_pdf.py
-PURPOSE: Optimize PDF using PyMuPDF
-============================================================================
-"""
-
 from pathlib import Path
 from typing import Tuple
 import fitz 

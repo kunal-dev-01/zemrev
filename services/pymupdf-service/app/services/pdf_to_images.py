@@ -1,10 +1,3 @@
-"""
-============================================================================
-FILE: app/services/pymupdf/pdf_to_images.py
-PURPOSE: Convert PDF pages to images using PyMuPDF
-============================================================================
-"""
-
 from pathlib import Path
 from typing import List, Optional, Tuple
 import fitz  

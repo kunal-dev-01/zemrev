@@ -1,10 +1,3 @@
-"""
-============================================================================
-FILE: services/pdf-service/app/models/pymupdf_schemas.py
-PURPOSE: Pydantic schemas for PyMuPDF tools
-============================================================================
-"""
-
 from pydantic import BaseModel, Field, field_validator
 from typing import Optional, Literal, List
 from enum import Enum

@@ -1,10 +1,3 @@
-"""
-============================================================================
-FILE: app/services/ocr/ocr_processor.py
-PURPOSE: OCR processing using Tesseract
-============================================================================
-"""
-
 from pathlib import Path
 import fitz  
 from PIL import Image
@@ -17,9 +10,9 @@ from app.core.logging import get_logger
 logger = get_logger(__name__)
 
 # ============================================================================
-# OCR HARD LIMITS (FREE TIER)
+# OCR HARD LIMITS
 # ============================================================================
-OCR_MAX_PAGES = 30
+OCR_MAX_PAGES = 50
 OCR_MAX_SIZE_MB = 25
 OCR_FIXED_DPI = 300
 OCR_LANGUAGE = "eng"

@@ -1,10 +1,3 @@
-"""
-============================================================================
-FILE: app/core/logging.py
-PURPOSE: Logging configuration
-============================================================================
-"""
-
 import logging
 from app.core.config import settings
 

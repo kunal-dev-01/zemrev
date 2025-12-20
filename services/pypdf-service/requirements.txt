@@ -12,13 +12,5 @@ python-multipart==0.0.6
 pydantic==2.5.0
 pydantic-settings==2.1.0
 
-# PDF Processing (Main engines)
+# PDF Processing 
 pypdf==4.0.1
-PyMuPDF==1.23.8
-
-# Image watermark & extracted image support
-Pillow==10.1.0
-cairosvg==2.7.1
-
-# OCR
-pytesseract==0.3.10

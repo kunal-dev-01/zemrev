@@ -1,10 +1,3 @@
-"""
-============================================================================
-FILE: app/services/pymupdf/extract_images.py
-PURPOSE: Extract images from PDF using PyMuPDF
-============================================================================
-"""
-
 from pathlib import Path
 from typing import List, Optional
 import fitz 

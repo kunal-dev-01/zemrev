@@ -15,38 +15,22 @@ logger = get_logger(__name__)
 
 
 async def validate_upload(file: UploadFile) -> Path:
-    """
-    Validate uploaded PDF file and save to temp location.
-    
-    Args:
-        file: Uploaded file from FastAPI
-        
-    Returns:
-        Path to temporary file
-        
-    Raises:
-        HTTPException: If validation fails
-    """
-    # Check file exists
+
     if not file:
         raise HTTPException(status_code=400, detail="No file provided")
     
-    # Check filename
     if not file.filename:
         raise HTTPException(status_code=400, detail="File has no name")
     
-    # Check extension
     if not file.filename.lower().endswith('.pdf'):
         raise HTTPException(
             status_code=400,
             detail=f"Invalid file type. Expected .pdf, got: {file.filename}"
         )
     
-    # Read file content
     content = await file.read()
     file_size = len(content)
     
-    # Check size
     if file_size > settings.MAX_FILE_SIZE:
         max_mb = settings.MAX_FILE_SIZE / (1024 * 1024)
         actual_mb = file_size / (1024 * 1024)
@@ -55,14 +39,12 @@ async def validate_upload(file: UploadFile) -> Path:
             detail=f"File too large. Max: {max_mb:.1f}MB, got: {actual_mb:.1f}MB"
         )
     
-    # Check magic bytes
     if not content.startswith(b'%PDF-'):
         raise HTTPException(
             status_code=400,
             detail="Invalid PDF file (missing PDF header)"
         )
-    
-    # Save to temporary file
+
     try:
         temp_file = tempfile.NamedTemporaryFile(
             mode='wb',

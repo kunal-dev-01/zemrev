@@ -1,13 +1,6 @@
-"""
-============================================================================
-FILE: app/services/pymupdf/images_to_pdf.py
-PURPOSE: Convert images to PDF using PyMuPDF
-============================================================================
-"""
-
 from pathlib import Path
 from typing import List
-import fitz  # PyMuPDF
+import fitz 
 from PIL import Image
 import io
 

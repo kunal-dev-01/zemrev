@@ -1,10 +1,3 @@
-"""
-============================================================================
-FILE: services/pdf-service/app/models/pypdf_schemas.py
-PURPOSE: Pydantic models and parsers
-============================================================================
-"""
-
 from pydantic import BaseModel, Field, field_validator
 from typing import Optional, List, Tuple, Dict
 
@@ -13,15 +6,7 @@ from typing import Optional, List, Tuple, Dict
 # ============================================================================
 
 def parse_page_ranges(pages_str: str) -> List[Tuple[int, int]]:
-    """
-    Parse page range string like '1-3,5,8-10' into list of (start, end) tuples.
-    Returns 0-indexed ranges.
-    
-    Examples:
-        '1-3' -> [(0, 2)]
-        '1-3,5' -> [(0, 2), (4, 4)]
-        '1-3,5,8-10' -> [(0, 2), (4, 4), (7, 9)]
-    """
+    # Parse page ranges
     ranges = []
     parts = pages_str.strip().split(',')
     
@@ -54,14 +39,7 @@ def parse_page_ranges(pages_str: str) -> List[Tuple[int, int]]:
 
 
 def parse_rotations(rotations_str: str) -> Dict[int, int]:
-    """
-    Parse rotation string like '1:90,3:270' into dict of {page: degrees}.
-    Returns 0-indexed page numbers.
-    
-    Examples:
-        '1:90' -> {0: 90}
-        '1:90,3:270' -> {0: 90, 2: 270}
-    """
+ 
     rotations = {}
     parts = rotations_str.strip().split(',')
     

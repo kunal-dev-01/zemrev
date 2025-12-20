@@ -1,10 +1,3 @@
-"""
-============================================================================
-FILE: services/pdf-service/app/core/config.py
-PURPOSE: PDF Service configuration
-============================================================================
-"""
-
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import List
 import os

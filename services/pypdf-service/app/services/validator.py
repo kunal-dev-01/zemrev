@@ -1,10 +1,3 @@
-"""
-============================================================================
-FILE: app/services/validator.py
-PURPOSE: PDF file validation
-============================================================================
-"""
-
 from pathlib import Path
 from fastapi import UploadFile, HTTPException
 import tempfile
@@ -15,18 +8,7 @@ logger = get_logger(__name__)
 
 
 async def validate_upload(file: UploadFile) -> Path:
-    """
-    Validate uploaded PDF file and save to temp location.
-    
-    Args:
-        file: Uploaded file from FastAPI
-        
-    Returns:
-        Path to temporary file
-        
-    Raises:
-        HTTPException: If validation fails
-    """
+
     # Check file exists
     if not file:
         raise HTTPException(status_code=400, detail="No file provided")

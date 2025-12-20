@@ -1,10 +1,3 @@
-"""
-============================================================================
-FILE: app/models/ocr_schemas.py
-PURPOSE: Pydantic schemas for OCR tools
-============================================================================
-"""
-
 from pydantic import BaseModel, Field
 from typing import Optional
 

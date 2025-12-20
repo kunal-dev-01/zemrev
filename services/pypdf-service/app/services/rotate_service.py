@@ -1,10 +1,3 @@
-"""
-============================================================================
-FILE: app/services/rotate_service.py
-PURPOSE: PDF rotation operations
-============================================================================
-"""
-
 from pathlib import Path
 from typing import Dict
 from pypdf import PdfWriter, PdfReader
@@ -19,21 +12,10 @@ def rotate_pdf_pages(
     rotations: Dict[int, int],
     output_path: Path
 ) -> None:
-    """
-    Rotate specific pages in a PDF.
-    
-    Args:
-        input_path: Input PDF file path
-        rotations: Dict mapping page index (0-based) to rotation degrees
-        output_path: Output PDF file path
-        
-    Raises:
-        Exception: If rotation fails
-    """
+
     if not rotations:
         raise ValueError("No rotations specified")
     
-    # Validate rotation degrees
     for page_idx, degrees in rotations.items():
         if degrees not in [90, 180, 270]:
             raise ValueError(
@@ -42,33 +24,28 @@ def rotate_pdf_pages(
             )
     
     try:
-        # Read input PDF
         with open(input_path, 'rb') as f:
             reader = PdfReader(f, strict=False)
             total_pages = len(reader.pages)
             
             logger.debug(f"Input PDF has {total_pages} pages")
             
-            # Validate page count
             if total_pages > settings.MAX_PAGES:
                 raise ValueError(
                     f"PDF has too many pages. Max: {settings.MAX_PAGES}, got: {total_pages}"
                 )
             
-            # Validate page indices
             for page_idx in rotations.keys():
                 if page_idx >= total_pages:
                     raise ValueError(
                         f"Page index {page_idx + 1} exceeds total pages {total_pages}"
                     )
             
-            # Create writer and process pages
             writer = PdfWriter()
             
             for page_num in range(total_pages):
                 page = reader.pages[page_num]
                 
-                # Apply rotation if specified for this page
                 if page_num in rotations:
                     degrees = rotations[page_num]
                     page.rotate(degrees)
@@ -76,7 +53,6 @@ def rotate_pdf_pages(
                 
                 writer.add_page(page)
             
-            # Write output
             with open(output_path, 'wb') as output_file:
                 writer.write(output_file)
             
