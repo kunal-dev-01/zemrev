@@ -12,9 +12,9 @@ from concurrent.futures import ThreadPoolExecutor
 import asyncio
 
 from app.services.validator import validate_upload
-from app.services.ghostscript.compress_pdf import compress_pdf_ghostscript
-from app.services.ghostscript.flatten_pdf import flatten_pdf_ghostscript
-from app.services.ghostscript.convert_pdfa import convert_to_pdfa
+from app.services.compress_pdf import compress_pdf_ghostscript
+from app.services.flatten_pdf import flatten_pdf_ghostscript
+from app.services.convert_pdfa import convert_to_pdfa
 from app.models.ghostscript_schemas import (
     CompressPdfRequest, FlattenPdfRequest, ConvertToPdfARequest
 )
