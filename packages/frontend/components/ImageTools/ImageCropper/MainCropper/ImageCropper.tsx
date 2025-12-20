@@ -15,11 +15,16 @@ import {
   SquareSvg,
   LandscapeSvg,
   PortraitSvg,
-  RotateSvg,
 } from "@/components/Svg/ToolsSvg";
 
 import GlassButton from "@/components/Layouts/GlassButton";
 import { useImageCropper } from "@/hooks/imageHooks/useImageCropper.hook";
+import { FileError, FileInfo } from "@/components/Shared/FileUI";
+import {
+  IconActionButton,
+  ImageToolIconBadge,
+} from "@/components/Shared/FileUITwo";
+import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 
 /* -------------------------------------------------------------------------- */
 /*                                CONSTANTS                                   */
@@ -53,6 +58,7 @@ const ImageCropper = () => {
   const [zoom, setZoom] = useState(100);
   const [aspectRatio, setAspectRatio] = useState<number | null>(null);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+  const isDark = useDarkMode();
 
   const {
     file,
@@ -123,25 +129,21 @@ const ImageCropper = () => {
         <div className="border border-zinc-200 dark:border-zinc-800 rounded-2xl bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 md:mt-[1vw] mt-[1vh] fade-in">
           {/* Header */}
           <div className="flex items-center justify-between mb-6 pb-4 border-b border-zinc-200 dark:border-zinc-800">
-            <div className="flex-1 min-w-0">
-              <h3 className="text-sm leading-none font-semibold truncate text-zinc-800 dark:text-zinc-200">
-                {file.name}
-              </h3>
-              <p className="text-xs text-zinc-500 mt-1">
-                Drag to crop • Scroll to zoom
-              </p>
+            <ImageToolIconBadge
+              primaryColor={config.primaryColor}
+              bgColor={config.dropzoneColor}
+              bgColorDark={config.dropzoneColorDark}
+              isDark={isDark}
+            />
+            <div className="flex-1 min-w-0 ml-2">
+              <FileInfo name={file.name} size={file.size} />
             </div>
 
-            <button
+            <IconActionButton
               onClick={reset}
               disabled={cropping}
-              className="ml-3 px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all duration-200 flex items-center gap-2 cursor-pointer disabled:opacity-50"
-            >
-              <div className="w-5 h-5">
-                <RotateSvg />
-              </div>
-              <span className="md:block hidden text-sm">Change</span>
-            </button>
+              label="Change"
+            />
           </div>
 
           {/* Layout */}
@@ -168,7 +170,9 @@ const ImageCropper = () => {
                                         : "border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700"
                                     }`}
                         style={{
-                          backgroundColor: isActive ? config.primaryColor : undefined,
+                          backgroundColor: isActive
+                            ? config.primaryColor
+                            : undefined,
                         }}
                       >
                         <div className="w-5 h-5">{ratio.icon}</div>
@@ -196,9 +200,7 @@ const ImageCropper = () => {
 
               {/* Error */}
               {error && (
-                <div className="p-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-                  <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-                </div>
+                <FileError error={error} className="mt-3" />
               )}
 
               {/* Crop Button */}
@@ -218,7 +220,7 @@ const ImageCropper = () => {
                   Crop Area
                 </span>
               </div>
-              
+
               <div className="relative w-full aspect-video bg-zinc-950 rounded-lg overflow-hidden">
                 <Cropper
                   image={imageUrl}
@@ -230,12 +232,12 @@ const ImageCropper = () => {
                   onCropComplete={onCropComplete}
                   objectFit="contain"
                   style={{
-                    containerStyle: { 
+                    containerStyle: {
                       backgroundColor: "#09090b",
-                      borderRadius: 8
+                      borderRadius: 8,
                     },
-                    mediaStyle: { 
-                      transition: "transform 0.3s ease-in-out" 
+                    mediaStyle: {
+                      transition: "transform 0.3s ease-in-out",
                     },
                   }}
                 />
