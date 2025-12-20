@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Spinner } from "@/components/Layouts/Spinner";
-import { FileImage } from "@/components/Svg/HomeSvg";
 import { ErrorSvg } from "@/components/Svg/CommonSvg";
 import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 import { ToggleSwitch } from "@/components/Shared/ToggleSwitch";
@@ -12,7 +11,13 @@ import type {
   ProcessedFile,
   ToolConfig,
 } from "@/services/imageService/types";
-import { FileError, FileInfo, RemoveButton, SettingsToggleButton } from "@/components/Shared/FileUI";
+import {
+  FileError,
+  FileInfo,
+  RemoveButton,
+  SettingsToggleButton,
+} from "@/components/Shared/FileUI";
+import { ImageToolIconBadge } from "@/components/Shared/FileUITwo";
 
 interface OptimizerFilePanelProps {
   file: ProcessedFile;
@@ -36,7 +41,10 @@ export const OptimizerFilePanel = ({
   // ============================================================================
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (settingsRef.current && !settingsRef.current.contains(e.target as Node)) {
+      if (
+        settingsRef.current &&
+        !settingsRef.current.contains(e.target as Node)
+      ) {
         setIsSettingsOpen(false);
       }
     };
@@ -91,18 +99,12 @@ export const OptimizerFilePanel = ({
     <div className="bg-transparent border border-zinc-200 dark:border-zinc-800 rounded-2xl p-2 md:p-3 transition-all duration-200 hover:border-zinc-300 dark:hover:border-zinc-700 relative">
       <div className="flex items-center gap-3">
         {/* Thumbnail Icon */}
-        <div
-          className="p-2.5 sm:p-3 rounded-lg shrink-0"
-          style={{
-            backgroundColor: isDark
-              ? config.dropzoneColorDark
-              : config.dropzoneColor,
-          }}
-        >
-          <div style={{ color: config.primaryColor }} className="w-5 h-5 sm:w-6 sm:h-6">
-            <FileImage />
-          </div>
-        </div>
+        <ImageToolIconBadge
+          primaryColor={config.primaryColor}
+          bgColor={config.dropzoneColor}
+          bgColorDark={config.dropzoneColorDark}
+          isDark={isDark}
+        />
 
         {/* Filename + Size */}
         <div className="flex-1 min-w-0">
@@ -122,9 +124,10 @@ export const OptimizerFilePanel = ({
             {isSettingsOpen && (
               <>
                 <div
-                  className="absolute right-0 top-full mt-1 z-20 w-[350px] max-w-[calc(100vw-3.3rem)] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 origin-top-right ring-1 ring-black/5 dark:ring-white/5 space-y-3"
+                  className="absolute right-0 top-full mt-1 z-20 md:min-w-[15vw] min-w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 origin-top-right ring-1 ring-black/5 dark:ring-white/5 space-y-3"
                   style={{
-                    animation: "dropdownEnter 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards",
+                    animation:
+                      "dropdownEnter 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards",
                   }}
                 >
                   <ToggleSwitch
