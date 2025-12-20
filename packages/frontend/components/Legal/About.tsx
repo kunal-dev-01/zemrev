@@ -1,6 +1,6 @@
 const AboutUs = () => {
   return (
-    <div className="w-full md:min-h-[45vw] min-h-[80vh] md:py-[2vw] rounded-xl bg-zinc-100/10 dark:bg-zinc-900/40 border border-zinc-200 dark:border-zinc-800 flex items-center justify-between relative overflow-hidden">
+    <div className="w-full md:min-h-[45vw] min-h-[80vh] rounded-xl border border-zinc-200 dark:border-zinc-900 flex items-center justify-between relative overflow-hidden">
       <div className="relative z-10 w-full max-w-5xl mx-auto px-4 md:px-10 py-10 grid gap-5 md:gap-6">
 
         {/* heading */}
