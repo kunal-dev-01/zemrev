@@ -46,28 +46,18 @@ const DynamicCompressor = ({ format }: DynamicCompressorProps) => {
   // ============================================================================
   const handleFilesSelected = useCallback(
     async (newFiles: File[]) => {
-      // 1️⃣ Save to pending first
       await addFiles(newFiles, config.defaultSettings.quality as number);
-
-      // 2️⃣ Detect formats
       const formats = newFiles.map((f) => detectFormatFromFilename(f.name));
       const uniqueFormats = [...new Set(formats.filter(Boolean))];
-
-      // 3️⃣ Smart Redirect
-      // If mixed formats → redirect to main compressor
       if (uniqueFormats.length > 1) {
         router.push("/image/image-compressor");
         return;
       }
-
-      // If uploaded format does not match expected dynamic format
       const uploadedFormat = uniqueFormats[0];
       if (uploadedFormat !== format) {
         router.push("/image/image-compressor");
         return;
       }
-
-      // Otherwise stay here (dynamic compressor)
     },
     [addFiles, config, router, format]
   );

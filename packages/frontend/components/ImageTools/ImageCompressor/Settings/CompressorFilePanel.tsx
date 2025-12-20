@@ -1,7 +1,6 @@
 // components/ImageTools/ImageCompressor/Settings/CompressorFilePanel.tsx
 
 import { Spinner } from "@/components/Layouts/Spinner";
-import { FileImage } from "@/components/Svg/HomeSvg";
 import { ErrorSvg } from "@/components/Svg/CommonSvg";
 import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 import type {
@@ -11,6 +10,7 @@ import type {
 } from "@/services/imageService/types";
 import { useState, useRef, useEffect } from "react";
 import { FileError, FileInfo, RemoveButton, SettingsToggleButton } from "@/components/Shared/FileUI";
+import { ImageToolIconBadge } from "@/components/Shared/FileUITwo";
 
 interface CompressorFilePanelProps {
   file: ProcessedFile;
@@ -95,21 +95,13 @@ export const CompressorFilePanel = ({
   return (
     <div className="bg-transparent border border-zinc-200 dark:border-zinc-800 rounded-2xl p-2 md:p-3 transition-all duration-200 hover:border-zinc-300 dark:hover:border-zinc-700 relative">
       <div className="flex items-center gap-3">
-        <div
-          className="p-2.5 sm:p-3 rounded-lg shrink-0"
-          style={{
-            backgroundColor: isDark
-              ? config.dropzoneColorDark
-              : config.dropzoneColor,
-          }}
-        >
-          <div
-            style={{ color: config.primaryColor }}
-            className="w-5 h-5 sm:w-6 sm:h-6"
-          >
-            <FileImage />
-          </div>
-        </div>
+        
+        <ImageToolIconBadge
+          primaryColor={config.primaryColor}
+          bgColor={config.dropzoneColor}
+          bgColorDark={config.dropzoneColorDark}
+          isDark={isDark}
+        />
 
         <div className="flex-1 min-w-0">
           <FileInfo name={file.name} size={file.size} />

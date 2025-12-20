@@ -39,14 +39,9 @@ const ImageCompressor = () => {
   // ============================================================================
   const handleFilesSelected = useCallback(
     async (newFiles: File[]) => {
-      // STEP 1: Always save to pending first
       await addFiles(newFiles, config.defaultSettings.quality as number);
-
-      // STEP 2: Detect formats
       const formats = newFiles.map((f) => detectFormatFromFilename(f.name));
       const uniqueFormats = [...new Set(formats.filter(Boolean))];
-
-      // STEP 3: Redirect after save if single format and small batch
       if (uniqueFormats.length === 1 && newFiles.length <= 5) {
         const format = uniqueFormats[0];
         if (format) {
