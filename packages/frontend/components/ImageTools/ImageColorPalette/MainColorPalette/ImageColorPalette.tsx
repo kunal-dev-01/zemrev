@@ -6,18 +6,20 @@ import { DragDropZone } from "@/components/Shared/DragDropZone";
 import { UrlUploadModal } from "@/components/Shared/UrlUploadModal";
 import { RangeSlider } from "@/components/Shared/RangeSlider";
 import { TOOL_CONFIGS } from "@/config/image.tool.config";
-import { RotateSvg } from "@/components/Svg/ToolsSvg";
 import { useImagePalette } from "@/hooks/imageHooks/useImagePalette.hook";
 import GlassButton from "@/components/Layouts/GlassButton";
-import { FileError } from "@/components/Shared/FileUI";
+import { FileError, FileInfo } from "@/components/Shared/FileUI";
 import { SavedPalettesSection } from "./SavedPalettesSection";
 import { PaletteResults } from "./PaletteResults";
+import { IconActionButton, ImageToolIconBadge } from "@/components/Shared/FileUITwo";
+import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 
 const ImageColorPalette = () => {
   const config = TOOL_CONFIGS.palette;
   const [urlModalOpen, setUrlModalOpen] = useState(false);
   const [numColors, setNumColors] = useState(5);
   const [copiedColor, setCopiedColor] = useState<string | null>(null);
+  const isDark = useDarkMode();
 
   const {
     file,
@@ -102,25 +104,21 @@ const ImageColorPalette = () => {
         <div className="border border-zinc-200 dark:border-zinc-800 rounded-2xl bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 md:mt-[1vw] mt-[1vh] animate-in fade-in slide-in-from-bottom-4">
           {/* Header */}
           <div className="flex items-center justify-between mb-6 pb-4 border-b border-zinc-200 dark:border-zinc-800">
-            <div className="flex-1 min-w-0">
-              <h3 className="text-sm leading-none font-semibold truncate text-zinc-800 dark:text-zinc-200">
-                {file.name}
-              </h3>
-              <p className="text-xs text-zinc-500 mt-1">
-                Extract dominant colors from image
-              </p>
+            <ImageToolIconBadge
+              primaryColor={config.primaryColor}
+              bgColor={config.dropzoneColor}
+              bgColorDark={config.dropzoneColorDark}
+              isDark={isDark}
+            />
+            <div className="flex-1 min-w-0 ml-2">
+              <FileInfo name={file.name} size={file.size} />
             </div>
 
-            <button
+            <IconActionButton
               onClick={reset}
               disabled={extracting}
-              className="ml-3 px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all duration-200 flex items-center gap-2 cursor-pointer disabled:opacity-50"
-            >
-              <div className="w-5 h-5">
-                <RotateSvg />
-              </div>
-              <span className="md:block hidden text-sm">Change</span>
-            </button>
+              label="Change"
+            />
           </div>
 
           <div className="flex flex-col-reverse lg:grid lg:grid-cols-2 gap-6">
@@ -158,7 +156,9 @@ const ImageColorPalette = () => {
                   primaryColor={config.primaryColor}
                   onClick={handleExtract}
                 >
-                  {extracting ? "Extracting Colors..." : "Extract Color Palette"}
+                  {extracting
+                    ? "Extracting Colors..."
+                    : "Extract Color Palette"}
                 </GlassButton>
               )}
 
@@ -181,7 +181,7 @@ const ImageColorPalette = () => {
                   Preview
                 </span>
               </div>
-              
+
               <div className="relative w-full aspect-video bg-zinc-950 rounded-lg overflow-hidden">
                 <Image
                   src={imageUrl}
