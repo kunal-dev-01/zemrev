@@ -41,17 +41,7 @@ def compress_pdf_ghostscript(
     output_path: Path,
     compression_level: str = "ebook"
 ) -> Tuple[float, float]:
-    """
-    Compress PDF using Ghostscript.
-    
-    Args:
-        input_path: Input PDF file path
-        output_path: Output PDF file path
-        compression_level: screen/ebook/printer/prepress
-        
-    Returns:
-        Tuple of (original_size_kb, compressed_size_kb)
-    """
+
     try:
         # Get original file size
         original_size = input_path.stat().st_size / 1024  # KB
@@ -86,7 +76,7 @@ def compress_pdf_ghostscript(
             gs_command,
             capture_output=True,
             text=True,
-            timeout=300  # 5 minutes timeout
+            timeout=300 
         )
         
         if result.returncode != 0:

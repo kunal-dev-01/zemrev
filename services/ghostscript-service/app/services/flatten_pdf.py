@@ -20,14 +20,14 @@ def flatten_pdf_ghostscript(input_path: Path, output_path: Path) -> None:
         gs_command = [
             "gs",
             "-sDEVICE=pdfwrite",
-            "-dCompatibilityLevel=1.3",     # Forces flattening of transparency
-            "-dPDFSETTINGS=/prepress",      # High quality output
+            "-dCompatibilityLevel=1.3", 
+            "-dPDFSETTINGS=/prepress",
             "-dNOPAUSE",
             "-dQUIET",
             "-dBATCH",
-            "-dNoOutputFonts",              # Converts text to shapes (makes it unselectable)
+            "-dNoOutputFonts",         
             "-dAutoRotatePages=/None",
-            "-dPreserveAnnots=false",       # Removes interactive annotations
+            "-dPreserveAnnots=false",  
             "-dFlattenTransparency=true",
             "-dHaveTransparency=false",
             "-dDetectDuplicateImages=true",
@@ -41,7 +41,7 @@ def flatten_pdf_ghostscript(input_path: Path, output_path: Path) -> None:
             gs_command,
             capture_output=True,
             text=True,
-            timeout=300  # 5 minutes timeout
+            timeout=300 
         )
         
         if result.returncode != 0:

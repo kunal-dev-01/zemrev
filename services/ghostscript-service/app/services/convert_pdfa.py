@@ -17,17 +17,7 @@ def convert_to_pdfa(
     output_path: Path,
     version: str = "2b"
 ) -> None:
-    """
-    Convert PDF to PDF/A format (archival standard).
-    
-    Args:
-        input_path: Input PDF file path
-        output_path: Output PDF/A file path
-        version: PDF/A version - "1b", "2b", or "3b"
-    
-    Raises:
-        Exception: If conversion fails
-    """
+
     try:
         original_size = input_path.stat().st_size / 1024
         

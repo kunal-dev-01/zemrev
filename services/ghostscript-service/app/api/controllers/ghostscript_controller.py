@@ -36,13 +36,8 @@ async def compress_pdf_handler(
     output_path = None
     
     try:
-        # Validate upload
         input_path = await validate_upload(file)
-        
-        # Create output path
         output_path = create_temp_pdf_path(prefix="compressed")
-        
-        # Run compression
         loop = asyncio.get_event_loop()
         original_size, compressed_size = await loop.run_in_executor(
             executor,
@@ -78,13 +73,8 @@ async def flatten_pdf_handler(
     output_path = None
     
     try:
-        # Validate upload
         input_path = await validate_upload(file)
-        
-        # Create output path
         output_path = create_temp_pdf_path(prefix="flattened")
-        
-        # Run flattening
         loop = asyncio.get_event_loop()
         await loop.run_in_executor(
             executor,
@@ -119,13 +109,8 @@ async def convert_to_pdfa_handler(
     output_path = None
     
     try:
-        # Validate upload
         input_path = await validate_upload(file)
-        
-        # Create output path
         output_path = create_temp_pdf_path(prefix=f"pdfa_{request.version}")
-        
-        # Run PDF/A conversion
         loop = asyncio.get_event_loop()
         await loop.run_in_executor(
             executor,
