@@ -252,7 +252,7 @@ export const SettingsToggleButton = ({
 // -----------------------------------------------------------------------------
 // Tool Icon Badge
 // -----------------------------------------------------------------------------
-interface ToolIconBadgeProps {
+export interface ToolIconBadgeProps {
   primaryColor: string;
   bgColor: string;
   bgColorDark: string;
