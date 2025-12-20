@@ -5,7 +5,9 @@ import { Spinner } from '@/components/Layouts/Spinner';
 
 const AppProvider = dynamic(() => import('@/lib/redux/reduxProvider'), {
     ssr: false,
-    loading: () => <Spinner />,
+    loading: () => <div className="w-full h-screen flex items-center justify-center">
+      <Spinner />
+    </div>,
 });
 
 
