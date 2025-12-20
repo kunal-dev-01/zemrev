@@ -6,11 +6,11 @@ from concurrent.futures import ThreadPoolExecutor
 import asyncio
 
 from app.services.validator import validate_upload
-from app.services.pypdf.merge_service import merge_pdfs
-from app.services.pypdf.split_service import split_pdf
-from app.services.pypdf.rotate_service import rotate_pdf_pages
-from app.services.pypdf.encrypt_service import encrypt_pdf
-from app.services.pypdf.decrypt_service import decrypt_pdf
+from app.services.merge_service import merge_pdfs
+from app.services.split_service import split_pdf
+from app.services.rotate_service import rotate_pdf_pages
+from app.services.encrypt_service import encrypt_pdf
+from app.services.decrypt_service import decrypt_pdf
 from app.models.pypdf_schemas import (
     SplitRequest, RotateRequest, EncryptRequest, DecryptRequest,
     parse_page_ranges, parse_rotations
