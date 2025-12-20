@@ -135,21 +135,6 @@ const RemovePdfPages = () => {
               </ol>
             )}
 
-            {section.methods && (
-              <ul className="list-disc pl-5 space-y-2 mb-4">
-                {section.methods.map((method, idx) => (
-                  <li key={idx}>
-                    <strong className="text-zinc-800 dark:text-zinc-200">
-                      {method.title}
-                    </strong>{" "}
-                    <span className="text-zinc-600 dark:text-zinc-400">
-                      {method.text}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-
             {section.comparison && (
               <ul className="list-disc pl-5 space-y-2 mb-4">
                 {section.comparison.map((item, idx) => (
