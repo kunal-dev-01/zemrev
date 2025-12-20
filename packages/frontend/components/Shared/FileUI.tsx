@@ -61,15 +61,18 @@ export const RemoveButton = ({
 interface ClearAllButtonProps {
   onClick: () => void;
   className?: string;
+  disabled?: boolean;
 }
 
 export const ClearAllButton = ({
   onClick,
   className = "",
+  disabled = false,
 }: ClearAllButtonProps) => {
   return (
     <button
       onClick={onClick}
+      disabled={disabled}
       className={`
         px-3 py-1.5 rounded-xl font-medium
         text-red-600 bg-red-50 dark:bg-red-900/20
