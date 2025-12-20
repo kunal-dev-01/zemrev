@@ -1,7 +1,6 @@
 // components/ImageTools/ImageConverter/Settings/ConverterFilePanel.tsx
 
 import { Spinner } from "@/components/Layouts/Spinner";
-import { FileImage } from "@/components/Svg/HomeSvg";
 import { ErrorSvg, SettingsSvg } from "@/components/Svg/CommonSvg";
 import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 import type {
@@ -12,6 +11,7 @@ import type {
 import { useState, useEffect } from "react";
 import { SettingsPanel } from "./SettingsPanel";
 import { FileError, FileInfo, RemoveButton } from "@/components/Shared/FileUI";
+import { ImageToolIconBadge } from "@/components/Shared/FileUITwo";
 
 interface ConverterFilePanelProps {
   file: ProcessedFile;
@@ -55,7 +55,6 @@ const STATUS_CONFIG = {
   },
 };
 
-
 export const ConverterFilePanel = ({
   file,
   config,
@@ -90,22 +89,16 @@ export const ConverterFilePanel = ({
       <div className="bg-transparent border border-zinc-200 dark:border-zinc-800 rounded-2xl p-2 md:p-3 transition-all duration-200 hover:border-zinc-300 dark:hover:border-zinc-700">
         <div className="flex items-center gap-4">
           {/* File Icon */}
-          <div
-            className="p-3 rounded-xl shrink-0"
-            style={{
-              backgroundColor: isDark
-                ? config.dropzoneColorDark
-                : config.dropzoneColor,
-            }}
-          >
-            <div style={{ color: config.primaryColor }} className="w-6 h-6">
-              <FileImage />
-            </div>
-          </div>
+          <ImageToolIconBadge
+            primaryColor={config.primaryColor}
+            bgColor={config.dropzoneColor}
+            bgColorDark={config.dropzoneColorDark}
+            isDark={isDark}
+          />
 
           {/* File Info */}
           <div className="flex-1 min-w-0">
-           <FileInfo name={file.name} size={file.size} />
+            <FileInfo name={file.name} size={file.size} />
           </div>
 
           {/* Format Display & Settings Button */}
@@ -129,16 +122,12 @@ export const ConverterFilePanel = ({
             </div>
 
             {/* Remove Button */}
-            {!isProcessing && (
-              <RemoveButton onClick={onRemove} />
-            )}
+            {!isProcessing && <RemoveButton onClick={onRemove} />}
           </div>
         </div>
 
         {/* Error Message */}
-        {isError && file.error && (
-          <FileError error={file.error} />
-        )}
+        {isError && file.error && <FileError error={file.error} />}
       </div>
 
       {/* Settings Panel */}
