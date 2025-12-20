@@ -1,11 +1,11 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import Loader from '@/components/Layouts/Loader';
+import { Spinner } from '@/components/Layouts/Spinner';
 
 const AppProvider = dynamic(() => import('@/lib/redux/reduxProvider'), {
     ssr: false,
-    loading: () => <Loader />,
+    loading: () => <Spinner />,
 });
 
 

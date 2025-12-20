@@ -1,7 +1,7 @@
 // Spinner.tsx
 import {memo} from "react";
 
-export const Spinner = memo(({ className }: { className?: string }) => (
+export const Spinner = memo(({ className='w-8 h-8 text-blue-500 dark:text-blue-700' }: { className?: string }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="100%"
