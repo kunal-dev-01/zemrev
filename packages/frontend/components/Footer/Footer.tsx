@@ -4,14 +4,13 @@ import { memo } from "react";
 /* ================= Footer Data ================= */
 const footerLinks = {
   company: [
-    { name: "About Us", href: "/legal?page=about" },
-    { name: "Contact Us", href: "/legal?page=contact" },
-    { name: "Support", href: "/legal?page=support" },
+    { name: "About Us", href: "/legal/about-us" },
+    { name: "Contact Us", href: "/legal/contact-us" },
   ],
   legal: [
-    { name: "Privacy Policy", href: "/legal?page=privacy" },
-    { name: "Terms of Service", href: "/legal?page=terms" },
-    { name: "Disclaimer", href: "/legal?page=disclaimer" },
+    { name: "Privacy Policy", href: "/legal/privacy-policy" },
+    { name: "Terms of Service", href: "/legal/terms-of-service" },
+    { name: "Disclaimer", href: "/legal/disclaimer" },
   ],
   imageTools: [
     { name: "Image Converter", href: "/image/image-converter" },
