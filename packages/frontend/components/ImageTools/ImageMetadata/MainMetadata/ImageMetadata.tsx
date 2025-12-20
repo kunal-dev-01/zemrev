@@ -1,20 +1,22 @@
-// ============================================================================
-// FILE: ImageMetadata/MainMetadata/ImageMetadata.tsx
-// ============================================================================
-
 import { useState, useCallback } from "react";
 import { DragDropZone } from "@/components/Shared/DragDropZone";
 import { UrlUploadModal } from "@/components/Shared/UrlUploadModal";
 import { TOOL_CONFIGS } from "@/config/image.tool.config";
-import { RotateSvg } from "@/components/Svg/ToolsSvg";
 import Image from "next/image";
 import GlassButton from "@/components/Layouts/GlassButton";
 import { useImageMetadata } from "@/hooks/imageHooks/useImageMetadata.hook";
 
 import MetadataViewer from "./MetadataViewer";
+import { FileError, FileInfo } from "@/components/Shared/FileUI";
+import {
+  IconActionButton,
+  ImageToolIconBadge,
+} from "@/components/Shared/FileUITwo";
+import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 
 const ImageMetadata = () => {
   const config = TOOL_CONFIGS.metadata;
+  const isDark = useDarkMode();
 
   const [urlModalOpen, setUrlModalOpen] = useState(false);
 
@@ -78,25 +80,21 @@ const ImageMetadata = () => {
         <div className="border border-zinc-200 dark:border-zinc-800 rounded-2xl bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 md:mt-[1vw] mt-[1vh] animate-in fade-in slide-in-from-bottom-4">
           {/* Header */}
           <div className="flex items-center justify-between mb-6 pb-4 border-b border-zinc-200 dark:border-zinc-800">
-            <div className="flex-1 min-w-0">
-              <h3 className="text-sm leading-none font-semibold truncate text-zinc-800 dark:text-zinc-200">
-                {file.name}
-              </h3>
-              <p className="text-xs text-zinc-500 mt-1">
-                Extract EXIF data and image properties
-              </p>
+            <ImageToolIconBadge
+              primaryColor={config.primaryColor}
+              bgColor={config.dropzoneColor}
+              bgColorDark={config.dropzoneColorDark}
+              isDark={isDark}
+            />
+            <div className="flex-1 min-w-0 ml-2">
+              <FileInfo name={file.name} size={file.size} />
             </div>
 
-            <button
+            <IconActionButton
               onClick={reset}
               disabled={extracting}
-              className="ml-3 px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all duration-200 flex items-center gap-2 cursor-pointer disabled:opacity-50"
-            >
-              <div className="w-5 h-5">
-                <RotateSvg />
-              </div>
-              <span className="md:block hidden text-sm">Change</span>
-            </button>
+              label="Change"
+            />
           </div>
 
           {/* Layout */}
@@ -104,11 +102,7 @@ const ImageMetadata = () => {
             {/* LEFT COLUMN: Settings/Info Panel */}
             <div className="space-y-5">
               {/* Error */}
-              {error && (
-                <div className="p-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-                  <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-                </div>
-              )}
+              {error && <FileError error={error} className="mt-0" />}
 
               {/* Extract Button */}
               <GlassButton
@@ -121,7 +115,10 @@ const ImageMetadata = () => {
 
               {/* Metadata Results */}
               {metadataData && (
-                <MetadataViewer extractedMetadata={metadataData} reset={reset} />
+                <MetadataViewer
+                  extractedMetadata={metadataData}
+                  reset={reset}
+                />
               )}
             </div>
 
@@ -132,7 +129,7 @@ const ImageMetadata = () => {
                   Preview
                 </span>
               </div>
-              
+
               <div className="relative w-full aspect-video bg-zinc-950 rounded-lg overflow-hidden">
                 <Image
                   src={imageUrl}
