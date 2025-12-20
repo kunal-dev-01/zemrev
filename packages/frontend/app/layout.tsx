@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import Script from "next/script";
 import MainProvider from "@/lib/Provider/Provider";
 import "./globals.css";
 
@@ -81,24 +80,6 @@ export default function RootLayout({
         className={`${inter.variable} antialiased`}
         cz-shortcut-listen="true"
       >
-        {/* ================= GOOGLE DRIVE PICKER ================= */}
-        <Script
-          src="https://apis.google.com/js/api.js"
-          strategy="afterInteractive"
-        />
-        <Script
-          src="https://accounts.google.com/gsi/client"
-          strategy="afterInteractive"
-        />
-
-        {/* ================= DROPBOX PICKER ================= */}
-        <Script
-          src="https://www.dropbox.com/static/api/2/dropins.js"
-          id="dropboxjs"
-          data-app-key={process.env.NEXT_PUBLIC_DROPBOX_APP_KEY}
-          strategy="afterInteractive"
-        />
-
         <MainProvider>{children}</MainProvider>
       </body>
     </html>
