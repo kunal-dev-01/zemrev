@@ -1,7 +1,13 @@
 import type { NextConfig } from "next";
 
+import bundleAnalyzer from "@next/bundle-analyzer";
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+});
+
 const nextConfig: NextConfig = {
-  turbopack: {},  // Empty config se warning chali jayegi
+  turbopack: {}, 
   webpack: (config) => {
     config.resolve.alias.canvas = false;
     config.resolve.alias.encoding = false;
@@ -9,4 +15,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);
