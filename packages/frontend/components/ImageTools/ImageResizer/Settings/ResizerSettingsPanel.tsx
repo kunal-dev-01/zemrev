@@ -1,7 +1,13 @@
 // components/ImageTools/ImageResizer/Shared/ResizerSettingsPanel.tsx
 
+import { InputField } from "@/components/Layouts/InputField";
 import { ChevronDownSvg } from "@/components/Svg/CommonSvg";
-import type { FileSettings, ProcessedFile, ToolConfig, ResizeMode } from "@/services/imageService/types";
+import type {
+  FileSettings,
+  ProcessedFile,
+  ToolConfig,
+  ResizeMode,
+} from "@/services/imageService/types";
 import { useState, useRef, useEffect } from "react";
 
 interface ResizerSettingsPanelProps {
@@ -66,43 +72,39 @@ export const ResizerSettingsPanel = ({
         style={{ width: "100%", maxWidth: "600px", maxHeight: "90vh" }}
         onClick={(e) => e.stopPropagation()}
       >
-        <style>{`
-          /* REMOVE NUMBER INPUT ARROWS */
-          input[type=number]::-webkit-inner-spin-button,
-          input[type=number]::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-          }
-          input[type=number] {
-            -moz-appearance: textfield;
-          }
-        `}</style>
-
         <div className="p-4 space-y-4 overflow-y-auto max-h-[90vh]">
-
           {/* ---------- PRESETS ---------- */}
           <div>
-            <label className="text-sm font-semibold mb-2 block">Quick Presets</label>
+            <label className="text-sm font-semibold mb-2 block uppercase">
+              Quick Presets
+            </label>
             <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
               {PRESETS.map((preset) => (
                 <button
                   key={preset.label}
                   onClick={() =>
-                    preset.width && preset.height &&
-                    onUpdateSettings({ width: preset.width, height: preset.height })
+                    preset.width &&
+                    preset.height &&
+                    onUpdateSettings({
+                      width: preset.width,
+                      height: preset.height,
+                    })
                   }
                   className={`px-3 py-2 rounded-xl text-sm font-bold border transition-all ${
-                    file.settings.width === preset.width && file.settings.height === preset.height
+                    file.settings.width === preset.width &&
+                    file.settings.height === preset.height
                       ? "text-white"
                       : "text-zinc-700 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-700"
                   }`}
                   style={{
                     backgroundColor:
-                      file.settings.width === preset.width && file.settings.height === preset.height
+                      file.settings.width === preset.width &&
+                      file.settings.height === preset.height
                         ? config.primaryColor
                         : undefined,
                     borderColor:
-                      file.settings.width === preset.width && file.settings.height === preset.height
+                      file.settings.width === preset.width &&
+                      file.settings.height === preset.height
                         ? config.primaryColor
                         : undefined,
                   }}
@@ -116,23 +118,32 @@ export const ResizerSettingsPanel = ({
           {/* ---------- WIDTH & HEIGHT ---------- */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-sm font-semibold mb-2 block">Width (px)</label>
-              <input
+              <label className="text-sm font-semibold mb-2 block uppercase">
+                Width (px)
+              </label>
+
+              <InputField
                 type="number"
+                label=""
                 value={file.settings.width || ""}
-                onChange={(e) => onUpdateSettings({ width: Number(e.target.value) || 0 })}
-                className="w-full px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-sm outline-none"
+                onChange={(value) =>
+                  onUpdateSettings({ width: Number(value) || 0 })
+                }
                 placeholder="1920"
               />
             </div>
 
             <div>
-              <label className="text-sm font-semibold mb-2 block">Height (px)</label>
-              <input
+              <label className="text-sm font-semibold mb-2 uppercase block">
+                Height (px)
+              </label>
+              <InputField
                 type="number"
+                label=""
                 value={file.settings.height || ""}
-                onChange={(e) => onUpdateSettings({ height: Number(e.target.value) || 0 })}
-                className="w-full px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-sm outline-none"
+                onChange={(value) =>
+                  onUpdateSettings({ height: Number(value) || 0 })
+                }
                 placeholder="1080"
               />
             </div>
@@ -140,14 +151,18 @@ export const ResizerSettingsPanel = ({
 
           {/* ---------- RESIZE MODE DROPDOWN ---------- */}
           <div>
-            <label className="text-sm font-semibold mb-2 block">Resize Mode</label>
+            <label className="text-sm font-semibold mb-2 block uppercase">
+              Resize Mode
+            </label>
 
             <div ref={modeRef} className="relative">
               <button
                 onClick={() => setIsModeOpen(!isModeOpen)}
                 className="w-full px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-sm flex items-center justify-between"
               >
-                <span className="font-medium capitalize">{file.settings.mode}</span>
+                <span className="font-medium capitalize">
+                  {file.settings.mode}
+                </span>
                 <ChevronDownSvg />
               </button>
 
@@ -155,8 +170,11 @@ export const ResizerSettingsPanel = ({
               <div
                 className={`
                   mt-1 overflow-hidden rounded-xl transition-all duration-300 ease-in-out
-                  ${isModeOpen ? "max-h-64 p-2 border border-zinc-200 dark:border-zinc-700"
-                               : "max-h-0 p-0 border-transparent"}
+                  ${
+                    isModeOpen
+                      ? "max-h-64 p-2 border border-zinc-200 dark:border-zinc-700"
+                      : "max-h-0 p-0 border-transparent"
+                  }
                 `}
               >
                 <div className="space-y-1">
@@ -173,8 +191,14 @@ export const ResizerSettingsPanel = ({
                           : "text-zinc-700 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-800/50 hover:bg-zinc-100 dark:hover:bg-zinc-700"
                       }`}
                       style={{
-                        backgroundColor: file.settings.mode === mode.value ? config.primaryColor : undefined,
-                        borderColor: file.settings.mode === mode.value ? config.primaryColor : undefined,
+                        backgroundColor:
+                          file.settings.mode === mode.value
+                            ? config.primaryColor
+                            : undefined,
+                        borderColor:
+                          file.settings.mode === mode.value
+                            ? config.primaryColor
+                            : undefined,
                       }}
                     >
                       <div className="font-bold">{mode.label}</div>
@@ -185,7 +209,7 @@ export const ResizerSettingsPanel = ({
               </div>
             </div>
           </div>
-        </div> 
+        </div>
       </div>
     </div>
   );
