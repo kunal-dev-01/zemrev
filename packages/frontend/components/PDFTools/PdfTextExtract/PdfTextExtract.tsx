@@ -77,7 +77,7 @@ const PdfTextExtract = () => {
       />
 
       {files.length > 0 && (
-        <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 md:mt-[1vw] mt-[1vh]">
+        <div className="border border-zinc-200 dark:border-zinc-900 rounded-2xl md:p-6 p-3 md:mt-[1vw] mt-[1vh]">
           <div className="space-y-2 mb-4">
             {files.map((file) => (
               <PdfFileItem

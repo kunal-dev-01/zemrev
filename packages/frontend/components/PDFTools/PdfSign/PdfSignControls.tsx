@@ -65,7 +65,7 @@ export const PdfSignControls = ({
       <SignatureFonts />
 
       {/* Tabs */}
-      <div className="flex p-1 bg-zinc-100 dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800">
+      <div className="flex p-1 bg-zinc-100 dark:bg-zinc-900/50 rounded-lg">
         {["text", "image"].map((type) => (
           <button
             key={type}
@@ -73,7 +73,7 @@ export const PdfSignControls = ({
             onClick={() => setActiveTab(type as "text" | "image")}
             className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-all cursor-pointer ${
               activeTab === type
-                ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-sm"
+                ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
                 : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
             }`}
           >
@@ -107,7 +107,7 @@ export const PdfSignControls = ({
               Font Style
             </label>
 
-            <div className="relative border border-zinc-200 mt-1.5 dark:border-zinc-700 rounded-lg overflow-hidden transition-all duration-300 hover:border-zinc-300 dark:hover:border-zinc-600">
+            <div className="relative border border-zinc-200 mt-1.5 dark:border-zinc-800 rounded-lg overflow-hidden transition-all duration-300 hover:border-zinc-300 dark:hover:border-zinc-700">
               <button
                 type="button"
                 onClick={() => setIsFontDropdownOpen(!isFontDropdownOpen)}

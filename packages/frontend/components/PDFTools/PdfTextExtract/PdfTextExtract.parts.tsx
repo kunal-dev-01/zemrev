@@ -47,7 +47,7 @@ export const PdfFileItem = ({
   isDark: boolean;
 }) => {
   return (
-    <div className="bg-transparent border border-zinc-200 dark:border-zinc-800 rounded-2xl p-3 transition-all duration-200 hover:border-zinc-300 dark:hover:border-zinc-700">
+    <div className="border border-zinc-200 dark:border-zinc-900 rounded-2xl p-3">
       <div className="flex items-center gap-3 mb-3">
         <ToolIconBadge
           primaryColor={config.primaryColor}
@@ -63,7 +63,7 @@ export const PdfFileItem = ({
         <RemoveButton onClick={() => removeFile(file.id)} />
       </div>
 
-      <div className="border-t border-zinc-200 dark:border-zinc-800 pt-3">
+      <div className="border-t border-zinc-200 dark:border-zinc-900 pt-3">
         <ToggleSwitch
           checked={file.settings.preserve_layout || false}
           onChange={(v) => updateSettings(file.id, { preserve_layout: v })}
@@ -142,7 +142,7 @@ export const ExtractedTextDisplay = ({
     "px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all text-sm font-medium cursor-pointer flex items-center gap-2";
 
   return (
-    <div className="border border-zinc-200 dark:border-zinc-800 rounded-2xl bg-white/50 dark:bg-zinc-900/40 p-4 md:mt-[1vw] mt-[1vh]">
+    <div className="border border-zinc-200 dark:border-zinc-900 rounded-2xl p-4 md:mt-[1vw] mt-[1vh]">
       {/* Header */}
       <div className="flex flex-col md:flex-row gap-3 items-start justify-between mb-4 pb-3 border-b border-zinc-200 dark:border-zinc-800">
         <div>

@@ -83,7 +83,7 @@ export const PdfWatermarkControls = ({
       <WatermarkFonts />
 
       {/* Tabs */}
-      <div className="flex p-1 bg-zinc-100 dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800">
+      <div className="flex p-1 bg-zinc-100 dark:bg-zinc-900/50 rounded-lg">
         {["text", "image"].map((type) => (
           <button
             key={type}
@@ -124,7 +124,7 @@ export const PdfWatermarkControls = ({
             <label className="text-xs uppercase font-bold text-zinc-500">
               Font Style
             </label>
-            <div className="relative border border-zinc-200 mt-1.5 dark:border-zinc-700 rounded-lg overflow-hidden transition-all duration-300 hover:border-zinc-300 dark:hover:border-zinc-600">
+            <div className="relative border border-zinc-200 mt-1.5 dark:border-zinc-800 rounded-lg overflow-hidden transition-all duration-300 hover:border-zinc-300 dark:hover:border-zinc-700">
               <button
                 type="button"
                 onClick={() => setIsFontDropdownOpen(!isFontDropdownOpen)}
@@ -302,7 +302,7 @@ export const PdfWatermarkControls = ({
         <label className="text-xs uppercase font-bold text-zinc-500 mb-2 block">
           Apply To
         </label>
-        <div className="flex p-1 bg-zinc-100 dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800 mb-3">
+        <div className="flex p-1 bg-zinc-100 dark:bg-zinc-900/50 rounded-lg mb-3">
           <button
             type="button"
             onClick={() => setSelectedPage(-1)}

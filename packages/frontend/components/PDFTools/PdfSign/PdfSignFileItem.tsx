@@ -158,7 +158,7 @@ export const PdfSignFileItem = ({
   const pageDisplay = selectedPage + 1;
 
   return (
-    <div className="border border-zinc-200 dark:border-zinc-800 rounded-2xl bg-white/50 dark:bg-zinc-900/40 overflow-hidden transition-all">
+    <div className="border border-zinc-200 dark:border-zinc-900 rounded-2xl overflow-hidden transition-all">
       {/* Header */}
       <div className="flex items-center gap-3 p-4 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/40">
         <ToolIconBadge

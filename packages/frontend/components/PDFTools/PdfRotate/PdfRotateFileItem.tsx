@@ -77,7 +77,7 @@ export const PdfRotateFileItem = ({
   );
 
   return (
-    <div className="border border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/40 rounded-2xl overflow-hidden transition-all">
+    <div className="border border-zinc-200 dark:border-zinc-900 rounded-2xl overflow-hidden transition-all">
       {/* Header */}
       <div className="flex items-center gap-3 p-4 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/40">
         <ToolIconBadge
@@ -101,7 +101,7 @@ export const PdfRotateFileItem = ({
             <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
               Rotation Mode
             </label>
-            <div className="flex p-1 bg-zinc-100 dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800">
+            <div className="flex p-1 bg-zinc-100 dark:bg-zinc-900/50 rounded-lg">
               {["all", "custom"].map((mode) => (
                 <button
                   key={mode}
@@ -109,7 +109,7 @@ export const PdfRotateFileItem = ({
                   onClick={() => handleModeChange(mode as "all" | "custom")}
                   className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-all cursor-pointer ${
                     rotationMode === mode
-                      ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-sm"
+                      ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
                       : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
                   }`}
                 >
@@ -147,8 +147,8 @@ export const PdfRotateFileItem = ({
                   onClick={() => handleAngleChange(rot.value)}
                   className={`flex flex-col items-center justify-center py-2 px-1 rounded-xl border transition-all cursor-pointer ${
                     selectedAngle === rot.value
-                      ? "bg-blue-50 border-blue-500 text-blue-700 dark:bg-blue-900/20 dark:border-blue-500 dark:text-blue-400 font-semibold"
-                      : "bg-transparent border-zinc-200 text-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-900 dark:border-zinc-700 dark:text-zinc-400"
+                      ? "bg-rose-50 border-rose-500 text-rose-700 dark:bg-rose-900/20 dark:border-rose-500 dark:text-rose-400 font-semibold"
+                      : "bg-transparent border-zinc-200 text-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-900 dark:border-zinc-900 dark:text-zinc-400"
                   }`}
                 >
                   <span className="text-2xl mb-1">{rot.icon}</span>
@@ -159,7 +159,7 @@ export const PdfRotateFileItem = ({
           </div>
 
           {/* Rotation Summary */}
-          <div className="p-3 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg border border-zinc-200 dark:border-zinc-800">
+          <div className="p-3 bg-zinc-50 dark:bg-zinc-900/50 rounded-lg border border-zinc-200 dark:border-zinc-900">
             <div className="text-xs font-semibold text-zinc-500 mb-1">
               Current Settings
             </div>
