@@ -42,7 +42,7 @@ services:
       - "80:80"
     depends_on:
       - image-service
-      - pdf-service
+      - ghostscript-service
       - pymupdf-service
       - pypdf-service
     networks:
@@ -76,25 +76,25 @@ services:
       - zemrev_dev
 
   # ==========================================================================
-  # PDF SERVICE (Ghostscript)
+  # GHOSTSCRIPT SERVICE
   # ==========================================================================
   
-  pdf-service:
+  ghostscript-service:
     build:
       context: .
-      dockerfile: services/pdf-service/Dockerfile.dev
-    container_name: zemrev_pdf_dev
+      dockerfile: services/ghostscript-service/Dockerfile.dev
+    container_name: zemrev_ghostscript_dev
     ports:
       - "8001:8001"
     env_file:
-      - ./services/pdf-service/.env
+      - ./services/ghostscript-service/.env
     environment:
       - REDIS_URL=redis://redis-queue:6379
-      - QUEUE_NAME=zemrev_pdf_jobs_dev
+      - QUEUE_NAME=zemrev_ghostscript_jobs_dev
       - QUEUE_MAX_WORKERS=2
       - LOG_LEVEL=debug
     volumes:
-      - ./services/pdf-service/app:/app/app:ro
+      - ./services/ghostscript-service/app:/app/app:ro
     depends_on:
       redis-queue:
         condition: service_healthy

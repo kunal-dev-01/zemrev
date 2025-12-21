@@ -51,7 +51,7 @@ services:
       - "443:443"
     depends_on:
       - image-service
-      - pdf-service
+      - ghostscript-service
       - pymupdf-service
       - pypdf-service
       - redis-queue
@@ -103,19 +103,19 @@ services:
           memory: 1G
 
   # ==========================================================================
-  # PDF SERVICE (Ghostscript)
+  # GHOSTSCRIPT SERVICE
   # ==========================================================================
   
-  pdf-service:
+  ghostscript-service:
     build:
       context: .
-      dockerfile: services/pdf-service/Dockerfile
-    container_name: zemrev_pdf_prod
+      dockerfile: services/ghostscript-service/Dockerfile
+    container_name: zemrev_ghostscript_prod
     restart: unless-stopped
     expose:
       - "8001"
     env_file:
-      - ./services/pdf-service/.env.production
+      - ./services/ghostscript-service/.env.production
     depends_on:
       redis-queue:
         condition: service_healthy
