@@ -42,10 +42,10 @@ export const RemoveButton = ({
       aria-label={ariaLabel}
       className={`
         px-3 py-1.5 rounded-xl border
-        border-zinc-200 dark:border-zinc-700
-        bg-zinc-50 dark:bg-zinc-800/50
+        border-zinc-200 dark:border-zinc-800
+        bg-zinc-50 dark:bg-zinc-900/50
         text-zinc-700 dark:text-zinc-300
-        hover:bg-zinc-100 dark:hover:bg-zinc-700
+        hover:bg-zinc-100 dark:hover:bg-zinc-800
         transition-all duration-200 cursor-pointer
         ${className}
       `}
@@ -128,13 +128,13 @@ export const FileInfo = ({ name, size, className = "" }: FileInfoProps) => {
   return (
     <div className={className}>
       <h3
-        className="text-sm leading-none font-medium text-zinc-800 dark:text-zinc-200 truncate"
+        className="text-sm leading-none font-medium text-zinc-700 dark:text-zinc-300 truncate"
         title={name}
       >
         {name}
       </h3>
 
-      <p className="text-xs px-1 rounded-md bg-zinc-200 dark:bg-zinc-800 inline-block text-zinc-500 dark:text-zinc-400 mt-1">
+      <p className="text-xs px-1 rounded-md bg-zinc-200/60 dark:bg-zinc-800 inline-block text-zinc-500 dark:text-zinc-400 mt-1">
         {formatBytes(size)}
       </p>
     </div>
@@ -154,8 +154,8 @@ export const FilesSummary = ({ count, className = "" }: FilesSummaryProps) => {
     <div
       className={`
         flex items-center gap-2
-        dark:bg-zinc-900 bg-zinc-50
-        border border-zinc-200 dark:border-zinc-800
+        dark:bg-zinc-900/50 bg-zinc-50
+        border border-zinc-200 dark:border-zinc-900
         rounded-xl px-3 py-1.5
         ${className}
       `}
@@ -188,7 +188,7 @@ export const FilesStatusSummary = ({
 
   return (
     <div className={`flex items-center justify-between ${className}`}>
-      <div className="flex items-center gap-2 dark:bg-zinc-900 bg-zinc-50 border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-1.5">
+      <div className="flex items-center gap-2 dark:bg-zinc-900/50 bg-zinc-50 border border-zinc-200 dark:border-zinc-900 rounded-xl px-3 py-1.5">
         <p className="md:text-sm text-xs text-zinc-600 dark:text-zinc-400">
           {pending > 0 && `${pending} pending`}
           {processing > 0 && ` • ${processing} processing`}
@@ -224,12 +224,12 @@ export const SettingsToggleButton = ({
       onClick={onClick}
       className={`
         px-3 py-1.5 rounded-xl
-        border border-zinc-200 dark:border-zinc-700
-        bg-zinc-50 dark:bg-zinc-800/50
+        border border-zinc-200 dark:border-zinc-800
+        bg-zinc-50 dark:bg-zinc-900/50
         text-zinc-800 dark:text-zinc-200
         flex items-center gap-1 justify-between
         transition-all cursor-pointer
-        hover:bg-zinc-100 dark:hover:bg-zinc-700
+        hover:bg-zinc-100 dark:hover:bg-zinc-800
         ${className}
       `}
     >
