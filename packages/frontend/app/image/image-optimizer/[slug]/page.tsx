@@ -113,8 +113,8 @@ export default async function OptimizerDynamicPage({
       <h1
         className="md:text-[1.8vw] text-[2.5vh] text-zinc-700 
                    dark:text-zinc-300 text-center font-semibold leading-tight 
-                   px-3 py-2 border border-zinc-200 dark:border-zinc-800 
-                   rounded-xl bg-white/50 dark:bg-zinc-900/40"
+                   px-3 py-2 border border-zinc-200 dark:border-zinc-900 
+                   rounded-xl"
       >
         {data.title}
       </h1>

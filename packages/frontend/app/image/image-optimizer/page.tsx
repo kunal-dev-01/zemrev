@@ -62,14 +62,16 @@ export const metadata: Metadata = {
   },
 };
 
+const repeatOne = "text-zinc-700 dark:text-zinc-300"
+const repeatTwo = "text-zinc-600 dark:text-zinc-400"
+
 const ImageOptimizer = () => {
   return (
     <main className="w-full">
       {/* Page Title */}
-      <h1 className="md:text-[1.8vw] text-[2.5vh] text-zinc-700 dark:text-zinc-300 
-                     text-center font-semibold leading-tight px-3 py-2 
-                     border border-zinc-200 dark:border-zinc-800 
-                     rounded-xl bg-white/50 dark:bg-zinc-900/40">
+      <h1 className="md:text-[1.8vw] text-[2.5vh] text-zinc-700 dark:text-zinc-300 text-center font-semibold leading-tight px-3 py-2 
+        border border-zinc-200 dark:border-zinc-900 
+        rounded-xl">
         {optimizerContent.mainHeading}
       </h1>
 
@@ -77,8 +79,7 @@ const ImageOptimizer = () => {
       <Index />
 
       {/* Blog Section */}
-      <div className="w-full border border-zinc-200 dark:border-zinc-800 rounded-xl 
-                      bg-white/50 dark:bg-zinc-900/40 p-2 md:p-6 md:mt-[1vw] mt-[1vh]">
+      <div className="w-full border border-zinc-200 dark:border-zinc-900 rounded-xl p-2 md:p-6 md:mt-[1vw] mt-[1vh]">
         {optimizerContent.sections.map((section, index) => (
           <div key={index} className="mb-8">
 
@@ -91,7 +92,7 @@ const ImageOptimizer = () => {
 
             {/* Heading */}
             {section.heading && (
-              <h2 className="text-xl md:text-2xl font-semibold text-zinc-800 dark:text-zinc-200 mb-3">
+              <h2 className="text-xl md:text-2xl font-semibold text-zinc-700 dark:text-zinc-200 mb-3">
                 {section.heading}
               </h2>
             )}
@@ -108,10 +109,10 @@ const ImageOptimizer = () => {
               <ul className="list-disc pl-5 space-y-2 mb-4">
                 {section.list.map((item, idx) => (
                   <li key={idx}>
-                    <strong className="text-zinc-800 dark:text-zinc-200">
+                    <strong className={repeatOne}>
                       {item.title}
                     </strong>{" "}
-                    <span className="text-zinc-600 dark:text-zinc-400">
+                    <span className={repeatTwo}>
                       {item.text}
                     </span>
                   </li>
@@ -124,10 +125,10 @@ const ImageOptimizer = () => {
               <ul className="space-y-3 mb-4">
                 {section.formats.map((format, idx) => (
                   <li key={idx}>
-                    <strong className="text-zinc-800 dark:text-zinc-200">
+                    <strong className={repeatOne}>
                       {format.name}:
                     </strong>{" "}
-                    <span className="text-zinc-600 dark:text-zinc-400">
+                    <span className={repeatTwo}>
                       {format.description}
                     </span>
                   </li>
@@ -140,10 +141,10 @@ const ImageOptimizer = () => {
               <ol className="list-decimal pl-5 space-y-2 mb-4">
                 {section.steps.map((step, idx) => (
                   <li key={idx}>
-                    <strong className="text-zinc-800 dark:text-zinc-200">
+                    <strong className={repeatOne}>
                       {step.step}:
                     </strong>{" "}
-                    <span className="text-zinc-600 dark:text-zinc-400">
+                    <span className={repeatTwo}>
                       {step.description}
                     </span>
                   </li>
@@ -156,10 +157,10 @@ const ImageOptimizer = () => {
               <ul className="list-disc pl-5 space-y-2 mb-4">
                 {section.features.map((f, idx) => (
                   <li key={idx}>
-                    <strong className="text-zinc-800 dark:text-zinc-200">
+                    <strong className={repeatOne}>
                       {f.title}
                     </strong>{" "}
-                    <span className="text-zinc-600 dark:text-zinc-400">
+                    <span className={repeatTwo}>
                       {f.text}
                     </span>
                   </li>
@@ -172,10 +173,10 @@ const ImageOptimizer = () => {
               <ul className="list-disc pl-5 space-y-2 mb-4">
                 {section.useCases.map((use, idx) => (
                   <li key={idx}>
-                    <strong className="text-zinc-800 dark:text-zinc-200">
+                    <strong className={repeatOne}>
                       {use.title}
                     </strong>{" "}
-                    <span className="text-zinc-600 dark:text-zinc-400">
+                    <span className={repeatTwo}>
                       {use.text}
                     </span>
                   </li>
