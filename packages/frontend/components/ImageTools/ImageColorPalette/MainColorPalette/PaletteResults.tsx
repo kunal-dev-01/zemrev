@@ -53,7 +53,7 @@ export const PaletteResults = ({
               title={`${color.hex} - ${color.percentage}% (Click to copy)`}
             >
               {/* Tooltip on hover */}
-              <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/60 text-white px-2">
+              <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-100 bg-black/60 text-white px-2">
                 <span className="text-xs md:text-sm font-mono font-bold">
                   {color.hex}
                 </span>

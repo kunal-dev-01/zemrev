@@ -53,7 +53,7 @@ export const SavedPalettesSection = ({ onCopyColor }: SavedPalettesSectionProps)
   }
 
   return (
-    <div className="mt-[1vh] md:mt-[1vw] border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3">
+    <div className="mt-[1vh] md:mt-[1vw] border border-zinc-200 dark:border-zinc-900 rounded-xl md:p-6 p-3">
       <div className="flex items-center justify-between mb-3">
         <h3 className="md:text-lg text-md font-semibold text-zinc-800 dark:text-zinc-200">
           Saved Palettes ({savedPalettes.length})
@@ -65,7 +65,7 @@ export const SavedPalettesSection = ({ onCopyColor }: SavedPalettesSectionProps)
         {savedPalettes.map((palette) => (
           <div
             key={palette.id}
-            className="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 p-3 md:p-4"
+            className="border border-zinc-200 dark:border-zinc-900 rounded-xl bg-zinc-50 dark:bg-zinc-900/50 p-3 md:p-4"
           >
             <div className="flex items-center justify-between mb-3">
               <div className="flex-1 min-w-0">
@@ -78,7 +78,7 @@ export const SavedPalettesSection = ({ onCopyColor }: SavedPalettesSectionProps)
               </div>
               <button
                 onClick={() => deleteSavedPalette(palette.id)}
-                className="px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-all duration-200 text-sm shrink-0 cursor-pointer"
+                className="px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 text-sm shrink-0 cursor-pointer hover:opacity-80 transition-opacity duration-200"
               >
                 Remove
               </button>
@@ -97,7 +97,7 @@ export const SavedPalettesSection = ({ onCopyColor }: SavedPalettesSectionProps)
                   }}
                   title={`${color.hex} - ${color.percentage}% (Click to copy)`}
                 >
-                  <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/60 text-white px-1">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-100 bg-black/60 text-white px-1">
                     <span className="text-xs font-mono font-bold">
                       {color.hex}
                     </span>
