@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     
     MAX_FILE_SIZE: int = 83886080   
     MAX_PAGES: int = 250        
+    QUEUE_MAX_WORKERS: int = 2
     
     model_config = SettingsConfigDict(
         env_file=".env",

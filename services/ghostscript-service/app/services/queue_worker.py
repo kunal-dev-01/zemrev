@@ -15,9 +15,9 @@ from pathlib import Path
 from zemrev_queue import queue_manager
 
 # Import service-specific processors
-from app.services.ghostscript_compressor import compress_pdf_ghostscript
-from app.services.ghostscript_flattener import flatten_pdf_ghostscript
-from app.services.ghostscript_pdfa import convert_to_pdfa
+from app.services.compress_pdf import compress_pdf_ghostscript
+from app.services.flatten_pdf import flatten_pdf_ghostscript
+from app.services.convert_pdfa import convert_to_pdfa
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)

@@ -1,7 +1,7 @@
 """
 ============================================================================
-FILE: services/pdf-service/app/main.py
-PURPOSE: PDF Service FastAPI app (uses shared queue package)
+FILE: services/ghostscript-service/app/main.py
+PURPOSE: Ghostscript Service FastAPI app (uses shared queue package)
 ============================================================================
 """
 
@@ -33,15 +33,11 @@ logger = get_logger(__name__)
 async def lifespan(app: FastAPI):
     """Startup and shutdown"""
     
-    logger.info("🚀 Starting ZEMREV PDF Service...")
+    logger.info("🚀 Starting ZEMREV Ghostscript Service...")
     logger.info(f"📁 Upload directory: {settings.UPLOAD_DIR}")
-    logger.info(f"⏱️  Queue timeout: {settings.QUEUE_JOB_TIMEOUT}s")
+    logger.info(f"⏱️  Queue timeout: 600s (10 min)")
     logger.info(f"👷 Max workers: {settings.QUEUE_MAX_WORKERS}")
-    
-    # Tool limits
-    logger.info(f"🔧 COMPRESS - Max: {settings.COMPRESS_MAX_FILE_SIZE / (1024*1024):.0f}MB, {settings.COMPRESS_MAX_PAGES} pages, {settings.COMPRESS_TIMEOUT}s timeout")
-    logger.info(f"🔧 FLATTEN - Max: {settings.FLATTEN_MAX_FILE_SIZE / (1024*1024):.0f}MB, {settings.FLATTEN_MAX_PAGES} pages, {settings.FLATTEN_TIMEOUT}s timeout")
-    logger.info(f"🔧 PDFA - Max: {settings.PDFA_MAX_FILE_SIZE / (1024*1024):.0f}MB, {settings.PDFA_MAX_PAGES} pages, {settings.PDFA_TIMEOUT}s timeout")
+    logger.info(f"📊 All Tools - Max: {settings.MAX_FILE_SIZE / (1024*1024):.0f}MB, {settings.MAX_PAGES} pages")
     
     # Connect to shared Redis queue
     try:
@@ -59,7 +55,7 @@ async def lifespan(app: FastAPI):
         logger.error(f"❌ Workers failed: {e}")
         raise
     
-    logger.info("✅ PDF Service ready")
+    logger.info("✅ Ghostscript Service ready")
     
     yield
     
@@ -80,7 +76,7 @@ async def lifespan(app: FastAPI):
 # ============================================================================
 
 app = FastAPI(
-    title="ZEMREV PDF API",
+    title="ZEMREV Ghostscript API",
     description="Ultra-fast PDF processing with Ghostscript + Queue",
     version="1.0.0",
     lifespan=lifespan
@@ -113,7 +109,7 @@ app.include_router(ghostscript_routes.router)
 async def root():
     """API info"""
     return {
-        "service": "ZEMREV PDF API",
+        "service": "ZEMREV Ghostscript API",
         "version": "1.0.0",
         "status": "operational",
         "engine": "Ghostscript",
