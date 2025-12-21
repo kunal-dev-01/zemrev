@@ -216,7 +216,7 @@ export const PdfSignControls = ({
             )}
             <input
               type="file"
-              accept="image/png,image/svg+xml"
+              accept="image/png, image/jpeg, image/jpg"
               onChange={handleImageUpload}
               className="hidden"
             />
