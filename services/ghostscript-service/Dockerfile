@@ -46,13 +46,13 @@ ENV PATH=/root/.local/bin:$PATH
 RUN useradd -m -u 1000 appuser && \
     mkdir -p /app && \
     chown -R appuser:appuser /app && \
-    mkdir -p /tmp/zemrev_pdf_uploads && \
-    chown -R appuser:appuser /tmp/zemrev_pdf_uploads
+    mkdir -p /tmp/zemrev_ghostscript_uploads && \
+    chown -R appuser:appuser /tmp/zemrev_ghostscript_uploads
 
 WORKDIR /app
 
 # Copy application code (relative to ROOT context)
-COPY --chown=appuser:appuser services/pdf-service/ .
+COPY --chown=appuser:appuser services/ghostscript-service/ .
 
 USER appuser
 

@@ -30,14 +30,14 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 # Copy service requirements (relative to ROOT context)
 WORKDIR /app
-COPY services/pdf-service/requirements.txt .
+COPY services/ghostscript-service/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code (relative to ROOT context)
-COPY services/pdf-service/ .
+COPY services/ghostscript-service/ .
 
 # Create upload directory
-RUN mkdir -p /tmp/zemrev_pdf_uploads && chmod 777 /tmp/zemrev_pdf_uploads
+RUN mkdir -p /tmp/zemrev_ghostscript_uploads && chmod 777 /tmp/zemrev_ghostscript_uploads
 
 EXPOSE 8001
 
