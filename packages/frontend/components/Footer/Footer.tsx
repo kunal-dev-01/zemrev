@@ -86,9 +86,9 @@ const Footer = () => {
         
         {/* Brand & Intro */}
         <div className="mb-12">
-          <h2 className="text-3xl font-black text-zinc-900 dark:text-zinc-100 mb-4 tracking-tight">
+          <h4 className="text-3xl font-black text-zinc-700 dark:text-zinc-300 mb-4 tracking-tight">
             Zemrev<span className="text-blue-600">.</span>
-          </h2>
+          </h4>
           <p className="text-zinc-600 dark:text-zinc-400 max-w-xl text-lg">
             Superfast, privacy-focused tools for PDF and Image manipulation. 
             No logins, no databases—just pure performance.

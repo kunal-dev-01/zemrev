@@ -63,13 +63,13 @@ export const metadata: Metadata = {
 const PdfSign = () => {
   return (
     <main className="w-full">
-      <h1 className="md:text-[1.8vw] text-[2.5vh] text-zinc-700 dark:text-zinc-300 text-center font-semibold leading-tight px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40">
+      <h1 className="md:text-[1.8vw] text-[2.5vh] text-zinc-700 dark:text-zinc-300 text-center font-semibold leading-tight px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-xl">
         {pdfSignContent.mainHeading}
       </h1>
 
       <Index />
 
-      <div className="w-full border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 p-2 md:p-6 md:mt-[1vw] mt-[1vh]">
+      <div className="w-full border border-zinc-200 dark:border-zinc-800 rounded-xl p-2 md:p-6 md:mt-[1vw] mt-[1vh]">
         {pdfSignContent.intro && (
           <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed mb-8">
             {pdfSignContent.intro}
