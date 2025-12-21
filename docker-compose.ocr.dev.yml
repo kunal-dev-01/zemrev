@@ -1,5 +1,5 @@
 # ============================================================================
-# FILE: docker-compose.ocr.dev.yml
+# FILE: docker-compose.ocr.dev.yml (Root Directory)
 # PURPOSE: OCR Service - Separate VM Development
 # ============================================================================
 
