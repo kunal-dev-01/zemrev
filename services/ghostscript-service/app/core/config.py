@@ -19,8 +19,8 @@ class Settings(BaseSettings):
     # TOOL-SPECIFIC LIMITS
     # ========================================================================
     
-    MAX_FILE_SIZE = 83886080   
-    MAX_PAGES = 250        
+    MAX_FILE_SIZE: int = 83886080   
+    MAX_PAGES: int = 250        
     
     model_config = SettingsConfigDict(
         env_file=".env",
