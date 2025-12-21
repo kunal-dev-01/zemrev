@@ -12,8 +12,8 @@ logger = get_logger(__name__)
 # ============================================================================
 # OCR HARD LIMITS
 # ============================================================================
-OCR_MAX_PAGES = 50
-OCR_MAX_SIZE_MB = 25
+OCR_MAX_PAGES = 40
+OCR_MAX_SIZE_MB = 10
 OCR_FIXED_DPI = 300
 OCR_LANGUAGE = "eng"
 

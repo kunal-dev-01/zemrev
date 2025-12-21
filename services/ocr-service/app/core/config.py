@@ -18,8 +18,8 @@ class Settings(BaseSettings):
     # TOOL-SPECIFIC LIMITS
     # ========================================================================
     
-    MAX_FILE_SIZE: int = 26214400           # 25MB
-    MAX_PAGES: int = 50
+    MAX_FILE_SIZE: int = 10485760           # 25MB
+    MAX_PAGES: int = 40
     TOOL_TIMEOUT: int = 600                 # 10 minutes
     
     # ========================================================================
