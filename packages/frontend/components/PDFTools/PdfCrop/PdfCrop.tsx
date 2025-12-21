@@ -8,7 +8,6 @@ import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 import GlassButton from "@/components/Layouts/GlassButton";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
-import { FilesStatusSummary } from "@/components/Shared/FileUI";
 
 const PdfCrop = () => {
   const config = PDF_TOOL_CONFIGS["pdf-crop"];
@@ -17,7 +16,6 @@ const PdfCrop = () => {
   const {
     files,
     cropping,
-    stats,
     addFiles,
     removeFile,
     addFromGoogleDrive,

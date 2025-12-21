@@ -125,7 +125,7 @@ export const PdfCropFileItem = ({
   // --------------------------------------------------------------------------
 
   return (
-    <div className="border border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/40 rounded-2xl overflow-hidden transition-all">
+    <div className="border border-zinc-200 dark:border-zinc-900 rounded-2xl overflow-hidden transition-all">
       {/* ===================================================================== */}
       {/* HEADER */}
       {/* ===================================================================== */}

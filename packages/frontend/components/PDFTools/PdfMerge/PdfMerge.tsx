@@ -41,10 +41,10 @@ const PdfMerge = () => {
 
       {/* Pending Files Panel */}
       {files.length > 0 && (
-        <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 md:mt-[1vw] mt-[1vh]">
+        <div className="border border-zinc-200 dark:border-zinc-900 rounded-2xl md:p-6 p-3 md:mt-[1vw] mt-[1vh]">
           {/* Header */}
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2 dark:bg-zinc-900 bg-zinc-50 border border-zinc-200 dark:border-zinc-800 rounded-xl px-3 py-1.5 md:text-sm text-xs text-zinc-600 dark:text-zinc-400">
+            <div className="flex items-center gap-2 dark:bg-zinc-900/50 bg-zinc-50 border border-zinc-200 dark:border-zinc-900 rounded-xl px-3 py-1.5 md:text-sm text-xs text-zinc-600 dark:text-zinc-400">
               {files.length} PDF{files.length !== 1 ? "s" : ""} Loaded
             </div>
 
@@ -56,7 +56,7 @@ const PdfMerge = () => {
             {files.map((file, index) => (
               <div
                 key={file.id}
-                className="relative group bg-linear-to-br from-zinc-50 to-zinc-100 dark:from-zinc-800 dark:to-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-700 overflow-hidden hover:border-zinc-300 dark:hover:border-zinc-600 transition-all"
+                className="relative group bg-linear-to-br from-zinc-50 to-zinc-100 dark:from-zinc-900 dark:to-zinc-900/50 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden hover:border-zinc-300 dark:hover:border-zinc-900 transition-all cursor-pointer"
               >
                 {/* PDF Icon Preview */}
                 <div className="aspect-3/4 flex items-center justify-center p-4">
@@ -84,7 +84,7 @@ const PdfMerge = () => {
 
                 {/* Order Badge */}
                 <div
-                  className="absolute top-2 left-2 w-9 h-7 rounded-xl flex items-center justify-center text-white text-xs font-bold bg-zinc-100/20 dark:bg-zinc-900/20 border border-zinc-200 dark:border-zinc-700"
+                  className="absolute top-2 left-2 w-9 h-7 rounded-xl flex items-center justify-center text-white text-xs font-bold bg-zinc-100/20 dark:bg-zinc-900/20 border border-zinc-200 dark:border-zinc-800"
                   style={{ color: config.primaryColor }}
                 >
                   {index + 1}
@@ -98,6 +98,7 @@ const PdfMerge = () => {
             loading={merging}
             primaryColor={config.primaryColor}
             onClick={mergeFiles}
+            disabled={files.length < 2}
           >
             {merging
               ? "Merging PDFs..."
@@ -113,6 +114,7 @@ const PdfMerge = () => {
               </p>
             </div>
           )}
+          
         </div>
       )}
 

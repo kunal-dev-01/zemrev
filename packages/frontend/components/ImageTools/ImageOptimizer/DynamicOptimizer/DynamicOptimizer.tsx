@@ -130,7 +130,7 @@ const DynamicOptimizer = ({ slug }: DynamicOptimizerProps) => {
       {/* Pending Files */}
       {files.length > 0 && (
         <div
-          className="border border-zinc-200 dark:border-zinc-900 rounded-xl 
+          className="border border-zinc-200 dark:border-zinc-900 rounded-2xl 
           md:p-6 p-3 md:mt-[1vw] mt-[1vh]"
         >
           {/* Header */}

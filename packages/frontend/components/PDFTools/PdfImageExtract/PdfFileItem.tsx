@@ -128,7 +128,7 @@ export const PdfFileItem = ({
   // ============================================================================
 
   return (
-    <div className="bg-transparent border border-zinc-200 dark:border-zinc-800 rounded-2xl p-2 md:p-3 transition-all duration-200 hover:border-zinc-300 dark:hover:border-zinc-700 relative">
+    <div className="bg-transparent border border-zinc-200 dark:border-zinc-900 rounded-2xl p-2 md:p-3 relative">
       <div className="flex items-center gap-3">
         {/* PDF Icon Box */}
         <ToolIconBadge

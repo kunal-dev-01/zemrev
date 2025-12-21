@@ -44,7 +44,7 @@ const ImageFileItem = ({
   // ============================================================================
 
   return (
-    <div className="bg-transparent border border-zinc-200 dark:border-zinc-800 rounded-2xl p-2 md:p-3 transition-all duration-200 hover:border-zinc-300 dark:hover:border-zinc-700 relative">
+    <div className="bg-transparent border border-zinc-200 dark:border-zinc-900 rounded-2xl p-2 md:p-3 relative">
       <div className="flex items-center gap-3">
         {/* Image Icon Box with Order Number */}
         <ToolIconBadge
@@ -60,7 +60,7 @@ const ImageFileItem = ({
         </div>
 
         {/* Image Type Badge */}
-        <div className="px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50 flex items-center justify-center">
+        <div className="px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 flex items-center justify-center">
           <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase">
             {file.type.split("/")[1]}
           </span>
@@ -134,7 +134,7 @@ const ImagesToPdf = () => {
 
       {/* Pending Files Panel */}
       {files.length > 0 && (
-        <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 md:mt-[1vw] mt-[1vh]">
+        <div className="border border-zinc-200 dark:border-zinc-900 rounded-2xl md:p-6 p-3 md:mt-[1vw] mt-[1vh]">
           {/* Header */}
           <div className="flex items-center justify-between mb-4">
             <FilesStatusSummary

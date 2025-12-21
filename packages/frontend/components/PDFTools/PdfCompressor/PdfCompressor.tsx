@@ -56,7 +56,7 @@ const PdfFileItem = ({
   };
 
   return (
-    <div className="bg-transparent border border-zinc-200 dark:border-zinc-800 rounded-2xl p-2 md:p-3 transition-all duration-200 hover:border-zinc-300 dark:hover:border-zinc-700 relative">
+    <div className="bg-transparent border border-zinc-200 dark:border-zinc-900 rounded-2xl p-2 md:p-3 relative">
       <div className="flex items-center gap-3">
         {/* PDF Icon Box */}
         <ToolIconBadge
@@ -215,7 +215,7 @@ const PdfCompressor = () => {
 
       {/* Pending Files Panel */}
       {files.length > 0 && (
-        <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 md:mt-[1vw] mt-[1vh] fade-in">
+        <div className="border border-zinc-200 dark:border-zinc-900 rounded-2xl  md:p-6 p-3 md:mt-[1vw] mt-[1vh] fade-in">
           {/* Header */}
           <div className="flex items-center justify-between mb-4">
             <FilesStatusSummary

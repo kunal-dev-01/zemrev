@@ -98,7 +98,7 @@ const PdfFileItem = ({
     `${file.settings.dpi} DPI`;
 
   return (
-    <div className="relative rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-transparent p-2 md:p-3 transition-all duration-200 hover:border-zinc-300 dark:hover:border-zinc-700">
+    <div className="relative rounded-2xl border border-zinc-200 dark:border-zinc-900 p-2 md:p-3">
       <div className="flex items-center gap-3">
         {/* Icon */}
         <ToolIconBadge
@@ -274,7 +274,7 @@ const PdfOCR = () => {
       />
 
       {files.length > 0 && (
-        <div className="mt-[1vh] rounded-xl border border-zinc-200 bg-white/50 p-3 dark:border-zinc-800 dark:bg-zinc-900/40 md:mt-[1vw] md:p-6">
+        <div className="mt-[1vh] rounded-2xl border border-zinc-200 p-3 dark:border-zinc-900 md:mt-[1vw] md:p-6">
           <div className="mb-4 flex items-center">
             <FilesStatusSummary
               pending={stats.pending}

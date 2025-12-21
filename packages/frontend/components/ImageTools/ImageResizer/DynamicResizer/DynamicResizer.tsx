@@ -129,7 +129,7 @@ const DynamicResizer = ({ slug }: DynamicResizerProps) => {
       {/* Pending Files */}
       {files.length > 0 && (
         <div
-          className="border border-zinc-200 dark:border-zinc-900 rounded-xl 
+          className="border border-zinc-200 dark:border-zinc-900 rounded-2xl 
          md:p-6 p-3 mt-[1vh] md:mt-[1vw]"
         >
           {/* Header */}
