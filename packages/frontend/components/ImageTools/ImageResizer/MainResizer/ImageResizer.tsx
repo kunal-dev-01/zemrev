@@ -91,8 +91,8 @@ const ImageResizer = () => {
       {/* Pending Files Panel */}
       {files.length > 0 && (
         <div
-          className="border border-zinc-200 dark:border-zinc-800 rounded-xl 
-          bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 mt-[1vh] md:mt-[1vw]"
+          className="border border-zinc-200 dark:border-zinc-900 rounded-xl 
+          md:p-6 p-3 mt-[1vh] md:mt-[1vw]"
         >
           {/* Header */}
           <div className="flex items-center justify-between mb-4">

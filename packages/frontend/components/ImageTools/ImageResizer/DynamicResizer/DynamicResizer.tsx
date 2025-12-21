@@ -12,7 +12,7 @@ import GlassButton from "@/components/Layouts/GlassButton";
 
 import { useImageResizer } from "@/hooks/imageHooks/useImageResizer.hook";
 import type { ResizeMode } from "@/services/imageService/types";
-import { ClearAllButton } from "@/components/Shared/FileUI";
+import { ClearAllButton, FilesStatusSummary } from "@/components/Shared/FileUI";
 
 interface DynamicResizerProps {
   slug: string;
@@ -100,7 +100,6 @@ const DynamicResizer = ({ slug }: DynamicResizerProps) => {
   // ============================================================================
 
   const canAddMore = files.length < config.maxFiles;
-  const displayText = getDisplayLabel(slug, dimensions);
 
   const defaultWidth = Number(config.defaultSettings.width);
   const defaultHeight = Number(config.defaultSettings.height);
@@ -130,24 +129,17 @@ const DynamicResizer = ({ slug }: DynamicResizerProps) => {
       {/* Pending Files */}
       {files.length > 0 && (
         <div
-          className="border border-zinc-200 dark:border-zinc-800 rounded-xl 
-         bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 mt-[1vh] md:mt-[1vw]"
+          className="border border-zinc-200 dark:border-zinc-900 rounded-xl 
+         md:p-6 p-3 mt-[1vh] md:mt-[1vw]"
         >
           {/* Header */}
           <div className="flex items-center justify-between mb-4">
             {/* Status text */}
-            <div
-              className="flex items-center gap-2 px-4 py-1.5 rounded-xl 
-             bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800"
-            >
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                Resizing to {displayText}
-                {stats.pending > 0 && ` • ${stats.pending} pending`}
-                {stats.processing > 0 && ` • ${stats.processing} processing`}
-                {stats.error > 0 && ` • ${stats.error} failed`}
-              </p>
-            </div>
-
+            <FilesStatusSummary
+              pending={stats.pending}
+              processing={stats.processing}
+              failed={stats.error}
+            />
             {/* Clear All */}
            <ClearAllButton onClick={clearAll} />
           </div>

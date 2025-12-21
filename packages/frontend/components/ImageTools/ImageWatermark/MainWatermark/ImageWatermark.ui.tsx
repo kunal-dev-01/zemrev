@@ -64,7 +64,7 @@ export const ImageWatermarkUI = (p: Props) => {
   const isDark = useDarkMode();
 
   return (
-    <div className="border border-zinc-200 dark:border-zinc-800 rounded-2xl bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 md:mt-[1vw] mt-[1vh] animate-in fade-in slide-in-from-bottom-4">
+    <div className="border border-zinc-200 dark:border-zinc-900 rounded-2xl md:p-6 p-3 md:mt-[1vw] mt-[1vh] fade-in">
       {/* Header */}
       <div className="flex items-center justify-between mb-6 pb-4 border-b border-zinc-200 dark:border-zinc-800">
         <ImageToolIconBadge
@@ -87,7 +87,7 @@ export const ImageWatermarkUI = (p: Props) => {
         {/* LEFT COLUMN: Controls */}
         <div className="space-y-5">
           {/* Mode Selector - Tabs Style */}
-          <div className="flex p-1 bg-zinc-100 dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800">
+          <div className="flex p-1 bg-zinc-100 dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-900">
             {["text", "image"].map((type) => (
               <button
                 key={type}
@@ -95,7 +95,7 @@ export const ImageWatermarkUI = (p: Props) => {
                 onClick={() => p.setMode(type as "text" | "image")}
                 className={`flex-1 py-1.5 text-sm font-medium rounded-md transition-all cursor-pointer ${
                   p.mode === type
-                    ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-sm"
+                    ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
                     : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
                 }`}
               >
@@ -254,7 +254,7 @@ export const ImageWatermarkUI = (p: Props) => {
                   className={`px-3 py-2 rounded-lg text-sm font-medium transition-all outline-none cursor-pointer border ${
                     p.position === pos.value
                       ? "text-white border-transparent"
-                      : "text-zinc-700 dark:text-zinc-300 bg-transparent hover:bg-zinc-100 dark:hover:bg-zinc-900 border-zinc-200 dark:border-zinc-800"
+                      : "text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-900 border-zinc-200 dark:border-zinc-900"
                   }`}
                   style={{
                     backgroundColor:

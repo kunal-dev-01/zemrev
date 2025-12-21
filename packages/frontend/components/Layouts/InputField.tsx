@@ -50,7 +50,7 @@ export const InputField = ({
         onBlur={onBlur}
         className={`
           w-full px-3 py-2 rounded-lg border
-          border-zinc-200 dark:border-zinc-700
+          border-zinc-200 dark:border-zinc-800
           bg-transparent
           text-zinc-800 dark:text-zinc-200
           text-sm outline-none

@@ -53,42 +53,6 @@ export const OptimizerFilePanel = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const statusConfig = {
-    pending: {
-      text: "Pending",
-      color: "text-zinc-600 dark:text-zinc-400",
-      bg: "bg-zinc-100 dark:bg-zinc-800",
-      icon: null,
-    },
-    processing: {
-      text: "Optimizing...",
-      color: "text-blue-600 dark:text-blue-400",
-      bg: "bg-blue-100 dark:bg-blue-900/30",
-      icon: (
-        <div className="w-4 h-4">
-          <Spinner />
-        </div>
-      ),
-    },
-    completed: {
-      text: "Completed",
-      color: "text-green-600 dark:text-green-300",
-      bg: "bg-green-100 dark:bg-green-900/30",
-      icon: null,
-    },
-    error: {
-      text: "Failed",
-      color: "text-red-400 dark:text-red-500",
-      bg: "bg-red-100 dark:bg-red-900/30",
-      icon: (
-        <div className="w-4 h-4">
-          <ErrorSvg />
-        </div>
-      ),
-    },
-  };
-
-  const status = statusConfig[file.status];
   const isProcessing = file.status === "processing";
   const isError = file.status === "error";
 
@@ -96,7 +60,7 @@ export const OptimizerFilePanel = ({
   // RENDER
   // ============================================================================
   return (
-    <div className="bg-transparent border border-zinc-200 dark:border-zinc-800 rounded-2xl p-2 md:p-3 transition-all duration-200 hover:border-zinc-300 dark:hover:border-zinc-700 relative">
+    <div className="bg-transparent border border-zinc-200 dark:border-zinc-900 rounded-2xl p-2 md:p-3 relative fade-in">
       <div className="flex items-center gap-3">
         {/* Thumbnail Icon */}
         <ImageToolIconBadge
@@ -159,19 +123,7 @@ export const OptimizerFilePanel = ({
           </div>
         )}
 
-        {/* Status + Remove */}
-        <div className="flex items-center gap-3">
-          {/* Status badge */}
-          <div
-            className={`md:flex hidden items-center gap-1.5 px-3 py-1.5 rounded-xl font-medium whitespace-nowrap select-none cursor-default ${status.bg} ${status.color}`}
-          >
-            {status.icon}
-            <span className="hidden sm:inline">{status.text}</span>
-          </div>
-
-          {/* Delete button */}
-          {!isProcessing && <RemoveButton onClick={onRemove} />}
-        </div>
+        {!isProcessing && <RemoveButton onClick={onRemove} />}
       </div>
 
       {/* Error Message */}
