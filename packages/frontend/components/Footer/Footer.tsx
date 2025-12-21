@@ -81,7 +81,7 @@ const Footer = () => {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="w-full mt-12 px-2 py-12 border-t border-zinc-200 dark:border-zinc-900 bg-white dark:bg-[#0a0a0a]">
+    <footer className="w-full mt-3 px-2 py-12 border-t border-zinc-200 dark:border-zinc-900 bg-white dark:bg-[#0a0a0a]">
       <div className="max-w-8xl mx-auto">
         
         {/* Brand & Intro */}

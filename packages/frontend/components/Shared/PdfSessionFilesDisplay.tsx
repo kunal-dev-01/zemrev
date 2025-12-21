@@ -161,7 +161,7 @@ export const PdfSessionFilesDisplay = ({
 
   return (
     <>
-      <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 md:mt-[1vw] mt-[1vh]">
+      <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl md:p-6 p-3 md:mt-[1vw] mt-[1vh]">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">

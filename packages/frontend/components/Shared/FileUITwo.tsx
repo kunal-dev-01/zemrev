@@ -193,7 +193,7 @@ export const FileActionButton = ({
 
   const variantClass =
     variant === "danger"
-      ? "hover:bg-red-100 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400"
+      ? "hover:bg-red-100 dark:hover:bg-red-900/40 text-red-600 dark:text-red-600"
       : "hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300";
 
   return (
