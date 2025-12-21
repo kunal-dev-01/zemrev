@@ -7,7 +7,31 @@ version: '3.9'
 
 services:
   # ==========================================================================
-  # OCR SERVICE (Separate VM - Connects to Main Server Redis)
+  # OCR REDIS (Separate - Local only)
+  # ==========================================================================
+  
+  redis-ocr:
+    image: redis:7-alpine
+    container_name: zemrev_redis_ocr_dev
+    expose:
+      - "6379"
+    command: |
+      redis-server
+      --bind 127.0.0.1
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      --save ""
+      --appendonly no
+    networks:
+      - zemrev_ocr_dev
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # ==========================================================================
+  # OCR SERVICE
   # ==========================================================================
   
   ocr-service:
@@ -20,12 +44,15 @@ services:
     env_file:
       - ./services/ocr-service/.env
     environment:
-      - REDIS_URL=redis://MAIN_SERVER_IP:6379
+      - REDIS_URL=redis://redis-ocr:6379
       - QUEUE_NAME=zemrev_ocr_jobs_dev
       - QUEUE_MAX_WORKERS=1
       - LOG_LEVEL=debug
     volumes:
       - ./services/ocr-service/app:/app/app:ro
+    depends_on:
+      redis-ocr:
+        condition: service_healthy
     networks:
       - zemrev_ocr_dev
 
