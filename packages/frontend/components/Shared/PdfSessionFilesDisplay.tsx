@@ -161,7 +161,7 @@ export const PdfSessionFilesDisplay = ({
 
   return (
     <>
-      <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl md:p-6 p-3 md:mt-[1vw] mt-[1vh]">
+      <div className="border border-zinc-200 dark:border-zinc-900 rounded-xl md:p-6 p-3 md:mt-[1vw] mt-[1vh] fade-in">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
@@ -211,7 +211,7 @@ export const PdfSessionFilesDisplay = ({
           {sessionFiles.map((file) => (
             <div
               key={file.id}
-              className="flex items-center justify-between md:p-3 p-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-transparent"
+              className="flex items-center justify-between md:p-3 p-2 rounded-xl border border-zinc-200 dark:border-zinc-900 bg-transparent"
             >
               <div className="flex items-center gap-3 flex-1 min-w-0">
                 <ToolIconBadge

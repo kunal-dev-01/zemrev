@@ -162,7 +162,7 @@ export const SessionFilesDisplay = ({
 
   return (
     <>
-      <div className="border border-zinc-200 dark:border-zinc-800 rounded-xl md:p-6 p-3 mt-[1vh] md:mt-[1vw]">
+      <div className="border border-zinc-200 dark:border-zinc-900 rounded-xl md:p-6 p-3 mt-[1vh] md:mt-[1vw] fade-in">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
@@ -212,7 +212,7 @@ export const SessionFilesDisplay = ({
           {sessionFiles.map((file) => (
             <div
               key={file.id}
-              className="flex items-center justify-between px-2.5 py-1.5 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-transparent"
+              className="flex items-center justify-between px-2.5 py-1.5 rounded-2xl border border-zinc-200 dark:border-zinc-900 bg-transparent"
             >
               <div className="flex items-center gap-3 flex-1 min-w-0">
                 <ImageToolIconBadge

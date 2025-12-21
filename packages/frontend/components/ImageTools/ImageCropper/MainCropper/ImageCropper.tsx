@@ -126,9 +126,9 @@ const ImageCropper = () => {
       )}
 
       {file && imageUrl && (
-        <div className="border border-zinc-200 dark:border-zinc-800 rounded-2xl bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 md:mt-[1vw] mt-[1vh] fade-in">
+        <div className="border border-zinc-200 dark:border-zinc-900 rounded-2xl md:p-6 p-3 md:mt-[1vw] mt-[1vh] fade-in">
           {/* Header */}
-          <div className="flex items-center justify-between mb-6 pb-4 border-b border-zinc-200 dark:border-zinc-800">
+          <div className="flex items-center justify-between mb-6 pb-4 border-b border-zinc-200 dark:border-zinc-900">
             <ImageToolIconBadge
               primaryColor={config.primaryColor}
               bgColor={config.dropzoneColor}
@@ -163,11 +163,11 @@ const ImageCropper = () => {
                         key={ratio.label}
                         onClick={() => setAspectRatio(ratio.value)}
                         className={`px-3 py-2.5 rounded-lg text-sm font-medium 
-                                    flex flex-col items-center gap-1.5 border transition-all cursor-pointer
+                                    flex flex-col items-center gap-1.5 border transition-all cursor-pointer duration-200
                                     ${
                                       isActive
-                                        ? "text-white border-transparent shadow-sm"
-                                        : "border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700"
+                                        ? "text-white border-transparent"
+                                        : "border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800/50"
                                     }`}
                         style={{
                           backgroundColor: isActive

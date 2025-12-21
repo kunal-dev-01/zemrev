@@ -7,7 +7,11 @@ import { CopySvg, CheckSvg } from "@/components/Svg/CommonSvg";
 import GlassButton from "@/components/Layouts/GlassButton";
 import { sessionStorageUtils } from "@/utils/sessionStorage.utils";
 import { useImageMetadata } from "@/hooks/imageHooks/useImageMetadata.hook";
-import type { MetadataResponse, StoredFile } from "@/services/imageService/types";
+import type {
+  MetadataResponse,
+  StoredFile,
+} from "@/services/imageService/types";
+import { ClearAllButton } from "@/components/Shared/FileUI";
 
 type Props = {
   extractedMetadata?: MetadataResponse;
@@ -55,8 +59,7 @@ const MetadataViewer = ({ extractedMetadata, reset }: Props) => {
     loadSaved();
     window.addEventListener("sessionStorageUpdated", loadSaved);
 
-    return () =>
-      window.removeEventListener("sessionStorageUpdated", loadSaved);
+    return () => window.removeEventListener("sessionStorageUpdated", loadSaved);
   }, [getSavedMetadata]);
 
   // -------------------------------------------------------
@@ -79,7 +82,7 @@ const MetadataViewer = ({ extractedMetadata, reset }: Props) => {
     if (!entries.length) return null;
 
     return (
-      <div className="border border-zinc-200 dark:border-zinc-800 rounded-lg p-3 bg-zinc-50 dark:bg-zinc-800/50">
+      <div className="border border-zinc-200 dark:border-zinc-900 rounded-lg p-3 bg-zinc-50 dark:bg-zinc-900/50">
         <h4 className="text-sm font-semibold text-zinc-800 dark:text-zinc-200 mb-3">
           {title}
         </h4>
@@ -125,44 +128,40 @@ const MetadataViewer = ({ extractedMetadata, reset }: Props) => {
   // -------------------------------------------------------
   if (!extractedMetadata) {
     return savedMetadata.length > 0 ? (
-      <div className="border border-zinc-200 dark:border-zinc-800 rounded-2xl bg-white/50 dark:bg-zinc-900/40 p-3 md:p-6 mt-[1vh] md:mt-[1vw]">
-
+      <div className="border border-zinc-200 dark:border-zinc-900 rounded-2xl p-3 md:p-6 mt-[1vh] md:mt-[1vw]">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-md md:text-lg font-semibold">
             Saved Metadata ({savedMetadata.length})
           </h3>
 
-          <button
-            onClick={clearAllSavedMetadata}
-            className="px-3 py-1.5 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 cursor-pointer hover:bg-red-100 dark:hover:bg-red-800/20 transition-all"
-          >
-            Clear All
-          </button>
+          <ClearAllButton onClick={clearAllSavedMetadata} />
         </div>
 
         <div className="space-y-3">
           {savedMetadata.map((item) => (
             <div
               key={item.id}
-              className="border border-zinc-200 dark:border-zinc-800 p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/50"
+              className="border border-zinc-200 dark:border-zinc-900 p-3 rounded-xl bg-zinc-50 dark:bg-zinc-900/50"
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1 min-w-0">
                   <h4 className="font-semibold truncate">{item.name}</h4>
-                  <p className="text-xs text-zinc-500">{new Date(item.timestamp).toLocaleString()}</p>
+                  <p className="text-xs text-zinc-500">
+                    {new Date(item.timestamp).toLocaleString()}
+                  </p>
                 </div>
 
                 <div className="flex gap-2">
                   <button
                     onClick={() => exportMetadataAsJson(item.id, item.name)}
-                    className="px-3 py-1 rounded-xl border border-zinc-200 dark:border-zinc-700 cursor-pointer text-sm dark:bg-zinc-800 bg-zinc-200"
+                    className="px-3 py-1 rounded-xl border border-zinc-200 dark:border-zinc-700 cursor-pointer text-sm dark:bg-zinc-900 bg-zinc-200 hover:opacity-85"
                   >
                     Export
                   </button>
 
                   <button
                     onClick={() => deleteSavedMetadata(item.id)}
-                    className="px-3 py-1 rounded-xl border border-zinc-200 dark:border-zinc-700 cursor-pointer text-sm dark:bg-zinc-800 bg-zinc-200"
+                    className="px-3 py-1 rounded-xl border border-zinc-200 dark:border-zinc-700 cursor-pointer text-sm dark:bg-zinc-900 bg-zinc-200 hover:opacity-85"
                   >
                     Remove
                   </button>
@@ -171,15 +170,25 @@ const MetadataViewer = ({ extractedMetadata, reset }: Props) => {
 
               {/* Preview */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-                <div>Size: <b>{item.json.metadata.file.size_mb.toFixed(2)} MB</b></div>
-                <div>Dims: <b>{item.json.metadata.image.dimensions}</b></div>
-                <div>Format: <b>{item.json.metadata.file.format.toUpperCase()}</b></div>
-                <div>EXIF: <b>{item.json.metadata.exif.has_exif ? "Yes" : "No"}</b></div>
+                <div>
+                  Size: <b>{item.json.metadata.file.size_mb.toFixed(2)} MB</b>
+                </div>
+                <div>
+                  Dims: <b>{item.json.metadata.image.dimensions}</b>
+                </div>
+                <div>
+                  Format: <b>{item.json.metadata.file.format.toUpperCase()}</b>
+                </div>
+                <div>
+                  EXIF: <b>{item.json.metadata.exif.has_exif ? "Yes" : "No"}</b>
+                </div>
               </div>
 
               {/* Expand */}
               <button
-                onClick={() => setExpandedId(expandedId === item.id ? null : item.id)}
+                onClick={() =>
+                  setExpandedId(expandedId === item.id ? null : item.id)
+                }
                 className="mt-3 text-xs font-semibold text-zinc-600 dark:text-zinc-400"
               >
                 {expandedId === item.id ? "Hide Details" : "Show Details"}
@@ -194,7 +203,6 @@ const MetadataViewer = ({ extractedMetadata, reset }: Props) => {
             </div>
           ))}
         </div>
-
       </div>
     ) : null;
   }
@@ -206,7 +214,6 @@ const MetadataViewer = ({ extractedMetadata, reset }: Props) => {
 
   return (
     <div className="space-y-4 mt-4">
-
       <div className="flex justify-end">
         <GlassButton
           onClick={async () => {
@@ -225,10 +232,17 @@ const MetadataViewer = ({ extractedMetadata, reset }: Props) => {
       {renderSection("Technical Details", m.technical)}
       {renderSection("Color Information", m.color)}
 
-      {m.exif.has_exif && renderSection("Camera Info", m.exif.camera as MetadataSectionData)}
-      {m.exif.has_exif && renderSection("Camera Settings", m.exif.settings as MetadataSectionData)}
-      {m.exif.has_exif && renderSection("GPS Location", m.exif.location as MetadataSectionData)}
-      {m.exif.has_exif && renderSection("Date & Time", m.exif.datetime as MetadataSectionData)}
+      {m.exif.has_exif &&
+        renderSection("Camera Info", m.exif.camera as MetadataSectionData)}
+      {m.exif.has_exif &&
+        renderSection(
+          "Camera Settings",
+          m.exif.settings as MetadataSectionData
+        )}
+      {m.exif.has_exif &&
+        renderSection("GPS Location", m.exif.location as MetadataSectionData)}
+      {m.exif.has_exif &&
+        renderSection("Date & Time", m.exif.datetime as MetadataSectionData)}
       {m.exif.has_exif && renderSection("Additional Info", m.exif.other)}
 
       {reset && (

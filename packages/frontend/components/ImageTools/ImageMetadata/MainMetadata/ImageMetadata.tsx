@@ -77,9 +77,9 @@ const ImageMetadata = () => {
 
       {/* Main metadata extraction UI */}
       {file && imageUrl && (
-        <div className="border border-zinc-200 dark:border-zinc-800 rounded-2xl bg-white/50 dark:bg-zinc-900/40 md:p-6 p-3 md:mt-[1vw] mt-[1vh] animate-in fade-in slide-in-from-bottom-4">
+        <div className="border border-zinc-200 dark:border-zinc-900 rounded-2xl md:p-6 p-3 md:mt-[1vw] mt-[1vh] fade-in ">
           {/* Header */}
-          <div className="flex items-center justify-between mb-6 pb-4 border-b border-zinc-200 dark:border-zinc-800">
+          <div className="flex items-center justify-between mb-6 pb-4 border-b border-zinc-200 dark:border-zinc-900">
             <ImageToolIconBadge
               primaryColor={config.primaryColor}
               bgColor={config.dropzoneColor}
