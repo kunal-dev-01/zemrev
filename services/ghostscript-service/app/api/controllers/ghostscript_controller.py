@@ -1,10 +1,3 @@
-"""
-============================================================================
-FILE: app/api/controllers/ghostscript_controller.py
-PURPOSE: Controller logic for Ghostscript operations
-============================================================================
-"""
-
 from pathlib import Path
 from fastapi import UploadFile, HTTPException
 from fastapi.responses import FileResponse

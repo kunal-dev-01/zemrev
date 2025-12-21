@@ -1,10 +1,3 @@
-"""
-============================================================================
-FILE: app/models/ghostscript_schemas.py
-PURPOSE: Pydantic schemas for Ghostscript tools
-============================================================================
-"""
-
 from pydantic import BaseModel, Field, field_validator
 from enum import Enum
 

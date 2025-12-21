@@ -1,10 +1,3 @@
-"""
-============================================================================
-FILE: services/pdf-service/app/api/routes/ghostscript_routes.py
-PURPOSE: API routes for Ghostscript operations
-============================================================================
-"""
-
 from fastapi import APIRouter, File, UploadFile, Form
 from fastapi.responses import FileResponse
 

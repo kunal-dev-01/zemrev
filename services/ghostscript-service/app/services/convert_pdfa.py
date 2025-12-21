@@ -1,10 +1,3 @@
-"""
-============================================================================
-FILE: services/pdf-service/app/services/ghostscript/convert_pdfa.py
-PURPOSE: Convert PDF to PDF/A using Ghostscript
-============================================================================
-"""
-
 from pathlib import Path
 import subprocess
 from app.core.logging import get_logger

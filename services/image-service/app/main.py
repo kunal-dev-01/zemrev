@@ -121,20 +121,7 @@ async def root():
             "watermark",
             "metadata",
             "palette"
-        ],
-        "endpoints": {
-            "convert": "/api/v1/image/convert",
-            "compress": "/api/v1/image/compress",
-            "resize": "/api/v1/image/resize",
-            "optimize": "/api/v1/image/optimize",
-            "crop": "/api/v1/image/crop",
-            "watermark_text": "/api/v1/image/watermark/text",
-            "watermark_image": "/api/v1/image/watermark/image",
-            "metadata": "/api/v1/image/metadata",
-            "palette": "/api/v1/image/palette",
-            "health": "/health",
-            "docs": "/docs"
-        }
+        ]
     }
 
 @app.get("/health")

@@ -1,10 +1,3 @@
-"""
-============================================================================
-FILE: app/services/ghostscript/flatten_pdf.py
-PURPOSE: Flatten PDF (remove layers, transparency, convert text to curves)
-============================================================================
-"""
-
 from pathlib import Path
 import subprocess
 from app.core.logging import get_logger

@@ -1,10 +1,3 @@
-"""
-============================================================================
-FILE: app/services/ghostscript/compress_pdf.py
-PURPOSE: Ultra PDF compression using Ghostscript
-============================================================================
-"""
-
 from pathlib import Path
 from typing import Tuple
 import subprocess

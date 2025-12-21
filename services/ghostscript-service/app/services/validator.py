@@ -1,10 +1,3 @@
-"""
-============================================================================
-FILE: app/services/validator.py
-PURPOSE: PDF file validation
-============================================================================
-"""
-
 from pathlib import Path
 from fastapi import UploadFile, HTTPException
 import tempfile

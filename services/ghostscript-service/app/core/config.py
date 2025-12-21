@@ -1,30 +1,26 @@
-"""
-============================================================================
-FILE: services/pdf-service/app/core/config.py
-PURPOSE: PDF Service configuration
-============================================================================
-"""
-
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import List
-import os
 from pathlib import Path
 
 class Settings(BaseSettings):
-    # File limits
-    MAX_FILE_SIZE: int = 104857600 
-    MAX_PAGES: int = 500
     
-    # Paths
-    UPLOAD_DIR: str = "/tmp/zemrev_pdf_uploads"
+    # ========================================================================
+    # SERVICE CONFIG
+    # ========================================================================
     
-    # Server
+    WORKERS: int = 1
     LOG_LEVEL: str = "info"
     HOST: str = "0.0.0.0"
     PORT: int = 8001
-
-    # CORS
     ALLOWED_ORIGINS: str = "*"
+    UPLOAD_DIR: str = "/tmp/zemrev_pdf_uploads"
+    
+    # ========================================================================
+    # TOOL-SPECIFIC LIMITS
+    # ========================================================================
+    
+    MAX_FILE_SIZE = 83886080   
+    MAX_PAGES = 250        
     
     model_config = SettingsConfigDict(
         env_file=".env",

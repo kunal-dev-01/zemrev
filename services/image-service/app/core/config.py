@@ -29,8 +29,7 @@ class Settings(BaseSettings):
     VIPS_CONCURRENCY: int = 4
     VIPS_DISC_THRESHOLD: str = "100m"
     
-    # Queue settings (imported from zemrev-queue package)
-    # REDIS_URL, QUEUE_NAME, etc. are in zemrev_queue.config
+    # Queue
     QUEUE_MAX_WORKERS: int = 4
     
     model_config = SettingsConfigDict(

@@ -4,7 +4,6 @@ import fitz
 from PIL import Image, ImageDraw, ImageFont, ImageColor
 import io
 from app.core.logging import get_logger
-import cairosvg
 
 logger = get_logger(__name__)
 
@@ -84,26 +83,15 @@ def sign_pdf(
                 final_pil_image = None
 
                 # =========================================================
-                # 1. GENERATE IMAGE (PNG/SVG)
+                # 1. PROCESS IMAGE (PNG/JPEG ONLY)
                 # =========================================================
                 if sig_type == 'image' and 'image_path' in sig:
                     image_path = sig['image_path']
                     logger.info(f"Processing image: {image_path}")
                     
                     try:
-                        # SVG - Convert at HIGH resolution
-                        if str(image_path).lower().endswith('.svg'):
-                            scale = 4
-                            png_bytes = cairosvg.svg2png(
-                                url=str(image_path),
-                                output_width=width * scale,
-                                output_height=height * scale
-                            )
-                            img = Image.open(io.BytesIO(png_bytes))
-                            img = img.resize((width, height), Image.Resampling.LANCZOS)
-                        
-                        # PNG/JPEG
-                        else:
+                        # Only support PNG/JPEG
+                        if str(image_path).lower().endswith(('.png', '.jpg', '.jpeg')):
                             img = Image.open(image_path)
                             
                             # Scaling logic
@@ -122,18 +110,22 @@ def sign_pdf(
                                 img = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
                                 width = new_width
                                 height = new_height
-                        
-                        if img.mode != 'RGBA':
-                            img = img.convert('RGBA')
-                        
-                        # Apply opacity
-                        if opacity < 1.0:
-                            alpha = img.split()[3]
-                            alpha = alpha.point(lambda p: int(p * opacity))
-                            img.putalpha(alpha)
                             
-                        final_pil_image = img
+                            if img.mode != 'RGBA':
+                                img = img.convert('RGBA')
+                            
+                            # Apply opacity
+                            if opacity < 1.0:
+                                alpha = img.split()[3]
+                                alpha = alpha.point(lambda p: int(p * opacity))
+                                img.putalpha(alpha)
+                                
+                            final_pil_image = img
                         
+                        else:
+                            logger.warning(f"Unsupported image format: {image_path}. Only PNG/JPEG supported.")
+                            continue
+                            
                     except Exception as img_err:
                         logger.error(f"Error processing image: {img_err}")
                         continue
