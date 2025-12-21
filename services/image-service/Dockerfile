@@ -20,7 +20,8 @@ RUN wget https://github.com/strukturag/libheif/releases/download/v1.17.6/libheif
     cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local \
         -DWITH_EXAMPLES=OFF -DWITH_AOM_ENCODER=ON -DWITH_AOM_DECODER=ON \
         -DWITH_X265=ON -DWITH_LIBDE265=ON && \
-    make -j$(nproc) && make install && ldconfig
+    make -j$(nproc) && make install && ldconfig && \
+    rm -rf /tmp/libheif-*
 
 # ============================================================================
 # STAGE 2: BUILD LIBVIPS WITH HEIF SUPPORT
@@ -45,7 +46,8 @@ RUN wget https://github.com/libvips/libvips/releases/download/v8.15.1/vips-8.15.
     tar xf vips-8.15.1.tar.xz && cd vips-8.15.1 && \
     meson setup build --buildtype=release --prefix=/usr/local \
         -Dheif=enabled -Dheif-module=enabled && \
-    cd build && ninja && ninja install && ldconfig
+    cd build && ninja && ninja install && ldconfig && \
+    rm -rf /tmp/vips-*
 
 # ============================================================================
 # STAGE 3: PYTHON BUILDER (Install shared package + dependencies)
@@ -56,8 +58,8 @@ FROM python:3.11-slim AS python-builder
 COPY --from=libvips-builder /usr/local /usr/local
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    pkg-config gcc git \
-    libaom3 libde265-0 \
+    pkg-config gcc \
+    libaom3 libde265-0 libx265-165 \
     libjpeg62-turbo libpng16-16 libwebp7 libtiff6 libgif7 \
     librsvg2-2 libfreetype6 libfribidi0 libharfbuzz0b \
     liblcms2-2 libopenjp2-7 zlib1g \
@@ -80,12 +82,16 @@ RUN pip install --no-cache-dir --user -r requirements.txt
 
 FROM python:3.11-slim
 
-COPY --from=python-builder /usr/local /usr/local
+# Copy libraries from builder
+COPY --from=libvips-builder /usr/local /usr/local
+
+# Copy Python packages
 COPY --from=python-builder /root/.local /root/.local
 
+# Runtime dependencies only (minimal)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    libaom3 libde265-0 \
+    curl ca-certificates \
+    libaom3 libde265-0 libx265-165 \
     libjpeg62-turbo libpng16-16 libwebp7 libwebpmux3 libwebpdemux2 \
     libtiff6 libgif7 librsvg2-2 \
     libfreetype6 libfribidi0 libharfbuzz0b liblcms2-2 libopenjp2-7 zlib1g \
@@ -93,6 +99,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN ldconfig
 
+# Important: Set library path for libvips
+ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 ENV PATH=/root/.local/bin:$PATH
 
 # Non-root user
