@@ -1,6 +1,5 @@
 # ============================================================================
-# FILE: requirements.txt
-# PURPOSE: Python dependencies for PDF Tools Service
+# FILE: services/ocr-service/requirements.txt
 # ============================================================================
 
 # FastAPI Core
@@ -12,11 +11,11 @@ python-multipart==0.0.6
 pydantic==2.5.0
 pydantic-settings==2.1.0
 
-# PDF Processing 
+# PDF Processing
 PyMuPDF==1.23.8
 
-# Image watermark & extracted image support
+# Image Processing
 Pillow==10.1.0
 
-# OCR
+# OCR Engine
 pytesseract==0.3.10

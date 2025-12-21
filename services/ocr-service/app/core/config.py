@@ -1,23 +1,32 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import List
-import os
 from pathlib import Path
 
 class Settings(BaseSettings):
-    # File limits
-    MAX_FILE_SIZE: int = 104857600 
-    MAX_PAGES: int = 500
+    # ========================================================================
+    # SERVICE CONFIG ONLY (Queue config handled by zemrev-queue package)
+    # ========================================================================
     
-    # Paths
-    UPLOAD_DIR: str = "/tmp/zemrev_pdf_uploads"
-    
-    # Server
+    WORKERS: int = 1
     LOG_LEVEL: str = "info"
     HOST: str = "0.0.0.0"
-    PORT: int = 8001
-
-    # CORS
+    PORT: int = 8004
     ALLOWED_ORIGINS: str = "*"
+    UPLOAD_DIR: str = "/tmp/zemrev_ocr_uploads"
+    
+    # ========================================================================
+    # TOOL-SPECIFIC LIMITS
+    # ========================================================================
+    
+    MAX_FILE_SIZE: int = 26214400           # 25MB
+    MAX_PAGES: int = 50
+    TOOL_TIMEOUT: int = 600                 # 10 minutes
+    
+    # ========================================================================
+    # QUEUE-RELATED (Service uses this, .env provides value)
+    # ========================================================================
+    
+    QUEUE_MAX_WORKERS: int = 1
     
     model_config = SettingsConfigDict(
         env_file=".env",

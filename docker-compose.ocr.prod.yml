@@ -1,0 +1,47 @@
+# ============================================================================
+# FILE: docker-compose.ocr.prod.yml
+# PURPOSE: OCR Service - Separate VM Production
+# ============================================================================
+
+version: '3.9'
+
+services:
+  # ==========================================================================
+  # OCR SERVICE (Separate VM - Connects to Main Server Redis)
+  # ==========================================================================
+  
+  ocr-service:
+    build:
+      context: .
+      dockerfile: services/ocr-service/Dockerfile
+    container_name: zemrev_ocr_prod
+    restart: unless-stopped
+    expose:
+      - "8004"
+    env_file:
+      - ./services/ocr-service/.env.production
+    environment:
+      - REDIS_URL=redis://MAIN_SERVER_IP:6379
+      - QUEUE_NAME=zemrev_ocr_jobs
+      - QUEUE_MAX_WORKERS=2
+      - LOG_LEVEL=info
+    networks:
+      - zemrev_ocr_prod
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8004/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 4G
+        reservations:
+          cpus: '2'
+          memory: 2G
+
+networks:
+  zemrev_ocr_prod:
+    driver: bridge

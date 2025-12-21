@@ -1,0 +1,34 @@
+# ============================================================================
+# FILE: docker-compose.ocr.dev.yml
+# PURPOSE: OCR Service - Separate VM Development
+# ============================================================================
+
+version: '3.9'
+
+services:
+  # ==========================================================================
+  # OCR SERVICE (Separate VM - Connects to Main Server Redis)
+  # ==========================================================================
+  
+  ocr-service:
+    build:
+      context: .
+      dockerfile: services/ocr-service/Dockerfile.dev
+    container_name: zemrev_ocr_dev
+    ports:
+      - "8004:8004"
+    env_file:
+      - ./services/ocr-service/.env
+    environment:
+      - REDIS_URL=redis://MAIN_SERVER_IP:6379
+      - QUEUE_NAME=zemrev_ocr_jobs_dev
+      - QUEUE_MAX_WORKERS=1
+      - LOG_LEVEL=debug
+    volumes:
+      - ./services/ocr-service/app:/app/app:ro
+    networks:
+      - zemrev_ocr_dev
+
+networks:
+  zemrev_ocr_dev:
+    driver: bridge
