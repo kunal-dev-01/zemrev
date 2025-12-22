@@ -15,30 +15,46 @@ const inter = localFont({
   display: "swap",
 });
 
+
 export const metadata: Metadata = {
-  title: "Zemrev - Free Image Tools | Convert, Compress, Resize & Optimize",
+  title: "Zemrev - Free Image & PDF Tools | Convert, Compress, Edit Online",
   description:
-    "Zemrev is a fast, privacy-focused platform offering free tools to convert, compress, resize, crop, optimize, watermark and edit images. No login, no limits — just upload, process, and download instantly.",
+    "Zemrev is a fast, privacy-first platform offering free Image & PDF tools. Convert, compress, resize, optimize images and PDFs. No login, no limits — upload, process, and download instantly.",
+
   keywords: [
+    // Brand
     "Zemrev",
+
+    // Core platform
+    "online tools",
+    "free online tools",
+    "privacy focused tools",
+    "no login tools",
+
+    // Image tools
     "image tools",
     "image converter",
     "image compressor",
     "image resizer",
     "image optimizer",
     "image cropper",
-    "watermark tool",
-    "free image tools",
-    "online image editor",
-    "fast image processing",
-    "no login tools",
-    "privacy focused image tools",
+    "image watermark",
+
+    // PDF tools
+    "pdf tools",
+    "pdf compressor",
+    "pdf converter",
+    "pdf merger",
+    "pdf splitter",
+    "pdf optimizer",
+    "pdf ocr",
+    "online pdf editor",
   ],
 
   openGraph: {
-    title: "Zemrev - Fast & Free Image Tools",
+    title: "Zemrev - Fast & Free Image & PDF Tools",
     description:
-      "Convert, compress, resize, crop, optimize and watermark images instantly. 100% free, no signup and privacy-first.",
+      "Convert, compress, resize, optimize and edit Images & PDFs instantly. 100% free, no signup, privacy-first online tools.",
     url: "https://www.zemrev.com",
     siteName: "Zemrev",
     images: [
@@ -46,7 +62,7 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Zemrev - Free Image Tools",
+        alt: "Zemrev - Free Image & PDF Tools",
       },
     ],
     locale: "en_US",
@@ -55,9 +71,9 @@ export const metadata: Metadata = {
 
   twitter: {
     card: "summary_large_image",
-    title: "Zemrev - Free Image Tools",
+    title: "Zemrev - Free Image & PDF Tools",
     description:
-      "Fast image converter, compressor, resizer, optimizer, cropper and watermark tools — no login required.",
+      "Fast online Image & PDF tools — convert, compress, optimize and edit files. No login required.",
     images: ["/og-image.png"],
   },
 
@@ -74,6 +90,7 @@ export const metadata: Metadata = {
     },
   },
 };
+
 
 export default function RootLayout({
   children,
