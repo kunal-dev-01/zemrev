@@ -24,6 +24,9 @@ interface DragDropZoneProps {
   currentFileCount: number;
 }
 
+const MAX_FILE_SIZE_MB = 50;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+
 export const DragDropZone = ({
   config,
   onFilesSelected,
@@ -67,6 +70,15 @@ export const DragDropZone = ({
 
     if (valid.length === 0) {
       triggerError("Unsupported file format.");
+      return false;
+    }
+
+    const oversizedFile = valid.find((file) => file.size > MAX_FILE_SIZE_BYTES);
+
+    if (oversizedFile) {
+      triggerError(
+        `File size exceeds limit. Maximum allowed size is ${MAX_FILE_SIZE_MB} MB.`
+      );
       return false;
     }
 
