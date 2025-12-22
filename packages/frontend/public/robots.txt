@@ -1,0 +1,21 @@
+# robots.txt for www.zemrev.com
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://www.zemrev.com/sitemap.xml
+
+# Disallow private/admin areas
+Disallow: /api/
+Disallow: /my-files
+
+# Allow all image and PDF tools
+Allow: /image/
+Allow: /pdf/
+
+# Allow legal pages
+Allow: /legal/
+
+# Crawl-delay (optional)
+Crawl-delay: 1
