@@ -91,6 +91,7 @@ COPY --from=python-builder /usr/local /usr/local
 # Runtime dependencies only (minimal)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl ca-certificates \
+    libx265 \
     libaom3 libde265-0 \
     libjpeg62-turbo libpng16-16 libwebp7 libwebpmux3 libwebpdemux2 \
     libtiff6 libgif7 librsvg2-2 \
