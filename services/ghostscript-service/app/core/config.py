@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     HOST: str = "0.0.0.0"
     PORT: int = 8001
     ALLOWED_ORIGINS: str = "*"
-    UPLOAD_DIR: str = "/tmp/zemrev_pdf_uploads"
+    UPLOAD_DIR: str = "/tmp/zemrev_ghostscript_uploads"
     
     # ========================================================================
     # TOOL-SPECIFIC LIMITS

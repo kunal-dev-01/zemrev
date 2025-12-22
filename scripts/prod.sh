@@ -19,7 +19,7 @@ print_info() { echo -e "${YELLOW}ℹ $1${NC}"; }
 
 # Create .env.production files if missing
 check_env_files() {
-    SERVICES=("image-service" "pdf-service" "pymupdf-service" "pypdf-service")
+    SERVICES=("image-service" "ghostscript-service" "pymupdf-service" "pypdf-service")
     
     for service in "${SERVICES[@]}"; do
         if [ ! -f "services/$service/.env.production" ]; then
@@ -45,7 +45,7 @@ prod_start() {
     print_info ""
     print_info "Services:"
     print_info "  Image Service: http://localhost/api/image (via gateway)"
-    print_info "  PDF Service: http://localhost/api/pdf (via gateway)"
+    print_info "  Ghostscript Service: http://localhost/api/ghostscript (via gateway)"
     print_info "  PyMuPDF Service: http://localhost/api/pymupdf (via gateway)"
     print_info "  PyPDF Service: http://localhost/api/pypdf (via gateway)"
 }
@@ -121,7 +121,7 @@ prod_status() {
     echo ""
     print_info "Resource usage:"
     docker stats --no-stream --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}" \
-        zemrev_redis_prod zemrev_gateway_prod zemrev_image_prod zemrev_pdf_prod zemrev_pymupdf_prod zemrev_pypdf_prod 2>/dev/null || \
+        zemrev_redis_prod zemrev_gateway_prod zemrev_image_prod zemrev_ghostscript_prod zemrev_pymupdf_prod zemrev_pypdf_prod 2>/dev/null || \
         docker stats --no-stream 2>/dev/null || \
         print_error "Could not get resource stats"
 }
@@ -151,7 +151,7 @@ prod_health() {
     # PDF Service
     print_info ""
     print_info "PDF Service (Port 8001):"
-    if docker-compose -f $COMPOSE_FILE exec -T pdf-service curl -sf http://localhost:8001/health > /dev/null 2>&1; then
+    if docker-compose -f $COMPOSE_FILE exec -T ghostscript-service curl -sf http://localhost:8001/health > /dev/null 2>&1; then
         print_success "PDF Service: healthy"
     else
         print_error "PDF Service: unhealthy"

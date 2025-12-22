@@ -16,11 +16,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Copy shared queue package (relative to ROOT context)
 WORKDIR /build
 COPY packages/zemrev-queue ./packages/zemrev-queue
-RUN pip install --no-cache-dir --user -e ./packages/zemrev-queue
+RUN pip install ./packages/zemrev-queue
 
 # Copy service requirements (relative to ROOT context)
-COPY services/pdf-service/requirements.txt ./requirements.txt
-RUN pip install --no-cache-dir --user -r requirements.txt
+COPY services/ghostscript-service/requirements.txt ./requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # ============================================================================
 # STAGE 2: RUNTIME (Minimal)
@@ -38,7 +38,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN gs --version
 
 # Copy Python packages from builder
-COPY --from=python-builder /root/.local /root/.local
+COPY --from=python-builder /usr/local /usr/local
 
 ENV PATH=/root/.local/bin:$PATH
 
@@ -61,7 +61,7 @@ EXPOSE 8001
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD curl -f http://localhost:8001/health || exit 1
 
-CMD ["uvicorn", "app.main:app", \
+CMD ["python", "-m", "uvicorn", "app.main:app", \
      "--host", "0.0.0.0", \
      "--port", "8001", \
      "--workers", "4", \

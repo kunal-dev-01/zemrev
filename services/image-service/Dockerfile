@@ -59,7 +59,7 @@ COPY --from=libvips-builder /usr/local /usr/local
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     pkg-config gcc \
-    libaom3 libde265-0 libx265-165 \
+    libaom3 libde265-0 \
     libjpeg62-turbo libpng16-16 libwebp7 libtiff6 libgif7 \
     librsvg2-2 libfreetype6 libfribidi0 libharfbuzz0b \
     liblcms2-2 libopenjp2-7 zlib1g \
@@ -70,11 +70,11 @@ RUN ldconfig
 # Copy shared package (relative to ROOT context)
 WORKDIR /build
 COPY packages/zemrev-queue ./packages/zemrev-queue
-RUN pip install --no-cache-dir --user -e ./packages/zemrev-queue
+RUN pip install ./packages/zemrev-queue
 
 # Copy service requirements (relative to ROOT context)
 COPY services/image-service/requirements.txt ./requirements.txt
-RUN pip install --no-cache-dir --user -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # ============================================================================
 # STAGE 4: RUNTIME (Minimal)
@@ -86,21 +86,22 @@ FROM python:3.11-slim
 COPY --from=libvips-builder /usr/local /usr/local
 
 # Copy Python packages
-COPY --from=python-builder /root/.local /root/.local
+COPY --from=python-builder /usr/local /usr/local
 
 # Runtime dependencies only (minimal)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl ca-certificates \
-    libaom3 libde265-0 libx265-165 \
+    libaom3 libde265-0 \
     libjpeg62-turbo libpng16-16 libwebp7 libwebpmux3 libwebpdemux2 \
     libtiff6 libgif7 librsvg2-2 \
     libfreetype6 libfribidi0 libharfbuzz0b liblcms2-2 libopenjp2-7 zlib1g \
     && rm -rf /var/lib/apt/lists/*
 
+
 RUN ldconfig
 
 # Important: Set library path for libvips
-ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+ENV LD_LIBRARY_PATH=/usr/local/lib
 ENV PATH=/root/.local/bin:$PATH
 
 # Non-root user
@@ -120,7 +121,7 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
-CMD ["uvicorn", "app.main:app", \
+CMD ["python", "-m", "uvicorn", "app.main:app", \
      "--host", "0.0.0.0", \
      "--port", "8000", \
      "--workers", "4", \
