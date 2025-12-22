@@ -57,14 +57,14 @@ const HowItWorks = () => {
             return (
               <div key={step.num} className="group relative z-10 select-none cursor-default">
                 {/* Card Container */}
-                <div className={`h-full p-8 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 backdrop-blur-sm transition-all duration-500 ease-out hover:-translate-y-3 hover:border-transparent ${step.shadow} hover:shadow-2xl`}>
+                <div className={`h-full p-8 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/30 backdrop-blur-sm transition-all duration-500 ease-out hover:-translate-y-3 hover:border-transparent ${step.shadow} hover:shadow-2xl`}>
                   
                   {/* Step Number Badge */}
                   <div className="flex justify-between items-center mb-6">
                     <div className={`w-12 h-12 p-2 rounded-xl ${step.accent} text-white flex items-center justify-center shadow-lg transform group-hover:rotate-10 transition-transform duration-700`}>
                       <Icon />
                     </div>
-                    <span className="text-4xl font-black text-zinc-200 dark:text-zinc-800 group-hover:text-zinc-300 dark:group-hover:text-zinc-700 transition-colors">
+                    <span className="text-4xl font-bold text-zinc-200 dark:text-zinc-800 group-hover:text-zinc-300 dark:group-hover:text-zinc-700 transition-colors">
                       {step.num}
                     </span>
                   </div>
