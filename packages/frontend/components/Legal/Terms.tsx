@@ -1,6 +1,9 @@
 const Terms = () => {
   return (
-    <div className="w-full md:min-h-[45vw] min-h-[80vh] rounded-xl border border-zinc-200 dark:border-zinc-900 flex items-center justify-between relative overflow-hidden">
+    <div
+      role="main"
+      className="w-full md:min-h-[45vw] min-h-[80vh] rounded-xl border border-zinc-200 dark:border-zinc-900 flex items-center justify-between relative overflow-hidden"
+    >
       {/* content wrapper */}
       <div className="relative z-10 w-full max-w-5xl mx-auto px-6 md:px-10 py-10 grid gap-5 md:gap-6">
         {/* heading */}
@@ -10,7 +13,7 @@ const Terms = () => {
 
         {/* effective date */}
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
-          Effective Date: January 1, 2026
+          Effective Date: Last updated January 2026
         </p>
 
         {/* welcome */}
@@ -40,7 +43,7 @@ const Terms = () => {
           },
           {
             title: "5. File Usage & Processing",
-            text: "Files you upload are processed temporarily on our backend servers and deleted immediately after processing. We do not store your files, we do not keep backups, no human can access your files, and we do not use your files for AI training or analytics. You are responsible for ensuring your uploaded files are safe and legal.",
+            text: "Files you upload are processed temporarily on our backend servers and deleted immediately after processing. We do not store files or keep backups. Files are processed automatically by our systems and are not reviewed by humans. We do not use your files for AI training or analytics. You are responsible for ensuring your uploaded files are safe and legal.",
           },
           {
             title: "6. Acceptable Use",
@@ -67,7 +70,12 @@ const Terms = () => {
             text: "We may update these Terms occasionally as we improve or expand Zemrev. Any major changes will be reflected in the Effective Date above. Continued use of the platform means you accept the updated terms.",
           },
           {
-            title: "12. Contact Us",
+            title: "12. Governing Law",
+            text: "These Terms shall be governed and interpreted in accordance with applicable laws, without regard to conflict of law principles.",
+          },
+
+          {
+            title: "13. Contact Us",
             text: "If you have questions, feedback, or need assistance, you may contact us anytime at",
           },
         ].map((sec, idx) => (
