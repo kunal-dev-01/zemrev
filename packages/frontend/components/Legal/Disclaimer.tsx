@@ -19,8 +19,7 @@ const Disclaimer = () => {
         {/* intro */}
         <p className="text-zinc-700 dark:text-zinc-300 leading-relaxed">
           This Disclaimer applies to Zemrev ("Zemrev", "we", "our", or "us") and
-          all tools available on zemrev.com. By using our website and services,
-          you agree to the statements below.
+          all tools available on zemrev.com.
         </p>
 
         {/* sections */}
