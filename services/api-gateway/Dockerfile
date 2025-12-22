@@ -1,19 +1,24 @@
 # ============================================================================
 # FILE: services/api-gateway/Dockerfile
-# PURPOSE: Nginx API Gateway (Production)
+# PURPOSE: OpenResty API Gateway with Redis Rate Limiting (Production)
 # ============================================================================
 
-FROM nginx:1.25-alpine
+FROM openresty/openresty:1.25.3.1-alpine
 
 # Install wget for healthcheck
 RUN apk add --no-cache wget
 
-# Copy nginx config
-COPY nginx.conf /etc/nginx/nginx.conf
+# Install lua-resty-redis (already included in OpenResty)
+# Create lua directory
+RUN mkdir -p /usr/local/openresty/nginx/lua
+
+# Copy configs
+COPY nginx.conf /usr/local/openresty/nginx/conf/nginx.conf
+COPY lua/ /usr/local/openresty/nginx/lua/
 
 # Non-root user (security)
 RUN adduser -D -g 'nginx' nginxuser \
- && chown -R nginxuser:nginxuser /var/cache/nginx /var/run /etc/nginx
+ && chown -R nginxuser:nginxuser /var/run/openresty /usr/local/openresty/nginx
 
 USER nginxuser
 
@@ -25,4 +30,4 @@ EXPOSE 80
 
 STOPSIGNAL SIGTERM
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["/usr/local/openresty/bin/openresty", "-g", "daemon off;"]
