@@ -37,6 +37,7 @@ export const PdfDragDropZone = ({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const remainingSlots = config.maxFiles - currentFileCount;
+  const MB = 1024 * 1024;
 
   // ============================================================================
   // AUTO-HIDE ERROR
@@ -64,7 +65,18 @@ export const PdfDragDropZone = ({
     );
 
     if (validFiles.length === 0) {
-      triggerError("Unsupported file format.");
+      triggerError("Unsupported file format. Please upload a PDF file.");
+      return false;
+    }
+
+    const maxSizeBytes = config.maxSize * MB;
+
+    const oversizedFile = validFiles.find((file) => file.size > maxSizeBytes);
+
+    if (oversizedFile) {
+      triggerError(
+        `File size exceeds limit. Maximum allowed size is ${config.maxSize} MB.`
+      );
       return false;
     }
 
