@@ -137,7 +137,7 @@ export const usePdfMerge = () => {
       setFiles([]);
     } catch (error) {
       const errorMsg = extractApiErrorMessage(error);
-      console.error("Merge failed:", errorMsg);
+      console.log("Merge failed:", errorMsg);
     } finally {
       setMerging(false);
     }
