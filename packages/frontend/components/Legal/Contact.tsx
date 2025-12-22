@@ -1,6 +1,6 @@
 const Contact = () => {
   return (
-    <div role="main" className="w-full md:min-h-[45vw] min-h-[80vh] flex items-center justify-center relative overflow-hidden ">
+    <div role="main" className="w-full md:min-h-[45vw] min-h-[80vh] flex items-center justify-center relative overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-900">
       <div className="max-w-xl w-full text-center grid gap-6">
         {/* Big Contact SVG */}
         <div className="mx-auto p-3 text-indigo-400 dark:text-indigo-500 bg-indigo-50 dark:bg-indigo-900/40 rounded-full w-30 h-30">
