@@ -182,7 +182,6 @@ export interface PdfToolConfig {
   acceptedFormats: string[];
   maxFiles: number;
   maxSize: number;
-  maxPages: number;
   showPreview: boolean;
   primaryColor: string;
   dropzoneColor: string;
