@@ -4,7 +4,6 @@ import { SIGNATURE_FONTS } from "@/services/pdfService/types";
 import type { PdfToolConfig, SignatureItem } from "@/services/pdfService/types";
 import { InputField } from "@/components/Layouts/InputField";
 import { RangeSlider } from "@/components/Shared/RangeSlider";
-import Image from "next/image";
 import { SignatureFonts } from "./SignatureFonts";
 
 const COLORS = ["#000000", "#1E40AF", "#B91C1C", "#047857", "#B45309", "#4338CA", "#6D28D9"];
@@ -198,12 +197,11 @@ export const PdfSignControls = ({
         <div className="space-y-4 fade-in duration-300">
           <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-zinc-300 dark:border-zinc-700 rounded-xl cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
             {imagePreview ? (
-              <Image
+              <img
                 src={imagePreview}
                 alt="preview"
                 width={500}
                 height={500}
-                unoptimized
                 className="max-h-28 max-w-full object-contain"
               />
             ) : (

@@ -5,7 +5,6 @@
 import { useState, useRef, useEffect } from "react";
 import type { SignatureItem } from "@/services/pdfService/types";
 import { CancelSvg } from "@/components/Svg/CommonSvg";
-import Image from "next/image";
 
 interface DraggableSignatureProps {
   signature: SignatureItem;
@@ -152,12 +151,11 @@ export const DraggableSignature = ({
         style={{ opacity: opacity }}
       >
         {signature.type === 'image' && signature.imagePreview ? (
-          <Image
+          <img
             src={signature.imagePreview}
             alt="signature"
             width={width}
             height={height}
-            unoptimized
             className="w-full h-full object-contain pointer-events-none"
           />
         ) : (
