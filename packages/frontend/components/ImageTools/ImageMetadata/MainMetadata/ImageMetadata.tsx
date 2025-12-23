@@ -2,7 +2,6 @@ import { useState, useCallback } from "react";
 import { DragDropZone } from "@/components/Shared/DragDropZone";
 import { UrlUploadModal } from "@/components/Shared/UrlUploadModal";
 import { TOOL_CONFIGS } from "@/config/image.tool.config";
-import Image from "next/image";
 import GlassButton from "@/components/Layouts/GlassButton";
 import { useImageMetadata } from "@/hooks/imageHooks/useImageMetadata.hook";
 
@@ -131,12 +130,10 @@ const ImageMetadata = () => {
               </div>
 
               <div className="relative w-full aspect-video bg-zinc-950 rounded-lg overflow-hidden">
-                <Image
+                <img
                   src={imageUrl}
                   alt="Preview"
-                  fill
                   className="object-contain"
-                  unoptimized
                 />
               </div>
             </div>
