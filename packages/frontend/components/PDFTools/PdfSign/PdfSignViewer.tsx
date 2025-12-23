@@ -1,7 +1,3 @@
-// ============================================================================
-// FILE: src/components/PdfTools/SignPdf/PdfSignViewer.tsx (UPDATED)
-// ============================================================================
-
 import { useState, useRef, useEffect } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import { ChevronDownSvg } from "@/components/Svg/CommonSvg";
@@ -17,9 +13,8 @@ interface PdfSignViewerProps {
   onDeleteSignature: (signatureId: string) => void;
   onSelectSignature: (signatureId: string) => void;
   selectedSignatureId: string | null;
-  // --- NEW PROPS FOR SYNC ---
-  activePage: number; // 1-based page number from parent
-  onPageChange: (page: number) => void; // Notify parent when page changes
+  activePage: number;
+  onPageChange: (page: number) => void;
 }
 
 export const PdfSignViewer = ({
@@ -29,15 +24,12 @@ export const PdfSignViewer = ({
   onDeleteSignature,
   onSelectSignature,
   selectedSignatureId,
-  activePage,      // Receive current page
-  onPageChange,    // Send update back
+  activePage,
+  onPageChange,
 }: PdfSignViewerProps) => {
   const [numPages, setNumPages] = useState<number | null>(null);
-  
-  // Local state ko parent ke prop se sync rakho
   const [currentPage, setCurrentPage] = useState(activePage);
 
-  // Jab Parent (Input) change ho, toh Viewer update karo
   useEffect(() => {
     setCurrentPage(activePage);
   }, [activePage]);
@@ -48,7 +40,6 @@ export const PdfSignViewer = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
 
-  // Handle Resize
   useEffect(() => {
     const updateWidth = () => {
       if (containerRef.current) {
@@ -60,10 +51,7 @@ export const PdfSignViewer = ({
     return () => window.removeEventListener("resize", updateWidth);
   }, []);
 
-  // Calculate Scale
   const scale = pageWidth > 0 && renderedWidth > 0 ? renderedWidth / pageWidth : 1;
-
-  // Get signatures for current page
   const currentPageSignatures = (settings.signatures || []).filter(
     (sig) => sig.page === currentPage - 1
   );
@@ -74,29 +62,28 @@ export const PdfSignViewer = ({
     }
   };
 
-  // --- NEW HANDLERS FOR NAVIGATION ---
   const handlePrevPage = () => {
     const newPage = Math.max(1, currentPage - 1);
     setCurrentPage(newPage);
-    onPageChange(newPage); // Parent ko batao
+    onPageChange(newPage);
   };
 
   const handleNextPage = () => {
     if (!numPages) return;
     const newPage = Math.min(numPages, currentPage + 1);
     setCurrentPage(newPage);
-    onPageChange(newPage); // Parent ko batao
+    onPageChange(newPage);
   };
 
   return (
     <div className="w-full flex flex-col gap-3">
       {/* Header */}
       <div className="flex items-center justify-between px-1">
-        <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
-          Preview (Page {currentPage}/{numPages || '?'})
-        </span>
+        <h4 className="text-sm font-semibold uppercase text-zinc-500">
+          Preview
+        </h4>
         {numPages && numPages > 1 && (
-          <div className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 rounded-lg p-1">
+          <div className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800 p-1">
             <button
               type="button"
               onClick={handlePrevPage}
@@ -105,9 +92,7 @@ export const PdfSignViewer = ({
             >
               <ChevronDownSvg className="w-4 h-4 rotate-90" />
             </button>
-            <span className="text-xs font-mono w-10 text-center">
-              {currentPage}/{numPages}
-            </span>
+           <span className="text-xs font-mono w-10 text-center select-none">{currentPage}/{numPages}</span>
             <button
               type="button"
               onClick={handleNextPage}
@@ -139,7 +124,6 @@ export const PdfSignViewer = ({
               width={containerWidth > 600 ? 500 : containerWidth - 32}
               onLoadSuccess={(page) => {
                 setPageWidth(page.originalWidth);
-                // Force re-measure canvas for accuracy
                 setTimeout(() => {
                     const canvas = document.querySelector(
                     `.react-pdf__Page[data-page-number="${currentPage}"] canvas`
@@ -172,6 +156,73 @@ export const PdfSignViewer = ({
           </div>
         </Document>
       </div>
+
+      {/* Page Navigation Strip */}
+      {numPages && numPages > 1 && (
+        <div className="px-1 shrink-0 my-2">
+          <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2 block">
+            All Pages ({numPages})
+          </label>
+          <div className="flex items-center gap-2">
+            {/* Previous Arrow */}
+            <button
+              type="button"
+              onClick={handlePrevPage}
+              disabled={currentPage <= 1}
+              className="shrink-0 w-8 h-10 bg-[#B45309] rounded-md disabled:opacity-60 cursor-pointer hover:opacity-90 transition-opacity flex items-center justify-center"
+              aria-label="Previous page"
+            >
+              <ChevronDownSvg className="w-6 h-6 rotate-90" />
+            </button>
+
+            {/* Scrollable Page Numbers */}
+            <div className="flex-1 overflow-x-auto scrollbar-hide">
+              <div className="flex gap-1.5">
+                {Array.from({ length: numPages }, (_, i) => i + 1).map((pageNum) => {
+                  const isCurrent = pageNum === currentPage;
+                  const hasSignature = (settings.signatures || []).some(
+                    (sig) => sig.page === pageNum - 1
+                  );
+
+                  return (
+                    <button
+                      key={pageNum}
+                      type="button"
+                      onClick={() => {
+                        setCurrentPage(pageNum);
+                        onPageChange(pageNum);
+                      }}
+                      className={`shrink-0 w-10 h-10 rounded-lg text-xs font-semibold transition-all cursor-pointer border-2 relative ${
+                        isCurrent
+                          ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 border-zinc-300 dark:border-zinc-700"
+                          : "bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border-transparent hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                      }`}
+                    >
+                      {pageNum}
+                      {hasSignature && (
+                        <span className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full text-[8px] flex items-center justify-center text-white">
+                          ✓
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Next Arrow */}
+            <button
+              type="button"
+              onClick={handleNextPage}
+              disabled={currentPage >= numPages}
+              className="shrink-0 w-8 h-10 bg-[#B45309] rounded-md disabled:opacity-60 cursor-pointer hover:opacity-90 transition-opacity flex items-center justify-center"
+              aria-label="Next page"
+            >
+              <ChevronDownSvg className="w-6 h-6 -rotate-90" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
