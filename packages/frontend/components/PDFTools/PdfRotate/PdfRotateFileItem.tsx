@@ -93,9 +93,9 @@ export const PdfRotateFileItem = ({
       </div>
 
       {/* Content */}
-      <div className="p-4 grid lg:grid-cols-2 gap-6">
-        {/* Left: Controls */}
-        <div className="space-y-5">
+      <div className="p-4 grid md:grid-cols-2 gap-6">
+        {/* Left: Controls (Bottom on mobile) */}
+        <div className="space-y-5 order-2 md:order-1">
           {/* Rotation Mode Selector */}
           <div className="space-y-2">
             <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
@@ -147,7 +147,7 @@ export const PdfRotateFileItem = ({
                   onClick={() => handleAngleChange(rot.value)}
                   className={`flex flex-col items-center justify-center py-2 px-1 rounded-xl border transition-all cursor-pointer ${
                     selectedAngle === rot.value
-                      ? "bg-rose-50 border-rose-500 text-rose-700 dark:bg-rose-900/20 dark:border-rose-500 dark:text-rose-400 font-semibold"
+                      ? "bg-rose-50 border-[#DB2777] text-[#DB2777] dark:bg-[#DB2777]/10 font-medium"
                       : "bg-transparent border-zinc-200 text-zinc-600 hover:bg-zinc-100 dark:hover:bg-zinc-900 dark:border-zinc-900 dark:text-zinc-400"
                   }`}
                 >
@@ -169,8 +169,8 @@ export const PdfRotateFileItem = ({
           </div>
         </div>
 
-        {/* Right: Preview */}
-        <div className="bg-zinc-50 dark:bg-zinc-900/30 rounded-xl p-1 border border-zinc-100 dark:border-zinc-800/50">
+        {/* Right: Preview (Top on mobile) */}
+        <div className="bg-zinc-50 dark:bg-zinc-900/30 rounded-xl p-1 border border-zinc-100 dark:border-zinc-800/50 order-1 md:order-2">
           {file.originalFile && (
             <PdfRotateViewer
               file={file.originalFile}
