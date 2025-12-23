@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import type { SignatureItem } from "@/services/pdfService/types";
 import { CancelSvg } from "@/components/Svg/CommonSvg";
-import Image from "next/image";
 
 interface DraggableWatermarkProps {
   watermark: SignatureItem;
@@ -131,12 +130,11 @@ export const DraggableWatermark = ({
         style={{ opacity: opacity }}
       >
         {watermark.type === 'image' && watermark.imagePreview ? (
-          <Image
+          <img
             src={watermark.imagePreview}
             alt="watermark"
             width={width}
             height={height}
-            unoptimized
             className="w-full h-full object-contain pointer-events-none"
           />
         ) : (
