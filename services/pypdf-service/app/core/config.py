@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "info"
     HOST: str = "0.0.0.0"
     PORT: int = 8003
-    ALLOWED_ORIGINS: str = "*"
+    ALLOWED_ORIGINS: str = "https://www.zemrev.com,https://zemrev.com,https://api.zemrev.com,http://api.zemrev.com/"
     UPLOAD_DIR: str = "/tmp/zemrev_pypdf_uploads"
     
     # ========================================================================
