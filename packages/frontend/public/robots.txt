@@ -16,6 +16,3 @@ Allow: /pdf/
 
 # Allow legal pages
 Allow: /legal/
-
-# Crawl-delay (optional)
-Crawl-delay: 1
