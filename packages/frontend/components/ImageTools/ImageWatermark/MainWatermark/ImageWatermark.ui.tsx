@@ -1,6 +1,5 @@
 // imageWatermark/MainWatermark/ImageWatermark.ui.tsx
 
-import Image from "next/image";
 import { RangeSlider } from "@/components/Shared/RangeSlider";
 import GlassButton from "@/components/Layouts/GlassButton";
 import type {
@@ -279,12 +278,10 @@ export const ImageWatermarkUI = (p: Props) => {
           </div>
 
           <div className="relative w-full aspect-video bg-zinc-950 rounded-lg overflow-hidden">
-            <Image
+            <img
               src={p.imageUrl}
               alt="Preview"
-              fill
               className="object-contain"
-              unoptimized
             />
 
             {/* Watermark Preview Overlay */}
@@ -304,14 +301,13 @@ export const ImageWatermarkUI = (p: Props) => {
               p.watermarkPreview && (
                 <div className={p.getPositionStyles()}>
                   <div style={p.getWatermarkWrapperStyle()}>
-                    <Image
+                    <img
                       src={p.watermarkPreview}
                       alt="Watermark"
                       width={400}
                       height={400}
                       style={p.getWatermarkImageStyle()}
                       className="object-contain"
-                      unoptimized
                     />
                   </div>
                 </div>
