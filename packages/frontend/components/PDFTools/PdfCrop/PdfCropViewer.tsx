@@ -121,24 +121,22 @@ export const PdfCropViewer = ({
       {/* ===================================================================== */}
       <div className="flex items-center justify-between mb-3 px-1 shrink-0">
         <h4 className="text-sm font-semibold uppercase text-zinc-500">
-          Preview & Crop
+          Preview
         </h4>
         {numPages && numPages > 1 && (
-          <div className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 rounded-lg p-1">
+          <div className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800 p-1">
             <button
               onClick={() => changePage(-1)}
               disabled={currentPage <= 1}
-              className="p-1 rounded-md transition-colors hover:bg-white dark:hover:bg-zinc-700 disabled:opacity-30"
+              className="p-1 rounded-md transition-colors hover:bg-white dark:hover:bg-zinc-700 disabled:opacity-30 cursor-pointer"
             >
               <ChevronDownSvg className="w-4 h-4 rotate-90 text-zinc-600 dark:text-zinc-300" />
             </button>
-            <span className="w-16 text-xs font-mono text-center text-zinc-600 dark:text-zinc-400">
-              {currentPage} / {numPages}
-            </span>
+            <span className="text-xs font-mono w-10 text-center select-none">{currentPage}/{numPages}</span>
             <button
               onClick={() => changePage(1)}
               disabled={currentPage >= numPages}
-              className="p-1 rounded-md transition-colors hover:bg-white dark:hover:bg-zinc-700 disabled:opacity-30"
+              className="p-1 rounded-md transition-colors hover:bg-white dark:hover:bg-zinc-700 disabled:opacity-30 cursor-pointer"
             >
               <ChevronDownSvg className="w-4 h-4 -rotate-90 text-zinc-600 dark:text-zinc-300" />
             </button>
@@ -222,6 +220,64 @@ export const PdfCropViewer = ({
           </div>
         </Document>
       </div>
+
+      {/* ===================================================================== */}
+      {/* PAGE NAVIGATION STRIP */}
+      {/* ===================================================================== */}
+      {numPages && numPages > 1 && (
+        <div className="px-1 my-2 shrink-0">
+          <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2 block">
+            All Pages ({numPages})
+          </label>
+          <div className="flex items-center gap-2">
+            {/* Previous Arrow */}
+            <button
+              type="button"
+              onClick={() => changePage(-1)}
+              disabled={currentPage <= 1}
+              className="shrink-0 w-8 h-10 bg-[#4D7C0F] rounded-md disabled:opacity-60 cursor-pointer hover:opacity-90 transition-opacity flex items-center justify-center"
+              aria-label="Previous page"
+            >
+              <ChevronDownSvg className="w-6 h-6 rotate-90" />
+            </button>
+
+            {/* Scrollable Page Numbers */}
+            <div className="flex-1 overflow-x-auto scrollbar-hide">
+              <div className="flex gap-1.5">
+                {Array.from({ length: numPages }, (_, i) => i + 1).map((pageNum) => {
+                  const isCurrent = pageNum === currentPage;
+
+                  return (
+                    <button
+                      key={pageNum}
+                      type="button"
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={`shrink-0 w-10 h-10 rounded-lg text-xs font-semibold transition-all cursor-pointer border-2 ${
+                        isCurrent
+                          ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 border-zinc-300 dark:border-zinc-700"
+                          : "bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border-transparent hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Next Arrow */}
+            <button
+              type="button"
+              onClick={() => changePage(1)}
+              disabled={currentPage >= numPages}
+              className="shrink-0 w-8 h-10 bg-[#4D7C0F] rounded-md disabled:opacity-60 cursor-pointer hover:opacity-90 transition-opacity flex items-center justify-center"
+              aria-label="Next page"
+            >
+              <ChevronDownSvg className="w-6 h-6 -rotate-90" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
