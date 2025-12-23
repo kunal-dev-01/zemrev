@@ -43,7 +43,6 @@ export const PdfRemoveViewer = ({
   const pageWidth = containerWidth > 600 ? 500 : containerWidth - 32;
   const canNavigatePrev = currentPage > 1;
   const canNavigateNext = currentPage < (numPages || 0);
-  const isMultiPage = numPages && numPages > 1;
 
   const handlePageChange = (direction: "prev" | "next") => {
     setCurrentPage((prev) => {
@@ -57,25 +56,23 @@ export const PdfRemoveViewer = ({
     if (isCurrentPageRemoved) onPageUndo?.(currentPage);
   };
 
-  const shouldShowGrid = numPages && numPages <= 20;
-
   return (
     <div className="w-full flex flex-col gap-3">
       {/* Header Section */}
       <div className="flex flex-col gap-2 px-1">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
-            Preview (Page {currentPage}/{numPages || "?"})
-          </span>
+          <h4 className="text-sm font-semibold uppercase text-zinc-500">
+            Preview
+          </h4>
 
           {/* Navigation Controls */}
-          {isMultiPage && (
-            <div className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 rounded-lg p-1">
+          {numPages && numPages > 1 && (
+            <div className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800 p-1">
               <button
                 type="button"
                 onClick={() => handlePageChange("prev")}
                 disabled={!canNavigatePrev}
-                className="p-1 hover:bg-white dark:hover:bg-zinc-700 rounded-md disabled:opacity-30 transition-colors cursor-pointer"
+                className="p-1 rounded-md transition-colors hover:bg-white dark:hover:bg-zinc-700 disabled:opacity-30 cursor-pointer"
                 aria-label="Previous page"
               >
                 <ChevronDownSvg className="w-4 h-4 rotate-90" />
@@ -87,7 +84,7 @@ export const PdfRemoveViewer = ({
                 type="button"
                 onClick={() => handlePageChange("next")}
                 disabled={!canNavigateNext}
-                className="p-1 hover:bg-white dark:hover:bg-zinc-700 rounded-md disabled:opacity-30 transition-colors cursor-pointer"
+                className="p-1 rounded-md transition-colors hover:bg-white dark:hover:bg-zinc-700 disabled:opacity-30 cursor-pointer"
                 aria-label="Next page"
               >
                 <ChevronDownSvg className="w-4 h-4 -rotate-90" />
@@ -122,7 +119,10 @@ export const PdfRemoveViewer = ({
                 valueClass: "text-green-700 dark:text-green-300",
               },
             ].map(({ label, value, bgClass, textClass, valueClass }) => (
-              <div key={label} className={`flex items-center gap-1.5 px-2 py-1 ${bgClass} rounded-md`}>
+              <div
+                key={label}
+                className={`flex items-center gap-1.5 px-2 py-1 ${bgClass} rounded-md`}
+              >
                 <span className={`${textClass}`}>{label}</span>
                 <span className={`font-semibold ${valueClass}`}>{value}</span>
               </div>
@@ -139,7 +139,9 @@ export const PdfRemoveViewer = ({
         <Document
           file={file}
           onLoadSuccess={({ numPages }) => setNumPages(numPages)}
-          loading={<div className="text-xs text-zinc-500 mt-10">Loading PDF...</div>}
+          loading={
+            <div className="text-xs text-zinc-500 mt-10">Loading PDF...</div>
+          }
         >
           <div className="relative inline-block">
             {/* Removed Page Overlay */}
@@ -186,32 +188,63 @@ export const PdfRemoveViewer = ({
         </Document>
       </div>
 
-      {/* Page Grid Overview */}
-      {shouldShowGrid && (
-        <div className="px-1">
+      {/* Page Navigation Strip */}
+      {numPages && numPages > 1 && (
+        <div className="px-1 shrink-0 my-2">
           <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2 block">
             All Pages ({numPages})
           </label>
-          <div className="grid grid-cols-10 gap-1.5">
-            {Array.from({ length: numPages }, (_, i) => i + 1).map((pageNum) => {
-              const isRemoved = pagesToRemove.includes(pageNum);
-              const isCurrent = pageNum === currentPage;
+          <div className="flex items-center gap-2">
+            {/* Previous Arrow */}
+            <button
+              type="button"
+              onClick={() => handlePageChange("prev")}
+              disabled={!canNavigatePrev}
+              className="shrink-0 w-8 h-10 bg-[#475569] rounded-md disabled:opacity-60 cursor-pointer hover:opacity-90 transition-opacity flex items-center justify-center"
+              aria-label="Previous page"
+            >
+              <ChevronDownSvg className="w-6 h-6 rotate-90" />
+            </button>
 
-              return (
-                <button
-                  key={pageNum}
-                  type="button"
-                  onClick={() => setCurrentPage(pageNum)}
-                  className={`aspect-square rounded-md md:rounded-xl text-xs font-semibold transition-all cursor-pointer border-2 outline-none ${
-                    isRemoved
-                      ? "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 line-through"
-                      : "bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300"
-                  } ${isCurrent ? "border-zinc-200 dark:border-slate-700" : "border-transparent"}`}
-                >
-                  {pageNum}
-                </button>
-              );
-            })}
+            {/* Scrollable Page Numbers */}
+            <div className="flex-1 overflow-x-auto scrollbar-hide">
+              <div className="flex gap-1.5">
+                {Array.from({ length: numPages }, (_, i) => i + 1).map(
+                  (pageNum) => {
+                    const isRemoved = pagesToRemove.includes(pageNum);
+                    const isCurrent = pageNum === currentPage;
+
+                    return (
+                      <button
+                        key={pageNum}
+                        type="button"
+                        onClick={() => setCurrentPage(pageNum)}
+                        className={`shrink-0 w-10 h-10 rounded-lg text-xs font-semibold transition-all cursor-pointer border-2 ${
+                          isRemoved
+                            ? "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 line-through border-transparent"
+                            : isCurrent
+                            ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 border-zinc-300 dark:border-zinc-700"
+                            : "bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border-transparent hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  }
+                )}
+              </div>
+            </div>
+
+            {/* Next Arrow */}
+            <button
+              type="button"
+              onClick={() => handlePageChange("next")}
+              disabled={!canNavigateNext}
+              className="shrink-0 w-8 h-10 bg-[#475569] rounded-md disabled:opacity-60 cursor-pointer hover:opacity-90 transition-opacity flex items-center justify-center"
+              aria-label="Next page"
+            >
+              <ChevronDownSvg className="w-6 h-6 -rotate-90" />
+            </button>
           </div>
         </div>
       )}
