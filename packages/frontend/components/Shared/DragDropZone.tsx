@@ -27,6 +27,9 @@ interface DragDropZoneProps {
 const MAX_FILE_SIZE_MB = 50;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
+const ENABLE_GOOGLE_DRIVE = false;
+const ENABLE_DROPBOX = false;
+
 export const DragDropZone = ({
   config,
   onFilesSelected,
@@ -222,25 +225,33 @@ export const DragDropZone = ({
             )}
 
             {/* Cloud Providers */}
-            <div className="flex items-center justify-center gap-3 mt-4">
-              <button
-                onClick={onGooglePick}
-                className="px-4 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all cursor-pointer"
-              >
-                <div className="w-5 h-5">
-                  <GoogleDrive />
-                </div>
-              </button>
+            {(ENABLE_GOOGLE_DRIVE || ENABLE_DROPBOX) && (
+              <div className="flex items-center justify-center gap-3 mt-4">
+                {ENABLE_GOOGLE_DRIVE && (
+                  <button
+                    onClick={onGooglePick}
+                    className="px-4 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all cursor-pointer"
+                    title="Upload from Google Drive"
+                  >
+                    <div className="w-5 h-5">
+                      <GoogleDrive />
+                    </div>
+                  </button>
+                )}
 
-              <button
-                onClick={onDropboxPick}
-                className="px-4 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all cursor-pointer"
-              >
-                <div className="w-5 h-5">
-                  <DropBox />
-                </div>
-              </button>
-            </div>
+                {ENABLE_DROPBOX && (
+                  <button
+                    onClick={onDropboxPick}
+                    className="px-4 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all cursor-pointer"
+                    title="Upload from Dropbox"
+                  >
+                    <div className="w-5 h-5">
+                      <DropBox />
+                    </div>
+                  </button>
+                )}
+              </div>
+            )}
           </>
         )}
       </div>

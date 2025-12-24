@@ -9,6 +9,7 @@ Sitemap: https://www.zemrev.com/sitemap.xml
 # Disallow private/admin areas
 Disallow: /api/
 Disallow: /my-files
+Disallow: /_next/
 
 # Allow all image and PDF tools
 Allow: /image/
