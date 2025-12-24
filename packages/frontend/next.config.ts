@@ -8,6 +8,16 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
+
+  // CSS optimization
+  compiler: {
+    removeConsole: process.env.NODE_ENV === "production",
+  },
+  
+  // Experimental optimizations
+  experimental: {
+    optimizeCss: true, // Critical CSS inline karega
+  },
   turbopack: {},
   webpack: (config) => {
     config.resolve.alias.canvas = false;

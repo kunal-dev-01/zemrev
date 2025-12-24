@@ -14,6 +14,7 @@ const inter = localFont({
   ],
   variable: "--font-inter",
   display: "swap",
+  preload: true,
 });
 
 export const metadata: Metadata = {
@@ -99,12 +100,26 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+            body { 
+              margin: 0; 
+              font-family: var(--font-inter); 
+              -webkit-font-smoothing: antialiased;
+            }
+            * {
+              box-sizing: border-box;
+            }
+          `,
+          }}
+        />
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-5Y3Z9KHCHV"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
 
-        <Script id="ga4" strategy="afterInteractive">
+        <Script id="ga4" strategy="lazyOnload">
           {`
       window.dataLayer = window.dataLayer || [];
       function gtag(){window.dataLayer.push(arguments);}

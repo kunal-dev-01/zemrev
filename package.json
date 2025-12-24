@@ -1,0 +1,24 @@
+{
+  "name": "zemrev",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "pnpm": {
+    "overrides": {
+      "baseline-browser-mapping": "^2.9.11"
+    },
+    "ignoredBuiltDependencies": [
+      "canvas",
+      "esbuild",
+      "sharp",
+      "unrs-resolver"
+    ]
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.24.0"
+}
