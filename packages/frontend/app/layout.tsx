@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import MainProvider from "@/lib/Provider/Provider";
 import "./globals.css";
+import Script from "next/script";
 
 const inter = localFont({
   src: [
@@ -14,7 +15,6 @@ const inter = localFont({
   variable: "--font-inter",
   display: "swap",
 });
-
 
 export const metadata: Metadata = {
   title: "Zemrev - Free Image & PDF Tools | Convert, Compress, Edit Online",
@@ -98,6 +98,21 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-5Y3Z9KHCHV"
+          strategy="afterInteractive"
+        />
+
+        <Script id="ga4" strategy="afterInteractive">
+          {`
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){window.dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-5Y3Z9KHCHV');
+    `}
+        </Script>
+      </head>
       <body
         className={`${inter.variable} antialiased`}
         cz-shortcut-listen="true"
