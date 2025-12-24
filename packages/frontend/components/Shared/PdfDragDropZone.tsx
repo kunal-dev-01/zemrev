@@ -21,8 +21,8 @@ interface PdfDragDropZoneProps {
   currentFileCount: number;
 }
 
-const ENABLE_GOOGLE_DRIVE = false;
-const ENABLE_DROPBOX = false;
+const ENABLE_GOOGLE_DRIVE = true;
+const ENABLE_DROPBOX = true;
 
 export const PdfDragDropZone = ({
   config,
