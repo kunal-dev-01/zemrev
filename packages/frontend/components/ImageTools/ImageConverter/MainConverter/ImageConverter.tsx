@@ -56,8 +56,12 @@ const ImageConverter = () => {
 
       // Smart redirect (only if one input format & <=5 files)
       if (uniqueFormats.length === 1 && newFiles.length <= 5) {
-        const inputFormat = uniqueFormats[0];
+        let inputFormat = uniqueFormats[0];
         let outputFormat = config.defaultSettings.format as string;
+
+        // Normalize jpeg to jpg for routing
+        inputFormat = inputFormat === "jpeg" ? "jpg" : inputFormat;
+        outputFormat = outputFormat === "jpeg" ? "jpg" : outputFormat;
 
         // Avoid same-format redirects (webp→webp)
         if (inputFormat === outputFormat) {

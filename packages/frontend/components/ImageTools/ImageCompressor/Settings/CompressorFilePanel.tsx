@@ -84,7 +84,7 @@ export const CompressorFilePanel = ({
             {isQualityOpen && (
               <>
                 <div
-                  className="absolute right-0 top-full mt-1 z-20 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 origin-top-right ring-1 ring-black/5 dark:ring-white/5"
+                  className="absolute right-0 top-full mt-1 z-20 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 origin-top-right ring-1 ring-black/5 dark:ring-white/5 min-w-full md:min-w-[17vw]"
                   style={{
                     animation:
                       "dropdownEnter 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards",
