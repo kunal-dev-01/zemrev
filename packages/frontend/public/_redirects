@@ -1,3 +1,0 @@
-/api/*  http://34.107.43.152/api/:splat  200
-/sitemap.xml/  /sitemap.xml  301
-/robots.txt/   /robots.txt   301
