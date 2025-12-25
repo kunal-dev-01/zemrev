@@ -47,8 +47,19 @@ const buildFormData = <T extends FormDataParams>(
 // ============================================================================
 
 const blobResponse = {
-  responseHandler: (r: Response) => r.blob(),
+  responseHandler: async (r: Response) => {
+    if (!r.ok) {
+      const text = await r.text();
+      try {
+        throw JSON.parse(text);
+      } catch {
+        throw { detail: "Too many requests. Please try again in a few minutes" };
+      }
+    }
+    return r.blob();
+  },
 };
+
 
 // ============================================================================
 // IMAGE API ENDPOINTS

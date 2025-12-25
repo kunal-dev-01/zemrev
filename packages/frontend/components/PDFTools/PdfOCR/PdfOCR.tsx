@@ -20,6 +20,7 @@ import {
   SettingsToggleButton,
   ToolIconBadge,
 } from "@/components/Shared/FileUI";
+import { ErrorSvg } from "@/components/Svg/CommonSvg";
 
 // ============================================================================
 // TYPES
@@ -45,9 +46,8 @@ interface PdfFileItemProps {
 
 const DPI_PRESETS: DpiPreset[] = [
   { value: 150, label: "Low", desc: "Fast, basic quality" },
-  { value: 300, label: "Standard", desc: "Recommended" },
-  { value: 400, label: "High", desc: "Better accuracy" },
-  { value: 600, label: "Maximum", desc: "Highest quality" },
+  { value: 200, label: "Standard", desc: "Recommended" },
+  { value: 300, label: "High", desc: "Better accuracy" },
 ];
 
 // ============================================================================
@@ -294,6 +294,11 @@ const PdfOCR = () => {
                 isDark={isDark}
               />
             ))}
+          </div>
+
+          <div className="w-full md:text-sm text-xs text-zinc-600 dark:text-zinc-400 mt-2 flex items-center pl-2">
+            <ErrorSvg className="md:mr-1 mr-2 md:w-4 md:h-4 h-6 w-6 inline-block" /> OCR processing time depends on PDF size and number of pages.
+            Scanned or larger files may take longer.
           </div>
 
           <GlassButton

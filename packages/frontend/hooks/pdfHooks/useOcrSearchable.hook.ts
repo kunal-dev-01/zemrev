@@ -33,7 +33,7 @@ export const useOcrSearchable = () => {
             type: file.type,
             settings: {
               language: "eng",
-              dpi: 300,
+              dpi: 200,
             },
             status: "pending" as const,
           }))
@@ -59,7 +59,7 @@ export const useOcrSearchable = () => {
         type: file.type,
         settings: {
           language: "eng",
-          dpi: 300,
+          dpi: 200,
         },
         status: "pending",
       });
@@ -85,7 +85,7 @@ export const useOcrSearchable = () => {
         type: file.type,
         settings: {
           language: "eng",
-          dpi: 300,
+          dpi: 200,
         },
         status: "pending",
       },
@@ -109,7 +109,7 @@ export const useOcrSearchable = () => {
         type: file.type,
         settings: {
           language: "eng",
-          dpi: 300,
+          dpi: 200,
         },
         status: "pending",
       },
@@ -156,7 +156,7 @@ export const useOcrSearchable = () => {
           file: file.originalFile as File,
           options: {
             language: language || "eng",
-            dpi: dpi || 300,
+            dpi: dpi || 200,
           },
         }).unwrap();
 

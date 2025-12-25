@@ -6,7 +6,7 @@ export const PDF_TOOL_CONFIGS: Record<string, PdfToolConfig> = {
     title: "PDF Compressor",
     description: "Compress PDFs using Ghostscript",
     acceptedFormats: ["application/pdf"],
-    maxFiles: 5,
+    maxFiles: 3,
     maxSize: 80,
     showPreview: false,
     primaryColor: "#DC2626",
@@ -276,7 +276,7 @@ export const PDF_TOOL_CONFIGS: Record<string, PdfToolConfig> = {
     dropzoneColorDark: "#4F46E51A",
     defaultSettings: {
       language: "eng",
-      dpi: 300,
+      dpi: 200,
     },
   },
 
