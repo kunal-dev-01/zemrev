@@ -6,7 +6,7 @@ import dynamic from "next/dynamic";
 
 const PdfUnlock = dynamic(() => import("./PdfUnlock"), {
     ssr: false,
-    loading: () => <ToolLoader className="w-8 h-8 text-[#CA8A04]" />,
+    loading: () => <ToolLoader />,
 });
 
 export default PdfUnlock

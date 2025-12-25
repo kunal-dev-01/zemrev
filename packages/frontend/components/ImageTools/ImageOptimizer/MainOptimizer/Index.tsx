@@ -10,7 +10,7 @@ const Index = dynamic(
   () => import("./ImageOptimizer"),
   {
     ssr: false,
-    loading: () => <ToolLoader className="w-8 h-8 text-[#f43f5e]" />,
+    loading: () => <ToolLoader />,
   }
 );
 

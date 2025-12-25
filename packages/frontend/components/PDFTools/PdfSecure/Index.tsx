@@ -7,7 +7,7 @@ import dynamic from "next/dynamic";
 
 const PdfSecure = dynamic(() => import("./PdfSecure"), {
     ssr: false,
-    loading: () => <ToolLoader className="w-8 h-8 text-[#059669]" />,
+    loading: () => <ToolLoader />,
 });
 
 export default PdfSecure

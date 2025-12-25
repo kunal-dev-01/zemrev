@@ -170,7 +170,7 @@ const SideBar: FC = () => {
 
       <aside
         className={clsx(
-          "fixed top-0 right-0 z-50 h-screen w-[300px] pb-5 md:pb-0 flex flex-col bg-zinc-50/95 dark:bg-[#0b0b0b]/95 backdrop-blur-xl border-l border-zinc-200 dark:border-zinc-800 transition-transform duration-500 cubic-bezier(0.4, 0, 0.2, 1) shadow-2xl",
+          "fixed top-0 right-0 z-50 h-screen w-75 pb-5 md:pb-0 flex flex-col bg-zinc-50/95 dark:bg-[#0b0b0b]/95 backdrop-blur-xl border-l border-zinc-200 dark:border-zinc-800 transition-transform duration-500 cubic-bezier(0.4, 0, 0.2, 1) shadow-2xl",
           isOpenSidebar ? "translate-x-0" : "translate-x-full"
         )}
       >

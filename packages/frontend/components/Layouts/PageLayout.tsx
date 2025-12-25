@@ -1,7 +1,10 @@
 import React from "react";
+import dynamic from "next/dynamic";
 import Footer from "@/components/Footer/Footer";
 import Navbar from "@/components/Navbar/Navbar";
-import SideBar from "@/components/Navbar/Sidebar";
+const SideBar = dynamic(() => import("@/components/Navbar/Sidebar"), {
+  ssr: false,
+});
 
 const PageLayout = ({ children }: { children: React.ReactNode }) => {
   return (

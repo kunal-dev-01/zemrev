@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 
 const RemovePdfPages = dynamic(() => import("./RemovePdfPages"), {
     ssr: false,
-    loading: () => <ToolLoader className="w-8 h-8 text-[#475569]" />,
+    loading: () => <ToolLoader />,
 });
 
 export default RemovePdfPages;

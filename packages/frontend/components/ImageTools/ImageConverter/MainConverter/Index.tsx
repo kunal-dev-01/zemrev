@@ -9,7 +9,7 @@ const Index = dynamic(
   () => import("./ImageConverter"),
   {
     ssr: false,
-    loading: () => <ToolLoader className="w-8 h-8 text-[#10b981]" />,
+    loading: () => <ToolLoader />,
   }
 );
 

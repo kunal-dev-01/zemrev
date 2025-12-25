@@ -9,7 +9,7 @@ const Index = dynamic(
   () => import("./ImageResizer"),
   {
     ssr: false,
-    loading: () => <ToolLoader className="w-8 h-8 text-[#6366f1]" />,
+    loading: () => <ToolLoader />,
   }
 );
 

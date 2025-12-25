@@ -1,5 +1,3 @@
-"use client";
-
 const NotFound  = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6">
@@ -23,18 +21,18 @@ const NotFound  = () => {
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
-          <button 
-            onClick={() => window.location.href = '/'}
+          <a 
+            href="/"
             className="w-full sm:w-auto px-10 py-2.5 bg-zinc-100 text-zinc-950 font-bold rounded-xl transition-transform duration-200 cursor-pointer"
           >
             Back to Home
-          </button>
-          <button 
-            onClick={() => window.history.back()}
+          </a>
+          <a
+            href="/"
             className="w-full sm:w-auto px-10 py-2.5 bg-transparent text-zinc-400 font-semibold border border-zinc-800 rounded-xl hover:bg-zinc-900 hover:text-zinc-100 transition-all cursor-pointer"
           >
             Previous Page
-          </button>
+          </a>
         </div>
 
         {/* Footer info */}

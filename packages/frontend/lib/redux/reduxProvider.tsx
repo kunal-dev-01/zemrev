@@ -1,3 +1,5 @@
+// ./lib/redux/reduxProvider.tsx
+
 import PageLayout from "@/components/Layouts/PageLayout";
 import { store } from "./store";
 import { Provider } from "react-redux";

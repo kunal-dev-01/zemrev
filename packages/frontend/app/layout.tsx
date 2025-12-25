@@ -1,6 +1,7 @@
+// ./app/layout.tsx
+
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import MainProvider from "@/lib/Provider/Provider";
 import "./globals.css";
 import Script from "next/script";
 
@@ -100,26 +101,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <style
-          dangerouslySetInnerHTML={{
-            __html: `
-            body { 
-              margin: 0; 
-              font-family: var(--font-inter); 
-              -webkit-font-smoothing: antialiased;
-            }
-            * {
-              box-sizing: border-box;
-            }
-          `,
-          }}
-        />
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-5Y3Z9KHCHV"
-          strategy="lazyOnload"
+          strategy="afterInteractive"
         />
 
-        <Script id="ga4" strategy="lazyOnload">
+        <Script id="ga4" strategy="afterInteractive">
           {`
       window.dataLayer = window.dataLayer || [];
       function gtag(){window.dataLayer.push(arguments);}
@@ -132,7 +119,7 @@ export default function RootLayout({
         className={`${inter.variable} antialiased`}
         cz-shortcut-listen="true"
       >
-        <MainProvider>{children}</MainProvider>
+        {children}
       </body>
     </html>
   );

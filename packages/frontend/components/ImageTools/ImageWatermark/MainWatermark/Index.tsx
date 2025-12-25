@@ -7,7 +7,7 @@ const Index = dynamic(
   () => import("./ImageWatermark"),
   {
     ssr: false,
-    loading: () => <ToolLoader className="w-8 h-8 text-[#8b5cf6]" />,
+    loading: () => <ToolLoader />,
   }
 );
 

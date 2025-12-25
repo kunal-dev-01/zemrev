@@ -9,7 +9,7 @@ const Index = dynamic(
   () => import("./ImageCropper"),
   {
     ssr: false,
-    loading: () => <ToolLoader className="w-8 h-8 text-[#f59e0b]" />,
+    loading: () => <ToolLoader />,
   }
 );
 

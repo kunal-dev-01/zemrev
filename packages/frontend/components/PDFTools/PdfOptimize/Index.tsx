@@ -7,7 +7,7 @@ import dynamic from "next/dynamic";
 
 const PdfOptimize = dynamic(() => import("./PdfOptimize"), {
     ssr: false,
-    loading: () => <ToolLoader className="w-8 h-8 text-[#65A30D]" />,
+    loading: () => <ToolLoader />,
 });
 
 export default function Index() { return (<PdfOptimize />); }

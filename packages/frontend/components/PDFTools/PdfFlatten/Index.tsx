@@ -7,7 +7,7 @@ import dynamic from "next/dynamic";
 
 const PdfFlatten = dynamic(() => import("./PdfFlatten"), {
     ssr: false,
-    loading: () => <ToolLoader className="w-8 h-8 text-[#0284C7]" />,
+    loading: () => <ToolLoader />,
 });
 
 export default PdfFlatten

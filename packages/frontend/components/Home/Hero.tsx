@@ -7,7 +7,7 @@ const Hero = () => {
       {/* Background Glow */}
       <div className="absolute inset-0 -z-10 flex items-center justify-center pointer-events-none">
         <div className="
-          w-[250px] h-[200px] md:w-[580px] md:h-[300px]
+          w-62.5 h-50 md:w-145 md:h-75
           rounded-full blur-[80px]
           bg-cyan-200/30 dark:bg-cyan-900/20
         " />

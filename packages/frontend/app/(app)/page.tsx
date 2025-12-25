@@ -1,3 +1,5 @@
+// app/page.tsx
+
 import Index from "@/components/Home/Index"
 
 const Home = () => {
