@@ -185,6 +185,20 @@ prod_health() {
     fi
 }
 
+
+# Clean
+prod_clean() {
+    read -p "Remove all containers and volumes? (y/n) " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        print_info "Cleaning..."
+        docker-compose -f $COMPOSE_FILE down -v
+        docker system prune -f
+        print_success "Cleaned!"
+    fi
+}
+
+
 # Queue status
 prod_queue() {
     print_info "Queue status:"
@@ -196,6 +210,7 @@ prod_queue() {
 case "${1:-start}" in
     start) prod_start ;;
     stop) prod_stop ;;
+    clean) prod_clean ;;
     restart) prod_restart ;;
     restart-service) prod_restart_service "$2" ;;
     logs) prod_logs "$2" ;;
