@@ -46,75 +46,66 @@ export const usePdfRotate = () => {
   // ============================================================================
   // ADD FILES (LOCAL)
   // ============================================================================
-  const addFiles = useCallback(
-    async (newFiles: File[]) => {
-      const processed: PdfProcessedFile[] = [];
+  const addFiles = useCallback(async (newFiles: File[]) => {
+    const processed: PdfProcessedFile[] = [];
 
-      for (const file of newFiles) {
-        const id = await pdfPendingStorage.save("pdf-rotate", file);
-        processed.push({
-          id,
-          originalFile: file,
-          name: file.name,
-          size: file.size,
-          type: file.type,
-          settings: { rotations: "1:0" },
-          status: "pending",
-        });
-      }
+    for (const file of newFiles) {
+      const id = await pdfPendingStorage.save("pdf-rotate", file);
+      processed.push({
+        id,
+        originalFile: file,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        settings: { rotations: "1:0" },
+        status: "pending",
+      });
+    }
 
-      setFiles((prev) => [...prev, ...processed]);
-    },
-    []
-  );
+    setFiles((prev) => [...prev, ...processed]);
+  }, []);
 
   // ============================================================================
   // ADD FROM GOOGLE DRIVE
   // ============================================================================
-  const addFromGoogleDrive = useCallback(
-    async () => {
-      const file = await pickFromGoogleDrive();
-      const id = await pdfPendingStorage.save("pdf-rotate", file);
+  const addFromGoogleDrive = useCallback(async () => {
+    const file = await pickFromGoogleDrive();
+    const id = await pdfPendingStorage.save("pdf-rotate", file);
 
-      setFiles((prev) => [
-        ...prev,
-        {
-          id,
-          originalFile: file,
-          name: file.name,
-          size: file.size,
-          type: file.type,
-          settings: { rotations: "1:0" },
-          status: "pending",
-        },
-      ]);
-    },
-    [pickFromGoogleDrive]
-  );
+    setFiles((prev) => [
+      ...prev,
+      {
+        id,
+        originalFile: file,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        settings: { rotations: "1:0" },
+        status: "pending",
+      },
+    ]);
+  }, [pickFromGoogleDrive]);
 
   // ============================================================================
   // ADD FROM DROPBOX
   // ============================================================================
-  const addFromDropbox = useCallback(
-    async () => {
-      const file = await pickFromDropbox();
-      const id = await pdfPendingStorage.save("pdf-rotate", file);
+  const addFromDropbox = useCallback(async () => {
+    const file = await pickFromDropbox();
+    const id = await pdfPendingStorage.save("pdf-rotate", file);
 
-      setFiles((prev) => [
-        ...prev,
-        {
-          id,
-          originalFile: file,
-          name: file.name,
-          size: file.size,
-          type: file.type,
-          settings: { rotations: "1:0" },
-          status: "pending",
-        },
-      ]);
-    },
-    [pickFromDropbox]
-  );
+    setFiles((prev) => [
+      ...prev,
+      {
+        id,
+        originalFile: file,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        settings: { rotations: "1:0" },
+        status: "pending",
+      },
+    ]);
+  }, [pickFromDropbox]);
 
   // ============================================================================
   // REMOVE FILE
@@ -131,9 +122,7 @@ export const usePdfRotate = () => {
     (id: string, settings: PdfFileSettings) => {
       setFiles((prev) =>
         prev.map((f) =>
-          f.id === id
-            ? { ...f, settings: { ...f.settings, ...settings } }
-            : f
+          f.id === id ? { ...f, settings: { ...f.settings, ...settings } } : f
         )
       );
     },
@@ -165,13 +154,19 @@ export const usePdfRotate = () => {
 
         return { success: true };
       } catch (error) {
-        const errorMsg = extractApiErrorMessage(error);
+        const msg = extractApiErrorMessage(error);
+
+        const finalMsg = msg.includes("allows")
+          ? msg
+          : "Too many requests. Please try again in a few minutes";
+
         setFiles((prev) =>
           prev.map((f) =>
-            f.id === file.id ? { ...f, status: "error", error: errorMsg } : f
+            f.id === file.id ? { ...f, status: "error", error: finalMsg } : f
           )
         );
-        return { success: false, error: errorMsg };
+
+        return { success: false, error: finalMsg };
       }
     },
     [rotatePdf]

@@ -98,7 +98,12 @@ export const useImageCropper = () => {
   // CROP IMAGE (saves to session, deletes from pending)
   // ============================================================================
   const cropImageFile = useCallback(
-    async (cropData: { x: number; y: number; width: number; height: number }) => {
+    async (cropData: {
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    }) => {
       if (!file) return { success: false, error: "No file selected" };
 
       setCropping(true);
@@ -129,10 +134,15 @@ export const useImageCropper = () => {
         setCropping(false);
         return { success: true, blob, name: outputName };
       } catch (err) {
-        const errorMsg = extractApiErrorMessage(err);
-        setError(errorMsg);
+        const msg = extractApiErrorMessage(err);
+
+        const finalMsg = msg.includes("allows")
+          ? msg
+          : "Too many requests. Please try again in a few minutes";
+
+        setError(finalMsg);
         setCropping(false);
-        return { success: false, error: errorMsg };
+        return { success: false, error: finalMsg };
       }
     },
     [file, pendingId, imageUrl, cropImage]

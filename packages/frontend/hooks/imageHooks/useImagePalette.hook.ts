@@ -142,10 +142,14 @@ export const useImagePalette = () => {
         setExtracting(false);
         return { success: true, data: result };
       } catch (err) {
-        const errorMsg = extractApiErrorMessage(err);
-        setError(errorMsg);
+        const msg = extractApiErrorMessage(err);
+
+        const finalMsg = msg.includes("allows")
+          ? msg
+          : "Too many requests. Please try again in a few minutes";
+        setError(finalMsg);
         setExtracting(false);
-        return { success: false, error: errorMsg };
+        return { success: false, error: finalMsg };
       }
     },
     [file, fileId, extractPalette]

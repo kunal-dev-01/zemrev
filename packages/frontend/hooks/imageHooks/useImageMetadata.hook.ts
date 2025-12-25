@@ -8,7 +8,10 @@ import { useExtractMetadataMutation } from "@/services/imageService/image.api";
 import { extractApiErrorMessage } from "@/utils/errorExtract.utils";
 import { pendingStorage } from "@/utils/pendingStorage.utils";
 import { sessionStorageUtils } from "@/utils/sessionStorage.utils";
-import type { MetadataResponse, StoredFile } from "@/services/imageService/types";
+import type {
+  MetadataResponse,
+  StoredFile,
+} from "@/services/imageService/types";
 import { useCloudPicker } from "../appHooks/usePdfCloudPicker.hook";
 
 export const useImageMetadata = () => {
@@ -17,8 +20,9 @@ export const useImageMetadata = () => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [extracting, setExtracting] = useState(false);
   const [error, setError] = useState("");
-  const [metadataData, setMetadataData] =
-    useState<MetadataResponse | null>(null);
+  const [metadataData, setMetadataData] = useState<MetadataResponse | null>(
+    null
+  );
 
   const [extractMetadata] = useExtractMetadataMutation();
   const { pickFromGoogleDrive, pickFromDropbox } = useCloudPicker();
@@ -134,10 +138,15 @@ export const useImageMetadata = () => {
       setExtracting(false);
       return { success: true, data: result };
     } catch (err) {
-      const errorMsg = extractApiErrorMessage(err);
-      setError(errorMsg);
+      const msg = extractApiErrorMessage(err);
+
+      const finalMsg = msg.includes("allows")
+        ? msg
+        : "Too many requests. Please try again in a few minutes";
+
+      setError(finalMsg);
       setExtracting(false);
-      return { success: false, error: errorMsg };
+      return { success: false, error: finalMsg };
     }
   }, [file, fileId, extractMetadata]);
 

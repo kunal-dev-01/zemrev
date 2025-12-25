@@ -226,9 +226,14 @@ export const useImageWatermark = () => {
         return { success: true, blob, name: outputName };
       } catch (err) {
         const msg = extractApiErrorMessage(err);
-        setError(msg);
+
+        const finalMsg = msg.includes("allows")
+          ? msg
+          : "Too many requests. Please try again in a few minutes";
+
+        setError(finalMsg);
         setProcessing(false);
-        return { success: false, error: msg };
+        return { success: false, error: finalMsg };
       }
     },
     [

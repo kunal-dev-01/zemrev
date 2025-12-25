@@ -121,9 +121,7 @@ export const usePdfEncrypt = () => {
     (id: string, settings: PdfFileSettings) => {
       setFiles((prev) =>
         prev.map((f) =>
-          f.id === id
-            ? { ...f, settings: { ...f.settings, ...settings } }
-            : f
+          f.id === id ? { ...f, settings: { ...f.settings, ...settings } } : f
         )
       );
     },
@@ -161,13 +159,19 @@ export const usePdfEncrypt = () => {
 
         return { success: true };
       } catch (error) {
-        const errorMsg = extractApiErrorMessage(error);
+        const msg = extractApiErrorMessage(error);
+
+        const finalMsg = msg.includes("allows")
+          ? msg
+          : "Too many requests. Please try again in a few minutes";
+
         setFiles((prev) =>
           prev.map((f) =>
-            f.id === file.id ? { ...f, status: "error", error: errorMsg } : f
+            f.id === file.id ? { ...f, status: "error", error: finalMsg } : f
           )
         );
-        return { success: false, error: errorMsg };
+
+        return { success: false, error: finalMsg };
       }
     },
     [encryptPdf]

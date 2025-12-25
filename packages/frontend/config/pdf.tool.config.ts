@@ -269,7 +269,7 @@ export const PDF_TOOL_CONFIGS: Record<string, PdfToolConfig> = {
     description: "Convert scanned PDF to searchable",
     acceptedFormats: ["application/pdf"],
     maxFiles: 1,
-    maxSize: 10,
+    maxSize: 5,
     showPreview: false,
     primaryColor: "#4F46E5",
     dropzoneColor: "#EEF2FF",

@@ -155,8 +155,8 @@ export const usePdfRemovePages = () => {
         // Call API
         const blob = await removePagesFromPdf({
           file: file.originalFile as File,
-          options: { 
-            pages_to_remove: file.settings.pages_to_remove as string 
+          options: {
+            pages_to_remove: file.settings.pages_to_remove as string,
           },
         }).unwrap();
 
@@ -168,22 +168,25 @@ export const usePdfRemovePages = () => {
 
         // Remove from pending storage
         await pdfPendingStorage.delete("pdf-remove-pages", file.id);
-        
+
         // Remove from UI
         setFiles((prev) => prev.filter((f) => f.id !== file.id));
 
         return { success: true };
       } catch (error) {
-        const errorMsg = extractApiErrorMessage(error);
-        
-        // Update status to error
+        const msg = extractApiErrorMessage(error);
+
+        const finalMsg = msg.includes("allows")
+          ? msg
+          : "Too many requests. Please try again in a few minutes";
+
         setFiles((prev) =>
           prev.map((f) =>
-            f.id === file.id ? { ...f, status: "error", error: errorMsg } : f
+            f.id === file.id ? { ...f, status: "error", error: finalMsg } : f
           )
         );
-        
-        return { success: false, error: errorMsg };
+
+        return { success: false, error: finalMsg };
       }
     },
     [removePagesFromPdf]
@@ -194,13 +197,13 @@ export const usePdfRemovePages = () => {
   // ============================================================================
   const processAllFiles = useCallback(async () => {
     setProcessing(true);
-    
+
     const pendingFiles = files.filter((f) => f.status === "pending");
-    
+
     for (const file of pendingFiles) {
       await processSingleFile(file);
     }
-    
+
     setProcessing(false);
   }, [files, processSingleFile]);
 
