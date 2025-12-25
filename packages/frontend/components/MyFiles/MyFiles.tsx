@@ -175,7 +175,7 @@ const MyFiles = () => {
   if (filesByTool.length === 0) return <MyFilesEmpty />;
 
   return (
-    <div className="w-full mx-auto md:px-4 md:py-12 py-2 rounded-xl border border-zinc-200 dark:border-zinc-900">
+    <div className="w-full mx-auto md:px-4 md:py-12 py-2">
       <MyFilesHeader
         totalFiles={filesByTool.reduce((acc, t) => acc + t.files.length, 0)}
       />

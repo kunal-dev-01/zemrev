@@ -1,7 +1,7 @@
 import { FolderOpenSvg } from "@/components/Svg/CommonSvg";
 
 export const MyFilesEmpty = () => (
-  <div className="w-full h-[80vh] flex items-center justify-center rounded-xl border border-zinc-200 dark:border-zinc-900">
+  <div className="w-full h-[80vh] flex items-center justify-center">
     <div className="text-center">
       <div className="mb-6 inline-flex">
         <FolderOpenSvg className="w-20 h-20 text-zinc-500" />
