@@ -43,7 +43,7 @@ export const extractApiErrorMessage = (
 
     // Network errors
     if (fetchError.status === "FETCH_ERROR") {
-      return "Network error. Check your connection.";
+      return "Too many requests. Please try again after a minute.";
     }
 
     if (fetchError.status === "PARSING_ERROR") {

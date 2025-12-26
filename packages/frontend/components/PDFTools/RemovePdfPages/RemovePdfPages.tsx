@@ -24,8 +24,11 @@ const RemovePdfPages = () => {
   } = usePdfRemovePages();
 
   const canProcess = stats.pending > 0;
-  const hasValidPageRanges = files.every(
-    (f) => f.settings.pages_to_remove?.trim()
+  const hasValidPageRanges = files.every((f) =>
+    f.settings.pages_to_remove?.trim()
+  );
+  const hasAnyPageSelected = files.some((file) =>
+    file.settings.pages_to_remove?.trim()
   );
 
   const isMaxFilesReached = files.length >= config.maxFiles;
@@ -63,23 +66,24 @@ const RemovePdfPages = () => {
 
           {/* Process Button or Validation Error */}
           <div className="md:mt-[1vw] mt-[1vh]">
-            {canProcess && hasValidPageRanges ? (
-              <GlassButton
-                loading={processing}
-                primaryColor={config.primaryColor}
-                onClick={processAllFiles}
-              >
-                {processing ? "Removing Pages..." : "Remove Pages from PDF"}
-              </GlassButton>
-            ) : (
-              canProcess && (
-                <div className="p-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
-                  <p className="text-sm text-amber-800 dark:text-amber-200 flex items-center">
-                    <ErrorSvg className="w-5 h-5 mr-2" />
-                    Please specify pages to remove for all files
-                  </p>
-                </div>
-              )
+            <GlassButton
+              loading={processing}
+              disabled={
+                !canProcess || !hasValidPageRanges || !hasAnyPageSelected
+              }
+              primaryColor={config.primaryColor}
+              onClick={processAllFiles}
+            >
+              {processing ? "Removing Pages..." : "Remove Pages from PDF"}
+            </GlassButton>
+
+            {!hasAnyPageSelected && canProcess && (
+              <div className="mt-2 p-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
+                <p className="text-sm text-amber-800 dark:text-amber-200 flex items-center">
+                  <ErrorSvg className="w-5 h-5 mr-2" />
+                  Please select at least one page to remove
+                </p>
+              </div>
             )}
           </div>
         </div>

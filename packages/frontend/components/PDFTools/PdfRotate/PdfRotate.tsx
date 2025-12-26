@@ -7,6 +7,7 @@ import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 import GlassButton from "@/components/Layouts/GlassButton";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
+import { ErrorSvg } from "@/components/Svg/CommonSvg";
 
 const PdfRotate = () => {
   const config = PDF_TOOL_CONFIGS["pdf-rotate"];
@@ -26,6 +27,10 @@ const PdfRotate = () => {
   // Derived state
   const canAddMore = files.length < config.maxFiles;
 
+  const hasAnyRotation = files.some(
+    (file) => file.settings.rotations && !file.settings.rotations.endsWith(":0")
+  );
+
   return (
     <div className="w-full md:mt-[1vw] mt-[1vh]">
       {/* ROTATION PRESET SELECTOR */}
@@ -42,7 +47,6 @@ const PdfRotate = () => {
 
       {files.length > 0 && (
         <div className="md:mt-[1vw] mt-[1vh] fade-in ">
-
           <div className="space-y-2">
             {files.map((file) => (
               <PdfRotateFileItem
@@ -59,10 +63,21 @@ const PdfRotate = () => {
           <GlassButton
             loading={rotating}
             primaryColor={config.primaryColor}
+            disabled={!hasAnyRotation || rotating}
             onClick={rotateAllFiles}
           >
             {rotating ? "Rotating PDF..." : "Rotate PDF"}
           </GlassButton>
+
+          {!hasAnyRotation && (
+            <div className="mt-2 p-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
+              <p className="text-sm text-amber-800 dark:text-amber-200 flex items-center">
+                <ErrorSvg className="inline w-5 h-5 mr-1" />
+                Please select a rotation (90°, 180°, or 270°) for at least one
+                page.
+              </p>
+            </div>
+          )}
         </div>
       )}
 

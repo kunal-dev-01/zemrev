@@ -1,13 +1,17 @@
 import { useState, useEffect, useCallback } from "react";
 import { PdfRemoveViewer } from "./PdfRemoveViewer";
-import { ErrorSvg } from "@/components/Svg/CommonSvg";
 import type {
   PdfProcessedFile,
   PdfToolConfig,
   PdfFileSettings,
 } from "@/services/pdfService/types";
 import { InputField } from "@/components/Layouts/InputField";
-import { FileInfo, RemoveButton, ToolIconBadge } from "@/components/Shared/FileUI";
+import {
+  FileError,
+  FileInfo,
+  RemoveButton,
+  ToolIconBadge,
+} from "@/components/Shared/FileUI";
 
 interface PdfRemovePagesFileItemProps {
   file: PdfProcessedFile;
@@ -16,13 +20,6 @@ interface PdfRemovePagesFileItemProps {
   removeFile: (id: string) => void;
   isDark: boolean;
 }
-
-const QUICK_PRESETS = [
-  { label: "First Page", value: "1" },
-  { label: "Pages 2-5", value: "2-5" },
-  { label: "Odd Pages", value: "1,3,5,7,9" },
-  { label: "Even Pages", value: "2,4,6,8,10" },
-];
 
 const FORMAT_EXAMPLES = [
   { label: "Single pages", example: "1,3,5" },
@@ -37,7 +34,9 @@ export const PdfRemovePagesFileItem = ({
   removeFile,
   isDark,
 }: PdfRemovePagesFileItemProps) => {
-  const [pageRange, setPageRange] = useState(file.settings.pages_to_remove || "");
+  const [pageRange, setPageRange] = useState(
+    file.settings.pages_to_remove || ""
+  );
   const [selectedPages, setSelectedPages] = useState<number[]>([]);
 
   // Parse page range helper
@@ -56,7 +55,9 @@ export const PdfRemovePagesFileItem = ({
           if (!trimmed) continue;
 
           if (trimmed.includes("-")) {
-            const [start, end] = trimmed.split("-").map((s) => parseInt(s.trim()));
+            const [start, end] = trimmed
+              .split("-")
+              .map((s) => parseInt(s.trim()));
             if (isNaN(start) || isNaN(end) || start > end) {
               return {
                 pages: [],
@@ -121,11 +122,6 @@ export const PdfRemovePagesFileItem = ({
     });
   }, []);
 
-  // Apply quick preset
-  const applyPreset = (preset: string) => {
-    setPageRange(preset);
-  };
-
   const hasError = file.status === "error" && file.error;
   const showSelectedPages = selectedPages.length > 0;
   const displayedPages = selectedPages.slice(0, 20);
@@ -165,25 +161,6 @@ export const PdfRemovePagesFileItem = ({
             />
           </div>
 
-          {/* Quick Presets */}
-          <div>
-            <label className="text-xs uppercase font-bold text-zinc-500 mb-2 block">
-              Quick Presets
-            </label>
-            <div className="grid grid-cols-2 gap-2">
-              {QUICK_PRESETS.map(({ label, value }) => (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => applyPreset(value)}
-                  className="px-3 py-2 text-sm bg-transparent border border-zinc-200 dark:border-zinc-800 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
-
           {/* Help Text */}
           <div className="bg-slate-50 dark:bg-slate-900/20 border border-slate-200 dark:border-slate-800 rounded-xl p-2">
             <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100 mb-2">
@@ -192,7 +169,10 @@ export const PdfRemovePagesFileItem = ({
             <ul className="space-y-1 text-xs text-slate-800 dark:text-slate-200">
               {FORMAT_EXAMPLES.map(({ label, example }) => (
                 <li key={example}>
-                  • {label}: <code className="bg-slate-100 dark:bg-slate-900/40 px-1 py-0.5 rounded">{example}</code>
+                  • {label}:{" "}
+                  <code className="bg-slate-100 dark:bg-slate-900/40 px-1 py-0.5 rounded">
+                    {example}
+                  </code>
                 </li>
               ))}
             </ul>
@@ -223,14 +203,7 @@ export const PdfRemovePagesFileItem = ({
           )}
 
           {/* Error State */}
-          {hasError && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-3">
-              <p className="text-sm text-red-800 dark:text-red-200 flex items-center">
-                <ErrorSvg className="w-4 h-4 inline-block mr-1" />
-                {file.error}
-              </p>
-            </div>
-          )}
+          {hasError && <FileError error={file.error} className="mt-1" />}
         </div>
 
         {/* Right: PDF Preview */}
