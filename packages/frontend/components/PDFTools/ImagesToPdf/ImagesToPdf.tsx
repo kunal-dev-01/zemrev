@@ -11,6 +11,7 @@ import type {
 } from "@/services/pdfService/types";
 import {
   ClearAllButton,
+  FileError,
   FileInfo,
   FilesStatusSummary,
   RemoveButton,
@@ -69,6 +70,8 @@ const ImageFileItem = ({
         {/* Remove Button */}
         <RemoveButton onClick={() => removeFile(file.id)} />
       </div>
+
+      {file.error && <FileError error={file.error} className="mt-3" />}
     </div>
   );
 };

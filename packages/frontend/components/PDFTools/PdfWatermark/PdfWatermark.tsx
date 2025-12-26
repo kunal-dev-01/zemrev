@@ -8,6 +8,7 @@ import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 import GlassButton from "@/components/Layouts/GlassButton";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
+import { FileError } from "@/components/Shared/FileUI";
 
 const PdfWatermark = () => {
   const config = PDF_TOOL_CONFIGS["pdf-watermark"];
@@ -49,16 +50,22 @@ const PdfWatermark = () => {
         <div className="md:mt-[1vw] mt-[1vh] fade-in">
           <div className="space-y-4">
             {files.map((file) => (
-              <PdfWatermarkFileItem
-                key={file.id}
-                file={file}
-                config={config}
-                addWatermark={addWatermarkLayer}
-                updateWatermark={updateWatermarkLayer}
-                deleteWatermark={deleteWatermarkLayer}
-                removeFile={removeFile}
-                isDark={isDark}
-              />
+              <div key={file.id}>
+                <PdfWatermarkFileItem
+                  key={file.id}
+                  file={file}
+                  config={config}
+                  addWatermark={addWatermarkLayer}
+                  updateWatermark={updateWatermarkLayer}
+                  deleteWatermark={deleteWatermarkLayer}
+                  removeFile={removeFile}
+                  isDark={isDark}
+                />
+
+                {file.status === "error" && file.error && (
+                  <FileError error={file.error} className="mt-1" />
+                )}
+              </div>
             ))}
           </div>
 

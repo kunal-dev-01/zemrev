@@ -134,15 +134,11 @@ export const useImageCropper = () => {
         setCropping(false);
         return { success: true, blob, name: outputName };
       } catch (err) {
-        const msg = extractApiErrorMessage(err);
+        const errorMsg = extractApiErrorMessage(err);
 
-        const finalMsg = msg.includes("allows")
-          ? msg
-          : "Too many requests. Please try again in a few minutes";
-
-        setError(finalMsg);
+        setError(errorMsg);
         setCropping(false);
-        return { success: false, error: finalMsg };
+        return { success: false, error: errorMsg };
       }
     },
     [file, pendingId, imageUrl, cropImage]

@@ -127,6 +127,7 @@ export const PdfSignFileItem = ({
     };
 
     addSignature(file.id, newSignature);
+    setSelectedSignatureId(newSignature.id);
 
     if (activeTab === "image") {
       setImageFile(null);

@@ -7,6 +7,7 @@ import {
 } from "@/components/Svg/CommonSvg";
 import { ToggleSwitch } from "@/components/Shared/ToggleSwitch";
 import {
+  FileError,
   FileInfo,
   RemoveButton,
   ToolIconBadge,
@@ -72,6 +73,10 @@ export const PdfFileItem = ({
           color={config.primaryColor}
         />
       </div>
+
+      {file.error && (
+        <FileError error={file.error} className="mt-3" />
+      )}
     </div>
   );
 };
@@ -190,7 +195,7 @@ export const ExtractedTextDisplay = ({
         </div>
       </div>
 
-      <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-xl p-4 border border-zinc-200 dark:border-zinc-800 max-h-[400px] overflow-y-auto">
+      <div className="bg-zinc-50 dark:bg-zinc-900/50 rounded-xl p-4 border border-zinc-200 dark:border-zinc-800 max-h-100 overflow-y-auto">
         <pre className="text-sm text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap font-mono leading-relaxed">
           {data.text}
         </pre>

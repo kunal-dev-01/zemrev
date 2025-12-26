@@ -5,7 +5,11 @@ import { CancelSvg, ErrorSvg } from "@/components/Svg/CommonSvg";
 import GlassButton from "@/components/Layouts/GlassButton";
 import { usePdfMerge } from "@/hooks/pdfHooks/usePdfMerge.hook";
 import { PDFToImageSVg } from "@/components/Svg/PdfSvg";
-import { ClearAllButton, FileInfo } from "@/components/Shared/FileUI";
+import {
+  ClearAllButton,
+  FileError,
+  FileInfo,
+} from "@/components/Shared/FileUI";
 
 const PdfMerge = () => {
   const config = PDF_TOOL_CONFIGS["pdf-merge"];
@@ -114,7 +118,6 @@ const PdfMerge = () => {
               </p>
             </div>
           )}
-          
         </div>
       )}
 

@@ -8,7 +8,7 @@ import type {
   PdfFileSettings,
   PdfToolConfig,
 } from "@/services/pdfService/types";
-import { FileInfo, RemoveButton } from "@/components/Shared/FileUI";
+import { FileError, FileInfo, RemoveButton } from "@/components/Shared/FileUI";
 import { InputField } from "@/components/Layouts/InputField";
 
 // ============================================================================
@@ -236,12 +236,14 @@ export const PdfCropFileItem = ({
               </div>
             </div>
           </div>
+
+          {file.error && <FileError error={file.error} className="mt-3" />}
         </div>
 
         {/* ------------------------------------------------------------------- */}
         {/* RIGHT COLUMN - PREVIEW */}
         {/* ------------------------------------------------------------------- */}
-        <div className="bg-zinc-50 dark:bg-zinc-900/30 rounded-xl p-1 border border-zinc-100 dark:border-zinc-800/50 min-h-[300px] lg:min-h-0">
+        <div className="bg-zinc-50 dark:bg-zinc-900/30 rounded-xl p-1 border border-zinc-100 dark:border-zinc-800/50 min-h-75 lg:min-h-0">
           {file.originalFile && (
             <PdfCropViewer
               file={file.originalFile}

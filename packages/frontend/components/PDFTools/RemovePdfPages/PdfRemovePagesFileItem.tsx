@@ -225,7 +225,7 @@ export const PdfRemovePagesFileItem = ({
           {/* Error State */}
           {hasError && (
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-3">
-              <p className="text-sm text-red-800 dark:text-red-200">
+              <p className="text-sm text-red-800 dark:text-red-200 flex items-center">
                 <ErrorSvg className="w-4 h-4 inline-block mr-1" />
                 {file.error}
               </p>

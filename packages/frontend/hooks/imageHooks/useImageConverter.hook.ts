@@ -1,4 +1,4 @@
-// hooks/imageHooks/useImageConverter.hook.ts 
+// hooks/imageHooks/useImageConverter.hook.ts
 
 import { useState, useCallback, useEffect } from "react";
 import { useConvertImageMutation } from "@/services/imageService/image.api";
@@ -218,19 +218,15 @@ export const useImageConverter = () => {
 
         return { success: true, blob, name: outputName };
       } catch (error) {
-        const msg = extractApiErrorMessage(error);
-
-        const finalMsg = msg.includes("allows")
-          ? msg
-          : "Too many requests. Please try again in a few minutes";
+        const errorMsg = extractApiErrorMessage(error);
 
         setFiles((prev) =>
           prev.map((f) =>
-            f.id === file.id ? { ...f, status: "error", error: finalMsg } : f
+            f.id === file.id ? { ...f, status: "error", error: errorMsg } : f
           )
         );
 
-        return { success: false, error: finalMsg };
+        return { success: false, error: errorMsg };
       }
     },
     [convertImage]

@@ -1,7 +1,6 @@
 // ============================================================================
 // FILE: src/utils/errorExtract.utils.ts
-// PURPOSE: Extract error messages from API responses
-// COMMIT: feat: add error extractor for FastAPI backend
+// PURPOSE: Extract error messages from API responses (Rate Limit + Service Errors)
 // ============================================================================
 
 import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
@@ -16,6 +15,13 @@ interface FastAPIValidationError {
   type: string;
 }
 
+// Rate limit error from Nginx
+interface RateLimitError {
+  detail: string;
+  retry_after?: number;
+}
+
+// Service error from FastAPI
 interface FastAPIErrorResponse {
   detail?: string | FastAPIValidationError[];
   error?: string;
@@ -50,8 +56,29 @@ export const extractApiErrorMessage = (
 
     // HTTP errors with data
     if (fetchError.data) {
-      const errorData = fetchError.data as FastAPIErrorResponse;
+      const errorData = fetchError.data as FastAPIErrorResponse | RateLimitError;
 
+      // =====================================================
+      // RATE LIMIT ERROR (429) - NGINX
+      // =====================================================
+      if (fetchError.status === 429) {
+        const rateLimitData = errorData as RateLimitError;
+        
+        if (rateLimitData.detail) {
+          // Check if detail contains "allows X requests"
+          if (rateLimitData.detail.includes("allows")) {
+            return rateLimitData.detail;
+          }
+        }
+        
+        // Fallback for 429
+        return "Too many requests. Please try again in a few minutes.";
+      }
+
+      // =====================================================
+      // SERVICE ERRORS - FASTAPI
+      // =====================================================
+      
       // FastAPI detail (string)
       if (typeof errorData.detail === "string") {
         return errorData.detail;
@@ -63,8 +90,13 @@ export const extractApiErrorMessage = (
       }
 
       // Generic error/message fields
-      if (errorData.error) return errorData.error;
-      if (errorData.message) return errorData.message;
+      if ("error" in errorData && errorData.error) {
+        return errorData.error;
+      }
+      
+      if ("message" in errorData && errorData.message) {
+        return errorData.message;
+      }
     }
 
     // HTTP status codes
@@ -77,7 +109,7 @@ export const extractApiErrorMessage = (
         413: "File too large",
         415: "Unsupported file type",
         422: "Validation error",
-        429: "Too many requests",
+        429: "Too many requests. Please try again in a few minutes.",
         500: "Server error",
         502: "Bad gateway",
         503: "Service unavailable",
@@ -104,6 +136,27 @@ export const extractApiErrorMessage = (
 };
 
 // ============================================================================
+// EXTRACT RETRY TIME (FOR RATE LIMIT)
+// ============================================================================
+
+export const extractRetryAfter = (
+  error: FetchBaseQueryError | SerializedError | unknown
+): number | null => {
+  if (!error || !("status" in (error as FetchBaseQueryError))) {
+    return null;
+  }
+
+  const fetchError = error as FetchBaseQueryError;
+
+  if (fetchError.status === 429 && fetchError.data) {
+    const rateLimitData = fetchError.data as RateLimitError;
+    return rateLimitData.retry_after || null;
+  }
+
+  return null;
+};
+
+// ============================================================================
 // EXTRACT GENERAL ERROR MESSAGE
 // ============================================================================
 
@@ -122,11 +175,13 @@ export const extractErrorMessage = (error: unknown): string => {
       const data = err.data as Record<string, unknown>;
       if (typeof data.message === "string") return data.message;
       if (typeof data.error === "string") return data.error;
+      if (typeof data.detail === "string") return data.detail;
     }
 
     // Check direct properties
     if (typeof err.message === "string") return err.message;
     if (typeof err.error === "string") return err.error;
+    if (typeof err.detail === "string") return err.detail;
   }
 
   return "An error occurred";

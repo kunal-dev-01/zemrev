@@ -11,6 +11,7 @@ import type {
   PdfToolConfig,
 } from "@/services/pdfService/types";
 import {
+  FileError,
   FileInfo,
   FilesStatusSummary,
   RemoveButton,
@@ -202,6 +203,10 @@ const PdfFileItem = ({
         {/* Remove Button */}
         <RemoveButton onClick={() => removeFile(file.id)} />
       </div>
+
+      {file.error && (
+        <FileError error={file.error} className="mt-3" />
+      )}
     </div>
   );
 };

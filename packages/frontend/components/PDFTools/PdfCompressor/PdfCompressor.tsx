@@ -7,6 +7,7 @@ import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 import GlassButton from "@/components/Layouts/GlassButton";
 import {
   ClearAllButton,
+  FileError,
   FileInfo,
   FilesStatusSummary,
   RemoveButton,
@@ -155,6 +156,8 @@ const PdfFileItem = ({
         {/* Remove Button */}
         <RemoveButton onClick={() => removeFile(file.id)} />
       </div>
+
+      {file.error && <FileError error={file.error} className="mt-3" />}
     </div>
   );
 };

@@ -8,7 +8,10 @@ import { useCompressImageMutation } from "@/services/imageService/image.api";
 import { sessionStorageUtils } from "@/utils/sessionStorage.utils";
 import { pendingStorage } from "@/utils/pendingStorage.utils";
 import { extractApiErrorMessage } from "@/utils/errorExtract.utils";
-import type { FileSettings, ProcessedFile } from "@/services/imageService/types";
+import type {
+  FileSettings,
+  ProcessedFile,
+} from "@/services/imageService/types";
 import { useCloudPicker } from "../appHooks/usePdfCloudPicker.hook";
 
 export const useImageCompressor = () => {
@@ -194,19 +197,15 @@ export const useImageCompressor = () => {
 
         return { success: true, blob, name: outputName };
       } catch (error) {
-        const msg = extractApiErrorMessage(error);
-
-        const finalMsg = msg.includes("allows")
-          ? msg
-          : "Too many requests. Please try again in a few minutes";
+        const errorMsg = extractApiErrorMessage(error);
 
         setFiles((prev) =>
           prev.map((f) =>
-            f.id === file.id ? { ...f, status: "error", error: finalMsg } : f
+            f.id === file.id ? { ...f, status: "error", error: errorMsg } : f
           )
         );
 
-        return { success: false, error: finalMsg };
+        return { success: false, error: errorMsg };
       }
     },
     [compressImage]

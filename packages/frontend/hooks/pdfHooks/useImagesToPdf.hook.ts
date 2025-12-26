@@ -137,17 +137,11 @@ export const useImagesToPdf = () => {
     } catch (error) {
       const msg = extractApiErrorMessage(error);
 
-      const finalMsg = msg.includes("allows")
-        ? msg
-        : "Too many requests. Please try again in a few minutes";
-
-      console.log("Convert failed:", finalMsg);
-
       setFiles((prev) =>
         prev.map((f) => ({
           ...f,
           status: "error",
-          error: finalMsg,
+          error: msg,
         }))
       );
     } finally {

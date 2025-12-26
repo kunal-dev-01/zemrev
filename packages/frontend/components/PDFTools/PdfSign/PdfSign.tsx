@@ -8,6 +8,7 @@ import { useDarkMode } from "@/hooks/appHooks/useDarkMode";
 import GlassButton from "@/components/Layouts/GlassButton";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
+import { FileError } from "@/components/Shared/FileUI";
 
 const PdfSign = () => {
   const config = PDF_TOOL_CONFIGS["pdf-sign"];
@@ -33,7 +34,9 @@ const PdfSign = () => {
 
   const canSign = totalSignatures > 0;
   const isMaxFilesReached = files.length >= config.maxFiles;
-  const signatureText = `${totalSignatures} Signature${totalSignatures !== 1 ? "s" : ""}`;
+  const signatureText = `${totalSignatures} Signature${
+    totalSignatures !== 1 ? "s" : ""
+  }`;
 
   return (
     <div className="w-full md:mt-[1vw] mt-[1vh]">
@@ -55,16 +58,22 @@ const PdfSign = () => {
           {/* File Items */}
           <div className="space-y-4">
             {files.map((file) => (
-              <PdfSignFileItem
-                key={file.id}
-                file={file}
-                config={config}
-                addSignature={addSignature}
-                updateSignature={updateSignature}
-                deleteSignature={deleteSignature}
-                removeFile={removeFile}
-                isDark={isDark}
-              />
+              <div key={file.id}>
+                <PdfSignFileItem
+                  file={file}
+                  config={config}
+                  addSignature={addSignature}
+                  updateSignature={updateSignature}
+                  deleteSignature={deleteSignature}
+                  removeFile={removeFile}
+                  isDark={isDark}
+                />
+
+                {/* ✅ SHOW ERROR FOR THIS SPECIFIC FILE */}
+                {file.status === "error" && file.error && (
+                  <FileError error={file.error} className="mt-1" />
+                )}
+              </div>
             ))}
           </div>
 
@@ -76,7 +85,9 @@ const PdfSign = () => {
                 primaryColor={config.primaryColor}
                 onClick={signAllFiles}
               >
-                {signing ? "Adding Signatures..." : `Add ${signatureText} to PDF`}
+                {signing
+                  ? "Adding Signatures..."
+                  : `Add ${signatureText} to PDF`}
               </GlassButton>
             ) : (
               <div className="p-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">

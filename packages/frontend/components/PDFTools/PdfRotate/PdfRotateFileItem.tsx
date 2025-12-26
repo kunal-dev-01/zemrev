@@ -5,7 +5,12 @@ import type {
   PdfFileSettings,
   PdfToolConfig,
 } from "@/services/pdfService/types";
-import { FileInfo, RemoveButton, ToolIconBadge } from "@/components/Shared/FileUI";
+import {
+  FileError,
+  FileInfo,
+  RemoveButton,
+  ToolIconBadge,
+} from "@/components/Shared/FileUI";
 import { InputField } from "@/components/Layouts/InputField";
 
 interface PdfRotateFileItemProps {
@@ -38,7 +43,9 @@ export const PdfRotateFileItem = ({
 }: PdfRotateFileItemProps) => {
   const [rotationMode, setRotationMode] = useState<"all" | "custom">("all");
   const [customPages, setCustomPages] = useState("1,2,3");
-  const [selectedAngle, setSelectedAngle] = useState(() => getInitialAngle(file.settings.rotations));
+  const [selectedAngle, setSelectedAngle] = useState(() =>
+    getInitialAngle(file.settings.rotations)
+  );
 
   // Sync angle when file settings change externally
   useEffect(() => {
@@ -49,7 +56,8 @@ export const PdfRotateFileItem = ({
   const handleAngleChange = useCallback(
     (angle: number) => {
       setSelectedAngle(angle);
-      const rotationValue = rotationMode === "all" ? `all:${angle}` : `${customPages}:${angle}`;
+      const rotationValue =
+        rotationMode === "all" ? `all:${angle}` : `${customPages}:${angle}`;
       updateSettings(file.id, { rotations: rotationValue });
     },
     [rotationMode, customPages, file.id, updateSettings]
@@ -59,7 +67,10 @@ export const PdfRotateFileItem = ({
   const handleModeChange = useCallback(
     (mode: "all" | "custom") => {
       setRotationMode(mode);
-      const rotationValue = mode === "all" ? `all:${selectedAngle}` : `${customPages}:${selectedAngle}`;
+      const rotationValue =
+        mode === "all"
+          ? `all:${selectedAngle}`
+          : `${customPages}:${selectedAngle}`;
       updateSettings(file.id, { rotations: rotationValue });
     },
     [selectedAngle, customPages, file.id, updateSettings]
@@ -152,7 +163,9 @@ export const PdfRotateFileItem = ({
                   }`}
                 >
                   <span className="text-2xl mb-1">{rot.icon}</span>
-                  <span className="text-[10px] sm:text-xs whitespace-nowrap">{rot.label}</span>
+                  <span className="text-[10px] sm:text-xs whitespace-nowrap">
+                    {rot.label}
+                  </span>
                 </button>
               ))}
             </div>
@@ -167,6 +180,8 @@ export const PdfRotateFileItem = ({
               {file.settings.rotations || "all:0"}
             </div>
           </div>
+
+          {file.error && <FileError error={file.error} className="mt-3" />}
         </div>
 
         {/* Right: Preview (Top on mobile) */}

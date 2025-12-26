@@ -19,7 +19,7 @@ export const useWatermarkPdf = () => {
   const [processing, setProcessing] = useState(false);
 
   // We use signPdf mutation because it supports multiple layers/rotation
-  const [applyWatermark] = useSignPdfMutation(); 
+  const [applyWatermark] = useSignPdfMutation();
   const { pickFromGoogleDrive, pickFromDropbox } = useCloudPicker();
 
   const TOOL_TYPE = "add-watermark";
@@ -38,7 +38,7 @@ export const useWatermarkPdf = () => {
             name: file.name,
             size: file.size,
             type: file.type,
-            settings: { signatures: [] }, 
+            settings: { signatures: [] },
             status: "pending" as const,
           }))
         );
@@ -157,23 +157,26 @@ export const useWatermarkPdf = () => {
     []
   );
 
-  const deleteWatermarkLayer = useCallback((fileId: string, watermarkId: string) => {
-    setFiles((prev) =>
-      prev.map((f) =>
-        f.id === fileId
-          ? {
-              ...f,
-              settings: {
-                ...f.settings,
-                signatures: (f.settings.signatures || []).filter(
-                  (sig) => sig.id !== watermarkId
-                ),
-              },
-            }
-          : f
-      )
-    );
-  }, []);
+  const deleteWatermarkLayer = useCallback(
+    (fileId: string, watermarkId: string) => {
+      setFiles((prev) =>
+        prev.map((f) =>
+          f.id === fileId
+            ? {
+                ...f,
+                settings: {
+                  ...f.settings,
+                  signatures: (f.settings.signatures || []).filter(
+                    (sig) => sig.id !== watermarkId
+                  ),
+                },
+              }
+            : f
+        )
+      );
+    },
+    []
+  );
 
   const removeFile = useCallback(async (id: string) => {
     await pdfPendingStorage.delete(TOOL_TYPE, id);
@@ -187,11 +190,14 @@ export const useWatermarkPdf = () => {
     async (file: PdfProcessedFile) => {
       try {
         setFiles((prev) =>
-          prev.map((f) => (f.id === file.id ? { ...f, status: "processing" } : f))
+          prev.map((f) =>
+            f.id === file.id ? { ...f, status: "processing" } : f
+          )
         );
 
         const layers = file.settings.signatures || [];
-        if (layers.length === 0) throw new Error("Please add at least one watermark.");
+        if (layers.length === 0)
+          throw new Error("Please add at least one watermark.");
 
         const formData = new FormData();
         formData.append("file", file.originalFile as File);
@@ -221,7 +227,7 @@ export const useWatermarkPdf = () => {
 
         const blob = await applyWatermark(formData).unwrap();
         const outputName = `watermarked_${file.name}`;
-        
+
         // Saving to add-watermark session storage
         await pdfSessionStorage.saveFile(blob, outputName, TOOL_TYPE);
 
@@ -232,17 +238,13 @@ export const useWatermarkPdf = () => {
       } catch (error) {
         const msg = extractApiErrorMessage(error);
 
-        const finalMsg = msg.includes("allows")
-          ? msg
-          : "Too many requests. Please try again in a few minutes";
-
         setFiles((prev) =>
           prev.map((f) =>
-            f.id === file.id ? { ...f, status: "error", error: finalMsg } : f
+            f.id === file.id ? { ...f, status: "error", error: msg } : f
           )
         );
 
-        return { success: false, error: finalMsg };
+        return { success: false, error: msg };
       }
     },
     [applyWatermark]

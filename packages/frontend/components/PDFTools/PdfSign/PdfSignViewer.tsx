@@ -108,7 +108,7 @@ export const PdfSignViewer = ({
       {/* PDF Container */}
       <div
         ref={containerRef}
-        className="relative bg-zinc-100 dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden flex justify-center py-4 min-h-[400px]"
+        className="relative bg-zinc-100 dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden flex justify-center py-4 min-h-100"
         onClick={handleBackgroundClick}
       >
         <Document

@@ -139,14 +139,9 @@ export const useImageMetadata = () => {
       return { success: true, data: result };
     } catch (err) {
       const msg = extractApiErrorMessage(err);
-
-      const finalMsg = msg.includes("allows")
-        ? msg
-        : "Too many requests. Please try again in a few minutes";
-
-      setError(finalMsg);
+      setError(msg);
       setExtracting(false);
-      return { success: false, error: finalMsg };
+      return { success: false, error: msg };
     }
   }, [file, fileId, extractMetadata]);
 

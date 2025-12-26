@@ -156,17 +156,13 @@ export const usePdfRotate = () => {
       } catch (error) {
         const msg = extractApiErrorMessage(error);
 
-        const finalMsg = msg.includes("allows")
-          ? msg
-          : "Too many requests. Please try again in a few minutes";
-
         setFiles((prev) =>
           prev.map((f) =>
-            f.id === file.id ? { ...f, status: "error", error: finalMsg } : f
+            f.id === file.id ? { ...f, status: "error", error: msg } : f
           )
         );
 
-        return { success: false, error: finalMsg };
+        return { success: false, error: msg };
       }
     },
     [rotatePdf]
