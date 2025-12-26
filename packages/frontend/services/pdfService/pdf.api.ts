@@ -77,7 +77,7 @@ export const pdfApi = baseApi.injectEndpoints({
         files.forEach((file) => formData.append("files", file));
 
         return {
-          url: "/pdf/merge",
+          url: "/pypdf/merge",
           method: "POST",
           body: formData,
           ...blobResponse,
@@ -87,7 +87,7 @@ export const pdfApi = baseApi.injectEndpoints({
 
     splitPdf: builder.mutation<Blob, { file: File; options: SplitPdfRequest }>({
       query: ({ file, options }) => ({
-        url: "/pdf/split",
+        url: "/pypdf/split",
         method: "POST",
         body: buildFormData(file, options),
         ...blobResponse,
@@ -96,7 +96,7 @@ export const pdfApi = baseApi.injectEndpoints({
 
     rotatePdf: builder.mutation<Blob, { file: File; options: RotatePdfRequest }>({
       query: ({ file, options }) => ({
-        url: "/pdf/rotate",
+        url: "/pypdf/rotate",
         method: "POST",
         body: buildFormData(file, options),
         ...blobResponse,
@@ -105,7 +105,7 @@ export const pdfApi = baseApi.injectEndpoints({
 
     encryptPdf: builder.mutation<Blob, { file: File; options: EncryptPdfRequest }>({
       query: ({ file, options }) => ({
-        url: "/pdf/encrypt",
+        url: "/pypdf/encrypt",
         method: "POST",
         body: buildFormData(file, options),
         ...blobResponse,
@@ -114,7 +114,7 @@ export const pdfApi = baseApi.injectEndpoints({
 
     decryptPdf: builder.mutation<Blob, { file: File; options: DecryptPdfRequest }>({
       query: ({ file, options }) => ({
-        url: "/pdf/decrypt",
+        url: "/pypdf/decrypt",
         method: "POST",
         body: buildFormData(file, options),
         ...blobResponse,
